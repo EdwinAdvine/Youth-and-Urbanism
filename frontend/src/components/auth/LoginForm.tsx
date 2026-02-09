@@ -146,10 +146,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
       <div className="mt-6 p-4 bg-[#22272B] rounded-lg border border-[#2A3035]">
         <p className="text-xs text-white/60 mb-2">Test accounts for demo:</p>
         <div className="space-y-1 text-xs text-white/80">
-          <p><strong>Student:</strong> student@urbanhomeschool.com / password123</p>
-          <p><strong>Parent:</strong> parent@urbanhomeschool.com / password123</p>
-          <p><strong>Instructor:</strong> instructor@urbanhomeschool.com / password123</p>
-          <p><strong>Admin:</strong> admin@urbanhomeschool.com / password123</p>
+          <p><strong>Student:</strong> student@urbanhomeschool.com / Student123!</p>
+          <p><strong>Parent:</strong> parent@urbanhomeschool.com / Parent123!</p>
+          <p><strong>Instructor:</strong> instructor@urbanhomeschool.com / Instructor123!</p>
+          <p><strong>Admin:</strong> admin@urbanhomeschool.com / Admin123!</p>
+        </div>
+        <div className="mt-2 text-xs text-green-400">
+          ✅ All passwords meet enhanced security requirements
         </div>
       </div>
     </form>

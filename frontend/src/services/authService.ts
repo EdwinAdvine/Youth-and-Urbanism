@@ -1,8 +1,14 @@
+// Authentication Types
 export interface User {
   id: string;
-  email: string;
   name: string;
-  role: 'student' | 'parent' | 'instructor' | 'partner' | 'admin';
+  email: string;
+  role: 'student' | 'parent' | 'instructor' | 'admin' | 'partner';
+  avatar?: string;
+  createdAt: Date;
+  lastLogin: Date;
+  emailVerified: boolean;
+  isActive: boolean;
   gradeLevel?: string;
   numberOfChildren?: string;
   subjects?: string;
@@ -12,182 +18,187 @@ export interface User {
 export interface LoginResponse {
   success: boolean;
   user?: User;
-  error?: string;
+  token?: string;
+  message?: string;
 }
 
-export interface SignupResponse {
-  success: boolean;
-  user?: User;
-  error?: string;
-}
-
-export interface ResetPasswordResponse {
-  success: boolean;
-  error?: string;
-}
-
-// Mock user database
-const mockUsers: User[] = [
-  {
-    id: '1',
-    email: 'student@urbanhomeschool.com',
-    name: 'Student User',
-    role: 'student',
-    gradeLevel: 'Grade 4'
-  },
-  {
-    id: '2',
-    email: 'parent@urbanhomeschool.com',
-    name: 'Parent User',
-    role: 'parent',
-    numberOfChildren: '2'
-  },
-  {
-    id: '3',
-    email: 'instructor@urbanhomeschool.com',
-    name: 'Instructor User',
-    role: 'instructor',
-    subjects: 'Mathematics, Science'
-  },
-  {
-    id: '4',
-    email: 'admin@urbanhomeschool.com',
-    name: 'Admin User',
-    role: 'admin',
-    position: 'School Administrator'
-  },
-  {
-    id: '5',
-    email: 'partner@urbanhomeschool.com',
-    name: 'Partner User',
-    role: 'partner',
-    position: 'Community Partner'
-  }
-];
-
-// Mock signup users storage
-let signupUsers: User[] = [];
-
-export const login = async (
-  email: string, 
-  password: string, 
-  rememberMe: boolean
-): Promise<LoginResponse> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  // Check mock users
-  const user = mockUsers.find(u => u.email === email);
-  
-  if (user && password === 'password123') {
-    return {
-      success: true,
-      user: { ...user }
-    };
-  }
-
-  // Check signup users
-  const signupUser = signupUsers.find(u => u.email === email);
-  if (signupUser && password === signupUser.email.split('@')[0] + '123') {
-    return {
-      success: true,
-      user: { ...signupUser }
-    };
-  }
-
-  return {
-    success: false,
-    error: 'Invalid email or password'
-  };
-};
-
-export const signup = async (userData: {
+export interface RegisterData {
   name: string;
   email: string;
   password: string;
-  role: 'student' | 'parent' | 'instructor' | 'partner';
-  gradeLevel?: string;
-  numberOfChildren?: string;
-  subjects?: string;
-  position?: string;
-}): Promise<SignupResponse> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
-
-  // Validation
-  if (!userData.name || !userData.email || !userData.password) {
-    return {
-      success: false,
-      error: 'All required fields must be filled'
-    };
-  }
-
-  if (userData.password.length < 8) {
-    return {
-      success: false,
-      error: 'Password must be at least 8 characters long'
-    };
-  }
-
-  // Check if email already exists in mock users
-  const existingMockUser = mockUsers.find(u => u.email === userData.email);
-  if (existingMockUser) {
-    return {
-      success: false,
-      error: 'An account with this email already exists'
-    };
-  }
-
-  // Check if email already exists in signup users
-  const existingSignupUser = signupUsers.find(u => u.email === userData.email);
-  if (existingSignupUser) {
-    return {
-      success: false,
-      error: 'An account with this email already exists'
-    };
-  }
-
-  // Create new user
-  const newUser: User = {
-    id: Date.now().toString(),
-    name: userData.name,
-    email: userData.email,
-    role: userData.role,
-    gradeLevel: userData.gradeLevel,
-    numberOfChildren: userData.numberOfChildren,
-    subjects: userData.subjects,
-    position: userData.position
+  role: 'student' | 'parent' | 'instructor' | 'admin' | 'partner';
+  additionalData?: {
+    gradeLevel?: string;
+    numberOfChildren?: string;
+    subjects?: string;
+    position?: string;
   };
+}
 
-  signupUsers.push(newUser);
+// API base URL
+const API_BASE_URL = 'http://localhost:8000/api';
 
+// Helper function to get auth headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('authToken');
   return {
-    success: true,
-    user: newUser
+    'Authorization': token ? `Bearer ${token}` : '',
+    'Content-Type': 'application/json'
   };
 };
 
-export const resetPassword = async (email: string): Promise<ResetPasswordResponse> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  // Check if user exists
-  const user = mockUsers.find(u => u.email === email) || signupUsers.find(u => u.email === email);
-  
-  if (!user) {
-    return {
-      success: false,
-      error: 'No account found with this email address'
-    };
+// Helper function to handle API responses
+const handleResponse = async (response: Response) => {
+  if (!response.ok) {
+    // Handle CORS and network errors
+    if (response.status === 0) {
+      throw new Error('Network error: Unable to connect to server. Please check if the backend is running on http://localhost:8000');
+    }
+    
+    // Handle other HTTP errors
+    let errorMessage = 'Request failed';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.detail || errorData.message || `HTTP ${response.status}: ${response.statusText}`;
+    } catch {
+      // If response is not JSON, use status text
+      errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+    }
+    
+    throw new Error(errorMessage);
   }
-
-  // Mock success - in real implementation, this would send an email
-  return {
-    success: true
-  };
+  return response.json();
 };
 
-// Utility function to get user by ID
-export const getUserById = (id: string): User | undefined => {
-  return mockUsers.find(u => u.id === id) || signupUsers.find(u => u.id === id);
+export const authService = {
+  async login(email: string, password: string, rememberMe: boolean = false): Promise<LoginResponse> {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password, remember_me: rememberMe })
+    });
+
+    const data = await handleResponse(response);
+    
+    // Store token and user data
+    localStorage.setItem('authToken', data.access_token);
+    localStorage.setItem('user', JSON.stringify(data.user || {}));
+    
+    return {
+      success: true,
+      user: data.user,
+      token: data.access_token,
+      message: 'Login successful'
+    };
+  },
+
+  async register(data: RegisterData): Promise<LoginResponse> {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        role: data.role,
+        grade_level: data.additionalData?.gradeLevel,
+        number_of_children: data.additionalData?.numberOfChildren,
+        subjects: data.additionalData?.subjects,
+        position: data.additionalData?.position
+      })
+    });
+
+    const userData = await handleResponse(response);
+    
+    // Store token and user data
+    localStorage.setItem('authToken', userData.access_token);
+    localStorage.setItem('user', JSON.stringify(userData));
+    
+    return {
+      success: true,
+      user: userData,
+      token: userData.access_token,
+      message: 'Registration successful'
+    };
+  },
+
+  async logout(): Promise<void> {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+  },
+
+  getCurrentUser(): User | null {
+    const userData = localStorage.getItem('user');
+    if (!userData) return null;
+
+    try {
+      return JSON.parse(userData);
+    } catch {
+      return null;
+    }
+  },
+
+  getToken(): string | null {
+    return localStorage.getItem('authToken');
+  },
+
+  isAuthenticated(): boolean {
+    return !!localStorage.getItem('authToken');
+  },
+
+  async refreshToken(): Promise<string> {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('No authenticated user');
+    }
+
+    // For now, we'll just return the existing token
+    // In a real implementation, you'd call a refresh endpoint
+    return token;
+  },
+
+  async getProfile(): Promise<User> {
+    const response = await fetch(`${API_BASE_URL}/auth/me`, {
+      method: 'GET',
+      headers: getAuthHeaders()
+    });
+
+    const userData = await handleResponse(response);
+    localStorage.setItem('user', JSON.stringify(userData));
+    return userData;
+  },
+
+  async updateProfile(profileData: Partial<User>): Promise<User> {
+    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(profileData)
+    });
+
+    const userData = await handleResponse(response);
+    localStorage.setItem('user', JSON.stringify(userData));
+    return userData;
+  },
+
+  async resetPassword(email: string): Promise<{ success: boolean; message?: string; error?: string }> {
+    const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email })
+    });
+
+    try {
+      const data = await handleResponse(response);
+      return { success: true, message: data.message };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to send reset email';
+      return { success: false, error: errorMessage };
+    }
+  }
 };

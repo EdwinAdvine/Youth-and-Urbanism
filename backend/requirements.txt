@@ -5,9 +5,10 @@ uvicorn[standard]==0.24.0
 # Data validation and serialization
 pydantic==2.5.0
 
-# Database (optional - you can choose your preferred database)
-# For SQLite (built-in with Python):
-# No additional dependencies needed
+# Database dependencies
+# For MySQL:
+pymysql==1.1.0
+sqlalchemy==2.0.23
 
 # For PostgreSQL:
 # asyncpg==0.29.0
@@ -24,6 +25,10 @@ pydantic==2.5.0
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.6
+
+# Rate limiting and security
+slowapi==0.1.9
+limits==3.6.0
 
 # Environment variables
 python-dotenv==1.0.0

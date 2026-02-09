@@ -113,7 +113,7 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, onQuickAction }) => 
             value={inputValue}
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
-            placeholder={isRecording ? "Listening..." : "Ask Chirpy anything..."}
+            placeholder={isRecording ? "Listening..." : "Ask Bird anything..."}
             className="w-full text-2xl px-4 py-4 outline-none placeholder-gray-400"
             disabled={isRecording}
           />

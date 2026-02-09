@@ -76,33 +76,30 @@ const AppContent: React.FC = () => {
   const handleAuthSuccess = (user: any) => {
     setShowAuthModal(false);
     
-    // Add a small delay to ensure modal closes before redirecting
-    setTimeout(() => {
-      // Redirect based on user role
-      if (user) {
-        switch (user.role) {
-          case 'student':
-            navigate('/dashboard/student');
-            break;
-          case 'parent':
-            navigate('/dashboard/parent');
-            break;
-          case 'instructor':
-            navigate('/dashboard/instructor');
-            break;
-          case 'admin':
-            navigate('/dashboard/admin');
-            break;
-          case 'partner':
-            navigate('/dashboard/partner');
-            break;
-          default:
-            navigate('/');
-        }
-      } else {
-        navigate('/');
+    // Redirect immediately based on user role
+    if (user) {
+      switch (user.role) {
+        case 'student':
+          navigate('/dashboard/student');
+          break;
+        case 'parent':
+          navigate('/dashboard/parent');
+          break;
+        case 'instructor':
+          navigate('/dashboard/instructor');
+          break;
+        case 'admin':
+          navigate('/dashboard/admin');
+          break;
+        case 'partner':
+          navigate('/dashboard/partner');
+          break;
+        default:
+          navigate('/');
       }
-    }, 500); // 500ms delay for better UX
+    } else {
+      navigate('/');
+    }
   };
 
   const features: Feature[] = [
@@ -261,6 +258,15 @@ const AppContent: React.FC = () => {
               <a href="#" className="hidden md:flex items-center gap-2 px-3 py-2 text-white/80 hover:text-white transition-colors text-base rounded-lg hover:bg-white/5">
                 <i className="fas fa-search"></i>
               </a>
+              {!isAuthenticated && (
+                <button
+                  onClick={() => setShowAuthModal(true)}
+                  className="hidden md:flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-white/10 hover:bg-white/20 text-white font-semibold text-sm sm:text-base rounded-xl transition-colors border border-white/20 hover:border-white/40"
+                >
+                  <i className="fas fa-user"></i>
+                  <span>Log in / Sign Up</span>
+                </button>
+              )}
               <a href="#" 
                  className="bg-[#FF0000] hover:bg-[#E40000] text-white px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-semibold text-sm sm:text-base transition-colors min-w-[140px] text-center">
                 Start Learning

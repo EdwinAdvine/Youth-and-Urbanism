@@ -68,10 +68,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       
-      // Mock authentication service call
-      const response = await import('../services/authService').then(mod => 
-        mod.login(email, password, rememberMe)
-      );
+      // Import and use the authService object
+      const { authService } = await import('../services/authService');
+      const response = await authService.login(email, password, rememberMe);
 
       if (response.success && response.user) {
         setUser(response.user);
@@ -116,9 +115,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       
-      const response = await import('../services/authService').then(mod => 
-        mod.signup(userData)
-      );
+      const { authService } = await import('../services/authService');
+      const response = await authService.register({
+        name: userData.name,
+        email: userData.email,
+        password: userData.password,
+        role: userData.role,
+        additionalData: {
+          gradeLevel: userData.gradeLevel,
+          numberOfChildren: userData.numberOfChildren,
+          subjects: userData.subjects,
+          position: userData.position
+        }
+      });
 
       if (response.success && response.user) {
         setUser(response.user);
@@ -138,9 +147,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       
-      const response = await import('../services/authService').then(mod => 
-        mod.resetPassword(email)
-      );
+      const { authService } = await import('../services/authService');
+      const response = await authService.resetPassword(email);
 
       return response;
     } catch (error) {
