@@ -34,6 +34,10 @@ const AppContent: React.FC = () => {
   const [categoriesDropdownOpen, setCategoriesDropdownOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
+  const handleOpenAuthModal = () => {
+    setShowAuthModal(true);
+  };
+
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -196,7 +200,7 @@ const AppContent: React.FC = () => {
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 sm:h-20">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#FF0000] rounded-xl flex items-center justify-center text-white font-bold text-xl sm:text-2xl">N</div>
+              <div className="w-12 h-10 sm:w-14 sm:h-12 bg-[#FF0000] rounded-xl flex items-center justify-center text-white font-bold text-lg sm:text-xl">UHS</div>
               <span className="text-2xl sm:text-3xl font-bold text-white tracking-tight">Urban Home School</span>
             </div>
 
@@ -492,7 +496,7 @@ const AppContent: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 sm:gap-12">
             <div className="md:col-span-1">
               <div className="flex items-center gap-3 text-white mb-6">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#FF0000] rounded-xl flex items-center justify-center text-2xl">N</div>
+                <div className="w-12 h-10 sm:w-14 sm:h-12 bg-[#FF0000] rounded-xl flex items-center justify-center text-lg sm:text-xl">UHS</div>
                 <span className="text-xl sm:text-2xl font-semibold">The Bird AI</span>
               </div>
               <p className="text-sm text-white/80 mb-6">Light for Every Child's Future. Personalized AI tutoring for Kenyan children.</p>
@@ -590,7 +594,7 @@ const AppContent: React.FC = () => {
           {/* Protected Routes */}
           <Route path="/dashboard/student" element={
             <ProtectedRoute>
-              <DashboardStudent />
+              <DashboardStudent onOpenAuthModal={handleOpenAuthModal} />
             </ProtectedRoute>
           } />
           <Route path="/dashboard/parent" element={

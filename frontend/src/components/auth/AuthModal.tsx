@@ -44,8 +44,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess })
             {/* Header */}
             <div className="flex items-center justify-between p-4 sm:p-6 border-b border-[#22272B]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#FF0000] rounded-xl flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">U</span>
+                <div className="w-12 h-10 bg-[#FF0000] rounded-xl flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">UHS</span>
                 </div>
                 <div>
                   <h2 className="text-xl sm:text-2xl font-bold text-white">Urban Home School</h2>
@@ -113,8 +113,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess })
               >
                 <div className="bg-[#181C1F] rounded-2xl sm:rounded-3xl shadow-2xl shadow-black/50 border border-[#22272B] w-full max-w-md p-6">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-[#FF0000] rounded-xl flex items-center justify-center">
-                      <span className="text-white font-bold text-lg">U</span>
+                    <div className="w-12 h-10 bg-[#FF0000] rounded-xl flex items-center justify-center">
+                      <span className="text-white font-bold text-lg">UHS</span>
                     </div>
                     <div>
                       <h3 className="text-lg sm:text-xl font-bold text-white">Reset Password</h3>

@@ -8,9 +8,10 @@ import { initializeTheme } from '../../store';
 
 interface DashboardLayoutProps {
   children?: React.ReactNode;
+  onOpenAuthModal?: () => void;
 }
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onOpenAuthModal }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
@@ -40,8 +41,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0F1112] to-[#181C1F]">
-      {/* Sidebar */}
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        {/* Sidebar */}
+        <Sidebar 
+          isOpen={isSidebarOpen} 
+          onClose={() => setIsSidebarOpen(false)} 
+          onOpenAuthModal={onOpenAuthModal}
+        />
 
       {/* Main Content */}
       <div className="lg:pl-72">

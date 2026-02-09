@@ -25,7 +25,11 @@ interface Course {
   thumbnail?: string;
 }
 
-const DashboardStudent: React.FC = () => {
+interface DashboardStudentProps {
+  onOpenAuthModal?: () => void;
+}
+
+const DashboardStudent: React.FC<DashboardStudentProps> = ({ onOpenAuthModal }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { theme } = useThemeStore();
@@ -112,7 +116,7 @@ const DashboardStudent: React.FC = () => {
     .reduce((sum, t) => sum + t.amount, 0);
 
   return (
-    <DashboardLayout>
+    <DashboardLayout onOpenAuthModal={onOpenAuthModal}>
       <div className="space-y-6">
         {/* Welcome Widget */}
         <WelcomeWidget onAction={handleContinueLearning} />

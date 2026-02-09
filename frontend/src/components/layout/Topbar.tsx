@@ -133,7 +133,7 @@ const Topbar: React.FC<TopbarProps> = ({ onSidebarToggle, isSidebarOpen }) => {
 
             {/* Logo and Title */}
             <div className="hidden lg:flex items-center gap-4">
-              <div className="w-10 h-10 bg-[#FF0000] rounded-xl flex items-center justify-center text-white font-bold text-xl">U</div>
+              <div className="w-12 h-10 bg-[#FF0000] rounded-xl flex items-center justify-center text-white font-bold text-lg">UHS</div>
               <div>
                 <h1 className="text-lg font-bold text-white">Urban Home School</h1>
                 <p className="text-xs text-white/60">Student Control Panel</p>

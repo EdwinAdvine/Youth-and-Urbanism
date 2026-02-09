@@ -63,12 +63,14 @@ import {
   FolderLock,
   Folders,
   FolderSearch2,
-  X
+  X,
+  User
 } from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenAuthModal?: () => void;
 }
 
 interface NavItem {
@@ -79,9 +81,10 @@ interface NavItem {
   children?: NavItem[];
   badge?: string;
   disabled?: boolean;
+  onClick?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenAuthModal }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, isDarkMode } = useThemeStore();
@@ -365,6 +368,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       icon: null,
       children: [
         {
+          id: 'login-signup',
+          title: 'Log in/Sign Up',
+          icon: <User className="w-5 h-5" />,
+          path: '/login',
+          onClick: onOpenAuthModal
+        },
+        {
           id: 'notifications',
           title: 'Notifications',
           icon: <Bell className="w-5 h-5" />,
@@ -405,7 +415,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     return location.pathname === path;
   };
 
-  const handleNavigation = (path?: string) => {
+  const handleNavigation = (path?: string, onClick?: () => void) => {
+    if (onClick) {
+      onClick();
+      if (window.innerWidth < 768) {
+        onClose();
+      }
+      return;
+    }
+    
     if (path) {
       if (path === '/logout') {
         // Handle logout
@@ -440,7 +458,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         {/* Sidebar Header */}
         <div className="flex items-center justify-between p-6 border-b border-[#22272B]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#FF0000] rounded-xl flex items-center justify-center text-white font-bold text-xl">U</div>
+            <div className="w-12 h-10 bg-[#FF0000] rounded-xl flex items-center justify-center text-white font-bold text-lg">UHS</div>
             <div>
               <h1 className="text-lg font-bold text-white">Urban Home School</h1>
               <p className="text-xs text-white/60">Student Panel</p>
@@ -499,7 +517,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                           {item.children.map((child) => (
                             <button
                               key={child.id}
-                              onClick={() => handleNavigation(child.path)}
+                              onClick={() => handleNavigation(child.path, child.onClick)}
                               disabled={child.disabled}
                               className={`
                                 w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg
@@ -525,7 +543,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     </div>
                   ) : (
                     <button
-                      onClick={() => handleNavigation(item.path)}
+                      onClick={() => handleNavigation(item.path, item.onClick)}
                       disabled={item.disabled}
                       className={`
                         w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg
