@@ -1,296 +1,235 @@
-# Urban Home School - Student Control Panel
+# Urban Home School - Port Management Setup
 
-A comprehensive, modern student dashboard for the Urban Home School platform, built with React, TypeScript, Vite, and Tailwind CSS.
+This document explains how to ensure dedicated ports for your React app and FastAPI backend with proper Python virtual environment management.
 
-## 🚀 Features
+## 🎯 Overview
 
-### 🎯 Core Dashboard
-- **Welcome Widget**: Personalized greeting with learning streak, today's goals, and motivational quotes
-- **Stats Cards**: Real-time overview of active courses, assignments, certificates, and wallet balance
-- **Progress Tracking**: Visual progress bars and completion metrics
-- **Quick Actions**: One-click access to continue learning, submit assignments, and join community
+This setup ensures that:
+- **Frontend (React/Vite)** always runs on port **3000**
+- **Backend (FastAPI)** always runs on port **8000**
+- Python dependencies are isolated in a virtual environment
+- Port conflicts are automatically detected and resolved
+- Professional development workflow is established
 
-### 📚 Course Management
-- **Browse & Filter**: Search courses by title, instructor, or description
-- **Status Tracking**: View enrolled, in-progress, and completed courses
-- **Progress Visualization**: Interactive progress bars with color-coded status indicators
-- **Smart Sorting**: Sort by title, progress, or rating
+## 🚀 Quick Start
 
-### 📝 Assignment Management
-- **Assignment Overview**: Complete view of all assignments with status indicators
-- **Due Date Tracking**: Clear visual indicators for upcoming and overdue assignments
-- **Grade Management**: View submitted assignments and received grades
-- **Feedback System**: Access instructor feedback and comments
-- **Submission Interface**: Easy assignment submission with file upload support
+### 1. Setup Python Virtual Environment
+```bash
+# Run once to setup Python environment
+./scripts/setup-python-env.sh
+```
 
-### 🎨 Modern UI/UX
-- **Dark Theme**: Professional dark theme with red accents
-- **Responsive Design**: Fully responsive layout for all devices
-- **Interactive Elements**: Hover effects, transitions, and smooth animations
-- **Accessibility**: Keyboard navigation and screen reader support
+### 2. Start Development Environment
+```bash
+# Start both frontend and backend with port management
+./scripts/dev-start.sh
+```
 
-### 🔐 Authentication & Security
-- **Role-Based Access**: Different dashboards for students, parents, instructors, admins, and partners
-- **Protected Routes**: Secure routing with authentication checks
-- **State Management**: Zustand for efficient state management
-- **Type Safety**: Full TypeScript implementation
+### 3. Stop Services
+```bash
+# Stop all running services
+./scripts/dev-stop.sh
+```
 
-## 🛠️ Technology Stack
+## 📋 Available Scripts
 
-### Frontend
-- **React 18** - Modern UI library
-- **TypeScript** - Type-safe development
-- **Vite** - Fast build tool and dev server
-- **Tailwind CSS** - Utility-first CSS framework
-- **React Router** - Client-side routing
-- **Zustand** - Lightweight state management
-- **Lucide React** - Modern icon library
-- **React Hot Toast** - Toast notifications
+### Frontend Scripts (run from `frontend/` directory)
+```bash
+npm run dev              # Start frontend only (port 3000)
+npm run dev:check-ports  # Check port availability
+npm run dev:start        # Start complete development environment
+npm run dev:stop         # Stop all services
+npm run build            # Build for production
+npm run preview          # Preview production build
+```
 
-### Development Tools
-- **ESLint** - Code linting
-- **Prettier** - Code formatting
-- **Husky** - Git hooks
-- **Lint Staged** - Pre-commit hooks
+### Standalone Scripts (run from project root)
+```bash
+./scripts/check-ports.sh     # Check and resolve port conflicts
+./scripts/setup-python-env.sh # Setup Python virtual environment
+./scripts/dev-start.sh       # Start complete development environment
+./scripts/dev-stop.sh        # Stop all services
+```
+
+## 🔧 Port Configuration
+
+### Frontend (React/Vite)
+- **Port**: 3000
+- **Configuration**: `frontend/.env` and `frontend/vite.config.ts`
+- **Environment Variable**: `VITE_PORT=3000`
+
+### Backend (FastAPI)
+- **Port**: 8000
+- **Configuration**: `backend/.env` and `backend/main.py`
+- **Environment Variable**: `PORT=8000`
+
+### CORS Configuration
+The backend is configured to allow requests from:
+- `http://localhost:3000`
+- `http://127.0.0.1:3000`
+
+## 🐍 Python Virtual Environment
+
+### Why Use Virtual Environment?
+- Isolates project dependencies from system Python
+- Prevents conflicts with other Python projects
+- Ensures reproducible development environment
+- No interference with your laptop's Python setup
+
+### Virtual Environment Location
+- **Path**: `backend/venv/`
+- **Activation**: `cd backend && source venv/bin/activate`
+- **Deactivation**: `deactivate`
+
+### Managing Dependencies
+```bash
+# Activate virtual environment
+cd backend && source venv/bin/activate
+
+# Install new dependencies
+pip install package-name
+
+# Update requirements.txt
+pip freeze > requirements.txt
+
+# Install from requirements
+pip install -r requirements.txt
+```
+
+## 🛠️ Manual Service Management
+
+### Starting Backend Only
+```bash
+cd backend
+source venv/bin/activate  # Activate virtual environment
+python main.py           # Start FastAPI server
+```
+
+### Starting Frontend Only
+```bash
+cd frontend
+npm install              # Install dependencies (first time only)
+npm run dev             # Start development server
+```
+
+## 🔍 Port Conflict Resolution
+
+The system automatically handles port conflicts:
+
+1. **Detection**: Scripts check if ports 3000 and 8000 are in use
+2. **Resolution**: Offers to kill conflicting processes
+3. **Prevention**: Ensures clean startup environment
+
+### Manual Port Checking
+```bash
+# Check what's using port 3000
+lsof -i :3000
+
+# Check what's using port 8000
+lsof -i :8000
+
+# Kill process using port 3000 (replace PID)
+kill -9 PID
+
+# Kill process using port 8000 (replace PID)
+kill -9 PID
+```
 
 ## 📁 Project Structure
 
 ```
-frontend/
-├── src/
-│   ├── components/           # Reusable UI components
-│   │   ├── auth/            # Authentication components
-│   │   ├── layout/          # Layout components (Sidebar, Topbar, DashboardLayout)
-│   │   ├── dashboard/       # Dashboard widgets and components
-│   │   └── bird-chat/       # AI chat interface
-│   ├── pages/               # Page components
-│   │   ├── DashboardStudentNew.tsx  # Main student dashboard
-│   │   ├── CoursesPage.tsx          # Course management page
-│   │   └── AssignmentsPage.tsx      # Assignment management page
-│   ├── store/               # Zustand state management
-│   ├── services/            # API services and mock data
-│   ├── types/               # TypeScript type definitions
-│   ├── contexts/            # React contexts
-│   └── hooks/               # Custom React hooks
-├── public/                  # Static assets
-└── styles/                  # Global styles
-
-backend/
-├── main.py                  # FastAPI backend
-├── requirements.txt         # Python dependencies
-└── README.md               # Backend documentation
+Urban Home School/
+├── frontend/              # React application
+│   ├── .env              # Frontend environment variables
+│   ├── vite.config.ts    # Vite configuration with port 3000
+│   └── src/              # React source code
+├── backend/               # FastAPI application
+│   ├── .env              # Backend environment variables
+│   ├── main.py           # FastAPI server (port 8000)
+│   ├── venv/             # Python virtual environment
+│   └── requirements.txt  # Python dependencies
+├── scripts/               # Development scripts
+│   ├── check-ports.sh    # Port conflict resolution
+│   ├── setup-python-env.sh # Virtual environment setup
+│   ├── dev-start.sh      # Complete development startup
+│   └── dev-stop.sh       # Service shutdown
+└── README.md             # This file
 ```
 
-## 🚀 Quick Start
+## 🚨 Troubleshooting
 
-### Prerequisites
-- Node.js (v16 or higher)
-- npm or yarn
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd Urban-Home-School
-   ```
-
-2. **Install dependencies**
-   ```bash
-   cd frontend
-   npm install
-   ```
-
-3. **Start the development server**
-   ```bash
-   npm run dev
-   ```
-
-4. **Open your browser**
-   Navigate to `http://localhost:5173`
-
-### Backend Setup (Optional)
-If you want to run the backend server:
-
-1. **Navigate to backend directory**
-   ```bash
-   cd backend
-   ```
-
-2. **Install Python dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Start the backend server**
-   ```bash
-   python main.py
-   ```
-
-4. **Backend will be available at**
-   `http://localhost:8000`
-
-## 🎯 Key Features
-
-### Student Dashboard
-- **Personalized Welcome**: Dynamic greeting based on time of day
-- **Learning Analytics**: Progress tracking and goal setting
-- **Course Management**: Browse, filter, and track course progress
-- **Assignment Center**: Complete assignment management with due date tracking
-- **Achievement Showcase**: Display earned certificates and milestones
-
-### Course Management
-- **Smart Filtering**: Filter by status, category, or search terms
-- **Progress Visualization**: Visual progress indicators for each course
-- **Instructor Information**: View instructor details and ratings
-- **Course Details**: Comprehensive course information and descriptions
-
-### Assignment Management
-- **Status Tracking**: Clear visual indicators for pending, submitted, and graded assignments
-- **Due Date Management**: Prominent due date display with overdue warnings
-- **Grade Display**: View grades and feedback from instructors
-- **Submission Interface**: Easy file upload and submission process
-
-### Responsive Design
-- **Mobile-First**: Optimized for mobile devices with responsive breakpoints
-- **Touch-Friendly**: Large touch targets and intuitive gestures
-- **Cross-Browser**: Compatible with all modern browsers
-- **Performance**: Optimized for fast loading and smooth interactions
-
-## 🔧 Configuration
-
-### Environment Variables
-Create a `.env` file in the frontend directory:
-
-```env
-VITE_API_URL=http://localhost:8000
-VITE_APP_NAME=Urban Home School
-VITE_THEME=default
-```
-
-### Theme Customization
-The application supports theme customization through CSS variables:
-
-```css
-:root {
-  --primary-color: #FF0000;
-  --secondary-color: #E40000;
-  --background-color: #0F1112;
-  --card-background: #181C1F;
-}
-```
-
-## 📊 State Management
-
-The application uses Zustand for state management with the following stores:
-
-### Auth Store
-- User authentication state
-- Login/logout functionality
-- Role-based access control
-
-### User Store
-- User profile information
-- Course progress tracking
-- Assignment management
-- Notification system
-- Preferences and settings
-
-### Theme Store
-- Theme switching (light/dark)
-- UI preferences
-- Layout settings
-
-## 🎨 Design System
-
-### Color Palette
-- **Primary**: Red (#FF0000, #E40000)
-- **Background**: Dark gradients (#0F1112 to #181C1F)
-- **Cards**: Dark surfaces (#181C1F, #22272B)
-- **Borders**: Subtle borders (#2A3035)
-- **Text**: White and gray variants
-
-### Typography
-- **Headings**: Bold, modern sans-serif
-- **Body Text**: Clean, readable fonts
-- **Code**: Monospace for technical content
-
-### Spacing & Layout
-- **Grid System**: 12-column responsive grid
-- **Spacing**: Consistent spacing scale
-- **Breakpoints**: Mobile, tablet, desktop responsive design
-
-## 🔌 API Integration
-
-The frontend is designed to work with a FastAPI backend:
-
-### Authentication Endpoints
-- `POST /auth/login` - User login
-- `POST /auth/register` - User registration
-- `POST /auth/logout` - User logout
-
-### Course Endpoints
-- `GET /courses` - Get all courses
-- `GET /courses/{id}` - Get course details
-- `PUT /courses/{id}/progress` - Update course progress
-
-### Assignment Endpoints
-- `GET /assignments` - Get user assignments
-- `POST /assignments/{id}/submit` - Submit assignment
-- `GET /assignments/{id}/feedback` - Get assignment feedback
-
-## 🧪 Testing
-
-### Running Tests
+### Port Already in Use
 ```bash
-npm test
+# Check what's using the port
+lsof -i :3000  # or :8000
+
+# Kill the process
+kill -9 PID
+
+# Or use the automated script
+./scripts/check-ports.sh
 ```
 
-### Code Quality
+### Python Virtual Environment Issues
 ```bash
-npm run lint
-npm run format
+# Recreate virtual environment
+cd backend
+rm -rf venv
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
 
-## 🚀 Deployment
-
-### Build for Production
+### Frontend Dependencies Issues
 ```bash
-npm run build
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
 ```
 
-### Deploy to Netlify/Vercel
-1. Connect your repository
-2. Set build command: `npm run build`
-3. Set output directory: `dist`
-4. Deploy!
+### Environment Variables Not Loading
+- Ensure `.env` files exist in both `frontend/` and `backend/` directories
+- Check that environment variables are properly formatted
+- Restart your terminal after making changes
 
-## 🤝 Contributing
+## 🔒 Security Notes
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
+- The virtual environment isolates Python dependencies
+- Environment variables are stored in `.env` files (excluded from git)
+- CORS is configured to only allow specific origins
+- Never commit `.env` files or `venv/` directory to version control
 
-## 📄 License
+## 🔄 Development Workflow
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+1. **Setup** (First time only):
+   ```bash
+   ./scripts/setup-python-env.sh
+   ```
 
-## 🙏 Acknowledgments
+2. **Daily Development**:
+   ```bash
+   ./scripts/dev-start.sh  # Start everything
+   # Work on your code...
+   ./scripts/dev-stop.sh   # Stop when done
+   ```
 
-- **React Community** - For the amazing ecosystem
-- **Tailwind CSS** - For beautiful, utility-first styling
-- **Zustand** - For simple, powerful state management
-- **Vite** - For blazing fast development
+3. **Quick Port Check**:
+   ```bash
+   ./scripts/check-ports.sh
+   ```
 
 ## 📞 Support
 
-For support and questions:
-- Create an issue on GitHub
-- Join our Discord community
-- Email us at support@urbanhomeschool.com
+If you encounter issues:
+1. Check the troubleshooting section above
+2. Verify all scripts are executable: `chmod +x scripts/*.sh`
+3. Ensure Node.js, npm, and Python3 are installed
+4. Check that ports 3000 and 8000 are available
 
----
+## 🎉 Benefits
 
-**Built with ❤️ by the Urban Home School Team**
+✅ **No Port Conflicts**: Dedicated ports prevent conflicts  
+✅ **Clean Environment**: Virtual environment isolates Python dependencies  
+✅ **Automated Workflow**: One-command startup and shutdown  
+✅ **Professional Setup**: Production-ready development environment  
+✅ **Team Ready**: Consistent setup across development teams
