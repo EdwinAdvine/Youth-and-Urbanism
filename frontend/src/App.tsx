@@ -32,6 +32,7 @@ const AppContent: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [categoriesDropdownOpen, setCategoriesDropdownOpen] = useState(false);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   const handleOpenAuthModal = () => {
@@ -201,7 +202,7 @@ const AppContent: React.FC = () => {
           <div className="flex justify-between items-center h-16 sm:h-20">
             <div className="flex items-center gap-2">
               <div className="w-12 h-10 sm:w-14 sm:h-12 bg-[#FF0000] rounded-xl flex items-center justify-center text-white font-bold text-lg sm:text-xl">UHS</div>
-              <span className="text-2xl sm:text-3xl font-bold text-white tracking-tight">Urban Home School</span>
+              <span className="hidden md:inline text-2xl sm:text-3xl font-bold text-white tracking-tight">Urban Home School</span>
             </div>
 
             <div className="hidden md:flex items-center justify-center flex-1">
@@ -260,12 +261,6 @@ const AppContent: React.FC = () => {
               <a href="#" className="hidden md:flex items-center gap-2 px-3 py-2 text-white/80 hover:text-white transition-colors text-base rounded-lg hover:bg-white/5">
                 <i className="fas fa-search"></i>
               </a>
-              <button
-                onClick={() => setShowAuthModal(true)}
-                className="text-sm sm:text-base font-medium text-white/80 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/5"
-              >
-                {isAuthenticated ? `Welcome, ${user?.name}` : 'Log in/Sign Up'}
-              </button>
               <a href="#" 
                  className="bg-[#FF0000] hover:bg-[#E40000] text-white px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-semibold text-sm sm:text-base transition-colors min-w-[140px] text-center">
                 Start Learning
@@ -284,13 +279,56 @@ const AppContent: React.FC = () => {
       </nav>
 
       {/* Mobile Menu */}
-      <div className={`md:hidden bg-[#181C1F] border-b border-[#22272B] transition-all duration-300 ease-in-out ${mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+      <div className={`md:hidden bg-[#181C1F] border-b border-[#22272B] transition-all duration-300 ease-in-out ${mobileMenuOpen ? 'max-h-[80vh] opacity-100 overflow-y-auto' : 'max-h-0 opacity-0 overflow-hidden'}`}>
           <div className="px-4 py-4 space-y-2">
-            <a href="#features" className="block px-4 py-3 text-base font-medium text-white hover:text-[#FF0000] hover:bg-white/5 rounded-lg transition-colors">Features</a>
-            <a href="#how-it-works" className="block px-4 py-3 text-base font-medium text-white hover:text-[#FF0000] hover:bg-white/5 rounded-lg transition-colors">How It Works</a>
-            <a href="#testimonials" className="block px-4 py-3 text-base font-medium text-white hover:text-[#FF0000] hover:bg-white/5 rounded-lg transition-colors">Testimonials</a>
-            <a href="#about" className="block px-4 py-3 text-base font-medium text-white hover:text-[#FF0000] hover:bg-white/5 rounded-lg transition-colors">About</a>
-            <a href="#" className="block mx-4 mt-2 bg-[#FF0000] text-white py-3 rounded-lg text-center font-semibold text-base hover:bg-[#E40000] transition-colors">Get Started Free</a>
+            <a href="#" className="block px-4 py-3 text-base font-medium text-white hover:text-[#FF0000] hover:bg-white/5 rounded-lg transition-colors">Home</a>
+            
+            {/* Categories Section */}
+            <div className="space-y-1">
+              <button
+                onClick={() => setCategoriesOpen(!categoriesOpen)}
+                className="w-full text-left px-4 py-3 text-base font-medium text-white hover:text-[#FF0000] hover:bg-white/5 rounded-lg transition-colors flex justify-between items-center"
+              >
+                <span>Categories</span>
+                <i className={`fas fa-chevron-down text-xs transition-transform duration-200 ${categoriesOpen ? 'rotate-180' : 'rotate-0'}`}></i>
+              </button>
+              <div className={`ml-4 space-y-1 border-l-2 border-[#22272B] pl-4 transition-all duration-300 ease-in-out overflow-hidden ${categoriesOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                <a href="/subjects/core-competencies" className="block px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-[#FF0000]/10 rounded-lg transition-colors">Core Competencies</a>
+                <a href="/subjects/core-values" className="block px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-[#FF0000]/10 rounded-lg transition-colors">Core Values</a>
+                <a href="/subjects/languages" className="block px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-[#FF0000]/10 rounded-lg transition-colors">Languages</a>
+                <a href="/subjects/mathematics" className="block px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-[#FF0000]/10 rounded-lg transition-colors">Mathematics</a>
+                <a href="/subjects/science-technology" className="block px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-[#FF0000]/10 rounded-lg transition-colors">Science and Technology</a>
+                <a href="/subjects/social-studies" className="block px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-[#FF0000]/10 rounded-lg transition-colors">Social Studies</a>
+                <a href="/subjects/religious-education" className="block px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-[#FF0000]/10 rounded-lg transition-colors">Religious Education</a>
+                <a href="/subjects/creative-arts" className="block px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-[#FF0000]/10 rounded-lg transition-colors">Creative Arts</a>
+                <a href="/subjects/physical-health" className="block px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-[#FF0000]/10 rounded-lg transition-colors">Physical and Health Education</a>
+                <a href="/subjects/agriculture-nutrition" className="block px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-[#FF0000]/10 rounded-lg transition-colors">Agriculture and Nutrition</a>
+                <a href="/subjects/home-science" className="block px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-[#FF0000]/10 rounded-lg transition-colors">Home Science</a>
+                <a href="/subjects/pre-technical-career" className="block px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-[#FF0000]/10 rounded-lg transition-colors">Pre-Technical and Pre-Career Education</a>
+              </div>
+            </div>
+
+            <a href="/courses" className="block px-4 py-3 text-base font-medium text-white hover:text-[#FF0000] hover:bg-white/5 rounded-lg transition-colors">Courses</a>
+            <a href="/pricing" className="block px-4 py-3 text-base font-medium text-white hover:text-[#FF0000] hover:bg-white/5 rounded-lg transition-colors">Pricing</a>
+            <a href="/the-bird" className="block px-4 py-3 text-base font-medium text-white hover:text-[#FF0000] hover:bg-white/5 rounded-lg transition-colors">The Bird</a>
+            <a href="/store" className="block px-4 py-3 text-base font-medium text-white hover:text-[#FF0000] hover:bg-white/5 rounded-lg transition-colors">Store</a>
+            <a href="/forum" className="block px-4 py-3 text-base font-medium text-white hover:text-[#FF0000] hover:bg-white/5 rounded-lg transition-colors">Forum</a>
+            
+            {/* Login/Signup Button */}
+            <button
+              onClick={() => {
+                setShowAuthModal(true);
+                setMobileMenuOpen(false);
+              }}
+              className="w-full text-left px-4 py-3 text-base font-medium text-white hover:text-[#FF0000] hover:bg-white/5 rounded-lg transition-colors"
+            >
+              Log in/Sign Up
+            </button>
+
+            {/* Start Learning Button */}
+            <a href="#" className="block mx-4 mt-2 bg-[#FF0000] text-white py-3 rounded-lg text-center font-semibold text-base hover:bg-[#E40000] transition-colors">
+              Start Learning
+            </a>
           </div>
       </div>
 
