@@ -1,5 +1,4 @@
 import React from 'react';
-import { User } from '../contexts/AuthContext';
 import { 
   Building2, 
   Users, 
@@ -14,12 +13,27 @@ import {
   Phone,
   MapPin
 } from 'lucide-react';
+import DashboardLayout from '../components/layout/DashboardLayout';
 
-interface DashboardPartnerProps {
-  user: User;
-}
-
-const DashboardPartner: React.FC<DashboardPartnerProps> = ({ user }) => {
+const DashboardPartner: React.FC = () => {
+  // Mock user data for direct dashboard access
+  const user = {
+    id: 'demo-partner',
+    name: 'Demo Partner',
+    email: 'partner@example.com',
+    role: 'partner' as const,
+    createdAt: new Date(),
+    lastLogin: new Date(),
+    position: 'Community Partner',
+    preferences: {
+      theme: 'light' as const,
+      language: 'en' as const,
+      notifications: true,
+      emailNotifications: true,
+      pushNotifications: false,
+      dashboardWidgets: []
+    }
+  };
   // Mock data for partner dashboard
   const stats = [
     {
@@ -111,30 +125,8 @@ const DashboardPartner: React.FC<DashboardPartnerProps> = ({ user }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F1112]">
-      {/* Header */}
-      <div className="bg-[#181C1F] border-b border-[#2A3035]">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-white">Partner Dashboard</h1>
-              <p className="text-white/60 mt-1">Welcome back, {user.name}</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="px-3 py-1 bg-orange-500/20 text-orange-400 rounded-full text-sm font-medium">
-                Community Partner
-              </span>
-              {user.position && (
-                <span className="px-3 py-1 bg-[#2A3035] text-white/80 rounded-full text-sm">
-                  {user.position}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-6 py-8">
+    <DashboardLayout role="partner">
+      <div className="space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
@@ -308,7 +300,7 @@ const DashboardPartner: React.FC<DashboardPartnerProps> = ({ user }) => {
           </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

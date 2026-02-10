@@ -1,28 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react';
 import { useChatStore } from '../../store/chatStore';
 import { useSpeechSynthesis } from '../../hooks/useSpeechSynthesis';
 import ChatHeader from './ChatHeader';
-import Sidebar from './Sidebar';
-import RightSidebar from './RightSidebar';
 import ChatMessages from './ChatMessages';
 import InputBar from './InputBar';
-import { ChatMessage, QuickAction } from '../../types/chat';
 
 const BirdChatPage: React.FC = () => {
-  const [isLeftSidebarVisible, setIsLeftSidebarVisible] = useState(true);
-  const [isRightSidebarVisible, setIsRightSidebarVisible] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   
   // Chat state from store
   const messages = useChatStore((state) => state.messages);
-  const isRecording = useChatStore((state) => state.isRecording);
   const currentInput = useChatStore((state) => state.currentInput);
-  const birdExpression = useChatStore((state) => state.birdExpression);
   const addMessage = useChatStore((state) => state.addMessage);
   const updateCurrentInput = useChatStore((state) => state.updateCurrentInput);
-  const setIsRecording = useChatStore((state) => state.setIsRecording);
-  const setIsTyping = useChatStore((state) => state.setIsTyping);
-  const setBirdExpression = useChatStore((state) => state.setBirdExpression);
   const clearChat = useChatStore((state) => state.clearChat);
 
   const { speak } = useSpeechSynthesis();
@@ -43,26 +34,21 @@ const BirdChatPage: React.FC = () => {
     // Add user message
     addMessage({
       type: 'user',
-      content: message,
-      avatarExpression: 'happy'
+      content: message
     });
 
     // Clear input
     updateCurrentInput('');
-    setIsRecording(false);
+    setIsTyping(true);
 
     // Simulate AI thinking and response
-    setIsTyping(true);
-    setBirdExpression('thinking');
-
     setTimeout(() => {
       setIsTyping(false);
       const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
       
       addMessage({
         type: 'ai',
-        content: randomResponse,
-        avatarExpression: 'happy'
+        content: randomResponse
       });
 
       // Speak the response
@@ -84,70 +70,30 @@ const BirdChatPage: React.FC = () => {
 
   const handleNewChat = () => {
     clearChat();
-    setIsLeftSidebarVisible(false);
   };
-
-  const handleMenuToggle = () => {
-    setIsLeftSidebarVisible(!isLeftSidebarVisible);
-  };
-
-  // Close sidebar when clicking outside on mobile
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (isLeftSidebarVisible && !target.closest('aside') && !target.closest('button')) {
-        setIsLeftSidebarVisible(false);
-      }
-    };
-
-    if (isLeftSidebarVisible) {
-      document.addEventListener('mousedown', handleOutsideClick);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
-    };
-  }, [isLeftSidebarVisible]);
 
   return (
-    <div className="flex h-screen bg-gradient-to-b from-[#0A0A0A] to-[#121212]">
-      {/* Left Sidebar */}
-      <Sidebar 
-        isOpen={isLeftSidebarVisible}
+    <div className="flex flex-col h-screen bg-gradient-to-b from-[#0F1112] to-[#181C1F]">
+      {/* Header */}
+      <ChatHeader 
         onNewChat={handleNewChat}
-        onQuickAction={(action) => handleQuickAction(action.id)}
-        width={280} // Left sidebar width
-        compactWidth={60} // Compact width for icon-only mode
+        onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+        isSidebarOpen={isSidebarOpen}
       />
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
-        <ChatHeader 
-          onMenuToggle={handleMenuToggle}
-          isSidebarOpen={isLeftSidebarVisible}
-          onRightMenuToggle={() => setIsRightSidebarVisible(!isRightSidebarVisible)}
-          isRightSidebarOpen={isRightSidebarVisible}
-        />
-
-        {/* Chat Messages */}
+      <div className="flex-1 overflow-hidden">
         <ChatMessages 
           messages={messages}
-          isTyping={useChatStore((state) => state.isTyping)}
-        />
-
-        {/* Input Bar */}
-        <InputBar 
-          onSendMessage={handleSendMessage}
-          onQuickAction={handleQuickAction}
+          isTyping={isTyping}
         />
       </div>
 
-      {/* Right Sidebar */}
-      <RightSidebar 
-        isOpen={isRightSidebarVisible}
-        onClose={() => setIsRightSidebarVisible(false)}
-        width={320} // Right sidebar width
+      {/* Input Bar */}
+      <InputBar 
+        onSendMessage={handleSendMessage}
+        onQuickAction={handleQuickAction}
+        isTyping={isTyping}
       />
     </div>
   );

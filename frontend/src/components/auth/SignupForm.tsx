@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
 import { AlertCircle, Eye, EyeOff, Loader2, Check } from 'lucide-react';
 
 interface SignupFormProps {
@@ -7,7 +6,6 @@ interface SignupFormProps {
 }
 
 const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
-  const { signup, isLoading } = useAuth();
   const [step, setStep] = useState<'role' | 'form'>('role');
   const [selectedRole, setSelectedRole] = useState<'student' | 'parent' | 'instructor' | 'partner' | null>(null);
   const [formData, setFormData] = useState({
@@ -25,6 +23,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRoleSelect = (role: 'student' | 'parent' | 'instructor' | 'partner') => {
     setSelectedRole(role);
@@ -69,22 +68,18 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
       return;
     }
 
-    const result = await signup({
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-      role: selectedRole,
-      gradeLevel: selectedRole === 'student' ? formData.gradeLevel : undefined,
-      numberOfChildren: selectedRole === 'parent' ? formData.numberOfChildren : undefined,
-      subjects: selectedRole === 'instructor' ? formData.subjects : undefined,
-      position: selectedRole === 'instructor' ? formData.position : undefined
-    });
-
-    if (result.success) {
+    try {
+      // Mock signup delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       setSuccess('Account created successfully! Redirecting...');
-      // The redirect will be handled by the App component
-    } else {
-      setError(result.error || 'Signup failed');
+      // Mock redirect after success
+      setTimeout(() => {
+        // In a real app, this would redirect to login or dashboard
+        // For now, we'll just show success
+      }, 2000);
+    } catch (error) {
+      setError('Signup failed. Please try again.');
     }
   };
 
@@ -344,7 +339,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
             type="text"
             id="gradeLevel"
             name="gradeLevel"
-            value={formData.gradeLevel || ''}
+            value={formData.gradeLevel}
             onChange={handleInputChange}
             className="w-full px-3 py-2 bg-[#22272B] border border-[#2A3035] rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
             placeholder="e.g., Grade 4, Form 2"
@@ -361,7 +356,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
             type="text"
             id="numberOfChildren"
             name="numberOfChildren"
-            value={formData.numberOfChildren || ''}
+            value={formData.numberOfChildren}
             onChange={handleInputChange}
             className="w-full px-3 py-2 bg-[#22272B] border border-[#2A3035] rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
             placeholder="e.g., 2 children"
@@ -379,7 +374,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
               type="text"
               id="subjects"
               name="subjects"
-              value={formData.subjects || ''}
+              value={formData.subjects}
               onChange={handleInputChange}
               className="w-full px-3 py-2 bg-[#22272B] border border-[#2A3035] rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
               placeholder="e.g., Mathematics, Science"
@@ -393,7 +388,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
               type="text"
               id="position"
               name="position"
-              value={formData.position || ''}
+              value={formData.position}
               onChange={handleInputChange}
               className="w-full px-3 py-2 bg-[#22272B] border border-[#2A3035] rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
               placeholder="e.g., B.Ed, Certified Teacher"
@@ -411,7 +406,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
             type="text"
             id="partnerCredentials"
             name="partnerCredentials"
-            value={formData.partnerCredentials || ''}
+            value={formData.partnerCredentials}
             onChange={handleInputChange}
             className="w-full px-3 py-2 bg-[#22272B] border border-[#2A3035] rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
             placeholder="e.g., Community Partner, Sponsor"

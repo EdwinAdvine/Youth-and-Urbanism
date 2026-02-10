@@ -1,9 +1,14 @@
 import React, { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, User as UserIcon } from 'lucide-react';
-import { ChatMessage } from '../../types/chat';
-import BirdAvatar from './BirdAvatar';
+import { Bot, User as UserIcon, Sparkles, Brain, BookOpen, Play } from 'lucide-react';
 import { useChatStore } from '../../store/chatStore';
+
+interface ChatMessage {
+  id: string;
+  type: 'user' | 'ai';
+  content: string;
+  timestamp: Date;
+}
 
 interface ChatMessagesProps {
   messages: ChatMessage[];
@@ -74,8 +79,10 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isTyping }) => {
     return (
       <div className="flex-1 flex flex-col items-center justify-center px-4">
         <div className="text-center max-w-md">
-          <BirdAvatar expression="happy" size={120} className="mx-auto mb-6" />
-          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-[#00F5FF] bg-clip-text text-transparent mb-4">
+          <div className="w-20 h-20 bg-gradient-to-r from-[#FF0000] to-[#E40000] rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-6 shadow-lg shadow-[#FF0000]/30">
+            🐦
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-[#FF0000] bg-clip-text text-transparent mb-4">
             Hi friend! 🐦✨
           </h2>
           <p className="text-lg text-white/90 mb-8 leading-relaxed">
@@ -110,7 +117,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isTyping }) => {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+    <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
       <AnimatePresence mode="wait">
         {messages.map((message) => (
           <motion.div
@@ -122,17 +129,16 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isTyping }) => {
             className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {message.type === 'ai' && (
-              <div className="flex items-end gap-3 max-w-[70%]">
-                <BirdAvatar 
-                  expression={message.avatarExpression || 'happy'} 
-                  size={48} 
-                />
+              <div className="flex items-end gap-3 max-w-[80%]">
+                <div className="w-10 h-10 bg-gradient-to-r from-[#FF0000] to-[#E40000] rounded-full flex items-center justify-center text-white text-lg shadow-lg shadow-[#FF0000]/30">
+                  🐦
+                </div>
                 <div className="bg-gradient-to-r from-[#FF0000] to-[#E40000] border border-[#FF0000]/30 rounded-3xl rounded-tl-none px-4 py-3 shadow-lg shadow-[#FF0000]/20">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs text-white/90">Chirpy</span>
                     <span className="text-xs text-white/80">{formatTime(message.timestamp)}</span>
                   </div>
-                  <div className="text-xl text-white leading-relaxed">
+                  <div className="text-lg text-white leading-relaxed">
                     {renderMessageContent(message.content)}
                   </div>
                 </div>
@@ -140,18 +146,18 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isTyping }) => {
             )}
             
             {message.type === 'user' && (
-              <div className="flex items-end gap-3 max-w-[70%]">
+              <div className="flex items-end gap-3 max-w-[80%]">
                 <div className="bg-gradient-to-r from-[#FF0000] to-[#E40000] text-white rounded-3xl rounded-tr-none px-4 py-3 shadow-lg shadow-[#FF0000]/20 border border-[#FF0000]/30">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs text-white/90">You</span>
                     <span className="text-xs text-white/80">{formatTime(message.timestamp)}</span>
                   </div>
-                  <div className="text-xl leading-relaxed">
+                  <div className="text-lg leading-relaxed">
                     {renderMessageContent(message.content)}
                   </div>
                 </div>
-                <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/20">
-                  <UserIcon className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 bg-gradient-to-r from-[#FF0000] to-[#E40000] rounded-full flex items-center justify-center text-white shadow-lg shadow-[#FF0000]/30">
+                  <UserIcon className="w-5 h-5" />
                 </div>
               </div>
             )}
@@ -164,8 +170,10 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isTyping }) => {
             animate={{ opacity: 1, y: 0 }}
             className="flex justify-start"
           >
-            <div className="flex items-end gap-3 max-w-[70%]">
-              <BirdAvatar expression="thinking" size={48} />
+            <div className="flex items-end gap-3 max-w-[80%]">
+              <div className="w-10 h-10 bg-gradient-to-r from-[#FF0000] to-[#E40000] rounded-full flex items-center justify-center text-white text-lg shadow-lg shadow-[#FF0000]/30">
+                🐦
+              </div>
               <div className="bg-gradient-to-r from-[#FF0000] to-[#E40000] text-white rounded-3xl rounded-tl-none px-4 py-3 shadow-lg shadow-[#FF0000]/20 border border-[#FF0000]/30">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xs text-white/90">Chirpy</span>

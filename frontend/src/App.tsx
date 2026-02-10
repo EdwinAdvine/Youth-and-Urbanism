@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import AuthModal from './components/auth/AuthModal';
 import BirdChatPage from './components/bird-chat/BirdChatPage';
-import DashboardStudent from './pages/DashboardStudentNew';
+import DashboardStudent from './pages/DashboardStudent';
 import DashboardParent from './pages/DashboardParent';
 import DashboardInstructor from './pages/DashboardInstructor';
 import DashboardAdmin from './pages/DashboardAdmin';
 import DashboardPartner from './pages/DashboardPartner';
+import AuthModal from './components/auth/AuthModal';
 import './App.css';
 // Import hero background image from assets folder
 import heroBackground from './assets/images/background001.png';
@@ -33,13 +31,7 @@ const AppContent: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [categoriesDropdownOpen, setCategoriesDropdownOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-
-  const handleOpenAuthModal = () => {
-    setShowAuthModal(true);
-  };
-
-  const { isAuthenticated, user, logout } = useAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -67,43 +59,6 @@ const AppContent: React.FC = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [categoriesDropdownOpen]);
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
-
-  const handleAuthSuccess = (user: any) => {
-    setShowAuthModal(false);
-    
-    // Add a small delay to ensure modal closes before redirecting
-    setTimeout(() => {
-      // Redirect based on user role
-      if (user) {
-        switch (user.role) {
-          case 'student':
-            navigate('/dashboard/student');
-            break;
-          case 'parent':
-            navigate('/dashboard/parent');
-            break;
-          case 'instructor':
-            navigate('/dashboard/instructor');
-            break;
-          case 'admin':
-            navigate('/dashboard/admin');
-            break;
-          case 'partner':
-            navigate('/dashboard/partner');
-            break;
-          default:
-            navigate('/');
-        }
-      } else {
-        navigate('/');
-      }
-    }, 500); // 500ms delay for better UX
-  };
 
   const features: Feature[] = [
     {
@@ -261,6 +216,16 @@ const AppContent: React.FC = () => {
               <a href="#" className="hidden md:flex items-center gap-2 px-3 py-2 text-white/80 hover:text-white transition-colors text-base rounded-lg hover:bg-white/5">
                 <i className="fas fa-search"></i>
               </a>
+              
+              {/* Login/Sign Up Button */}
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="hidden md:flex items-center gap-2 px-3 py-2 text-white/80 hover:text-white transition-colors text-base rounded-lg hover:bg-white/5 border border-white/20"
+              >
+                <i className="fas fa-user"></i>
+                <span>Login/Sign Up</span>
+              </button>
+              
               <a href="#" 
                  className="bg-[#FF0000] hover:bg-[#E40000] text-white px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-semibold text-sm sm:text-base transition-colors min-w-[140px] text-center">
                 Start Learning
@@ -314,16 +279,6 @@ const AppContent: React.FC = () => {
             <a href="/store" className="block px-4 py-3 text-base font-medium text-white hover:text-[#FF0000] hover:bg-white/5 rounded-lg transition-colors">Store</a>
             <a href="/forum" className="block px-4 py-3 text-base font-medium text-white hover:text-[#FF0000] hover:bg-white/5 rounded-lg transition-colors">Forum</a>
             
-            {/* Login/Signup Button */}
-            <button
-              onClick={() => {
-                setShowAuthModal(true);
-                setMobileMenuOpen(false);
-              }}
-              className="w-full text-left px-4 py-3 text-base font-medium text-white hover:text-[#FF0000] hover:bg-white/5 rounded-lg transition-colors"
-            >
-              Log in/Sign Up
-            </button>
 
             {/* Start Learning Button */}
             <a href="#" className="block mx-4 mt-2 bg-[#FF0000] text-white py-3 rounded-lg text-center font-semibold text-base hover:bg-[#E40000] transition-colors">
@@ -620,41 +575,21 @@ const AppContent: React.FC = () => {
         </div>
       </footer>
 
-      {/* Authentication Modal */}
+      {/* Auth Modal */}
       <AuthModal 
-        isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)}
-        onAuthSuccess={handleAuthSuccess}
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
       />
+
     </div>
           } />
           
-          {/* Protected Routes */}
-          <Route path="/dashboard/student" element={
-            <ProtectedRoute>
-              <DashboardStudent onOpenAuthModal={handleOpenAuthModal} />
-            </ProtectedRoute>
-          } />
-          <Route path="/dashboard/parent" element={
-            <ProtectedRoute>
-              <DashboardParent />
-            </ProtectedRoute>
-          } />
-          <Route path="/dashboard/instructor" element={
-            <ProtectedRoute>
-              <DashboardInstructor />
-            </ProtectedRoute>
-          } />
-          <Route path="/dashboard/admin" element={
-            <ProtectedRoute>
-              <DashboardAdmin />
-            </ProtectedRoute>
-          } />
-          <Route path="/dashboard/partner" element={
-            <ProtectedRoute>
-              {user && <DashboardPartner user={user} />}
-            </ProtectedRoute>
-          } />
+          {/* Direct Dashboard Routes */}
+          <Route path="/dashboard/student" element={<DashboardStudent />} />
+          <Route path="/dashboard/parent" element={<DashboardParent />} />
+          <Route path="/dashboard/instructor" element={<DashboardInstructor />} />
+          <Route path="/dashboard/admin" element={<DashboardAdmin />} />
+          <Route path="/dashboard/partner" element={<DashboardPartner />} />
         </Routes>
       </div>
   );
@@ -662,11 +597,9 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </AuthProvider>
+    <Router>
+      <AppContent />
+    </Router>
   );
 };
 

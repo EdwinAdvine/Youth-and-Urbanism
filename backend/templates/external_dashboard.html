@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Urban Home School{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1 class="welcome-title">Welcome, {{ profile.full_name }}!</h1>
+    <p class="welcome-subtitle">External Instructor Dashboard • Specialty: {{ profile.specialty }} • Affiliation: {{ profile.affiliation }}</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">2</div>
+        <div class="stat-label">Upcoming Sessions</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">15</div>
+        <div class="stat-label">Active Students</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">4.8</div>
+        <div class="stat-label">Average Rating</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">12</div>
+        <div class="stat-label">Completed Sessions</div>
+    </div>
+</div>
+
+<div class="links-section">
+    <h2 style="margin-bottom: 1rem; color: var(--secondary-color);">Instructor Links</h2>
+    <div class="links-grid">
+        <a href="#" class="link-card">
+            <div class="link-title">Upload Materials</div>
+            <div class="link-description">Share lesson plans, worksheets, and resources with students</div>
+        </a>
+        <a href="#" class="link-card">
+            <div class="link-title">View Sessions</div>
+            <div class="link-description">Manage your scheduled sessions and availability</div>
+        </a>
+        <a href="#" class="link-card">
+            <div class="link-title">Student Progress</div>
+            <div class="link-description">Track student progress and provide feedback</div>
+        </a>
+        <a href="#" class="link-card">
+            <div class="link-title">Schedule Management</div>
+            <div class="link-description">Update your availability and session times</div>
+        </a>
+    </div>
+</div>
+
+<div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--light-bg);">
+    <h3 style="margin-bottom: 1rem; color: var(--secondary-color);">Upcoming Sessions</h3>
+    <div style="background: var(--light-bg); padding: 1.5rem; border-radius: 8px;">
+        <div style="display: grid; gap: 1rem;">
+            <div style="background: white; padding: 1rem; border-radius: 4px; border-left: 4px solid var(--primary-color);">
+                <strong>Music Theory - Grade 8</strong><br>
+                <span style="color: #666;">Tomorrow at 14:00 • Room 203</span>
+            </div>
+            <div style="background: white; padding: 1rem; border-radius: 4px; border-left: 4px solid var(--primary-color);">
+                <strong>Violin Basics - Grade 6</strong><br>
+                <span style="color: #666;">Friday at 10:00 • Music Room</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

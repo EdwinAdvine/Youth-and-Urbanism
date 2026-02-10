@@ -1,16 +1,10 @@
 import React from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Users, Shield, BarChart3, Settings, LogOut, Plus, TrendingUp } from 'lucide-react';
+import { Users, Shield, BarChart3, Settings, Plus, TrendingUp } from 'lucide-react';
+import DashboardLayout from '../components/layout/DashboardLayout';
 
 const DashboardAdmin: React.FC = () => {
-  const { user, logout } = useAuth();
   const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
 
   // Mock admin data
   const stats = {
@@ -37,43 +31,13 @@ const DashboardAdmin: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0F1112]">
-      {/* Header */}
-      <header className="bg-[#181C1F] border-b border-[#22272B] sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#FF0000] rounded-xl flex items-center justify-center text-white font-bold text-xl">U</div>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-white">Urban Home School</h1>
-                <p className="text-xs sm:text-sm text-white/60">Admin Dashboard</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-sm font-medium text-white">{user?.name}</p>
-                <p className="text-xs text-white/60 capitalize">{user?.role}</p>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 text-white/80 hover:text-white border border-[#2A3035] rounded-lg hover:border-[#FF0000] transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="text-sm">Logout</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <DashboardLayout role="admin">
+      <div className="space-y-8">
         {/* Welcome Section */}
         <div className="bg-gradient-to-r from-gray-500/20 to-transparent border border-[#22272B] rounded-2xl p-6 mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome, {user?.name}!</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome, Demo Admin!</h2>
               <p className="text-white/80 text-sm sm:text-base">
                 Monitor system performance and manage the Urban Home School platform.
               </p>
@@ -294,8 +258,8 @@ const DashboardAdmin: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

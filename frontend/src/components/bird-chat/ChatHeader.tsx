@@ -1,78 +1,100 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Menu, User, Settings } from 'lucide-react';
-import BirdAvatar from './BirdAvatar';
+import { Menu, Plus, Settings, User, ChevronDown, Sun, Moon } from 'lucide-react';
+import { useThemeStore } from '../../store';
 
 interface ChatHeaderProps {
-  onMenuToggle: () => void;
+  onNewChat: () => void;
+  onSidebarToggle: () => void;
   isSidebarOpen: boolean;
-  onRightMenuToggle: () => void;
-  isRightSidebarOpen: boolean; // Add this prop to show/hide right toggle button
 }
 
-const ChatHeader: React.FC<ChatHeaderProps> = ({ onMenuToggle, isSidebarOpen, onRightMenuToggle, isRightSidebarOpen }) => {
+const ChatHeader: React.FC<ChatHeaderProps> = ({ 
+  onNewChat, 
+  onSidebarToggle, 
+  isSidebarOpen 
+}) => {
+  const { theme, isDarkMode, toggleTheme } = useThemeStore();
+
   return (
-    <header className="bg-gradient-to-b from-[#0A0A0A] to-[#121212] border-b border-[#2A2A2A] shadow-lg shadow-black/50 sticky top-0 z-40 backdrop-blur-sm">
-      <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16 sm:h-20">
-        {/* Left: Logo and Title */}
+    <header className="bg-gradient-to-r from-[#0F1112] to-[#181C1F] border-b border-[#22272B] shadow-lg shadow-black/30 sticky top-0 z-50">
+      <div className="flex items-center justify-between h-16 sm:h-20 px-4 sm:px-6 lg:px-8">
+        {/* Left Section */}
         <div className="flex items-center gap-3 sm:gap-4">
+          {/* Mobile Menu Button */}
           <button
-            onClick={onMenuToggle}
-            className="p-2 rounded-lg hover:bg-white/10 transition-all duration-300 md:hidden border border-white/10"
-            aria-label="Toggle sidebar"
+            onClick={onSidebarToggle}
+            className="lg:hidden p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/5 transition-colors"
           >
-            <Menu className="w-6 h-6 text-white/80" />
+            <Menu className="w-6 h-6" />
           </button>
-          
+
+          {/* Logo and Title */}
           <div className="flex items-center gap-3">
-            <BirdAvatar expression="happy" size={40} />
+            <div className="w-10 h-10 bg-gradient-to-r from-[#FF0000] to-[#E40000] rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-[#FF0000]/30">
+              🐦
+            </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-white to-[#FF0000] bg-clip-text text-transparent">The Bird AI</h1>
-              <p className="text-xs sm:text-sm text-white/80">Your AI Learning Friend</p>
+              <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-white to-[#FF0000] bg-clip-text text-transparent">
+                The Bird AI
+              </h1>
+              <p className="text-xs sm:text-sm text-white/60">Your AI Learning Companion</p>
             </div>
           </div>
         </div>
 
-        {/* Center: Chat Title (editable) */}
-        <div className="hidden md:flex flex-1 justify-center">
+        {/* Center Section */}
+        <div className="hidden md:flex items-center gap-2">
           <div className="text-center">
-            <h2 className="text-lg sm:text-xl font-semibold text-white">
-              Why do birds sing?
-            </h2>
-            <p className="text-xs text-white/80 mt-1">Ask me anything about learning!</p>
+            <h2 className="text-lg font-semibold text-white">Chat Interface</h2>
+            <p className="text-xs text-white/80">Powered by CBC Curriculum</p>
           </div>
         </div>
 
-        {/* Right: User Actions */}
+        {/* Right Section */}
         <div className="flex items-center gap-2 sm:gap-3">
-          <button className="p-2 rounded-lg hover:bg-white/10 transition-all duration-300 border border-white/10">
-            <User className="w-5 h-5 text-white/80" />
-          </button>
-          <button className="p-2 rounded-lg hover:bg-white/10 transition-all duration-300 border border-white/10">
-            <Settings className="w-5 h-5 text-white/80" />
-          </button>
-          
-          {/* Right Sidebar Toggle */}
+          {/* New Chat Button */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={onRightMenuToggle}
-            className="p-2 rounded-lg hover:bg-white/10 transition-all duration-300 border border-white/10"
-            aria-label="Toggle chat tools"
+            onClick={onNewChat}
+            className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#FF0000] to-[#E40000] text-white rounded-lg font-medium transition-all duration-300 shadow-lg shadow-[#FF0000]/30 border border-[#FF0000]/50 hover:shadow-[#FF0000]/50"
           >
-            <svg className="w-5 h-5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">New Chat</span>
           </motion.button>
-          
-          {/* Parent Mode Toggle */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-gradient-to-r from-[#FF0000] to-[#E40000] text-white px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 shadow-lg shadow-[#FF0000]/20 border border-[#FF0000]/50"
+
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/5 transition-colors"
+            title={`Switch to ${isDarkMode ? 'Light' : 'Dark'} Mode`}
           >
-            Parent Mode
-          </motion.button>
+            {isDarkMode ? (
+              <Sun className="w-5 h-5 text-yellow-400" />
+            ) : (
+              <Moon className="w-5 h-5 text-gray-400" />
+            )}
+          </button>
+
+          {/* User Menu */}
+          <div className="relative">
+            <button className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/10 transition-colors">
+              <div className="w-8 h-8 bg-gradient-to-br from-[#FF0000] to-[#E40000] rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                S
+              </div>
+              <span className="hidden sm:inline text-sm text-white/80">Student</span>
+              <ChevronDown className="w-4 h-4 text-white/60" />
+            </button>
+          </div>
+
+          {/* Settings Button */}
+          <button
+            className="p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/5 transition-colors"
+            title="Settings"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
         </div>
       </div>
     </header>

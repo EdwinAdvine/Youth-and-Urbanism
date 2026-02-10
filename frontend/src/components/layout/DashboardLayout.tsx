@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useThemeStore, useUserStore } from '../../store';
-import { useAuth } from '../../contexts/AuthContext';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import { initializeTheme } from '../../store';
@@ -9,14 +8,32 @@ import { initializeTheme } from '../../store';
 interface DashboardLayoutProps {
   children?: React.ReactNode;
   onOpenAuthModal?: () => void;
+  role?: 'student' | 'parent' | 'instructor' | 'admin' | 'partner';
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onOpenAuthModal }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
-  const { user } = useAuth();
   const { updatePreferences } = useUserStore();
   const { theme } = useThemeStore();
+
+  // Mock user data for direct dashboard access - moved outside component to prevent recreation
+  const user = React.useMemo(() => ({
+    id: 'demo-user',
+    name: 'Demo User',
+    email: 'demo@example.com',
+    role: 'student' as const,
+    createdAt: new Date(),
+    lastLogin: new Date(),
+    preferences: {
+      theme: 'light' as const,
+      language: 'en' as const,
+      notifications: true,
+      emailNotifications: true,
+      pushNotifications: false,
+      dashboardWidgets: []
+    }
+  }), []);
 
   // Initialize theme on mount
   useEffect(() => {
@@ -41,46 +58,49 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onOpenAuthM
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0F1112] to-[#181C1F]">
-        {/* Sidebar */}
+      {/* Global Topbar - Fixed at top */}
+      <Topbar onSidebarToggle={handleSidebarToggle} isSidebarOpen={isSidebarOpen} role={user.role} />
+
+      {/* Main Layout Container - Starts below topbar */}
+      <div className="flex min-h-screen">
+        {/* Sidebar - Starts immediately below topbar */}
         <Sidebar 
           isOpen={isSidebarOpen} 
           onClose={() => setIsSidebarOpen(false)} 
           onOpenAuthModal={onOpenAuthModal}
         />
 
-      {/* Main Content */}
-      <div className="lg:pl-72">
-        {/* Topbar */}
-        <Topbar onSidebarToggle={handleSidebarToggle} isSidebarOpen={isSidebarOpen} />
-
-        {/* Page Content */}
-        <main className="p-4 sm:p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto">
-            {/* Page Header */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-white">
-                    {location.pathname.split('/').filter(Boolean).pop()?.replace('-', ' ') || 'Dashboard'}
-                  </h1>
-                  <p className="text-white/60 text-sm mt-1">
-                    Welcome back, {user?.name}! Here's what's happening with your learning journey today.
-                  </p>
-                </div>
-                <div className="hidden sm:flex items-center gap-2 text-sm text-white/60">
-                  <span>Home</span>
-                  <span>›</span>
-                  <span className="text-white font-medium">
-                    {location.pathname.split('/').filter(Boolean).pop()?.replace('-', ' ') || 'Dashboard'}
-                  </span>
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-h-screen">
+          {/* Page Content */}
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+            <div className="max-w-7xl mx-auto">
+              {/* Page Header */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white">
+                      {location.pathname.split('/').filter(Boolean).pop()?.replace('-', ' ') || 'Dashboard'}
+                    </h1>
+                    <p className="text-white/60 text-sm mt-1">
+                      Welcome back, {user?.name}! Here's what's happening with your learning journey today.
+                    </p>
+                  </div>
+                  <div className="hidden sm:flex items-center gap-2 text-sm text-white/60">
+                    <span>Home</span>
+                    <span>›</span>
+                    <span className="text-white font-medium">
+                      {location.pathname.split('/').filter(Boolean).pop()?.replace('-', ' ') || 'Dashboard'}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Content Area */}
-            {children || <Outlet />}
-          </div>
-        </main>
+              {/* Content Area */}
+              {children || <Outlet />}
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,4 @@
 import React from 'react';
-import { useAuth } from '../../contexts/AuthContext';
 import { useThemeStore } from '../../store';
 import { Calendar, Zap, Star, TrendingUp } from 'lucide-react';
 
@@ -8,7 +7,23 @@ interface WelcomeWidgetProps {
 }
 
 const WelcomeWidget: React.FC<WelcomeWidgetProps> = ({ onAction }) => {
-  const { user } = useAuth();
+  // Mock user data for direct dashboard access
+  const user = {
+    id: 'demo-user',
+    name: 'Demo User',
+    email: 'demo@example.com',
+    role: 'student' as const,
+    createdAt: new Date(),
+    lastLogin: new Date(),
+    preferences: {
+      theme: 'light' as const,
+      language: 'en' as const,
+      notifications: true,
+      emailNotifications: true,
+      pushNotifications: false,
+      dashboardWidgets: []
+    }
+  };
   const { isDarkMode } = useThemeStore();
   
   // Mock data for demonstration

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useThemeStore, useUserStore } from '../../store';
-import { useAuth } from '../../contexts/AuthContext';
 import { 
   Bell, 
   Search, 
@@ -24,13 +23,33 @@ import { Notification } from '../../types/index';
 interface TopbarProps {
   onSidebarToggle: () => void;
   isSidebarOpen: boolean;
+  role?: 'student' | 'parent' | 'instructor' | 'admin' | 'partner';
 }
 
-const Topbar: React.FC<TopbarProps> = ({ onSidebarToggle, isSidebarOpen }) => {
+const Topbar: React.FC<TopbarProps> = ({ onSidebarToggle, isSidebarOpen, role }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, isDarkMode, toggleTheme } = useThemeStore();
-  const { user, logout } = useAuth();
+  
+  // Mock user data for direct dashboard access
+  const user = {
+    id: 'demo-user',
+    name: 'Demo User',
+    email: 'demo@example.com',
+    role: 'student' as const,
+    createdAt: new Date(),
+    lastLogin: new Date(),
+    preferences: {
+      theme: 'light' as const,
+      language: 'en' as const,
+      notifications: true,
+      emailNotifications: true,
+      pushNotifications: false,
+      dashboardWidgets: []
+    }
+  };
+  
+  const { } = useUserStore();
   const { notifications, markNotificationAsRead, markAllNotificationsAsRead } = useUserStore();
   
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -71,7 +90,8 @@ const Topbar: React.FC<TopbarProps> = ({ onSidebarToggle, isSidebarOpen }) => {
   const recentNotifications = notifications.slice(0, 5);
 
   const handleLogout = () => {
-    logout();
+    // Clear local storage and redirect to home
+    localStorage.clear();
     navigate('/');
   };
 
@@ -117,10 +137,20 @@ const Topbar: React.FC<TopbarProps> = ({ onSidebarToggle, isSidebarOpen }) => {
     return date.toLocaleDateString();
   };
 
+  const getDashboardTitle = (userRole: string) => {
+    switch (userRole) {
+      case 'parent': return 'Parent Control Panel';
+      case 'instructor': return 'Instructor Control Panel';
+      case 'admin': return 'Admin Control Panel';
+      case 'partner': return 'Partner Control Panel';
+      default: return 'Student Control Panel';
+    }
+  };
+
   return (
-    <header className="bg-gradient-to-r from-[#0F1112] to-[#181C1F] border-b border-[#22272B] sticky top-0 z-40 shadow-lg shadow-black/30">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
+    <header className="bg-gradient-to-r from-[#0F1112] to-[#181C1F] border-b border-[#22272B] sticky top-0 z-50 shadow-lg shadow-black/30 w-full">
+      <div className="w-full">
+        <div className="flex items-center justify-between h-16 sm:h-20 w-full">
           {/* Left Section */}
           <div className="flex items-center gap-4">
             {/* Mobile Menu Button */}
@@ -133,11 +163,19 @@ const Topbar: React.FC<TopbarProps> = ({ onSidebarToggle, isSidebarOpen }) => {
 
             {/* Logo and Title */}
             <div className="hidden lg:flex items-center gap-4">
-              <div className="w-12 h-10 bg-[#FF0000] rounded-xl flex items-center justify-center text-white font-bold text-lg">UHS</div>
-              <div>
-                <h1 className="text-lg font-bold text-white">Urban Home School</h1>
-                <p className="text-xs text-white/60">Student Control Panel</p>
-              </div>
+              <button
+                onClick={() => navigate('/')}
+                className="group flex items-center gap-4 hover:cursor-pointer transition-all"
+                aria-label="Go to home page"
+              >
+                <div className="w-12 h-10 bg-[#FF0000] rounded-xl flex items-center justify-center text-white font-bold text-lg group-hover:scale-105 transition-transform">
+                  UHS
+                </div>
+                <div>
+                  <h1 className="text-lg font-bold text-white group-hover:text-[#FF0000] transition-colors">Urban Home School</h1>
+                  <p className="text-xs text-white/60">{getDashboardTitle(user?.role || 'student')}</p>
+                </div>
+              </button>
             </div>
 
             {/* Breadcrumb for smaller screens */}

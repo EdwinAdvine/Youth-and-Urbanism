@@ -440,40 +440,28 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenAuthModal }) =
 
   return (
     <>
-      {/* Mobile overlay */}
+      {/* Mobile overlay - only covers content area, not topbar */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 top-16 lg:hidden z-30"
+          style={{ 
+            background: 'rgba(0, 0, 0, 0.5)',
+            backdropFilter: 'blur(4px)'
+          }}
           onClick={onClose}
         />
       )}
       
       {/* Sidebar */}
       <div className={`
-        fixed lg:static inset-y-0 left-0 z-50 w-72 transform transition-transform duration-300 ease-in-out
+        fixed lg:sticky lg:static top-0 left-0 z-40 w-72 transform transition-transform duration-300 ease-in-out
         bg-gradient-to-b from-[#0F1112] to-[#181C1F] border-r border-[#22272B]
-        shadow-xl lg:shadow-none
+        shadow-xl lg:shadow-none lg:border-r-0 lg:rounded-r-none
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        {/* Sidebar Header */}
-        <div className="flex items-center justify-between p-6 border-b border-[#22272B]">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-10 bg-[#FF0000] rounded-xl flex items-center justify-center text-white font-bold text-lg">UHS</div>
-            <div>
-              <h1 className="text-lg font-bold text-white">Urban Home School</h1>
-              <p className="text-xs text-white/60">Student Panel</p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="lg:hidden p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/5 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-2">
+        <nav className="p-4 space-y-2 max-h-[calc(100vh-12rem)] overflow-y-auto">
           {navigationItems.map((section) => (
             <div key={section.id} className="space-y-1">
               {section.title !== 'MAIN' && (

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Urban Home School{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1 class="welcome-title">Welcome, {{ profile.full_name }}!</h1>
+    <p class="welcome-subtitle">Administrator Dashboard • Admin Level: {{ profile.admin_level }}</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">5</div>
+        <div class="stat-label">Total Users</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">1</div>
+        <div class="stat-label">Active Administrators</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">1</div>
+        <div class="stat-label">Active Staff</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">1</div>
+        <div class="stat-label">Active Instructors</div>
+    </div>
+</div>
+
+<div class="links-section">
+    <h2 style="margin-bottom: 1rem; color: var(--secondary-color);">Administrator Links</h2>
+    <div class="links-grid">
+        <a href="#" class="link-card">
+            <div class="link-title">Manage Users</div>
+            <div class="link-description">View, edit, and manage all user accounts in the system</div>
+        </a>
+        <a href="#" class="link-card">
+            <div class="link-title">View Reports</div>
+            <div class="link-description">Access comprehensive system reports and analytics</div>
+        </a>
+        <a href="#" class="link-card">
+            <div class="link-title">System Settings</div>
+            <div class="link-description">Configure system-wide settings and preferences</div>
+        </a>
+        <a href="#" class="link-card">
+            <div class="link-title">User Activity</div>
+            <div class="link-description">Monitor user activity and system usage</div>
+        </a>
+    </div>
+</div>
+
+<div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--light-bg);">
+    <h3 style="margin-bottom: 1rem; color: var(--secondary-color);">Quick Actions</h3>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="#" style="background-color: var(--primary-color); color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: 500;">Add New User</a>
+        <a href="#" style="background-color: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: 500;">Generate Report</a>
+        <a href="#" style="background-color: #28a745; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: 500;">System Status</a>
+    </div>
+</div>
+{% endblock %}

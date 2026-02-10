@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
 import { AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
 
 interface LoginFormProps {
@@ -9,29 +8,47 @@ interface LoginFormProps {
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup, onLoginSuccess }) => {
-  const { login, isLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setIsLoading(true);
 
-    const result = await login(email, password, rememberMe);
-    
-    if (result.success) {
-      setSuccess('Login successful! Redirecting...');
-      // Call the success callback to trigger redirect with user data
-      if (onLoginSuccess && result.user) {
-        onLoginSuccess(result.user);
+    try {
+      // Mock login delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Mock validation
+      if (email && password) {
+        setSuccess('Login successful! Redirecting...');
+        // Mock user data based on email
+        const mockUser = {
+          email,
+          role: email.includes('student') ? 'student' : 
+                email.includes('parent') ? 'parent' :
+                email.includes('instructor') ? 'instructor' :
+                email.includes('admin') ? 'admin' : 'user'
+        };
+        
+        // Call the success callback to trigger redirect with user data
+        if (onLoginSuccess) {
+          onLoginSuccess(mockUser);
+        }
+      } else {
+        setError('Please enter both email and password');
       }
-    } else {
-      setError(result.error || 'Login failed');
+    } catch (error) {
+      setError('Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
