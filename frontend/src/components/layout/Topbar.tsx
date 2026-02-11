@@ -23,7 +23,7 @@ import { Notification } from '../../types/index';
 interface TopbarProps {
   onSidebarToggle: () => void;
   isSidebarOpen: boolean;
-  role?: 'student' | 'parent' | 'instructor' | 'admin' | 'partner';
+  role?: 'student' | 'parent' | 'instructor' | 'admin' | 'partner' | 'staff';
 }
 
 const Topbar: React.FC<TopbarProps> = ({ onSidebarToggle, isSidebarOpen, role }) => {

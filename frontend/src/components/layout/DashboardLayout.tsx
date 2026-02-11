@@ -1,28 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { useThemeStore, useUserStore } from '../../store';
+import { useThemeStore, useUserStore, useCoPilotStore } from '../../store';
 import Sidebar from './Sidebar';
+import PartnerSidebar from '../partner/PartnerSidebar';
+import ParentSidebar from '../parent/ParentSidebar';
+import InstructorSidebar from '../instructor/InstructorSidebar';
 import Topbar from './Topbar';
+import CoPilotSidebar from '../co-pilot/CoPilotSidebar';
 import { initializeTheme } from '../../store';
+import { detectDashboardType as detectDashboardTypeUtil } from '../../utils/dashboardDetection';
 
 interface DashboardLayoutProps {
   children?: React.ReactNode;
   onOpenAuthModal?: () => void;
-  role?: 'student' | 'parent' | 'instructor' | 'admin' | 'partner';
+  role?: 'student' | 'parent' | 'instructor' | 'admin' | 'partner' | 'staff';
 }
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onOpenAuthModal }) => {
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onOpenAuthModal, role = 'student' }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
   const { updatePreferences } = useUserStore();
   const { theme } = useThemeStore();
+  const { isExpanded, detectDashboardType } = useCoPilotStore();
 
   // Mock user data for direct dashboard access - moved outside component to prevent recreation
   const user = React.useMemo(() => ({
     id: 'demo-user',
     name: 'Demo User',
     email: 'demo@example.com',
-    role: 'student' as const,
+    role: role as 'student' | 'parent' | 'instructor' | 'admin' | 'partner' | 'staff',
     createdAt: new Date(),
     lastLogin: new Date(),
     preferences: {
@@ -33,7 +39,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onOpenAuthM
       pushNotifications: false,
       dashboardWidgets: []
     }
-  }), []);
+  }), [role]);
 
   // Initialize theme on mount
   useEffect(() => {
@@ -52,6 +58,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onOpenAuthM
     }
   }, [theme, user, updatePreferences]);
 
+  // Detect dashboard type and update co-pilot state
+  useEffect(() => {
+    detectDashboardType(location.pathname);
+  }, [location.pathname, detectDashboardType]);
+
   const handleSidebarToggle = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -63,15 +74,38 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onOpenAuthM
 
       {/* Main Layout Container - Starts below topbar */}
       <div className="flex min-h-screen">
+        {/* AI Co-Pilot Sidebar */}
+        <CoPilotSidebar onOpenAuthModal={onOpenAuthModal} />
+
         {/* Sidebar - Starts immediately below topbar */}
-        <Sidebar 
-          isOpen={isSidebarOpen} 
-          onClose={() => setIsSidebarOpen(false)} 
-          onOpenAuthModal={onOpenAuthModal}
-        />
+        {user.role === 'instructor' ? (
+          <InstructorSidebar 
+            isOpen={isSidebarOpen} 
+            onClose={() => setIsSidebarOpen(false)} 
+            onOpenAuthModal={onOpenAuthModal}
+          />
+        ) : user.role === 'parent' ? (
+          <ParentSidebar 
+            isOpen={isSidebarOpen} 
+            onClose={() => setIsSidebarOpen(false)} 
+            onOpenAuthModal={onOpenAuthModal}
+          />
+        ) : user.role === 'partner' ? (
+          <PartnerSidebar 
+            isOpen={isSidebarOpen} 
+            onClose={() => setIsSidebarOpen(false)} 
+            onOpenAuthModal={onOpenAuthModal}
+          />
+        ) : (
+          <Sidebar 
+            isOpen={isSidebarOpen} 
+            onClose={() => setIsSidebarOpen(false)} 
+            onOpenAuthModal={onOpenAuthModal}
+          />
+        )}
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-h-screen">
+        <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out ${isExpanded ? 'mr-0 lg:mr-96' : 'mr-0'}`}>
           {/* Page Content */}
           <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
             <div className="max-w-7xl mx-auto">
@@ -102,6 +136,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onOpenAuthM
           </main>
         </div>
       </div>
+
     </div>
   );
 };

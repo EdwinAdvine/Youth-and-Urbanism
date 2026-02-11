@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useChatStore } from '../../store/chatStore';
-import { useSpeechSynthesis } from '../../hooks/useSpeechSynthesis';
 import ChatHeader from './ChatHeader';
 import ChatMessages from './ChatMessages';
 import InputBar from './InputBar';
@@ -16,7 +15,6 @@ const BirdChatPage: React.FC = () => {
   const updateCurrentInput = useChatStore((state) => state.updateCurrentInput);
   const clearChat = useChatStore((state) => state.clearChat);
 
-  const { speak } = useSpeechSynthesis();
 
   // AI responses for demo
   const aiResponses = [
@@ -51,8 +49,6 @@ const BirdChatPage: React.FC = () => {
         content: randomResponse
       });
 
-      // Speak the response
-      speak(randomResponse);
     }, 1500);
   };
 

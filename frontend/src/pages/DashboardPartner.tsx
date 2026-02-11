@@ -127,9 +127,9 @@ const DashboardPartner: React.FC = () => {
   return (
     <DashboardLayout role="partner">
       <div className="space-y-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="space-y-8">
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {stats.map((stat, index) => (
@@ -215,89 +215,6 @@ const DashboardPartner: React.FC = () => {
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-8">
-            {/* Quick Actions */}
-            <div className="bg-[#181C1F] border border-[#2A3035] rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
-              <div className="space-y-3">
-                <button className="w-full text-left p-3 rounded-lg hover:bg-[#22272B] transition-colors border border-[#2A3035]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-white font-medium">View Impact Report</span>
-                    <Eye className="w-4 h-4 text-white/60" />
-                  </div>
-                </button>
-                <button className="w-full text-left p-3 rounded-lg hover:bg-[#22272B] transition-colors border border-[#2A3035]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-white font-medium">Update Contact Info</span>
-                    <EyeOff className="w-4 h-4 text-white/60" />
-                  </div>
-                </button>
-                <button className="w-full text-left p-3 rounded-lg hover:bg-[#22272B] transition-colors border border-[#2A3035]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-white font-medium">Submit Feedback</span>
-                    <MessageSquare className="w-4 h-4 text-white/60" />
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            {/* Contact Information */}
-            <div className="bg-[#181C1F] border border-[#2A3035] rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Contact Information</h3>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold">SJ</span>
-                  </div>
-                  <div>
-                    <p className="font-medium text-white">{contactInfo.coordinator}</p>
-                    <p className="text-sm text-white/60">Partnership Coordinator</p>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3 text-white/80">
-                    <Mail className="w-4 h-4" />
-                    <span className="text-sm">{contactInfo.email}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-white/80">
-                    <Phone className="w-4 h-4" />
-                    <span className="text-sm">{contactInfo.phone}</span>
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-[#2A3035]">
-                  <p className="text-xs text-white/60">{contactInfo.officeHours}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Partner Resources */}
-            <div className="bg-[#181C1F] border border-[#2A3035] rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Partner Resources</h3>
-              <div className="space-y-3">
-                <a href="#" className="block p-3 rounded-lg hover:bg-[#22272B] transition-colors border border-[#2A3035]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-white font-medium text-sm">Annual Reports</span>
-                    <ChevronRight className="w-4 h-4 text-white/60" />
-                  </div>
-                </a>
-                <a href="#" className="block p-3 rounded-lg hover:bg-[#22272B] transition-colors border border-[#2A3035]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-white font-medium text-sm">Partnership Guidelines</span>
-                    <ChevronRight className="w-4 h-4 text-white/60" />
-                  </div>
-                </a>
-                <a href="#" className="block p-3 rounded-lg hover:bg-[#22272B] transition-colors border border-[#2A3035]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-white font-medium text-sm">Event Calendar</span>
-                    <ChevronRight className="w-4 h-4 text-white/60" />
-                  </div>
-                </a>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </DashboardLayout>

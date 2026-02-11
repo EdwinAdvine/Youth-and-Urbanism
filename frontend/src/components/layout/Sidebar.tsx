@@ -64,7 +64,79 @@ import {
   Folders,
   FolderSearch2,
   X,
-  User
+  User,
+  // New icons for upgraded sidebar
+  Bot,
+  Brain,
+  Mic,
+  Sparkles,
+  Heart,
+  Target,
+  TrendingUp,
+  GraduationCap,
+  Puzzle,
+  Users2,
+  Handshake,
+  Gift,
+  Shield,
+  CreditCard,
+  Coins,
+  Zap,
+  Smile,
+  Frown,
+  Meh,
+  Sun,
+  Moon,
+  Coffee,
+  Book,
+  ClipboardList,
+  FileCheck,
+  FileSearch,
+  FolderKanban,
+  Trophy,
+  Medal,
+  Map,
+  Goal,
+  CalendarDays,
+  CalendarClock,
+  CalendarHeart,
+  MessagesSquare,
+  Send,
+  ThumbsUp,
+  ThumbsDown,
+  HeartHandshake,
+  ShieldCheck,
+  Key,
+  Lock,
+  Globe,
+  Globe2,
+  Languages,
+  EyeOff,
+  Volume2,
+  VolumeX,
+  BellRing,
+  BellOff,
+  Palette,
+  MoonStar,
+  SunMoon,
+  Sparkle,
+  Rocket,
+  PartyPopper,
+  BadgeCheck,
+  BadgeHelp,
+  BadgeInfo,
+  BadgeAlert,
+  BadgeX,
+  BadgePercent,
+  BadgeIndianRupee,
+  BadgeEuro,
+  BadgePoundSterling,
+  BadgeDollarSign,
+  BadgePlus,
+  BadgeMinus,
+  Upload,
+  ShieldAlert,
+  Inbox
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -93,21 +165,83 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenAuthModal }) =
   
   const navigationItems: NavItem[] = [
     {
-      id: 'main',
-      title: 'MAIN',
+      id: 'home',
+      title: 'Home / Today',
       icon: null,
       children: [
         {
           id: 'dashboard',
-          title: 'Dashboard',
-          icon: <LayoutDashboard className="w-5 h-5" />,
-          path: '/dashboard/student'
+          title: 'Today\'s Dashboard',
+          icon: <Home className="w-5 h-5" />,
+          children: [
+            {
+              id: 'ai-plan',
+              title: 'Today\'s Plan by AI',
+              icon: <Sparkles className="w-4 h-4" />,
+              path: '/dashboard/student/today/ai-plan'
+            },
+            {
+              id: 'streak',
+              title: 'Current Streak',
+              icon: <Rocket className="w-4 h-4" />,
+              path: '/dashboard/student/today/streak'
+            },
+            {
+              id: 'mood-check',
+              title: 'Energy/Mood Check-in',
+              icon: <Heart className="w-4 h-4" />,
+              path: '/dashboard/student/today/mood'
+            },
+            {
+              id: 'urgent',
+              title: 'Urgent Items',
+              icon: <BellRing className="w-4 h-4" />,
+              path: '/dashboard/student/today/urgent'
+            },
+            {
+              id: 'daily-quote',
+              title: 'Daily Quote/Micro-lesson',
+              icon: <Book className="w-4 h-4" />,
+              path: '/dashboard/student/today/quote'
+            }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'ai-tutor',
+      title: 'My AI Tutor ★',
+      icon: null,
+      children: [
+        {
+          id: 'chat',
+          title: 'Chat with my AI',
+          icon: <Bot className="w-5 h-5" />,
+          path: '/dashboard/student/ai-tutor/chat'
         },
         {
-          id: 'calendar',
-          title: 'Calendar & Events',
-          icon: <Calendar className="w-5 h-5" />,
-          path: '/dashboard/student/calendar'
+          id: 'learning-path',
+          title: 'Today\'s Learning Path',
+          icon: <Brain className="w-5 h-5" />,
+          path: '/dashboard/student/ai-tutor/learning-path'
+        },
+        {
+          id: 'voice-mode',
+          title: 'Voice Mode',
+          icon: <Mic className="w-5 h-5" />,
+          path: '/dashboard/student/ai-tutor/voice'
+        },
+        {
+          id: 'journal',
+          title: 'AI Journal & Reflections',
+          icon: <ClipboardList className="w-5 h-5" />,
+          path: '/dashboard/student/ai-tutor/journal'
+        },
+        {
+          id: 'help-understand',
+          title: 'Help Me Understand',
+          icon: <HelpCircle className="w-5 h-5" />,
+          path: '/dashboard/student/ai-tutor/explain'
         }
       ]
     },
@@ -117,9 +251,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenAuthModal }) =
       icon: null,
       children: [
         {
-          id: 'my-courses',
-          title: 'My Courses',
-          icon: <BookOpen className="w-5 h-5" />,
+          id: 'courses-paths',
+          title: 'My Courses & Paths',
+          icon: <GraduationCap className="w-5 h-5" />,
           children: [
             {
               id: 'enrolled',
@@ -128,78 +262,146 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenAuthModal }) =
               path: '/dashboard/student/courses/enrolled'
             },
             {
-              id: 'in-progress',
-              title: 'In Progress',
-              icon: <BarChart3 className="w-4 h-4" />,
-              path: '/dashboard/student/courses/in-progress'
+              id: 'ai-recommended',
+              title: 'AI-recommended Learning Paths',
+              icon: <Target className="w-4 h-4" />,
+              path: '/dashboard/student/courses/ai-recommended'
             },
             {
-              id: 'completed',
-              title: 'Completed',
-              icon: <CheckCircle className="w-4 h-4" />,
-              path: '/dashboard/student/courses/completed'
+              id: 'progress',
+              title: 'Progress Rings',
+              icon: <Trophy className="w-4 h-4" />,
+              path: '/dashboard/student/courses/progress'
             },
             {
-              id: 'comments',
-              title: 'Comments',
-              icon: <MessageCircle className="w-4 h-4" />,
-              path: '/dashboard/student/courses/comments'
-            },
-            {
-              id: 'favorites',
-              title: 'Favorites',
-              icon: <Star className="w-4 h-4" />,
-              path: '/dashboard/student/courses/favorites'
+              id: 'continue',
+              title: 'Continue Buttons',
+              icon: <Play className="w-4 h-4" />,
+              path: '/dashboard/student/courses/continue'
             }
           ]
         },
         {
-          id: 'browse-courses',
-          title: 'Upcoming & Browse Courses',
+          id: 'browse-discover',
+          title: 'Browse & Discover',
           icon: <Search className="w-5 h-5" />,
-          path: '/dashboard/student/courses/browse'
+          children: [
+            {
+              id: 'ai-recommendations',
+              title: 'AI Recommendations',
+              icon: <Sparkles className="w-4 h-4" />,
+              path: '/dashboard/student/browse/ai-recommendations'
+            },
+            {
+              id: 'topic-explorer',
+              title: 'Topic Explorer',
+              icon: <Puzzle className="w-4 h-4" />,
+              path: '/dashboard/student/browse/topic-explorer'
+            },
+            {
+              id: 'search',
+              title: 'Search',
+              icon: <Search className="w-4 h-4" />,
+              path: '/dashboard/student/browse/search'
+            },
+            {
+              id: 'preview',
+              title: 'Preview Lessons',
+              icon: <Eye className="w-4 h-4" />,
+              path: '/dashboard/student/browse/preview'
+            },
+            {
+              id: 'wishlist',
+              title: 'Wishlist',
+              icon: <Heart className="w-4 h-4" />,
+              path: '/dashboard/student/browse/wishlist'
+            }
+          ]
         },
         {
-          id: 'live-sessions',
-          title: 'Live Sessions & Meetings',
+          id: 'live-interactive',
+          title: 'Live & Interactive',
           icon: <Video className="w-5 h-5" />,
-          path: '/dashboard/student/live-sessions'
+          children: [
+            {
+              id: 'join-live',
+              title: 'Join Live Now',
+              icon: <Play className="w-4 h-4" />,
+              path: '/dashboard/student/live/join'
+            },
+            {
+              id: 'upcoming',
+              title: 'Upcoming Sessions',
+              icon: <CalendarDays className="w-4 h-4" />,
+              path: '/dashboard/student/live/upcoming'
+            },
+            {
+              id: 'calendar',
+              title: 'Class Calendar',
+              icon: <CalendarClock className="w-4 h-4" />,
+              path: '/dashboard/student/live/calendar'
+            },
+            {
+              id: 'recordings',
+              title: 'Recordings & Notes',
+              icon: <FileSearch className="w-4 h-4" />,
+              path: '/dashboard/student/live/recordings'
+            }
+          ]
         }
       ]
     },
     {
-      id: 'assessments',
-      title: 'ASSESSMENTS',
+      id: 'practice',
+      title: 'PRACTICE & ASSESSMENTS',
       icon: null,
       children: [
+        {
+          id: 'challenges',
+          title: 'Today\'s Challenges',
+          icon: <Target className="w-5 h-5" />,
+          path: '/dashboard/student/practice/challenges'
+        },
         {
           id: 'assignments',
           title: 'Assignments',
           icon: <FileText className="w-5 h-5" />,
           children: [
             {
+              id: 'due-soon',
+              title: 'Due Soon',
+              icon: <Clock className="w-4 h-4" />,
+              path: '/dashboard/student/assignments/due-soon'
+            },
+            {
               id: 'pending',
               title: 'Pending',
-              icon: <Clock className="w-4 h-4" />,
+              icon: <FileSearch className="w-4 h-4" />,
               path: '/dashboard/student/assignments/pending'
             },
             {
               id: 'submitted',
               title: 'Submitted',
-              icon: <CheckCircle className="w-4 h-4" />,
+              icon: <FileCheck className="w-4 h-4" />,
               path: '/dashboard/student/assignments/submitted'
             },
             {
-              id: 'graded',
-              title: 'Graded',
-              icon: <Edit3 className="w-4 h-4" />,
-              path: '/dashboard/student/assignments/graded'
+              id: 'feedback',
+              title: 'Feedback',
+              icon: <MessagesSquare className="w-4 h-4" />,
+              path: '/dashboard/student/assignments/feedback'
+            },
+            {
+              id: 'resubmit',
+              title: 'Resubmit',
+              icon: <Send className="w-4 h-4" />,
+              path: '/dashboard/student/assignments/resubmit'
             }
           ]
         },
         {
           id: 'quizzes',
-          title: 'Quizzes & Exams',
+          title: 'Quizzes & Tests',
           icon: <File className="w-5 h-5" />,
           children: [
             {
@@ -209,93 +411,162 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenAuthModal }) =
               path: '/dashboard/student/quizzes/upcoming'
             },
             {
+              id: 'practice-mode',
+              title: 'Practice Mode',
+              icon: <Play className="w-4 h-4" />,
+              path: '/dashboard/student/quizzes/practice'
+            },
+            {
               id: 'results',
               title: 'My Results',
               icon: <BarChart3 className="w-4 h-4" />,
               path: '/dashboard/student/quizzes/results'
             },
             {
-              id: 'not-participated',
-              title: 'Not Participated',
-              icon: <XCircle className="w-4 h-4" />,
-              path: '/dashboard/student/quizzes/not-participated'
+              id: 'skill-reports',
+              title: 'Skill Reports',
+              icon: <FileCheck className="w-4 h-4" />,
+              path: '/dashboard/student/quizzes/skill-reports'
             }
           ]
         },
         {
           id: 'projects',
-          title: 'Projects',
-          icon: <Folder className="w-5 h-5" />,
-          path: '/dashboard/student/projects'
+          title: 'Projects & Creations',
+          icon: <FolderKanban className="w-5 h-5" />,
+          children: [
+            {
+              id: 'active',
+              title: 'Active Projects',
+              icon: <Folder className="w-4 h-4" />,
+              path: '/dashboard/student/projects/active'
+            },
+            {
+              id: 'upload',
+              title: 'Upload',
+              icon: <Upload className="w-4 h-4" />,
+              path: '/dashboard/student/projects/upload'
+            },
+            {
+              id: 'gallery',
+              title: 'Peer Gallery',
+              icon: <Users2 className="w-4 h-4" />,
+              path: '/dashboard/student/projects/gallery'
+            },
+            {
+              id: 'feedback',
+              title: 'Feedback',
+              icon: <MessagesSquare className="w-4 h-4" />,
+              path: '/dashboard/student/projects/feedback'
+            }
+          ]
         }
       ]
     },
     {
       id: 'progress',
-      title: 'PROGRESS',
+      title: 'PROGRESS & GROWTH',
       icon: null,
       children: [
         {
-          id: 'certificates',
-          title: 'Certificates & Badges',
+          id: 'achievements',
+          title: 'Achievements & Badges',
           icon: <Award className="w-5 h-5" />,
           children: [
             {
-              id: 'achievements',
-              title: 'My Achievements',
-              icon: <Star className="w-4 h-4" />,
-              path: '/dashboard/student/certificates/achievements'
+              id: 'gallery',
+              title: 'Gallery',
+              icon: <Trophy className="w-4 h-4" />,
+              path: '/dashboard/student/achievements/gallery'
             },
             {
-              id: 'validation',
-              title: 'Certificate Validation',
-              icon: <CheckCircle className="w-4 h-4" />,
-              path: '/dashboard/student/certificates/validation'
+              id: 'recent',
+              title: 'Recent Unlocks',
+              icon: <Gift className="w-4 h-4" />,
+              path: '/dashboard/student/achievements/recent'
+            },
+            {
+              id: 'shareable',
+              title: 'Shareable Cards',
+              icon: <Share2 className="w-4 h-4" />,
+              path: '/dashboard/student/achievements/shareable'
             }
           ]
         },
         {
-          id: 'analytics',
-          title: 'Analytics',
+          id: 'learning-map',
+          title: 'My Learning Map',
+          icon: <Map className="w-5 h-5" />,
+          children: [
+            {
+              id: 'skill-tree',
+              title: 'Skill Tree/Radar',
+              icon: <Target className="w-4 h-4" />,
+              path: '/dashboard/student/learning-map/skill-tree'
+            },
+            {
+              id: 'strengths',
+              title: 'Strengths',
+              icon: <Zap className="w-4 h-4" />,
+              path: '/dashboard/student/learning-map/strengths'
+            },
+            {
+              id: 'growing',
+              title: 'Growing Areas',
+              icon: <TrendingUp className="w-4 h-4" />,
+              path: '/dashboard/student/learning-map/growing'
+            }
+          ]
+        },
+        {
+          id: 'reports',
+          title: 'Reports & Insights',
           icon: <BarChart3 className="w-5 h-5" />,
-          path: '/dashboard/student/analytics'
-        }
-      ]
-    },
-    {
-      id: 'finance',
-      title: 'FINANCE',
-      icon: null,
-      children: [
-        {
-          id: 'wallet',
-          title: 'Wallet Dashboard',
-          icon: <Wallet className="w-5 h-5" />,
-          path: '/dashboard/student/wallet'
+          children: [
+            {
+              id: 'weekly-story',
+              title: 'Weekly Story from AI',
+              icon: <Sparkles className="w-4 h-4" />,
+              path: '/dashboard/student/reports/weekly-story'
+            },
+            {
+              id: 'visual-trends',
+              title: 'Visual Trends',
+              icon: <TrendingUp className="w-4 h-4" />,
+              path: '/dashboard/student/reports/visual-trends'
+            },
+            {
+              id: 'parent-summary',
+              title: 'Parent Summary',
+              icon: <Users2 className="w-4 h-4" />,
+              path: '/dashboard/student/reports/parent-summary'
+            }
+          ]
         },
         {
-          id: 'transactions',
-          title: 'Transactions',
-          icon: <FileText className="w-5 h-5" />,
-          path: '/dashboard/student/transactions'
-        },
-        {
-          id: 'charge-account',
-          title: 'Charge Account',
-          icon: <Plus className="w-5 h-5" />,
-          path: '/dashboard/student/charge-account'
-        },
-        {
-          id: 'payouts',
-          title: 'Payouts',
-          icon: <Download className="w-5 h-5" />,
-          path: '/dashboard/student/payouts'
-        },
-        {
-          id: 'subscriptions',
-          title: 'Subscriptions',
-          icon: <Share2 className="w-5 h-5" />,
-          path: '/dashboard/student/subscriptions'
+          id: 'goals',
+          title: 'Goals & Habits',
+          icon: <Goal className="w-5 h-5" />,
+          children: [
+            {
+              id: 'set-goals',
+              title: 'Set Goals',
+              icon: <Target className="w-4 h-4" />,
+              path: '/dashboard/student/goals/set'
+            },
+            {
+              id: 'track-streaks',
+              title: 'Track Streaks',
+              icon: <Rocket className="w-4 h-4" />,
+              path: '/dashboard/student/goals/streaks'
+            },
+            {
+              id: 'ai-nudges',
+              title: 'AI Nudges & Celebrations',
+              icon: <PartyPopper className="w-4 h-4" />,
+              path: '/dashboard/student/goals/nudges'
+            }
+          ]
         }
       ]
     },
@@ -305,92 +576,317 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenAuthModal }) =
       icon: null,
       children: [
         {
-          id: 'forums',
-          title: 'Forums',
+          id: 'friends',
+          title: 'Friends & Study Buddies',
+          icon: <Users2 className="w-5 h-5" />,
+          children: [
+            {
+              id: 'connect',
+              title: 'Connect',
+              icon: <Handshake className="w-4 h-4" />,
+              path: '/dashboard/student/community/connect'
+            },
+            {
+              id: 'study-groups',
+              title: 'Study Groups',
+              icon: <Users2 className="w-4 h-4" />,
+              path: '/dashboard/student/community/study-groups'
+            },
+            {
+              id: 'collaborative',
+              title: 'Collaborative Projects',
+              icon: <FolderKanban className="w-4 h-4" />,
+              path: '/dashboard/student/community/collaborative'
+            }
+          ]
+        },
+        {
+          id: 'discussions',
+          title: 'Discussions & Forums',
           icon: <MessageCircle className="w-5 h-5" />,
           children: [
             {
-              id: 'new-topics',
-              title: 'New Topics',
-              icon: <MessageSquarePlus className="w-4 h-4" />,
-              path: '/dashboard/student/forums/new-topics'
-            },
-            {
-              id: 'my-topics',
-              title: 'My Topics',
+              id: 'recent',
+              title: 'Recent',
               icon: <MessageSquare className="w-4 h-4" />,
-              path: '/dashboard/student/forums/my-topics'
+              path: '/dashboard/student/discussions/recent'
             },
             {
               id: 'my-posts',
               title: 'My Posts',
               icon: <MessageSquare className="w-4 h-4" />,
-              path: '/dashboard/student/forums/my-posts'
+              path: '/dashboard/student/discussions/my-posts'
             },
             {
-              id: 'bookmarks',
-              title: 'Bookmarks',
+              id: 'saved',
+              title: 'Saved',
               icon: <Bookmark className="w-4 h-4" />,
-              path: '/dashboard/student/forums/bookmarks'
+              path: '/dashboard/student/discussions/saved'
+            },
+            {
+              id: 'new-questions',
+              title: 'New Questions',
+              icon: <HelpCircle className="w-4 h-4" />,
+              path: '/dashboard/student/discussions/new-questions'
             }
           ]
         },
         {
-          id: 'support',
-          title: 'Support',
-          icon: <HelpCircle className="w-5 h-5" />,
+          id: 'shoutouts',
+          title: 'Shoutouts & Kudos',
+          icon: <ThumbsUp className="w-5 h-5" />,
           children: [
             {
-              id: 'new-student-guide',
-              title: 'New Student Guide',
-              icon: <UserPlus className="w-4 h-4" />,
-              path: '/dashboard/student/support/new-student-guide'
+              id: 'give',
+              title: 'Give Encouragement',
+              icon: <HeartHandshake className="w-4 h-4" />,
+              path: '/dashboard/student/shoutouts/give'
             },
             {
-              id: 'class-support',
-              title: 'Class Support',
-              icon: <UserCheck className="w-4 h-4" />,
-              path: '/dashboard/student/support/class-support'
+              id: 'receive',
+              title: 'Receive Encouragement',
+              icon: <Heart className="w-4 h-4" />,
+              path: '/dashboard/student/shoutouts/receive'
             },
             {
-              id: 'submit-ticket',
-              title: 'Submit Ticket',
-              icon: <UserX className="w-4 h-4" />,
-              path: '/dashboard/student/support/submit-ticket'
+              id: 'class-wall',
+              title: 'Class Wall',
+              icon: <Users2 className="w-4 h-4" />,
+              path: '/dashboard/student/shoutouts/class-wall'
             }
           ]
         }
       ]
     },
     {
-      id: 'account',
-      title: 'ACCOUNT',
+      id: 'wallet',
+      title: 'WALLET & ACCESS',
       icon: null,
       children: [
         {
-          id: 'login-signup',
-          title: 'Log in/Sign Up',
-          icon: <User className="w-5 h-5" />,
-          path: '/login',
-          onClick: onOpenAuthModal
+          id: 'balance',
+          title: 'My Balance',
+          icon: <Wallet className="w-5 h-5" />,
+          children: [
+            {
+              id: 'summary',
+              title: 'KES Summary',
+              icon: <BadgeDollarSign className="w-4 h-4" />,
+              path: '/dashboard/student/wallet/summary'
+            },
+            {
+              id: 'recent',
+              title: 'Recent Transactions',
+              icon: <FileText className="w-4 h-4" />,
+              path: '/dashboard/student/wallet/recent'
+            }
+          ]
         },
+        {
+          id: 'add-funds',
+          title: 'Add Funds',
+          icon: <Plus className="w-5 h-5" />,
+          children: [
+            {
+              id: 'mpesa',
+              title: 'M-Pesa',
+              icon: <CreditCard className="w-4 h-4" />,
+              path: '/dashboard/student/wallet/add/mpesa'
+            },
+            {
+              id: 'card',
+              title: 'Card',
+              icon: <CreditCard className="w-4 h-4" />,
+              path: '/dashboard/student/wallet/add/card'
+            },
+            {
+              id: 'methods',
+              title: 'Payment Methods',
+              icon: <Coins className="w-4 h-4" />,
+              path: '/dashboard/student/wallet/add/methods'
+            }
+          ]
+        },
+        {
+          id: 'subscriptions',
+          title: 'Subscriptions',
+          icon: <Share2 className="w-5 h-5" />,
+          children: [
+            {
+              id: 'current',
+              title: 'Current Plan',
+              icon: <BadgeCheck className="w-4 h-4" />,
+              path: '/dashboard/student/subscriptions/current'
+            },
+            {
+              id: 'upgrade',
+              title: 'Upgrade',
+              icon: <BadgePlus className="w-4 h-4" />,
+              path: '/dashboard/student/subscriptions/upgrade'
+            },
+            {
+              id: 'family',
+              title: 'Family Plan Options',
+              icon: <Users2 className="w-4 h-4" />,
+              path: '/dashboard/student/subscriptions/family'
+            }
+          ]
+        },
+        {
+          id: 'receipts',
+          title: 'Receipts & History',
+          icon: <FileSearch className="w-5 h-5" />,
+          path: '/dashboard/student/wallet/receipts'
+        }
+      ]
+    },
+    {
+      id: 'support',
+      title: 'SUPPORT & HELP',
+      icon: null,
+      children: [
+        {
+          id: 'guides',
+          title: 'How-to Guides & Videos',
+          icon: <HelpCircle className="w-5 h-5" />,
+          path: '/dashboard/student/support/guides'
+        },
+        {
+          id: 'community',
+          title: 'Ask the Community',
+          icon: <Users2 className="w-5 h-5" />,
+          path: '/dashboard/student/support/community'
+        },
+        {
+          id: 'contact',
+          title: 'Contact Support',
+          icon: <MessageCircle className="w-5 h-5" />,
+          children: [
+            {
+              id: 'quick-ticket',
+              title: 'Quick Ticket',
+              icon: <FileText className="w-4 h-4" />,
+              path: '/dashboard/student/support/ticket'
+            },
+            {
+              id: 'class-teacher',
+              title: 'Class Teacher Chat',
+              icon: <MessageCircle className="w-4 h-4" />,
+              path: '/dashboard/student/support/teacher'
+            },
+            {
+              id: 'urgent',
+              title: 'Urgent Flag',
+              icon: <BellRing className="w-4 h-4" />,
+              path: '/dashboard/student/support/urgent'
+            }
+          ]
+        },
+        {
+          id: 'report',
+          title: 'Report a Problem',
+          icon: <ShieldAlert className="w-5 h-5" />,
+          path: '/dashboard/student/support/report'
+        }
+      ]
+    },
+    {
+      id: 'you',
+      title: 'YOU',
+      icon: null,
+      children: [
         {
           id: 'notifications',
           title: 'Notifications',
           icon: <Bell className="w-5 h-5" />,
-          path: '/dashboard/student/notifications'
+          children: [
+            {
+              id: 'inbox',
+              title: 'Smart Inbox',
+              icon: <Inbox className="w-4 h-4" />,
+              path: '/dashboard/student/notifications/inbox'
+            },
+            {
+              id: 'priority',
+              title: 'Priority Alerts',
+              icon: <BellRing className="w-4 h-4" />,
+              path: '/dashboard/student/notifications/priority'
+            },
+            {
+              id: 'settings',
+              title: 'Settings',
+              icon: <Settings className="w-4 h-4" />,
+              path: '/dashboard/student/notifications/settings'
+            }
+          ]
         },
         {
           id: 'profile',
           title: 'Profile',
           icon: <User className="w-5 h-5" />,
-          path: '/dashboard/student/profile'
+          children: [
+            {
+              id: 'avatar',
+              title: 'Avatar',
+              icon: <User className="w-4 h-4" />,
+              path: '/dashboard/student/profile/avatar'
+            },
+            {
+              id: 'bio',
+              title: 'Bio',
+              icon: <FileText className="w-4 h-4" />,
+              path: '/dashboard/student/profile/bio'
+            },
+            {
+              id: 'learning-style',
+              title: 'Learning Style',
+              icon: <Brain className="w-4 h-4" />,
+              path: '/dashboard/student/profile/learning-style'
+            },
+            {
+              id: 'interests',
+              title: 'Interests',
+              icon: <Heart className="w-4 h-4" />,
+              path: '/dashboard/student/profile/interests'
+            }
+          ]
         },
         {
-          id: 'settings',
-          title: 'Settings',
+          id: 'preferences',
+          title: 'Preferences',
           icon: <Settings className="w-5 h-5" />,
-          path: '/dashboard/student/settings'
+          children: [
+            {
+              id: 'theme',
+              title: 'Theme',
+              icon: <Palette className="w-4 h-4" />,
+              path: '/dashboard/student/preferences/theme'
+            },
+            {
+              id: 'language',
+              title: 'Language',
+              icon: <Globe2 className="w-4 h-4" />,
+              path: '/dashboard/student/preferences/language'
+            },
+            {
+              id: 'notifications',
+              title: 'Notifications',
+              icon: <BellRing className="w-4 h-4" />,
+              path: '/dashboard/student/preferences/notifications'
+            },
+            {
+              id: 'ai-personality',
+              title: 'AI Personality',
+              icon: <Bot className="w-4 h-4" />,
+              path: '/dashboard/student/preferences/ai-personality'
+            }
+          ]
+        },
+        {
+          id: 'privacy',
+          title: 'Privacy & Security',
+          icon: <ShieldCheck className="w-5 h-5" />,
+          path: '/dashboard/student/privacy'
         },
         {
           id: 'logout',

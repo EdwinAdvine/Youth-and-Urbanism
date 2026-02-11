@@ -149,9 +149,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess })
                       // Navigate to partner dashboard
                       window.location.href = '/dashboard/partner';
                     }}
-                    className="flex items-center gap-2 px-3 py-2 bg-[#22272B] hover:bg-[#2A3035] border border-[#2A3035] hover:border-[#FF0000] rounded-lg transition-colors text-white/80 hover:text-white col-span-2"
+                    className="flex items-center gap-2 px-3 py-2 bg-[#22272B] hover:bg-[#2A3035] border border-[#2A3035] hover:border-[#FF0000] rounded-lg transition-colors text-white/80 hover:text-white"
                   >
                     <span className="text-sm">Partner</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      onClose();
+                      // Navigate to staff dashboard
+                      window.location.href = '/dashboard/staff';
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 bg-[#22272B] hover:bg-[#2A3035] border border-[#2A3035] hover:border-[#FF0000] rounded-lg transition-colors text-white/80 hover:text-white"
+                  >
+                    <span className="text-sm">Staff</span>
                   </button>
                 </div>
               </div>

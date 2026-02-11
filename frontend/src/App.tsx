@@ -6,6 +6,7 @@ import DashboardParent from './pages/DashboardParent';
 import DashboardInstructor from './pages/DashboardInstructor';
 import DashboardAdmin from './pages/DashboardAdmin';
 import DashboardPartner from './pages/DashboardPartner';
+import DashboardStaff from './pages/DashboardStaff';
 import AuthModal from './components/auth/AuthModal';
 import './App.css';
 // Import hero background image from assets folder
@@ -590,6 +591,7 @@ const AppContent: React.FC = () => {
           <Route path="/dashboard/instructor" element={<DashboardInstructor />} />
           <Route path="/dashboard/admin" element={<DashboardAdmin />} />
           <Route path="/dashboard/partner" element={<DashboardPartner />} />
+          <Route path="/dashboard/staff" element={<DashboardStaff />} />
         </Routes>
       </div>
   );
