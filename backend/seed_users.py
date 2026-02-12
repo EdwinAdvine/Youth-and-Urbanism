@@ -1,7 +1,10 @@
 """
 Seed script: Creates all database tables and one user per role.
 
-Usage:
+Usage (run inside Docker for consistent password hashing):
+    docker exec tuhs_backend python seed_users.py
+
+Or locally (may cause bcrypt hash issues if Python version differs from Docker):
     cd backend/
     python seed_users.py
 
@@ -15,13 +18,13 @@ import os
 # Ensure the backend directory is in the Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# Load .env.development
+# Load .env.development before importing app modules
 from dotenv import load_dotenv
 load_dotenv(".env.development")
 
-from sqlalchemy import text
-from app.database import Base, init_db, AsyncSessionLocal, engine
-from app.models import *  # Import all models so Base.metadata is populated
+from sqlalchemy import text, select
+from app.database import Base, init_db
+from app.models import *  # noqa: F403 - Import all models so Base.metadata is populated
 from app.models.user import User
 from app.models.student import Student
 from app.models.ai_tutor import AITutor
@@ -105,25 +108,42 @@ SEED_USERS = [
 ]
 
 
-async def create_tables():
-    """Create all database tables from SQLAlchemy models."""
+async def main():
+    print("=" * 65)
+    print("  Urban Home School - Database Setup & User Seeding")
+    print("=" * 65)
+
+    # Initialize database connection (sets up engine + session maker)
+    print("\n1. Initializing database connection...")
+    await init_db()
+
+    # Import engine/session AFTER init_db has set them up
+    from app.database import engine, AsyncSessionLocal
+
+    # Create all tables
+    print("\n2. Creating database tables...")
     async with engine.begin() as conn:
-        # Enable uuid-ossp extension for UUID generation
         await conn.execute(text('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'))
         await conn.execute(text('CREATE EXTENSION IF NOT EXISTS "pgcrypto"'))
-        # Create all tables
         await conn.run_sync(Base.metadata.create_all)
-    print("All database tables created successfully.")
+    print("   Tables created successfully.")
 
+    # List tables
+    async with engine.begin() as conn:
+        result = await conn.execute(text(
+            "SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename"
+        ))
+        tables = [row[0] for row in result.fetchall()]
+    print(f"   Total tables: {len(tables)}")
+    for t in tables:
+        print(f"     - {t}")
 
-async def seed_users():
-    """Create one user for each role."""
+    # Seed users
+    print("\n3. Seeding users (one per role)...")
     async with AsyncSessionLocal() as session:
         created = []
 
         for user_data in SEED_USERS:
-            # Check if user already exists
-            from sqlalchemy import select
             result = await session.execute(
                 select(User).where(User.email == user_data["email"])
             )
@@ -142,7 +162,7 @@ async def seed_users():
                 role=user_data["role"],
                 profile_data=user_data["profile_data"],
                 is_active=True,
-                is_verified=True,  # Pre-verified for dev convenience
+                is_verified=True,
             )
             session.add(new_user)
             await session.flush()
@@ -153,7 +173,6 @@ async def seed_users():
                 grade_level = profile.get("grade_level", "Grade 1")
                 year = datetime.utcnow().year
 
-                # Count existing students for admission number
                 count_result = await session.execute(select(Student))
                 count = len(count_result.scalars().all())
                 admission_number = f"TUHS-{year}-{(count + 1):05d}"
@@ -187,35 +206,7 @@ async def seed_users():
             created.append(user_data)
 
         await session.commit()
-        print(f"\nSeeded {len(created)} users successfully.")
-
-
-async def main():
-    print("=" * 65)
-    print("  Urban Home School - Database Setup & User Seeding")
-    print("=" * 65)
-
-    # Initialize database connection
-    print("\n1. Initializing database connection...")
-    await init_db()
-
-    # Create all tables
-    print("\n2. Creating database tables...")
-    await create_tables()
-
-    # List created tables
-    async with engine.begin() as conn:
-        result = await conn.execute(text(
-            "SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename"
-        ))
-        tables = [row[0] for row in result.fetchall()]
-    print(f"   Tables created ({len(tables)}):")
-    for t in tables:
-        print(f"     - {t}")
-
-    # Seed users
-    print("\n3. Seeding users (one per role)...")
-    await seed_users()
+        print(f"\n   Seeded {len(created)} users successfully.")
 
     # Print credentials
     print("\n" + "=" * 65)

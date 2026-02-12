@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import BirdChatPage from './components/bird-chat/BirdChatPage';
 import DashboardStudent from './pages/DashboardStudent';
 import DashboardParent from './pages/DashboardParent';
@@ -25,6 +25,7 @@ import LessonPlayerPage from './pages/LessonPlayerPage';
 import InstructorDashboardPage from './pages/InstructorDashboardPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthModal from './components/auth/AuthModal';
+import { useAuthStore } from './store/authStore';
 import './App.css';
 // Import hero background image from assets folder
 import heroBackground from './assets/images/background001.png';
@@ -51,6 +52,26 @@ const AppContent: React.FC = () => {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated, user } = useAuthStore();
+
+  // Redirect authenticated users from home to their dashboard
+  useEffect(() => {
+    console.log('[Auth] useEffect check:', { isAuthenticated, role: user?.role, pathname: location.pathname });
+    if (isAuthenticated && user?.role && location.pathname === '/') {
+      console.log('[Auth] useEffect redirecting to:', `/dashboard/${user.role}`);
+      navigate(`/dashboard/${user.role}`, { replace: true });
+    }
+  }, [isAuthenticated, user, location.pathname, navigate]);
+
+  const handleAuthSuccess = (authUser: any) => {
+    console.log('[Auth] handleAuthSuccess called, authUser:', authUser);
+    setIsAuthModalOpen(false);
+    const role = authUser?.role || user?.role || 'student';
+    console.log('[Auth] Navigating to:', `/dashboard/${role}`);
+    // Use React Router navigate (no page reload) to preserve in-memory auth state
+    navigate(`/dashboard/${role}`, { replace: true });
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -594,9 +615,10 @@ const AppContent: React.FC = () => {
       </footer>
 
       {/* Auth Modal */}
-      <AuthModal 
+      <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
+        onAuthSuccess={handleAuthSuccess}
       />
 
     </div>

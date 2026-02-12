@@ -35,21 +35,35 @@ export interface User {
 
 class AuthService {
   async register(data: RegisterRequest): Promise<User> {
-    const response = await apiClient.post<User>('/api/v1/auth/register', data);
+    // Transform to backend UserCreate format: {email, password, role, profile_data}
+    const payload = {
+      email: data.email,
+      password: data.password,
+      role: data.role,
+      profile_data: {
+        full_name: data.full_name,
+        ...(data.phone_number && { phone: data.phone_number }),
+      },
+    };
+    const response = await apiClient.post<User>('/api/v1/auth/register', payload);
     return response.data;
   }
 
   async login(credentials: LoginRequest): Promise<{ user: User; tokens: TokenResponse }> {
+    console.log('[Auth] authService.login: POST /api/v1/auth/login');
     const response = await apiClient.post<TokenResponse>('/api/v1/auth/login', credentials);
     const tokens = response.data;
+    console.log('[Auth] authService.login: got tokens, storing in localStorage');
 
     // Store tokens in localStorage
     localStorage.setItem('access_token', tokens.access_token);
     localStorage.setItem('refresh_token', tokens.refresh_token);
 
     // Get user info (backend returns flat User object from /auth/me)
+    console.log('[Auth] authService.login: GET /api/v1/auth/me');
     const userResponse = await apiClient.get<User>('/api/v1/auth/me');
     const user = userResponse.data;
+    console.log('[Auth] authService.login: got user:', user);
 
     // Extract full_name from profile_data if not at top level
     if (!user.full_name && user.profile_data?.full_name) {

@@ -65,6 +65,8 @@ async def register(
         )
 
         return UserResponse.model_validate(user)
+    except HTTPException:
+        raise
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -103,7 +105,9 @@ async def login(
     """
     try:
         token_data = await auth_service.authenticate_user(credentials, db)
-        return TokenResponse(**token_data)
+        return token_data
+    except HTTPException:
+        raise
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -151,7 +155,9 @@ async def refresh_token(
 
     try:
         token_data = await auth_service.refresh_access_token(refresh_token, db)
-        return TokenResponse(**token_data)
+        return token_data
+    except HTTPException:
+        raise
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

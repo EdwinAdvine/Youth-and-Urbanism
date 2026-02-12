@@ -15,17 +15,13 @@ from functools import wraps
 from fastapi import HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt as _bcrypt
 from cryptography.fernet import Fernet, InvalidToken
 import base64
 import hashlib
 
 from app.config import settings
 from app.database import get_db
-
-
-# Password hashing context using bcrypt
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # HTTP Bearer token security scheme
 security = HTTPBearer()
@@ -73,6 +69,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
     Verify a plain password against a hashed password.
 
+    Uses bcrypt directly to avoid passlib version incompatibilities.
+
     Args:
         plain_password: The plain text password to verify
         hashed_password: The bcrypt hashed password from database
@@ -81,7 +79,10 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         True if password matches, False otherwise
     """
     try:
-        return pwd_context.verify(plain_password, hashed_password)
+        return _bcrypt.checkpw(
+            plain_password.encode("utf-8"),
+            hashed_password.encode("utf-8"),
+        )
     except Exception:
         return False
 
@@ -89,6 +90,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def get_password_hash(password: str) -> str:
     """
     Hash a plain password using bcrypt.
+
+    Uses bcrypt directly to avoid passlib version incompatibilities.
 
     Args:
         password: The plain text password to hash
@@ -102,7 +105,10 @@ def get_password_hash(password: str) -> str:
     if not password or not password.strip():
         raise ValueError("Password cannot be empty")
 
-    return pwd_context.hash(password)
+    return _bcrypt.hashpw(
+        password.encode("utf-8"),
+        _bcrypt.gensalt(),
+    ).decode("utf-8")
 
 
 # ============================================================================

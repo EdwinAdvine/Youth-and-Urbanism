@@ -7,9 +7,45 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Urban Home School** (The Bird AI) is a full-stack educational platform for Kenyan children featuring AI-powered tutoring with multi-AI orchestration. This is a monorepo with:
 - **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
 - **Backend**: FastAPI (Python) + SQLAlchemy ORM
-- **Database**: PostgreSQL with Redis caching
+- **Database**: PostgreSQL (Docker) with Redis caching (Docker)
 - **AI Integration**: Multi-AI orchestrator (Gemini, Claude, OpenAI, Grok, ElevenLabs, Synthesia)
 - **Deployment**: Contabo VDS with Nginx reverse proxy
+
+## Docker Services
+
+All infrastructure services run in Docker containers via Docker Compose.
+
+### Quick Start
+```bash
+# Start PostgreSQL + Redis only (for local backend/frontend dev)
+docker compose -f docker-compose.dev.yml up -d
+
+# Start full stack (PostgreSQL + Redis + Backend + Frontend)
+docker compose up -d
+
+# Stop services
+docker compose down
+
+# Stop and remove volumes (reset database)
+docker compose down -v
+```
+
+### Services
+| Service    | Image              | Container         | Port  | Purpose                    |
+|------------|--------------------|-------------------|-------|----------------------------|
+| PostgreSQL | postgres:16-alpine | tuhs_postgres     | 5432  | Primary database           |
+| Redis      | redis:7-alpine     | tuhs_redis        | 6379  | Caching & session storage  |
+| Backend    | ./backend          | tuhs_backend      | 8000  | FastAPI API server         |
+| Frontend   | ./frontend         | tuhs_frontend     | 3000  | React dev/production server|
+
+### Database Credentials (Development)
+```
+Host: localhost (or postgres inside Docker network)
+Port: 5432
+Database: tuhs_db
+User: tuhs_user
+Password: tuhs_dev_password_123
+```
 
 ## Development Commands
 
@@ -32,6 +68,9 @@ python main.py                                               # Start backend ser
 # OR
 uvicorn main:app --reload --host 0.0.0.0 --port 8000        # Start with uvicorn (http://localhost:8000)
 pytest                                                       # Run tests
+
+# Database seeding (creates tables + demo users for all roles)
+python seed_users.py
 ```
 
 **API Documentation**: Once backend is running, visit `/docs` (Swagger) or `/redoc` (ReDoc) for interactive API documentation.
@@ -53,6 +92,7 @@ backend/
 │   └── middleware/          # Custom middleware (auth, logging)
 ├── tests/                   # Pytest test files
 ├── alembic/                 # Database migrations
+├── seed_users.py            # Database seeding script (tables + demo users)
 └── requirements.txt
 ```
 
@@ -83,7 +123,7 @@ The application supports six user roles, each with dedicated interfaces:
 
 Core tables with UUID primary keys, soft deletes, and timestamps:
 
-- **users**: Authentication, roles (`student`, `parent`, `teacher`, `admin`, `external_instructor`, `partner`), profile data (JSONB)
+- **users**: Authentication, roles (`student`, `parent`, `instructor`, `admin`, `partner`, `staff`), profile data (JSONB)
 - **students**: Links to users and parents, admission numbers, grade levels, AI tutor assignments, learning profiles
 - **ai_tutors**: Student-specific AI instances, conversation history (JSONB array), learning paths, performance metrics
 - **courses**: CBC-aligned courses, grade levels (array), learning areas, creator info, pricing, ratings
@@ -158,8 +198,8 @@ Comprehensive TypeScript types in [frontend/src/types/](frontend/src/types/):
 ### Backend Architecture
 
 - **Framework**: FastAPI with automatic OpenAPI documentation
-- **ORM**: SQLAlchemy with PostgreSQL database
-- **Cache**: Redis for session management and frequently accessed data
+- **ORM**: SQLAlchemy with PostgreSQL database (Docker)
+- **Cache**: Redis for session management and frequently accessed data (Docker)
 - **Authentication**: JWT tokens using python-jose and passlib (bcrypt)
 - **CORS**: Configured for `http://localhost:3000` and `http://127.0.0.1:3000`
 - **Entry Point**: [main.py](backend/main.py)
@@ -176,8 +216,8 @@ VITE_APP_TITLE=Urban Home School
 
 ### Backend `.env`
 ```
-# Database
-DATABASE_URL=postgresql://tuhs_user:password@localhost:5432/tuhs_db
+# Database (Docker PostgreSQL)
+DATABASE_URL=postgresql+asyncpg://tuhs_user:tuhs_dev_password_123@localhost:5432/tuhs_db
 REDIS_URL=redis://localhost:6379
 
 # Security
@@ -214,18 +254,17 @@ The application is designed for deployment on Contabo Virtual Dedicated Servers:
 
 **Infrastructure**:
 - Single VDS initially (4-8 GB RAM, 4 cores minimum)
-- Docker containers for service isolation
+- Docker containers for all services (PostgreSQL, Redis, Backend, Frontend)
 - Nginx as reverse proxy and load balancer
 - Let's Encrypt for SSL/TLS certificates
-- PM2 or systemd for process management
 - Automated backups to external storage
 - Cloudflare for CDN and DDoS protection
 
 **Services**:
 - Frontend: Served as static files from `/var/www/tuhs`
 - Backend: Systemd service running uvicorn on port 8000
-- Database: PostgreSQL with daily automated backups
-- Cache: Redis for session management and caching
+- Database: PostgreSQL Docker container with daily automated backups
+- Cache: Redis Docker container for session management and caching
 
 **Nginx configuration**: Frontend at root, backend API proxied to `/api/*` endpoints.
 

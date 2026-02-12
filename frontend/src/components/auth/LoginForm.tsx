@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
-import { useNavigate } from 'react-router-dom';
 
 interface LoginFormProps {
   onPasswordReset: () => void;
@@ -16,8 +15,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState('');
 
-  const { login, isLoading, error, clearError, user } = useAuthStore();
-  const navigate = useNavigate();
+  const { login, isLoading, error, clearError } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,34 +23,26 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
     setSuccess('');
 
     try {
+      console.log('[Auth] LoginForm: calling login...');
       await login({ email, password });
+      console.log('[Auth] LoginForm: login succeeded');
 
       setSuccess('Login successful! Redirecting...');
 
       // Get the user from store after successful login
       const currentUser = useAuthStore.getState().user;
+      console.log('[Auth] LoginForm: currentUser from store:', currentUser);
 
-      // Navigate based on user role
-      if (currentUser?.role === 'admin') {
-        navigate('/dashboard/admin');
-      } else if (currentUser?.role === 'instructor') {
-        navigate('/dashboard/instructor');
-      } else if (currentUser?.role === 'parent') {
-        navigate('/dashboard/parent');
-      } else if (currentUser?.role === 'partner') {
-        navigate('/dashboard/partner');
-      } else if (currentUser?.role === 'staff') {
-        navigate('/dashboard/staff');
-      } else {
-        navigate('/dashboard/student');
-      }
-
+      // Notify parent (AuthModal -> App) to handle navigation
       if (onLoginSuccess) {
+        console.log('[Auth] LoginForm: calling onLoginSuccess');
         onLoginSuccess(currentUser);
+      } else {
+        console.warn('[Auth] LoginForm: onLoginSuccess is not defined!');
       }
     } catch (error) {
       // Error is already set in store
-      console.error('Login failed:', error);
+      console.error('[Auth] LoginForm: login failed:', error);
     }
   };
 
@@ -161,17 +151,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
         >
           Sign up here
         </button>
-      </div>
-
-      {/* Test Accounts Info */}
-      <div className="mt-6 p-4 bg-[#22272B] rounded-lg border border-[#2A3035]">
-        <p className="text-xs text-white/60 mb-2">Test accounts for demo:</p>
-        <div className="space-y-1 text-xs text-white/80">
-          <p><strong>Student:</strong> student@urbanhomeschool.com / password123</p>
-          <p><strong>Parent:</strong> parent@urbanhomeschool.com / password123</p>
-          <p><strong>Instructor:</strong> instructor@urbanhomeschool.com / password123</p>
-          <p><strong>Admin:</strong> admin@urbanhomeschool.com / password123</p>
-        </div>
       </div>
     </form>
   );

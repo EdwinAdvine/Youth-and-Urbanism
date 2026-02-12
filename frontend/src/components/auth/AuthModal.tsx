@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { X, AlertCircle } from 'lucide-react';
 import LoginForm from './LoginForm';
 import SignupForm from './SignupForm';
 
@@ -23,10 +23,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess })
   };
 
   const handleAuthSuccess = (user: any) => {
+    console.log('[Auth] AuthModal: handleAuthSuccess called, user:', user);
     onClose();
     // Call the parent's auth success handler if provided
     if (onAuthSuccess) {
+      console.log('[Auth] AuthModal: calling onAuthSuccess');
       onAuthSuccess(user);
+    } else {
+      console.warn('[Auth] AuthModal: onAuthSuccess is not defined!');
     }
   };
 
@@ -88,83 +92,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess })
             {/* Content */}
             <div className="p-4 sm:p-6">
               {activeTab === 'login' ? (
-                <LoginForm 
+                <LoginForm
                   onPasswordReset={handlePasswordReset}
                   onSwitchToSignup={() => setActiveTab('signup')}
                   onLoginSuccess={handleAuthSuccess}
                 />
               ) : (
-                <SignupForm 
+                <SignupForm
                   onSwitchToLogin={() => setActiveTab('login')}
+                  onSignupSuccess={handleAuthSuccess}
                 />
               )}
-              
-              {/* Dashboard Links Section */}
-              <div className="mt-6 pt-6 border-t border-[#22272B]">
-                <p className="text-sm text-white/80 mb-4 text-center">Or access demo dashboards:</p>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    onClick={() => {
-                      onClose();
-                      // Navigate to student dashboard
-                      window.location.href = '/dashboard/student';
-                    }}
-                    className="flex items-center gap-2 px-3 py-2 bg-[#22272B] hover:bg-[#2A3035] border border-[#2A3035] hover:border-[#FF0000] rounded-lg transition-colors text-white/80 hover:text-white"
-                  >
-                    <span className="text-sm">Student</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      onClose();
-                      // Navigate to parent dashboard
-                      window.location.href = '/dashboard/parent';
-                    }}
-                    className="flex items-center gap-2 px-3 py-2 bg-[#22272B] hover:bg-[#2A3035] border border-[#2A3035] hover:border-[#FF0000] rounded-lg transition-colors text-white/80 hover:text-white"
-                  >
-                    <span className="text-sm">Parent</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      onClose();
-                      // Navigate to instructor dashboard
-                      window.location.href = '/dashboard/instructor';
-                    }}
-                    className="flex items-center gap-2 px-3 py-2 bg-[#22272B] hover:bg-[#2A3035] border border-[#2A3035] hover:border-[#FF0000] rounded-lg transition-colors text-white/80 hover:text-white"
-                  >
-                    <span className="text-sm">Instructor</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      onClose();
-                      // Navigate to admin dashboard
-                      window.location.href = '/dashboard/admin';
-                    }}
-                    className="flex items-center gap-2 px-3 py-2 bg-[#22272B] hover:bg-[#2A3035] border border-[#2A3035] hover:border-[#FF0000] rounded-lg transition-colors text-white/80 hover:text-white"
-                  >
-                    <span className="text-sm">Admin</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      onClose();
-                      // Navigate to partner dashboard
-                      window.location.href = '/dashboard/partner';
-                    }}
-                    className="flex items-center gap-2 px-3 py-2 bg-[#22272B] hover:bg-[#2A3035] border border-[#2A3035] hover:border-[#FF0000] rounded-lg transition-colors text-white/80 hover:text-white"
-                  >
-                    <span className="text-sm">Partner</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      onClose();
-                      // Navigate to staff dashboard
-                      window.location.href = '/dashboard/staff';
-                    }}
-                    className="flex items-center gap-2 px-3 py-2 bg-[#22272B] hover:bg-[#2A3035] border border-[#2A3035] hover:border-[#FF0000] rounded-lg transition-colors text-white/80 hover:text-white"
-                  >
-                    <span className="text-sm">Staff</span>
-                  </button>
-                </div>
-              </div>
             </div>
           </motion.div>
 

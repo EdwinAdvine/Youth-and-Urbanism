@@ -27,7 +27,9 @@ export const useAuthStore = create<AuthState>()(
       login: async (credentials: LoginRequest) => {
         set({ isLoading: true, error: null });
         try {
+          console.log('[Auth] store.login: calling authService.login');
           const { user, tokens } = await authService.login(credentials);
+          console.log('[Auth] store.login: setting isAuthenticated=true, user:', user?.role);
           set({
             user,
             isAuthenticated: true,
@@ -35,6 +37,7 @@ export const useAuthStore = create<AuthState>()(
             error: null
           });
         } catch (error: any) {
+          console.error('[Auth] store.login: FAILED:', error?.message || error);
           const errorMessage = error.response?.data?.detail || 'Login failed. Please check your credentials.';
           set({
             error: errorMessage,

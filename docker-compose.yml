@@ -1,8 +1,26 @@
 # Urban Home School - Full Development Stack
-# PostgreSQL runs natively on the host (port 5432)
-# Backend and frontend connect to it via host.docker.internal
+# All services run in Docker containers
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: tuhs_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: tuhs_user
+      POSTGRES_PASSWORD: tuhs_dev_password_123
+      POSTGRES_DB: tuhs_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tuhs_user -d tuhs_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   redis:
     image: redis:7-alpine
     container_name: tuhs_redis
@@ -28,16 +46,16 @@ services:
       - ./backend/.env.development
     environment:
       # Override DB/Redis URLs to use Docker networking
-      DATABASE_URL: postgresql+asyncpg://tuhs_user:tuhs_dev_password_123@host.docker.internal:5432/tuhs_db
+      DATABASE_URL: postgresql+asyncpg://tuhs_user:tuhs_dev_password_123@postgres:5432/tuhs_db
       REDIS_URL: redis://redis:6379
       HOST: 0.0.0.0
       PORT: "8000"
       RELOAD: "False"
     depends_on:
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
@@ -65,5 +83,7 @@ services:
       start_period: 10s
 
 volumes:
+  postgres_data:
+    driver: local
   redis_data:
     driver: local
