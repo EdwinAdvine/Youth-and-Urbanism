@@ -300,7 +300,8 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 
 # API Router inclusion (Phase 2 - AI Orchestration Layer)
-from app.api.v1 import auth, ai_tutor, courses, payments, assessments, users, parents, notifications, forum
+from app.api.v1 import auth, ai_tutor, courses, payments, assessments, users, parents, notifications, forum, categories, store
+from app.api.v1 import contact, certificates, instructor_applications
 from app.api.v1.admin import ai_providers, analytics as admin_analytics
 
 # Authentication endpoints (with auto-create AI tutor for students)
@@ -366,6 +367,20 @@ app.include_router(
     tags=["Forum"]
 )
 
+# Category management endpoints (CBC categories)
+app.include_router(
+    categories.router,
+    prefix=settings.api_v1_prefix,
+    tags=["Categories"]
+)
+
+# Store endpoints (e-commerce)
+app.include_router(
+    store.router,
+    prefix=settings.api_v1_prefix,
+    tags=["Store"]
+)
+
 # Admin AI Provider Management (flexible AI system)
 app.include_router(
     ai_providers.router,
@@ -380,5 +395,28 @@ app.include_router(
     tags=["Admin - Analytics"]
 )
 
+# Phase 8 - Supporting APIs
+
+# Contact form endpoints (public + admin management)
+app.include_router(
+    contact.router,
+    prefix=settings.api_v1_prefix,
+    tags=["Contact"]
+)
+
+# Certificate validation and management endpoints
+app.include_router(
+    certificates.router,
+    prefix=settings.api_v1_prefix,
+    tags=["Certificates"]
+)
+
+# Instructor application endpoints (public + admin review)
+app.include_router(
+    instructor_applications.router,
+    prefix=settings.api_v1_prefix,
+    tags=["Instructor Applications"]
+)
+
 logger.info("FastAPI application configured successfully")
-logger.info("Routers registered: auth, ai-tutor, courses, payments, parents, notifications, forum, admin/ai-providers, admin/analytics")
+logger.info("Routers registered: auth, ai-tutor, courses, payments, parents, notifications, forum, categories, store, admin/ai-providers, admin/analytics, contact, certificates, instructor-applications")

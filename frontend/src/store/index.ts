@@ -218,10 +218,10 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
   }
 }));
 
-// Initialize theme on app start
+// Initialize theme on app start (defaults to dark if no saved preference)
 export const initializeTheme = () => {
-  const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'system' || 'system';
-  useThemeStore.getState().setTheme(savedTheme);
+  const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'system' | null;
+  useThemeStore.getState().setTheme(savedTheme || 'dark');
 };
 
 // Subscribe to system theme changes

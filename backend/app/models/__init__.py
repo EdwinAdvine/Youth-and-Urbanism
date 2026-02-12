@@ -20,6 +20,9 @@ Models include:
 - CurrencyConversion: Currency conversion log (NEW)
 - RevenueMetrics: Revenue analytics aggregation (NEW)
 - PaymentAnalytics: Payment and subscription analytics (NEW)
+- ContactMessage: Contact form submissions (Phase 8)
+- Certificate: Course completion certificates with public validation (Phase 8)
+- InstructorApplication: Instructor onboarding applications (Phase 8)
 """
 
 from app.models.user import User
@@ -55,6 +58,13 @@ from app.models.analytics import (
 )
 from app.models.notification import Notification, NotificationType
 from app.models.forum import ForumPost, ForumReply, ForumLike
+from app.models.category import Category
+from app.models.store import ProductCategory, Product, Cart, CartItem, Order, OrderItem, ShippingAddress
+
+# Phase 8 - Supporting APIs
+from app.models.contact import ContactMessage
+from app.models.certificate import Certificate
+from app.models.instructor_application import InstructorApplication
 
 __all__ = [
     # Core user models
@@ -106,4 +116,21 @@ __all__ = [
     "ForumPost",
     "ForumReply",
     "ForumLike",
+
+    # Category models
+    "Category",
+
+    # Store models
+    "ProductCategory",
+    "Product",
+    "Cart",
+    "CartItem",
+    "Order",
+    "OrderItem",
+    "ShippingAddress",
+
+    # Phase 8 - Supporting APIs
+    "ContactMessage",
+    "Certificate",
+    "InstructorApplication",
 ]
