@@ -4,6 +4,8 @@ export interface ChatMessage {
   content: string;
   timestamp: Date;
   avatarExpression?: BirdExpression;
+  audioUrl?: string;
+  videoUrl?: string;
 }
 
 export type BirdExpression = 'happy' | 'thinking' | 'excited' | 'listening';

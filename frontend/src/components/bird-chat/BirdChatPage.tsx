@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useChatStore } from '../../store/chatStore';
+import { useAuthStore } from '../../store/authStore';
+import aiTutorService from '../../services/aiTutorService';
 import ChatHeader from './ChatHeader';
 import ChatMessages from './ChatMessages';
 import InputBar from './InputBar';
@@ -7,29 +9,48 @@ import InputBar from './InputBar';
 const BirdChatPage: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  
-  // Chat state from store
+  const [responseMode, setResponseMode] = useState<'text' | 'voice' | 'video'>('text');
+  const [error, setError] = useState<string | null>(null);
+
+  // Store state
+  const { user } = useAuthStore();
   const messages = useChatStore((state) => state.messages);
   const currentInput = useChatStore((state) => state.currentInput);
   const addMessage = useChatStore((state) => state.addMessage);
   const updateCurrentInput = useChatStore((state) => state.updateCurrentInput);
   const clearChat = useChatStore((state) => state.clearChat);
+  const loadChatHistory = useChatStore((state) => state.loadChatHistory);
 
 
-  // AI responses for demo
-  const aiResponses = [
-    "That's a great question! Let me think about that for you...",
-    "I love learning about that topic! Here's what I know...",
-    "Wow, that's so interesting! Let me tell you more about it...",
-    "You're so smart to ask about that! Here's the answer...",
-    "Let's explore this together! What do you think about...?",
-    "I'm so excited to learn with you! Let me share what I know..."
-  ];
+  // Load conversation history on mount
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const history = await aiTutorService.getHistory(50, 0);
+        // Convert backend messages to chat messages
+        const chatMessages = history.messages.map((msg, index) => ({
+          id: `${Date.now()}-${index}`,
+          type: msg.role === 'user' ? 'user' as const : 'ai' as const,
+          content: msg.content,
+          timestamp: new Date(msg.timestamp),
+          audioUrl: msg.audio_url,
+          videoUrl: msg.video_url
+        }));
+        loadChatHistory(chatMessages);
+      } catch (error) {
+        console.error('Failed to load conversation history:', error);
+      }
+    };
 
-  const handleSendMessage = (message: string) => {
+    if (user && user.role === 'student') {
+      loadHistory();
+    }
+  }, [user, loadChatHistory]);
+
+  const handleSendMessage = async (message: string) => {
     if (!message.trim()) return;
 
-    // Add user message
+    // Add user message immediately
     addMessage({
       type: 'user',
       content: message
@@ -38,18 +59,36 @@ const BirdChatPage: React.FC = () => {
     // Clear input
     updateCurrentInput('');
     setIsTyping(true);
+    setError(null);
 
-    // Simulate AI thinking and response
-    setTimeout(() => {
-      setIsTyping(false);
-      const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
-      
-      addMessage({
-        type: 'ai',
-        content: randomResponse
+    try {
+      // Send message to backend AI tutor
+      const response = await aiTutorService.sendMessage({
+        message,
+        include_context: true,
+        context_messages: 10
       });
 
-    }, 1500);
+      // Add AI response
+      addMessage({
+        type: 'ai',
+        content: response.message,
+        audioUrl: response.audio_url,
+        videoUrl: response.video_url
+      });
+
+    } catch (error: any) {
+      console.error('Failed to send message:', error);
+      setError('Sorry, I had trouble understanding that. Please try again!');
+
+      // Add error message to chat
+      addMessage({
+        type: 'ai',
+        content: 'Oops! I had trouble with that. Can you try asking again?'
+      });
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const handleQuickAction = (action: string) => {
@@ -64,8 +103,24 @@ const BirdChatPage: React.FC = () => {
     handleSendMessage(message);
   };
 
-  const handleNewChat = () => {
-    clearChat();
+  const handleNewChat = async () => {
+    try {
+      await aiTutorService.resetConversation();
+      clearChat();
+    } catch (error) {
+      console.error('Failed to reset conversation:', error);
+      // Still clear local chat even if backend reset fails
+      clearChat();
+    }
+  };
+
+  const handleResponseModeChange = async (mode: 'text' | 'voice' | 'video') => {
+    try {
+      await aiTutorService.updateResponseMode(mode);
+      setResponseMode(mode);
+    } catch (error) {
+      console.error('Failed to update response mode:', error);
+    }
   };
 
   return (
@@ -79,14 +134,56 @@ const BirdChatPage: React.FC = () => {
 
       {/* Main Chat Area */}
       <div className="flex-1 overflow-hidden">
-        <ChatMessages 
+        <ChatMessages
           messages={messages}
           isTyping={isTyping}
         />
       </div>
 
+      {/* Response Mode Selector */}
+      <div className="px-4 py-2 border-t border-white/10">
+        <div className="flex gap-2 items-center">
+          <span className="text-white/60 text-sm">Response:</span>
+          <button
+            onClick={() => handleResponseModeChange('text')}
+            className={`px-3 py-1 rounded text-sm transition-colors ${
+              responseMode === 'text'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white/10 text-white/60 hover:bg-white/20'
+            }`}
+          >
+            Text
+          </button>
+          <button
+            onClick={() => handleResponseModeChange('voice')}
+            className={`px-3 py-1 rounded text-sm transition-colors ${
+              responseMode === 'voice'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white/10 text-white/60 hover:bg-white/20'
+            }`}
+          >
+            Voice
+          </button>
+          <button
+            onClick={() => handleResponseModeChange('video')}
+            className={`px-3 py-1 rounded text-sm transition-colors ${
+              responseMode === 'video'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white/10 text-white/60 hover:bg-white/20'
+            }`}
+          >
+            Video
+          </button>
+        </div>
+        {error && (
+          <div className="mt-2 text-red-400 text-xs">
+            {error}
+          </div>
+        )}
+      </div>
+
       {/* Input Bar */}
-      <InputBar 
+      <InputBar
         onSendMessage={handleSendMessage}
         onQuickAction={handleQuickAction}
         isTyping={isTyping}

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useAuthStore } from '../../store/authStore';
+import { useNavigate } from 'react-router-dom';
 
 interface LoginFormProps {
   onPasswordReset: () => void;
@@ -12,43 +14,45 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+
+  const { login, isLoading, error, clearError, user } = useAuthStore();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    clearError();
     setSuccess('');
-    setIsLoading(true);
 
     try {
-      // Mock login delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await login({ email, password });
 
-      // Mock validation
-      if (email && password) {
-        setSuccess('Login successful! Redirecting...');
-        // Mock user data based on email
-        const mockUser = {
-          email,
-          role: email.includes('student') ? 'student' : 
-                email.includes('parent') ? 'parent' :
-                email.includes('instructor') ? 'instructor' :
-                email.includes('admin') ? 'admin' : 'user'
-        };
-        
-        // Call the success callback to trigger redirect with user data
-        if (onLoginSuccess) {
-          onLoginSuccess(mockUser);
-        }
+      setSuccess('Login successful! Redirecting...');
+
+      // Get the user from store after successful login
+      const currentUser = useAuthStore.getState().user;
+
+      // Navigate based on user role
+      if (currentUser?.role === 'admin') {
+        navigate('/dashboard/admin');
+      } else if (currentUser?.role === 'instructor') {
+        navigate('/dashboard/instructor');
+      } else if (currentUser?.role === 'parent') {
+        navigate('/dashboard/parent');
+      } else if (currentUser?.role === 'partner') {
+        navigate('/dashboard/partner');
+      } else if (currentUser?.role === 'staff') {
+        navigate('/dashboard/staff');
       } else {
-        setError('Please enter both email and password');
+        navigate('/dashboard/student');
+      }
+
+      if (onLoginSuccess) {
+        onLoginSuccess(currentUser);
       }
     } catch (error) {
-      setError('Login failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+      // Error is already set in store
+      console.error('Login failed:', error);
     }
   };
 

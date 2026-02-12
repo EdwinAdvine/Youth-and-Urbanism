@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { AlertCircle, Eye, EyeOff, Loader2, Check } from 'lucide-react';
+import { useAuthStore } from '../../store/authStore';
+import { useNavigate } from 'react-router-dom';
 
 interface SignupFormProps {
   onSwitchToLogin: () => void;
@@ -13,6 +15,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
     email: '',
     password: '',
     confirmPassword: '',
+    phone_number: '',
     gradeLevel: '',
     numberOfChildren: '',
     subjects: '',
@@ -21,9 +24,10 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+
+  const { register, isLoading, error, clearError } = useAuthStore();
+  const navigate = useNavigate();
 
   const handleRoleSelect = (role: 'student' | 'parent' | 'instructor' | 'partner') => {
     setSelectedRole(role);
@@ -38,55 +42,87 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
     }));
   };
 
-  const validatePassword = (password: string) => {
-    return password.length >= 8;
+  const validatePassword = (password: string): boolean => {
+    if (password.length < 8) {
+      setPasswordError('Password must be at least 8 characters');
+      return false;
+    }
+    if (!/[A-Z]/.test(password)) {
+      setPasswordError('Password must contain at least one uppercase letter');
+      return false;
+    }
+    if (!/[a-z]/.test(password)) {
+      setPasswordError('Password must contain at least one lowercase letter');
+      return false;
+    }
+    if (!/[0-9]/.test(password)) {
+      setPasswordError('Password must contain at least one number');
+      return false;
+    }
+    if (!/[!@#$%^&*]/.test(password)) {
+      setPasswordError('Password must contain at least one special character (!@#$%^&*)');
+      return false;
+    }
+    setPasswordError('');
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    clearError();
+    setPasswordError('');
 
     // Validation
     if (!formData.name || !formData.email || !formData.password) {
-      setError('All required fields must be filled');
+      setPasswordError('All required fields must be filled');
       return;
     }
 
-    if (!validatePassword(formData.password)) {
-      setError('Password must be at least 8 characters long');
-      return;
-    }
-
+    // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setPasswordError('Passwords do not match');
+      return;
+    }
+
+    // Validate password strength
+    if (!validatePassword(formData.password)) {
       return;
     }
 
     if (!selectedRole) {
-      setError('Please select a role');
+      setPasswordError('Please select a role');
       return;
     }
 
     try {
-      // Mock signup delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setSuccess('Account created successfully! Redirecting...');
-      // Mock redirect after success
-      setTimeout(() => {
-        // In a real app, this would redirect to login or dashboard
-        // For now, we'll just show success
-      }, 2000);
+      await register({
+        email: formData.email,
+        password: formData.password,
+        full_name: formData.name,
+        role: selectedRole,
+        phone_number: formData.phone_number || undefined
+      });
+
+      // Navigate to appropriate dashboard
+      navigate(`/dashboard/${selectedRole}`);
     } catch (error) {
-      setError('Signup failed. Please try again.');
+      console.error('Registration failed:', error);
     }
   };
 
   const getPasswordStrength = (password: string) => {
     if (password.length === 0) return { strength: 0, text: '' };
-    if (password.length < 8) return { strength: 1, text: 'Too short', color: 'bg-red-500' };
-    if (password.length >= 8) return { strength: 3, text: 'Strong', color: 'bg-green-500' };
+
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[a-z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[!@#$%^&*]/.test(password)) strength++;
+
+    if (strength < 2) return { strength: 1, text: 'Weak', color: 'bg-red-500' };
+    if (strength < 4) return { strength: 2, text: 'Fair', color: 'bg-yellow-500' };
+    return { strength: 3, text: 'Strong', color: 'bg-green-500' };
   };
 
   if (step === 'role') {
@@ -255,6 +291,22 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
         />
       </div>
 
+      {/* Phone Number Field */}
+      <div>
+        <label htmlFor="phone_number" className="block text-sm font-medium text-white/80 mb-2">
+          Phone Number (Optional)
+        </label>
+        <input
+          type="tel"
+          id="phone_number"
+          name="phone_number"
+          value={formData.phone_number}
+          onChange={handleInputChange}
+          className="w-full px-3 py-2 bg-[#22272B] border border-[#2A3035] rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
+          placeholder="e.g., +254 712 345 678"
+        />
+      </div>
+
       {/* Password Field */}
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-white/80 mb-2">
@@ -414,7 +466,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
         </div>
       )}
 
-      {/* Error Message */}
+      {/* Backend Error Message */}
       {error && (
         <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/50 text-red-400 rounded-lg">
           <AlertCircle className="w-4 h-4" />
@@ -422,11 +474,11 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
         </div>
       )}
 
-      {/* Success Message */}
-      {success && (
-        <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/50 text-green-400 rounded-lg">
+      {/* Password Error Message */}
+      {passwordError && (
+        <div className="flex items-center gap-2 p-3 bg-yellow-500/10 border border-yellow-500/50 text-yellow-400 rounded-lg">
           <AlertCircle className="w-4 h-4" />
-          <span className="text-sm">{success}</span>
+          <span className="text-sm">{passwordError}</span>
         </div>
       )}
 

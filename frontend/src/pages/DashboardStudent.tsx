@@ -1,169 +1,100 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Book, 
-  Calendar, 
-  Award, 
-  TrendingUp, 
-  FileText, 
-  MessageSquare, 
-  Clock, 
-  CheckCircle, 
+import {
+  Book,
+  Calendar,
+  Award,
+  TrendingUp,
+  FileText,
+  MessageSquare,
+  Clock,
+  CheckCircle,
   XCircle,
   Plus,
   Eye,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
+import { useAuthStore } from '../store/authStore';
+import { courseService } from '../services/courseService';
+
+interface EnrollmentData {
+  id: string;
+  course_id: string;
+  course_title?: string;
+  progress_percentage: number;
+  status: string;
+  lessons_completed: number;
+  total_lessons: number;
+  current_grade?: number;
+}
 
 const DashboardStudent: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const [enrollments, setEnrollments] = useState<EnrollmentData[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock student data
-  const student = {
-    name: "Alex Johnson",
-    gradeLevel: "Grade 8",
-    gpa: 4.2,
-    attendance: 96,
-    enrollmentDate: "September 2024"
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await courseService.getMyEnrollments() as any;
+        setEnrollments(Array.isArray(data) ? data : data?.enrollments || []);
+      } catch (err) {
+        console.error('Failed to load enrollments:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const studentName = user?.full_name || user?.profile_data?.full_name || user?.email?.split('@')[0] || 'Student';
+  const activeEnrollments = enrollments.filter(e => e.status === 'active');
+
+  // Derive learning progress from enrollments
+  const learningProgress = activeEnrollments.map(e => ({
+    subject: e.course_title || `Course`,
+    progress: e.progress_percentage || 0,
+    grade: e.current_grade ? `${e.current_grade}%` : 'N/A',
+  }));
+
+  // Placeholder data until backend endpoints are built
+  const assignments: { id: string; title: string; course: string; status: string; priority: string; dueDate: string }[] = [];
+  const announcements: { id: string; category: string; date: string; title: string; excerpt: string }[] = [];
 
   const stats = [
     {
-      title: "Current GPA",
-      value: "4.2",
-      icon: Award,
-      color: "text-yellow-400",
-      bg: "bg-yellow-500/10"
-    },
-    {
-      title: "Current Courses",
-      value: "8",
+      title: "Active Courses",
+      value: String(activeEnrollments.length),
       icon: Book,
       color: "text-blue-400",
       bg: "bg-blue-500/10"
     },
     {
-      title: "Attendance",
-      value: "96%",
+      title: "Completed",
+      value: String(enrollments.filter(e => e.status === 'completed').length),
+      icon: Award,
+      color: "text-yellow-400",
+      bg: "bg-yellow-500/10"
+    },
+    {
+      title: "Avg Progress",
+      value: activeEnrollments.length > 0
+        ? `${Math.round(activeEnrollments.reduce((sum, e) => sum + (e.progress_percentage || 0), 0) / activeEnrollments.length)}%`
+        : '0%',
       icon: TrendingUp,
       color: "text-green-400",
       bg: "bg-green-500/10"
     },
     {
-      title: "Pending Assignments",
-      value: "3",
+      title: "Total Enrolled",
+      value: String(enrollments.length),
       icon: FileText,
       color: "text-orange-400",
       bg: "bg-orange-500/10"
     }
-  ];
-
-  const currentCourses = [
-    {
-      id: 1,
-      title: "Mathematics - Algebra",
-      teacher: "Mr. Johnson",
-      grade: "A",
-      progress: 85,
-      assignments: 2,
-      nextClass: "Today at 10:00 AM"
-    },
-    {
-      id: 2,
-      title: "English Literature",
-      teacher: "Ms. Smith",
-      grade: "B+",
-      progress: 78,
-      assignments: 1,
-      nextClass: "Tomorrow at 9:00 AM"
-    },
-    {
-      id: 3,
-      title: "Science - Biology",
-      teacher: "Dr. Brown",
-      grade: "A-",
-      progress: 92,
-      assignments: 0,
-      nextClass: "Wednesday at 1:00 PM"
-    },
-    {
-      id: 4,
-      title: "History - World Civilizations",
-      teacher: "Mr. Davis",
-      grade: "B",
-      progress: 74,
-      assignments: 3,
-      nextClass: "Thursday at 11:00 AM"
-    },
-    {
-      id: 5,
-      title: "Creative Arts",
-      teacher: "Ms. Wilson",
-      grade: "A",
-      progress: 95,
-      assignments: 0,
-      nextClass: "Friday at 2:00 PM"
-    }
-  ];
-
-  const assignments = [
-    {
-      id: 1,
-      title: "Mathematics Chapter 5 Quiz",
-      course: "Mathematics",
-      dueDate: "Today, 3:00 PM",
-      status: "pending",
-      priority: "high"
-    },
-    {
-      id: 2,
-      title: "English Essay: Character Analysis",
-      course: "English Literature",
-      dueDate: "Tomorrow, 5:00 PM",
-      status: "in_progress",
-      priority: "medium"
-    },
-    {
-      id: 3,
-      title: "Science Lab Report",
-      course: "Science",
-      dueDate: "Friday, 4:00 PM",
-      status: "pending",
-      priority: "low"
-    }
-  ];
-
-  const announcements = [
-    {
-      id: 1,
-      title: "Mathematics Test",
-      date: "March 15, 2024",
-      excerpt: "Chapter 5 test scheduled for next Monday. Review your notes and practice problems.",
-      category: "Academic"
-    },
-    {
-      id: 2,
-      title: "Library Hours Extended",
-      date: "March 10, 2024",
-      excerpt: "Library will be open until 6 PM during exam week for additional study time.",
-      category: "Announcement"
-    },
-    {
-      id: 3,
-      title: "Science Fair Projects Due",
-      date: "March 20, 2024",
-      excerpt: "All science fair projects must be submitted by Friday. See your science teacher for details.",
-      category: "Important"
-    }
-  ];
-
-  const learningProgress = [
-    { subject: "Mathematics", progress: 85, grade: "A" },
-    { subject: "English", progress: 78, grade: "B+" },
-    { subject: "Science", progress: 92, grade: "A-" },
-    { subject: "History", progress: 74, grade: "B" },
-    { subject: "Arts", progress: 95, grade: "A" }
   ];
 
   return (
@@ -173,7 +104,7 @@ const DashboardStudent: React.FC = () => {
         <div className="bg-gradient-to-r from-blue-500/20 to-transparent border border-[#22272B] rounded-2xl p-6 mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome back, {student.name}!</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome back, {studentName}!</h2>
               <p className="text-white/80 text-sm sm:text-base">
                 Ready to learn? Let's check your progress and what's coming up.
               </p>
@@ -218,51 +149,54 @@ const DashboardStudent: React.FC = () => {
               </div>
               
               <div className="space-y-4">
-                {currentCourses.map((course) => (
-                  <div key={course.id} className="bg-[#22272B] rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <h4 className="font-medium text-white">{course.title}</h4>
-                        <p className="text-xs text-white/60">Teacher: {course.teacher}</p>
-                      </div>
-                      <div className="text-right">
-                        <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full font-medium">
-                          {course.grade}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 text-sm text-white/60">
-                        <div className="flex items-center gap-1">
-                          <TrendingUp className="w-4 h-4" />
-                          <span>{course.progress}% progress</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <FileText className="w-4 h-4" />
-                          <span>{course.assignments} assignments</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-white/60">Next class:</p>
-                        <p className="text-sm font-medium text-blue-400">{course.nextClass}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-3">
-                      <div className="flex justify-between text-xs text-white/60 mb-1">
-                        <span>Course Progress</span>
-                        <span>{course.progress}%</span>
-                      </div>
-                      <div className="w-full bg-[#2A3035] rounded-full h-2">
-                        <div 
-                          className="h-2 bg-blue-500 rounded-full transition-all duration-300"
-                          style={{ width: `${course.progress}%` }}
-                        />
-                      </div>
-                    </div>
+                {loading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
+                    <span className="ml-2 text-white/60">Loading courses...</span>
                   </div>
-                ))}
+                ) : activeEnrollments.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Book className="w-12 h-12 text-white/20 mx-auto mb-3" />
+                    <p className="text-white/60">No active courses yet.</p>
+                    <button
+                      onClick={() => navigate('/courses')}
+                      className="mt-3 px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors"
+                    >
+                      Browse Courses
+                    </button>
+                  </div>
+                ) : (
+                  activeEnrollments.map((enrollment) => (
+                    <div key={enrollment.id} className="bg-[#22272B] rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <h4 className="font-medium text-white">{enrollment.course_title || 'Course'}</h4>
+                          <p className="text-xs text-white/60">
+                            {enrollment.lessons_completed}/{enrollment.total_lessons} lessons completed
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full font-medium">
+                            {enrollment.status}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mt-3">
+                        <div className="flex justify-between text-xs text-white/60 mb-1">
+                          <span>Course Progress</span>
+                          <span>{Math.round(enrollment.progress_percentage || 0)}%</span>
+                        </div>
+                        <div className="w-full bg-[#2A3035] rounded-full h-2">
+                          <div
+                            className="h-2 bg-blue-500 rounded-full transition-all duration-300"
+                            style={{ width: `${enrollment.progress_percentage || 0}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 

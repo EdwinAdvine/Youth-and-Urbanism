@@ -12,8 +12,9 @@ import {
   ForumReply
 } from '../types/index';
 import { useCoPilotStore, useCoPilotInit } from './coPilotStore';
+import { useAuthStore } from './authStore';
 
-export { useCoPilotStore, useCoPilotInit };
+export { useCoPilotStore, useCoPilotInit, useAuthStore };
 
 interface UserState {
   preferences: UserPreferences;

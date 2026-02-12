@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Shield, BarChart3, Settings, Plus, TrendingUp } from 'lucide-react';
+import { Users, Shield, BarChart3, Settings, Plus, TrendingUp, Brain } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 
 const DashboardAdmin: React.FC = () => {
@@ -94,7 +94,18 @@ const DashboardAdmin: React.FC = () => {
                 </div>
                 <p className="text-sm font-medium text-white">View and manage all accounts</p>
               </button>
-              
+
+              <button
+                onClick={() => navigate('/dashboard/admin/ai-providers')}
+                className="p-4 bg-[#22272B] rounded-lg hover:bg-[#2A3035] transition-colors text-left"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <Brain className="w-5 h-5 text-cyan-400" />
+                  <span className="text-xs text-white/60">AI Providers</span>
+                </div>
+                <p className="text-sm font-medium text-white">Manage AI provider settings</p>
+              </button>
+
               <button className="p-4 bg-[#22272B] rounded-lg hover:bg-[#2A3035] transition-colors text-left">
                 <div className="flex items-center justify-between mb-2">
                   <BarChart3 className="w-5 h-5 text-green-400" />
@@ -102,7 +113,7 @@ const DashboardAdmin: React.FC = () => {
                 </div>
                 <p className="text-sm font-medium text-white">View platform statistics</p>
               </button>
-              
+
               <button className="p-4 bg-[#22272B] rounded-lg hover:bg-[#2A3035] transition-colors text-left">
                 <div className="flex items-center justify-between mb-2">
                   <Settings className="w-5 h-5 text-purple-400" />
@@ -110,7 +121,7 @@ const DashboardAdmin: React.FC = () => {
                 </div>
                 <p className="text-sm font-medium text-white">Configure platform settings</p>
               </button>
-              
+
               <button className="p-4 bg-[#22272B] rounded-lg hover:bg-[#2A3035] transition-colors text-left">
                 <div className="flex items-center justify-between mb-2">
                   <Plus className="w-5 h-5 text-orange-400" />
@@ -190,6 +201,16 @@ const DashboardAdmin: React.FC = () => {
             <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
               <h3 className="text-lg font-semibold text-white mb-4">Admin Tools</h3>
               <div className="space-y-3">
+                <button
+                  onClick={() => navigate('/dashboard/admin/ai-providers')}
+                  className="w-full text-left p-3 bg-gradient-to-r from-cyan-500/20 to-cyan-500/10 border border-cyan-500/30 rounded-lg hover:bg-cyan-500/30 transition-colors"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Brain className="w-4 h-4 text-cyan-400" />
+                    <p className="font-medium text-white">AI Provider Management</p>
+                  </div>
+                  <p className="text-xs text-white/60">Configure AI models and providers</p>
+                </button>
                 <button className="w-full text-left p-3 bg-[#22272B] rounded-lg hover:bg-[#2A3035] transition-colors">
                   <p className="font-medium text-white">User Management</p>
                   <p className="text-xs text-white/60">Approve accounts, reset passwords</p>

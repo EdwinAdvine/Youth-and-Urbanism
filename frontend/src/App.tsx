@@ -7,6 +7,23 @@ import DashboardInstructor from './pages/DashboardInstructor';
 import DashboardAdmin from './pages/DashboardAdmin';
 import DashboardPartner from './pages/DashboardPartner';
 import DashboardStaff from './pages/DashboardStaff';
+import AIProvidersPage from './pages/admin/AIProvidersPage';
+import ProfilePage from './pages/ProfilePage';
+import SettingsPage from './pages/SettingsPage';
+import QuizzesPage from './pages/QuizzesPage';
+import CertificatesPage from './pages/CertificatesPage';
+import NotificationsPage from './pages/NotificationsPage';
+import ForumPage from './pages/ForumPage';
+import PaymentPage from './pages/PaymentPage';
+import WalletPage from './pages/WalletPage';
+import TransactionsPage from './pages/TransactionsPage';
+import CourseCatalogPage from './pages/CourseCatalogPage';
+import CourseDetailsPage from './pages/CourseDetailsPage';
+import MyCoursesPage from './pages/MyCoursesPage';
+import CreateCoursePage from './pages/CreateCoursePage';
+import LessonPlayerPage from './pages/LessonPlayerPage';
+import InstructorDashboardPage from './pages/InstructorDashboardPage';
+import ProtectedRoute from './components/ProtectedRoute';
 import AuthModal from './components/auth/AuthModal';
 import './App.css';
 // Import hero background image from assets folder
@@ -585,13 +602,35 @@ const AppContent: React.FC = () => {
     </div>
           } />
           
-          {/* Direct Dashboard Routes */}
-          <Route path="/dashboard/student" element={<DashboardStudent />} />
-          <Route path="/dashboard/parent" element={<DashboardParent />} />
-          <Route path="/dashboard/instructor" element={<DashboardInstructor />} />
-          <Route path="/dashboard/admin" element={<DashboardAdmin />} />
-          <Route path="/dashboard/partner" element={<DashboardPartner />} />
-          <Route path="/dashboard/staff" element={<DashboardStaff />} />
+          {/* Protected Dashboard Routes */}
+          <Route path="/dashboard/student" element={<ProtectedRoute allowedRoles={['student']}><DashboardStudent /></ProtectedRoute>} />
+          <Route path="/dashboard/parent" element={<ProtectedRoute allowedRoles={['parent']}><DashboardParent /></ProtectedRoute>} />
+          <Route path="/dashboard/instructor" element={<ProtectedRoute allowedRoles={['instructor']}><DashboardInstructor /></ProtectedRoute>} />
+          <Route path="/dashboard/admin" element={<ProtectedRoute allowedRoles={['admin']}><DashboardAdmin /></ProtectedRoute>} />
+          <Route path="/dashboard/admin/ai-providers" element={<ProtectedRoute allowedRoles={['admin']}><AIProvidersPage /></ProtectedRoute>} />
+          <Route path="/dashboard/partner" element={<ProtectedRoute allowedRoles={['partner']}><DashboardPartner /></ProtectedRoute>} />
+          <Route path="/dashboard/staff" element={<ProtectedRoute allowedRoles={['staff']}><DashboardStaff /></ProtectedRoute>} />
+
+          {/* Course Routes */}
+          <Route path="/courses" element={<CourseCatalogPage />} />
+          <Route path="/courses/:courseId" element={<CourseDetailsPage />} />
+          <Route path="/my-courses" element={<ProtectedRoute><MyCoursesPage /></ProtectedRoute>} />
+          <Route path="/courses/create" element={<ProtectedRoute allowedRoles={['instructor', 'admin']}><CreateCoursePage /></ProtectedRoute>} />
+          <Route path="/courses/:courseId/lesson/:lessonId" element={<ProtectedRoute><LessonPlayerPage /></ProtectedRoute>} />
+          <Route path="/instructor/dashboard" element={<ProtectedRoute allowedRoles={['instructor']}><InstructorDashboardPage /></ProtectedRoute>} />
+
+          {/* Protected User Pages */}
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+          <Route path="/quizzes" element={<ProtectedRoute><QuizzesPage /></ProtectedRoute>} />
+          <Route path="/certificates" element={<ProtectedRoute><CertificatesPage /></ProtectedRoute>} />
+          <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+          <Route path="/forum" element={<ProtectedRoute><ForumPage /></ProtectedRoute>} />
+
+          {/* Protected Payment Pages */}
+          <Route path="/payments" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
+          <Route path="/wallet" element={<ProtectedRoute><WalletPage /></ProtectedRoute>} />
+          <Route path="/transactions" element={<ProtectedRoute><TransactionsPage /></ProtectedRoute>} />
         </Routes>
       </div>
   );

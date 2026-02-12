@@ -1,10 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, Book, Calendar, MessageSquare, Plus, Eye, Coins, ShieldAlert } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
+import courseService from '../services/courseService';
+import { useAuthStore } from '../store/authStore';
 
 const DashboardInstructor: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const [stats, setStats] = useState({ courses: 0, students: 0 });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const courses = await courseService.listCourses({ limit: 100 });
+        const courseCount = courses.courses?.length || 0;
+        const totalStudents = courses.courses?.reduce((sum: number, c: any) => sum + (c.enrollment_count || 0), 0) || 0;
+        setStats({ courses: courseCount, students: totalStudents });
+      } catch {
+        // Keep defaults
+      }
+    };
+    fetchStats();
+  }, []);
 
   return (
     <DashboardLayout role="instructor">
@@ -13,7 +31,7 @@ const DashboardInstructor: React.FC = () => {
         <div className="bg-gradient-to-r from-purple-500/20 to-transparent border border-[#22272B] rounded-2xl p-6 mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome to Instructor Dashboard!</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome{user?.full_name ? `, ${user.full_name}` : ''}!</h2>
               <p className="text-white/80 text-sm sm:text-base">
                 Your comprehensive teaching platform. Use the sidebar to access all instructor features including course management, student engagement, and earnings tracking.
               </p>
@@ -31,8 +49,8 @@ const DashboardInstructor: React.FC = () => {
           <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-white/60">Active Students Today</p>
-                <p className="text-2xl font-bold text-white">156</p>
+                <p className="text-sm text-white/60">Total Students</p>
+                <p className="text-2xl font-bold text-white">{stats.students}</p>
               </div>
               <div className="w-12 h-12 bg-blue-500/20 border border-blue-500/50 rounded-lg flex items-center justify-center">
                 <Users className="w-6 h-6 text-blue-400" />
@@ -44,7 +62,7 @@ const DashboardInstructor: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-white/60">Courses</p>
-                <p className="text-2xl font-bold text-white">8</p>
+                <p className="text-2xl font-bold text-white">{stats.courses}</p>
               </div>
               <div className="w-12 h-12 bg-purple-500/20 border border-purple-500/50 rounded-lg flex items-center justify-center">
                 <Book className="w-6 h-6 text-purple-400" />
