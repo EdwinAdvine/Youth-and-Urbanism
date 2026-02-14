@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useThemeStore } from '../../store';
+import { useAuthStore } from '../../store/authStore';
 import { 
   Home, 
   Users, 
@@ -800,6 +801,16 @@ const InstructorSidebar: React.FC<InstructorSidebarProps> = ({ isOpen, onClose, 
     return location.pathname === path;
   };
 
+  const { logout } = useAuthStore();
+
+  const handleLogout = () => {
+    logout();
+    if (window.innerWidth < 768) {
+      onClose();
+    }
+    navigate('/');
+  };
+
   const handleNavigation = (path?: string, onClick?: () => void) => {
     if (onClick) {
       onClick();
@@ -811,9 +822,7 @@ const InstructorSidebar: React.FC<InstructorSidebarProps> = ({ isOpen, onClose, 
     
     if (path) {
       if (path === '/logout') {
-        // Handle logout
-        localStorage.removeItem('user');
-        navigate('/');
+        handleLogout();
       } else {
         navigate(path);
       }

@@ -5,6 +5,8 @@ import Sidebar from './Sidebar';
 import PartnerSidebar from '../partner/PartnerSidebar';
 import ParentSidebar from '../parent/ParentSidebar';
 import InstructorSidebar from '../instructor/InstructorSidebar';
+import AdminSidebar from '../admin/sidebar/AdminSidebar';
+import StaffSidebar from '../staff/sidebar/StaffSidebar';
 import Topbar from './Topbar';
 import CoPilotSidebar from '../co-pilot/CoPilotSidebar';
 import { initializeTheme } from '../../store';
@@ -78,10 +80,22 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onOpenAuthM
         <CoPilotSidebar onOpenAuthModal={onOpenAuthModal} />
 
         {/* Sidebar - Starts immediately below topbar */}
-        {user.role === 'instructor' ? (
-          <InstructorSidebar 
-            isOpen={isSidebarOpen} 
-            onClose={() => setIsSidebarOpen(false)} 
+        {user.role === 'admin' ? (
+          <AdminSidebar
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+            onOpenAuthModal={onOpenAuthModal}
+          />
+        ) : user.role === 'staff' ? (
+          <StaffSidebar
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+            onOpenAuthModal={onOpenAuthModal}
+          />
+        ) : user.role === 'instructor' ? (
+          <InstructorSidebar
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
             onOpenAuthModal={onOpenAuthModal}
           />
         ) : user.role === 'parent' ? (

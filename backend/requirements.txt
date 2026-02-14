@@ -33,6 +33,25 @@ stripe==7.0.0
 paypalrestsdk==1.13.1
 requests==2.31.0
 
+# Staff Dashboard - Vector Search
+pgvector==0.3.6
+
+# Staff Dashboard - LiveKit Integration
+livekit-api==0.7.1
+
+# Staff Dashboard - Collaborative Editing
+y-py==0.6.2
+
+# Staff Dashboard - Push Notifications
+pywebpush==2.0.1
+
+# Staff Dashboard - Report Export
+openpyxl==3.1.5
+weasyprint==62.3
+
+# Staff Dashboard - Token Counting
+tiktoken==0.8.0
+
 # Environment & Configuration
 python-dotenv==1.0.0
 

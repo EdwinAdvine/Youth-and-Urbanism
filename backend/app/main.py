@@ -17,7 +17,7 @@ import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
@@ -303,6 +303,34 @@ async def general_exception_handler(request: Request, exc: Exception):
 from app.api.v1 import auth, ai_tutor, courses, payments, assessments, users, parents, notifications, forum, categories, store
 from app.api.v1 import contact, certificates, instructor_applications
 from app.api.v1.admin import ai_providers, analytics as admin_analytics
+from app.api.v1.admin import dashboard as admin_dashboard
+from app.api.v1.admin import permissions_api as admin_permissions
+from app.api.v1.admin import pulse as admin_pulse
+from app.api.v1.admin import users as admin_users
+from app.api.v1.admin import content as admin_content
+from app.api.v1.admin import ai_monitoring as admin_ai_monitoring
+from app.api.v1.admin import advanced_analytics as admin_advanced_analytics
+from app.api.v1.admin import finance as admin_finance
+from app.api.v1.admin import operations as admin_operations
+from app.api.v1.admin import account as admin_account
+from app.api.v1.admin import families as admin_families
+
+# Staff Dashboard routes
+from app.api.v1.staff import dashboard as staff_dashboard
+from app.api.v1.staff import moderation as staff_moderation
+from app.api.v1.staff import support as staff_support
+from app.api.v1.staff import live_support as staff_live_support
+from app.api.v1.staff import student_journeys as staff_student_journeys
+from app.api.v1.staff import knowledge_base as staff_knowledge_base
+from app.api.v1.staff import content_studio as staff_content_studio
+from app.api.v1.staff import assessment_builder as staff_assessment_builder
+from app.api.v1.staff import sessions as staff_sessions
+from app.api.v1.staff import insights as staff_insights
+from app.api.v1.staff import reports as staff_reports
+from app.api.v1.staff import student_progress as staff_student_progress
+from app.api.v1.staff import team as staff_team
+from app.api.v1.staff import account as staff_account
+from app.api.v1.staff import notifications as staff_notifications
 
 # Authentication endpoints (with auto-create AI tutor for students)
 app.include_router(
@@ -395,6 +423,190 @@ app.include_router(
     tags=["Admin - Analytics"]
 )
 
+# Admin Dashboard endpoints
+app.include_router(
+    admin_dashboard.router,
+    prefix=f"{settings.api_v1_prefix}/admin",
+    tags=["Admin - Dashboard"]
+)
+
+# Admin Permissions endpoints
+app.include_router(
+    admin_permissions.router,
+    prefix=f"{settings.api_v1_prefix}/admin",
+    tags=["Admin - Permissions"]
+)
+
+# Admin Platform Pulse endpoints (real-time monitoring)
+app.include_router(
+    admin_pulse.router,
+    prefix=f"{settings.api_v1_prefix}/admin",
+    tags=["Admin - Platform Pulse"]
+)
+
+# Admin User Management endpoints
+app.include_router(
+    admin_users.router,
+    prefix=f"{settings.api_v1_prefix}/admin",
+    tags=["Admin - Users"]
+)
+
+# Admin Content Management endpoints
+app.include_router(
+    admin_content.router,
+    prefix=f"{settings.api_v1_prefix}/admin",
+    tags=["Admin - Content"]
+)
+
+# Admin AI Monitoring endpoints
+app.include_router(
+    admin_ai_monitoring.router,
+    prefix=f"{settings.api_v1_prefix}/admin",
+    tags=["Admin - AI Monitoring"]
+)
+
+# Admin Advanced Analytics endpoints
+app.include_router(
+    admin_advanced_analytics.router,
+    prefix=f"{settings.api_v1_prefix}/admin",
+    tags=["Admin - Advanced Analytics"]
+)
+
+# Admin Finance endpoints
+app.include_router(
+    admin_finance.router,
+    prefix=f"{settings.api_v1_prefix}/admin",
+    tags=["Admin - Finance"]
+)
+
+# Admin Operations endpoints (tickets, moderation, config)
+app.include_router(
+    admin_operations.router,
+    prefix=f"{settings.api_v1_prefix}/admin",
+    tags=["Admin - Operations"]
+)
+
+# Admin Account endpoints (profile, preferences)
+app.include_router(
+    admin_account.router,
+    prefix=f"{settings.api_v1_prefix}/admin",
+    tags=["Admin - Account"]
+)
+
+# Admin Families & Enrollments endpoints
+app.include_router(
+    admin_families.router,
+    prefix=f"{settings.api_v1_prefix}/admin",
+    tags=["Admin - Families"]
+)
+
+# ── Staff Dashboard Routes ──────────────────────────────────────────
+
+# Staff Dashboard
+app.include_router(
+    staff_dashboard.router,
+    prefix=f"{settings.api_v1_prefix}/staff/dashboard",
+    tags=["Staff - Dashboard"]
+)
+
+# Staff Moderation & Quality
+app.include_router(
+    staff_moderation.router,
+    prefix=f"{settings.api_v1_prefix}/staff/moderation",
+    tags=["Staff - Moderation"]
+)
+
+# Staff Support & Care
+app.include_router(
+    staff_support.router,
+    prefix=f"{settings.api_v1_prefix}/staff/support",
+    tags=["Staff - Support"]
+)
+
+# Staff Live Support
+app.include_router(
+    staff_live_support.router,
+    prefix=f"{settings.api_v1_prefix}/staff/live-support",
+    tags=["Staff - Live Support"]
+)
+
+# Staff Student Journeys
+app.include_router(
+    staff_student_journeys.router,
+    prefix=f"{settings.api_v1_prefix}/staff/students",
+    tags=["Staff - Student Journeys"]
+)
+
+# Staff Knowledge Base
+app.include_router(
+    staff_knowledge_base.router,
+    prefix=f"{settings.api_v1_prefix}/staff/kb",
+    tags=["Staff - Knowledge Base"]
+)
+
+# Staff Content Studio
+app.include_router(
+    staff_content_studio.router,
+    prefix=f"{settings.api_v1_prefix}/staff/content",
+    tags=["Staff - Content Studio"]
+)
+
+# Staff Assessment Builder
+app.include_router(
+    staff_assessment_builder.router,
+    prefix=f"{settings.api_v1_prefix}/staff/assessments",
+    tags=["Staff - Assessments"]
+)
+
+# Staff Sessions & Live Delivery
+app.include_router(
+    staff_sessions.router,
+    prefix=f"{settings.api_v1_prefix}/staff/sessions",
+    tags=["Staff - Sessions"]
+)
+
+# Staff Insights & Impact
+app.include_router(
+    staff_insights.router,
+    prefix=f"{settings.api_v1_prefix}/staff/insights",
+    tags=["Staff - Insights"]
+)
+
+# Staff Custom Reports
+app.include_router(
+    staff_reports.router,
+    prefix=f"{settings.api_v1_prefix}/staff/reports",
+    tags=["Staff - Reports"]
+)
+
+# Staff Student Progress
+app.include_router(
+    staff_student_progress.router,
+    prefix=f"{settings.api_v1_prefix}/staff/progress",
+    tags=["Staff - Student Progress"]
+)
+
+# Staff Team & Growth
+app.include_router(
+    staff_team.router,
+    prefix=f"{settings.api_v1_prefix}/staff/team",
+    tags=["Staff - Team"]
+)
+
+# Staff Account
+app.include_router(
+    staff_account.router,
+    prefix=f"{settings.api_v1_prefix}/staff/account",
+    tags=["Staff - Account"]
+)
+
+# Staff Notifications
+app.include_router(
+    staff_notifications.router,
+    prefix=f"{settings.api_v1_prefix}/staff/notifications",
+    tags=["Staff - Notifications"]
+)
+
 # Phase 8 - Supporting APIs
 
 # Contact form endpoints (public + admin management)
@@ -418,5 +630,169 @@ app.include_router(
     tags=["Instructor Applications"]
 )
 
+# WebSocket endpoint for admin real-time updates
+from app.websocket.connection_manager import ws_manager
+from app.utils.security import verify_token
+
+
+@app.websocket("/ws/admin/{token}")
+async def admin_websocket(websocket: WebSocket, token: str):
+    """WebSocket endpoint for admin real-time updates."""
+    import json as _json
+
+    # Verify JWT token (verify_token raises HTTPException on failure)
+    try:
+        payload = verify_token(token)
+    except Exception:
+        await websocket.accept()
+        await websocket.close(code=4001, reason="Invalid token")
+        return
+
+    user_id = payload.get("sub") or payload.get("user_id")
+    user_role = payload.get("role", "")
+
+    if user_role not in ("admin", "staff"):
+        await websocket.accept()
+        await websocket.close(code=4003, reason="Admin access required")
+        return
+
+    await ws_manager.connect(websocket, user_id, user_role)
+
+    try:
+        while True:
+            data = await websocket.receive_text()
+            try:
+                msg = _json.loads(data)
+                if msg.get("type") == "ping":
+                    await websocket.send_json({"type": "pong"})
+            except _json.JSONDecodeError:
+                pass
+    except WebSocketDisconnect:
+        ws_manager.disconnect(websocket, user_id, user_role)
+    except Exception:
+        ws_manager.disconnect(websocket, user_id, user_role)
+
+
+# ── Staff WebSocket Endpoints ───────────────────────────────────────
+
+# Staff real-time updates WebSocket
+@app.websocket("/ws/staff/{token}")
+async def staff_websocket(websocket: WebSocket, token: str):
+    """WebSocket endpoint for staff real-time updates (counters, notifications, SLA warnings)."""
+    import json as _json
+
+    try:
+        payload = verify_token(token)
+    except Exception:
+        await websocket.accept()
+        await websocket.close(code=4001, reason="Invalid token")
+        return
+
+    user_id = payload.get("sub") or payload.get("user_id")
+    user_role = payload.get("role", "")
+
+    if user_role not in ("staff", "admin"):
+        await websocket.accept()
+        await websocket.close(code=4003, reason="Staff access required")
+        return
+
+    # Use the same ws_manager for staff connections
+    await ws_manager.connect(websocket, user_id, user_role)
+
+    try:
+        while True:
+            data = await websocket.receive_text()
+            try:
+                msg = _json.loads(data)
+                if msg.get("type") == "ping":
+                    await websocket.send_json({"type": "pong"})
+            except _json.JSONDecodeError:
+                pass
+    except WebSocketDisconnect:
+        ws_manager.disconnect(websocket, user_id, user_role)
+    except Exception:
+        ws_manager.disconnect(websocket, user_id, user_role)
+
+
+# Yjs collaborative editing WebSocket
+@app.websocket("/ws/yjs/{doc_id}/{token}")
+async def yjs_websocket(websocket: WebSocket, doc_id: str, token: str):
+    """WebSocket endpoint for Yjs CRDT collaborative document editing."""
+    try:
+        payload = verify_token(token)
+    except Exception:
+        await websocket.accept()
+        await websocket.close(code=4001, reason="Invalid token")
+        return
+
+    user_id = payload.get("sub") or payload.get("user_id")
+    user_role = payload.get("role", "")
+
+    if user_role not in ("staff", "admin"):
+        await websocket.accept()
+        await websocket.close(code=4003, reason="Staff access required")
+        return
+
+    try:
+        from app.websocket.yjs_handler import yjs_manager
+        await yjs_manager.connect(websocket, doc_id, user_id)
+
+        try:
+            while True:
+                data = await websocket.receive_bytes()
+                await yjs_manager.handle_message(websocket, doc_id, user_id, data)
+        except WebSocketDisconnect:
+            await yjs_manager.disconnect(websocket, doc_id, user_id)
+        except Exception:
+            await yjs_manager.disconnect(websocket, doc_id, user_id)
+    except ImportError:
+        await websocket.accept()
+        await websocket.send_json({"error": "Yjs handler not available"})
+        await websocket.close(code=4500, reason="Yjs handler not configured")
+
+
+# Live support chat WebSocket
+@app.websocket("/ws/support-chat/{ticket_id}/{token}")
+async def support_chat_websocket(websocket: WebSocket, ticket_id: str, token: str):
+    """WebSocket endpoint for real-time support chat on tickets."""
+    import json as _json
+
+    try:
+        payload = verify_token(token)
+    except Exception:
+        await websocket.accept()
+        await websocket.close(code=4001, reason="Invalid token")
+        return
+
+    user_id = payload.get("sub") or payload.get("user_id")
+
+    try:
+        from app.websocket.live_chat_handler import live_chat_manager
+        await live_chat_manager.connect(websocket, ticket_id, user_id)
+
+        try:
+            while True:
+                data = await websocket.receive_text()
+                try:
+                    msg = _json.loads(data)
+                    await live_chat_manager.handle_message(ticket_id, user_id, msg)
+                except _json.JSONDecodeError:
+                    pass
+        except WebSocketDisconnect:
+            await live_chat_manager.disconnect(websocket, ticket_id, user_id)
+        except Exception:
+            await live_chat_manager.disconnect(websocket, ticket_id, user_id)
+    except ImportError:
+        await websocket.accept()
+        await websocket.send_json({"error": "Live chat handler not available"})
+        await websocket.close(code=4500, reason="Live chat handler not configured")
+
+
 logger.info("FastAPI application configured successfully")
-logger.info("Routers registered: auth, ai-tutor, courses, payments, parents, notifications, forum, categories, store, admin/ai-providers, admin/analytics, contact, certificates, instructor-applications")
+logger.info(
+    "Routers registered: auth, ai-tutor, courses, payments, parents, notifications, forum, "
+    "categories, store, admin/*, staff/dashboard, staff/moderation, staff/support, "
+    "staff/live-support, staff/students, staff/kb, staff/content, staff/assessments, "
+    "staff/sessions, staff/insights, staff/reports, staff/progress, staff/team, "
+    "staff/account, staff/notifications, contact, certificates, instructor-applications"
+)

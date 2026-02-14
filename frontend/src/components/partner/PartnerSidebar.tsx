@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useThemeStore } from '../../store';
+import { useAuthStore } from '../../store/authStore';
 import { 
   Home, 
   Handshake, 
@@ -635,6 +636,16 @@ const PartnerSidebar: React.FC<PartnerSidebarProps> = ({ isOpen, onClose, onOpen
     return location.pathname === path;
   };
 
+  const { logout } = useAuthStore();
+
+  const handleLogout = () => {
+    logout();
+    if (window.innerWidth < 768) {
+      onClose();
+    }
+    navigate('/');
+  };
+
   const handleNavigation = (path?: string, onClick?: () => void) => {
     if (onClick) {
       onClick();
@@ -646,9 +657,7 @@ const PartnerSidebar: React.FC<PartnerSidebarProps> = ({ isOpen, onClose, onOpen
     
     if (path) {
       if (path === '/logout') {
-        // Handle logout
-        localStorage.removeItem('user');
-        navigate('/');
+        handleLogout();
       } else {
         navigate(path);
       }

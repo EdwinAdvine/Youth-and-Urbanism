@@ -30,6 +30,45 @@ from app.models import (
     PaymentMethod,
 )
 
+# Admin models
+from app.models.admin import (
+    AuditLog,
+    Permission,
+    RolePermission,
+    UserPermissionOverride,
+)
+
+# Staff models
+from app.models.staff import (
+    StaffProfile,
+    StaffTeam,
+    StaffTicket,
+    StaffTicketMessage,
+    SLAPolicy,
+    SLAEscalation,
+    StaffContentItem,
+    StaffContentVersion,
+    StaffCollabSession,
+    AdaptiveAssessment,
+    AssessmentQuestion,
+    CBCCompetency,
+    KBCategory,
+    KBArticle,
+    KBEmbedding,
+    LiveSession,
+    LiveSessionRecording,
+    BreakoutRoom,
+    ReportDefinition,
+    ReportSchedule,
+    PushSubscription,
+    StaffNotificationPref,
+    StaffModerationItem,
+    ReviewDecision,
+    StudentJourney,
+    FamilyCase,
+    CaseNote,
+)
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
