@@ -95,7 +95,9 @@ from app.models.instructor import (
 config = context.config
 
 # Override sqlalchemy.url with our settings (supports environment-based config)
-config.set_main_option("sqlalchemy.url", settings.database_url)
+# Convert async URL to sync for migrations (Alembic doesn't support async)
+database_url = settings.database_url.replace("postgresql+asyncpg://", "postgresql://")
+config.set_main_option("sqlalchemy.url", database_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
