@@ -12,7 +12,7 @@ const ViewToggle: React.FC = () => {
   ];
 
   return (
-    <div className="flex items-center gap-1 p-1 bg-[#22272B] rounded-lg">
+    <div className="flex items-center gap-1 p-1 bg-gray-100 dark:bg-[#22272B] rounded-lg">
       {modes.map((mode) => {
         const Icon = mode.icon;
         const isActive = viewMode === mode.key;
@@ -24,7 +24,7 @@ const ViewToggle: React.FC = () => {
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 ${
               isActive
                 ? 'bg-[#E40000]/20 text-[#FF4444] shadow-sm'
-                : 'text-white/50 hover:text-white/70 hover:bg-white/5'
+                : 'text-gray-500 dark:text-white/50 hover:text-gray-600 dark:hover:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5'
             }`}
           >
             <Icon className="w-3.5 h-3.5" />

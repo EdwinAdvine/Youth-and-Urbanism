@@ -41,18 +41,18 @@ const AdminBentoCard: React.FC<AdminBentoCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className={`
-        bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden
-        hover:border-[#333] transition-colors duration-200
+        bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden
+        hover:border-gray-300 dark:hover:border-[#333] transition-colors duration-200
         ${colSpanClasses[colSpan]}
         ${rowSpanClasses[rowSpan]}
         ${className}
       `}
     >
       {/* Header */}
-      <div className={`flex items-center justify-between px-5 py-3.5 border-b border-[#22272B] ${headerClassName}`}>
+      <div className={`flex items-center justify-between px-5 py-3.5 border-b border-gray-200 dark:border-[#22272B] ${headerClassName}`}>
         <div className="flex items-center gap-2.5">
-          {icon && <span className="text-white/60">{icon}</span>}
-          <h3 className="text-sm font-semibold text-white">{title}</h3>
+          {icon && <span className="text-gray-500 dark:text-white/60">{icon}</span>}
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{title}</h3>
         </div>
         {action && <div>{action}</div>}
       </div>

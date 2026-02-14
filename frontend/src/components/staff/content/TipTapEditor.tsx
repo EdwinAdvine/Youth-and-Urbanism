@@ -37,7 +37,7 @@ const ToolbarButton: React.FC<ToolbarButtonProps> = ({ icon, label, onClick, dis
     onClick={onClick}
     disabled={disabled}
     title={label}
-    className="p-1.5 rounded hover:bg-white/10 text-white/60 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+    className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
   >
     {icon}
   </button>
@@ -83,25 +83,25 @@ const TipTapEditor: React.FC<TipTapEditorProps> = ({
   };
 
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
       {/* Collaborators Strip */}
       {collaborators.length > 0 && (
-        <div className="flex items-center gap-2 px-4 py-2 border-b border-[#22272B] bg-[#1a1f23]">
-          <span className="text-xs text-white/40 mr-1">Editing:</span>
+        <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-200 dark:border-[#22272B] bg-[#1a1f23]">
+          <span className="text-xs text-gray-400 dark:text-white/40 mr-1">Editing:</span>
           {collaborators.map((collaborator, index) => (
             <div key={index} className="flex items-center gap-1.5">
               <span
                 className="w-2.5 h-2.5 rounded-full ring-2 ring-[#181C1F]"
                 style={{ backgroundColor: collaborator.color }}
               />
-              <span className="text-xs text-white/60">{collaborator.name}</span>
+              <span className="text-xs text-gray-500 dark:text-white/60">{collaborator.name}</span>
             </div>
           ))}
         </div>
       )}
 
       {/* Toolbar */}
-      <div className="flex items-center gap-0.5 px-3 py-2 border-b border-[#22272B] bg-[#1a1f23]">
+      <div className="flex items-center gap-0.5 px-3 py-2 border-b border-gray-200 dark:border-[#22272B] bg-[#1a1f23]">
         {toolbarActions.map((action) => (
           <ToolbarButton
             key={action.label}
@@ -129,16 +129,16 @@ const TipTapEditor: React.FC<TipTapEditorProps> = ({
         onChange={(e) => onChange(e.target.value)}
         readOnly={readOnly}
         placeholder="Start writing your content..."
-        className="w-full min-h-[300px] p-4 bg-transparent text-white text-sm leading-relaxed resize-y outline-none placeholder:text-white/30 disabled:opacity-50"
+        className="w-full min-h-[300px] p-4 bg-transparent text-gray-900 dark:text-white text-sm leading-relaxed resize-y outline-none placeholder:text-gray-400 dark:placeholder:text-white/30 disabled:opacity-50"
         disabled={readOnly}
       />
 
       {/* Footer */}
-      <div className="flex items-center justify-between px-4 py-2 border-t border-[#22272B] bg-[#1a1f23]">
-        <span className="text-xs text-white/30">
+      <div className="flex items-center justify-between px-4 py-2 border-t border-gray-200 dark:border-[#22272B] bg-[#1a1f23]">
+        <span className="text-xs text-gray-400 dark:text-white/30">
           {content.split(/\s+/).filter(Boolean).length} words
         </span>
-        <span className="text-xs text-white/30">
+        <span className="text-xs text-gray-400 dark:text-white/30">
           {content.length} characters
         </span>
       </div>

@@ -83,16 +83,16 @@ type PriceFilter = 'all' | 'free' | 'paid';
 
 function SkeletonCard() {
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden animate-pulse">
-      <div className="h-44 bg-[#22272B]" />
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden animate-pulse">
+      <div className="h-44 bg-gray-100 dark:bg-[#22272B]" />
       <div className="p-4 space-y-3">
-        <div className="h-3 w-16 bg-[#22272B] rounded" />
-        <div className="h-4 w-3/4 bg-[#22272B] rounded" />
-        <div className="h-4 w-1/2 bg-[#22272B] rounded" />
-        <div className="h-3 w-24 bg-[#22272B] rounded" />
+        <div className="h-3 w-16 bg-gray-100 dark:bg-[#22272B] rounded" />
+        <div className="h-4 w-3/4 bg-gray-100 dark:bg-[#22272B] rounded" />
+        <div className="h-4 w-1/2 bg-gray-100 dark:bg-[#22272B] rounded" />
+        <div className="h-3 w-24 bg-gray-100 dark:bg-[#22272B] rounded" />
         <div className="flex gap-3">
-          <div className="h-3 w-12 bg-[#22272B] rounded" />
-          <div className="h-3 w-12 bg-[#22272B] rounded" />
+          <div className="h-3 w-12 bg-gray-100 dark:bg-[#22272B] rounded" />
+          <div className="h-3 w-12 bg-gray-100 dark:bg-[#22272B] rounded" />
         </div>
       </div>
     </div>
@@ -101,17 +101,17 @@ function SkeletonCard() {
 
 function SkeletonListCard() {
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden animate-pulse flex flex-col sm:flex-row">
-      <div className="w-full sm:w-64 md:w-72 h-44 sm:h-auto bg-[#22272B] flex-shrink-0 min-h-[160px]" />
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden animate-pulse flex flex-col sm:flex-row">
+      <div className="w-full sm:w-64 md:w-72 h-44 sm:h-auto bg-gray-100 dark:bg-[#22272B] flex-shrink-0 min-h-[160px]" />
       <div className="p-5 flex-1 space-y-3">
-        <div className="h-3 w-20 bg-[#22272B] rounded" />
-        <div className="h-5 w-3/4 bg-[#22272B] rounded" />
-        <div className="h-3 w-full bg-[#22272B] rounded" />
-        <div className="h-3 w-2/3 bg-[#22272B] rounded" />
+        <div className="h-3 w-20 bg-gray-100 dark:bg-[#22272B] rounded" />
+        <div className="h-5 w-3/4 bg-gray-100 dark:bg-[#22272B] rounded" />
+        <div className="h-3 w-full bg-gray-100 dark:bg-[#22272B] rounded" />
+        <div className="h-3 w-2/3 bg-gray-100 dark:bg-[#22272B] rounded" />
         <div className="flex gap-4 pt-2">
-          <div className="h-3 w-16 bg-[#22272B] rounded" />
-          <div className="h-3 w-16 bg-[#22272B] rounded" />
-          <div className="h-6 w-20 bg-[#22272B] rounded ml-auto" />
+          <div className="h-3 w-16 bg-gray-100 dark:bg-[#22272B] rounded" />
+          <div className="h-3 w-16 bg-gray-100 dark:bg-[#22272B] rounded" />
+          <div className="h-6 w-20 bg-gray-100 dark:bg-[#22272B] rounded ml-auto" />
         </div>
       </div>
     </div>
@@ -358,7 +358,7 @@ export default function CourseCatalogPage() {
       {/* Categories */}
       {categories.length > 0 && (
         <div>
-          <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-3">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-3">
             Categories
           </h3>
           <ul className="space-y-1">
@@ -368,7 +368,7 @@ export default function CourseCatalogPage() {
                 className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                   !selectedCategory
                     ? 'bg-[#E40000]/15 text-red-400 font-medium'
-                    : 'text-gray-400 hover:bg-[#22272B] hover:text-white'
+                    : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-[#22272B] hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
                 All Categories
@@ -381,11 +381,11 @@ export default function CourseCatalogPage() {
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between ${
                     selectedCategory === cat.slug
                       ? 'bg-[#E40000]/15 text-red-400 font-medium'
-                      : 'text-gray-400 hover:bg-[#22272B] hover:text-white'
+                      : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-[#22272B] hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   <span className="truncate">{cat.name}</span>
-                  <span className="ml-2 text-xs text-gray-600 bg-[#22272B] px-1.5 py-0.5 rounded">
+                  <span className="ml-2 text-xs text-gray-600 bg-gray-100 dark:bg-[#22272B] px-1.5 py-0.5 rounded">
                     {cat.course_count}
                   </span>
                 </button>
@@ -396,11 +396,11 @@ export default function CourseCatalogPage() {
       )}
 
       {/* Divider */}
-      <div className="border-t border-[#22272B]" />
+      <div className="border-t border-gray-200 dark:border-[#22272B]" />
 
       {/* Price Filter */}
       <div>
-        <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-3">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-3">
           Price
         </h3>
         <div className="space-y-2">
@@ -411,9 +411,9 @@ export default function CourseCatalogPage() {
                 name="price-filter"
                 checked={priceFilter === option}
                 onChange={() => { setPriceFilter(option); setCurrentPage(1); }}
-                className="w-4 h-4 text-[#E40000] border-[#22272B] bg-[#0F1112] focus:ring-[#E40000] focus:ring-offset-0"
+                className="w-4 h-4 text-[#E40000] border-gray-200 dark:border-[#22272B] bg-gray-50 dark:bg-[#0F1112] focus:ring-[#E40000] focus:ring-offset-0"
               />
-              <span className="text-sm text-gray-400 group-hover:text-white transition-colors capitalize">
+              <span className="text-sm text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors capitalize">
                 {option === 'all' ? 'All Prices' : option}
               </span>
             </label>
@@ -422,13 +422,13 @@ export default function CourseCatalogPage() {
       </div>
 
       {/* Divider */}
-      <div className="border-t border-[#22272B]" />
+      <div className="border-t border-gray-200 dark:border-[#22272B]" />
 
       {/* Grade Level */}
       <div>
         <button
           onClick={() => setGradeLevelOpen(!gradeLevelOpen)}
-          className="w-full flex items-center justify-between text-sm font-semibold text-white uppercase tracking-wider mb-3"
+          className="w-full flex items-center justify-between text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-3"
         >
           Grade Level
           <ChevronDown
@@ -451,7 +451,7 @@ export default function CourseCatalogPage() {
                   className={`w-full text-left px-3 py-1.5 rounded text-sm transition-colors ${
                     !selectedGradeLevel
                       ? 'text-red-400 font-medium'
-                      : 'text-gray-400 hover:text-white'
+                      : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   All Grades
@@ -463,7 +463,7 @@ export default function CourseCatalogPage() {
                     className={`w-full text-left px-3 py-1.5 rounded text-sm transition-colors ${
                       selectedGradeLevel === grade
                         ? 'text-red-400 font-medium'
-                        : 'text-gray-400 hover:text-white'
+                        : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'
                     }`}
                   >
                     {grade}
@@ -476,13 +476,13 @@ export default function CourseCatalogPage() {
       </div>
 
       {/* Divider */}
-      <div className="border-t border-[#22272B]" />
+      <div className="border-t border-gray-200 dark:border-[#22272B]" />
 
       {/* Learning Area */}
       <div>
         <button
           onClick={() => setLearningAreaOpen(!learningAreaOpen)}
-          className="w-full flex items-center justify-between text-sm font-semibold text-white uppercase tracking-wider mb-3"
+          className="w-full flex items-center justify-between text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-3"
         >
           Learning Area
           <ChevronDown
@@ -505,7 +505,7 @@ export default function CourseCatalogPage() {
                   className={`w-full text-left px-3 py-1.5 rounded text-sm transition-colors ${
                     !selectedLearningArea
                       ? 'text-red-400 font-medium'
-                      : 'text-gray-400 hover:text-white'
+                      : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   All Areas
@@ -517,7 +517,7 @@ export default function CourseCatalogPage() {
                     className={`w-full text-left px-3 py-1.5 rounded text-sm transition-colors ${
                       selectedLearningArea === area
                         ? 'text-red-400 font-medium'
-                        : 'text-gray-400 hover:text-white'
+                        : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'
                     }`}
                   >
                     {area}
@@ -530,17 +530,17 @@ export default function CourseCatalogPage() {
       </div>
 
       {/* Divider */}
-      <div className="border-t border-[#22272B]" />
+      <div className="border-t border-gray-200 dark:border-[#22272B]" />
 
       {/* Sort By */}
       <div>
-        <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-3">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-3">
           Sort By
         </h3>
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="w-full px-3 py-2 bg-[#0F1112] border border-[#22272B] rounded-lg text-sm text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#E40000] focus:border-[#E40000]"
+          className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-400 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#E40000] focus:border-[#E40000]"
         >
           {SORT_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -551,11 +551,11 @@ export default function CourseCatalogPage() {
       </div>
 
       {/* Divider */}
-      <div className="border-t border-[#22272B]" />
+      <div className="border-t border-gray-200 dark:border-[#22272B]" />
 
       {/* Featured Toggle */}
       <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-white uppercase tracking-wider">
+        <span className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">
           Featured Only
         </span>
         <button
@@ -563,7 +563,7 @@ export default function CourseCatalogPage() {
           aria-checked={showFeaturedOnly}
           onClick={() => { setShowFeaturedOnly(!showFeaturedOnly); setCurrentPage(1); }}
           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-            showFeaturedOnly ? 'bg-[#E40000]' : 'bg-[#22272B]'
+            showFeaturedOnly ? 'bg-[#E40000]' : 'bg-gray-100 dark:bg-[#22272B]'
           }`}
         >
           <span
@@ -577,7 +577,7 @@ export default function CourseCatalogPage() {
       {/* Clear All */}
       {hasActiveFilters && (
         <>
-          <div className="border-t border-[#22272B]" />
+          <div className="border-t border-gray-200 dark:border-[#22272B]" />
           <button
             onClick={handleClearAll}
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:text-red-300 border border-[#E40000]/30 hover:border-[#E40000]/50 rounded-lg transition-colors"
@@ -611,15 +611,15 @@ export default function CourseCatalogPage() {
   // Render
   // ========================
   return (
-    <div className="min-h-screen bg-[#0F1112]">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0F1112]">
       {/* ============================================================ */}
       {/* HEADER SECTION */}
       {/* ============================================================ */}
-      <div className="border-b border-[#22272B]">
+      <div className="border-b border-gray-200 dark:border-[#22272B]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
           {/* Title & description */}
           <div className="mb-6">
-            <h1 className="text-3xl lg:text-4xl font-bold text-white mb-2">
+            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">
               Explore Courses
             </h1>
             <p className="text-gray-400 text-base lg:text-lg">
@@ -638,13 +638,13 @@ export default function CourseCatalogPage() {
               placeholder="Search courses by title, topic, or keyword..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-[#181C1F] border border-[#22272B] rounded-xl text-white placeholder-gray-500
+              className="w-full pl-11 pr-4 py-3 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl text-gray-900 dark:text-white placeholder-gray-500
                          focus:outline-none focus:ring-2 focus:ring-[#E40000]/50 focus:border-[#E40000]/50 transition-shadow"
             />
             {searchInput && (
               <button
                 onClick={() => setSearchInput('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-400 dark:hover:text-gray-300"
               >
                 <X size={16} />
               </button>
@@ -682,7 +682,7 @@ export default function CourseCatalogPage() {
           {/* SIDEBAR (Desktop) */}
           {/* ======================== */}
           <aside className="hidden lg:block w-64 flex-shrink-0">
-            <div className="sticky top-6 bg-[#181C1F] border border-[#22272B] rounded-xl p-5 max-h-[calc(100vh-4rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-[#22272B]">
+            <div className="sticky top-6 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5 max-h-[calc(100vh-4rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-[#22272B]">
               {filterContent}
             </div>
           </aside>
@@ -695,7 +695,7 @@ export default function CourseCatalogPage() {
             <div className="flex items-center justify-between mb-6">
               <button
                 onClick={() => setMobileFiltersOpen(true)}
-                className="lg:hidden flex items-center gap-2 px-4 py-2 bg-[#181C1F] border border-[#22272B] rounded-lg text-sm text-gray-300 hover:border-[#333a40] transition-colors"
+                className="lg:hidden flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-400 dark:text-gray-300 hover:border-[#333a40] transition-colors"
               >
                 <SlidersHorizontal size={16} />
                 Filters
@@ -710,7 +710,7 @@ export default function CourseCatalogPage() {
                   className={`p-2 rounded-lg transition-colors ${
                     viewMode === 'grid'
                       ? 'bg-[#E40000]/15 text-red-400'
-                      : 'text-gray-500 hover:text-white hover:bg-[#22272B]'
+                      : 'text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B]'
                   }`}
                   aria-label="Grid view"
                 >
@@ -721,7 +721,7 @@ export default function CourseCatalogPage() {
                   className={`p-2 rounded-lg transition-colors ${
                     viewMode === 'list'
                       ? 'bg-[#E40000]/15 text-red-400'
-                      : 'text-gray-500 hover:text-white hover:bg-[#22272B]'
+                      : 'text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B]'
                   }`}
                   aria-label="List view"
                 >
@@ -753,7 +753,7 @@ export default function CourseCatalogPage() {
                 <p className="text-red-400 mb-3">{error}</p>
                 <button
                   onClick={loadCourses}
-                  className="px-4 py-2 bg-[#E40000] text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
+                  className="px-4 py-2 bg-[#E40000] text-gray-900 dark:text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
                 >
                   Try Again
                 </button>
@@ -769,17 +769,17 @@ export default function CourseCatalogPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex flex-col items-center justify-center py-20 text-center"
               >
-                <div className="w-24 h-24 mb-6 rounded-full bg-[#181C1F] border border-[#22272B] flex items-center justify-center">
+                <div className="w-24 h-24 mb-6 rounded-full bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] flex items-center justify-center">
                   <BookOpen size={40} className="text-gray-600" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">No courses found</h3>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No courses found</h3>
                 <p className="text-gray-500 mb-6 max-w-sm">
                   We could not find courses matching your current filters. Try adjusting your search or removing some filters.
                 </p>
                 {hasActiveFilters && (
                   <button
                     onClick={handleClearAll}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-[#E40000] text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-[#E40000] text-gray-900 dark:text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
                   >
                     <RotateCcw size={14} />
                     Clear All Filters
@@ -826,7 +826,7 @@ export default function CourseCatalogPage() {
                     <button
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
-                      className="flex items-center gap-1 px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#22272B] rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      className="flex items-center gap-1 px-3 py-2 text-sm text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     >
                       <ChevronLeft size={16} />
                       Prev
@@ -844,8 +844,8 @@ export default function CourseCatalogPage() {
                           onClick={() => setCurrentPage(page)}
                           className={`min-w-[36px] h-9 rounded-lg text-sm font-medium transition-colors ${
                             currentPage === page
-                              ? 'bg-[#E40000] text-white'
-                              : 'text-gray-400 hover:text-white hover:bg-[#22272B]'
+                              ? 'bg-[#E40000] text-gray-900 dark:text-white'
+                              : 'text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B]'
                           }`}
                         >
                           {page}
@@ -857,7 +857,7 @@ export default function CourseCatalogPage() {
                     <button
                       onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
-                      className="flex items-center gap-1 px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#22272B] rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      className="flex items-center gap-1 px-3 py-2 text-sm text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     >
                       Next
                       <ChevronRight size={16} />
@@ -891,17 +891,17 @@ export default function CourseCatalogPage() {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-[#181C1F] border-r border-[#22272B] z-50 lg:hidden flex flex-col"
+              className="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-white dark:bg-[#181C1F] border-r border-gray-200 dark:border-[#22272B] z-50 lg:hidden flex flex-col"
             >
               {/* Sheet header */}
-              <div className="flex items-center justify-between px-5 py-4 border-b border-[#22272B]">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-[#22272B]">
                 <div className="flex items-center gap-2">
                   <SlidersHorizontal size={18} className="text-gray-400" />
-                  <span className="text-white font-semibold">Filters</span>
+                  <span className="text-gray-900 dark:text-white font-semibold">Filters</span>
                 </div>
                 <button
                   onClick={() => setMobileFiltersOpen(false)}
-                  className="p-1.5 text-gray-500 hover:text-white hover:bg-[#22272B] rounded-lg transition-colors"
+                  className="p-1.5 text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] rounded-lg transition-colors"
                 >
                   <X size={18} />
                 </button>
@@ -913,10 +913,10 @@ export default function CourseCatalogPage() {
               </div>
 
               {/* Sheet footer */}
-              <div className="px-5 py-4 border-t border-[#22272B]">
+              <div className="px-5 py-4 border-t border-gray-200 dark:border-[#22272B]">
                 <button
                   onClick={() => setMobileFiltersOpen(false)}
-                  className="w-full px-4 py-2.5 bg-[#E40000] text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                  className="w-full px-4 py-2.5 bg-[#E40000] text-gray-900 dark:text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
                 >
                   <Sparkles size={14} />
                   Show Results

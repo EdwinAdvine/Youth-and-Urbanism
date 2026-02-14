@@ -170,15 +170,15 @@ const AssessmentEditorPage: React.FC = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 bg-[#22272B] rounded-lg animate-pulse w-64" />
-        <div className="h-16 bg-[#22272B] rounded-lg animate-pulse" />
+        <div className="h-8 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse w-64" />
+        <div className="h-16 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse" />
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-3 space-y-4">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-24 bg-[#22272B] rounded-xl animate-pulse" />
+              <div key={i} className="h-24 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
             ))}
           </div>
-          <div className="h-96 bg-[#22272B] rounded-xl animate-pulse" />
+          <div className="h-96 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
         </div>
       </div>
     );
@@ -192,43 +192,43 @@ const AssessmentEditorPage: React.FC = () => {
       animate="visible"
     >
       {/* Breadcrumb */}
-      <motion.div variants={itemVariants} className="flex items-center gap-2 text-sm text-white/40">
-        <span className="hover:text-white/60 cursor-pointer transition-colors">Assessment Builder</span>
+      <motion.div variants={itemVariants} className="flex items-center gap-2 text-sm text-gray-400 dark:text-white/40">
+        <span className="hover:text-gray-500 dark:hover:text-white/60 cursor-pointer transition-colors">Assessment Builder</span>
         <ChevronRight className="w-4 h-4" />
-        <span className="text-white">Edit Assessment</span>
+        <span className="text-gray-900 dark:text-white">Edit Assessment</span>
         {assessmentId && (
           <>
             <ChevronRight className="w-4 h-4" />
-            <span className="text-white/60 font-mono text-xs">{assessmentId}</span>
+            <span className="text-gray-500 dark:text-white/60 font-mono text-xs">{assessmentId}</span>
           </>
         )}
       </motion.div>
 
       {/* Assessment Header */}
-      <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+      <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
         <div className="flex flex-col sm:flex-row sm:items-start gap-4">
           <div className="flex-1 space-y-3">
             <input
               type="text"
               value={assessment.title}
               onChange={(e) => handleTitleChange(e.target.value)}
-              className="w-full text-xl font-semibold bg-transparent text-white border-b border-transparent hover:border-[#333] focus:border-[#E40000]/50 focus:outline-none pb-1 transition-colors"
+              className="w-full text-xl font-semibold bg-transparent text-gray-900 dark:text-white border-b border-transparent hover:border-gray-300 dark:hover:border-[#333] focus:border-[#E40000]/50 focus:outline-none pb-1 transition-colors"
               placeholder="Assessment Title"
             />
             <div className="flex flex-wrap items-center gap-3">
               <select
                 value={assessment.type}
                 onChange={(e) => handleTypeChange(e.target.value as Assessment['type'])}
-                className="px-3 py-1.5 bg-[#22272B] border border-[#333] rounded-lg text-white text-sm focus:outline-none focus:border-[#E40000]/50 appearance-none cursor-pointer"
+                className="px-3 py-1.5 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#E40000]/50 appearance-none cursor-pointer"
               >
                 <option value="quiz">Quiz</option>
                 <option value="exam">Exam</option>
                 <option value="assignment">Assignment</option>
                 <option value="practice">Practice</option>
               </select>
-              <span className="text-sm text-white/50">{assessment.subject} - {assessment.grade_level}</span>
-              <span className="text-sm text-white/40">{assessment.questions.length} questions</span>
-              <span className="text-sm text-white/40">{assessment.questions.reduce((s, q) => s + q.points, 0)} points total</span>
+              <span className="text-sm text-gray-500 dark:text-white/50">{assessment.subject} - {assessment.grade_level}</span>
+              <span className="text-sm text-gray-400 dark:text-white/40">{assessment.questions.length} questions</span>
+              <span className="text-sm text-gray-400 dark:text-white/40">{assessment.questions.reduce((s, q) => s + q.points, 0)} points total</span>
             </div>
           </div>
           <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border capitalize ${statusColors[assessment.status]}`}>
@@ -244,30 +244,30 @@ const AssessmentEditorPage: React.FC = () => {
           {assessment.questions.map((question, index) => (
             <div
               key={question.id}
-              className="bg-[#181C1F] border border-[#22272B] rounded-xl hover:border-[#333] transition-colors"
+              className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl hover:border-gray-300 dark:hover:border-[#333] transition-colors"
             >
               <div className="flex items-start gap-3 p-4">
                 <div className="flex items-center gap-2 mt-1">
-                  <GripVertical className="w-4 h-4 text-white/20 cursor-grab" />
-                  <span className="text-xs font-mono text-white/30 w-6">{index + 1}.</span>
+                  <GripVertical className="w-4 h-4 text-gray-400 dark:text-gray-300 dark:text-white/20 cursor-grab" />
+                  <span className="text-xs font-mono text-gray-400 dark:text-white/30 w-6">{index + 1}.</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white leading-relaxed">{question.text}</p>
+                  <p className="text-sm text-gray-900 dark:text-white leading-relaxed">{question.text}</p>
                   <div className="flex flex-wrap items-center gap-2 mt-2">
                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border ${typeColors[question.type]}`}>
                       {question.type.replace('_', ' ')}
                     </span>
-                    <span className="text-[10px] text-white/40">{question.points} pts</span>
+                    <span className="text-[10px] text-gray-400 dark:text-white/40">{question.points} pts</span>
                     <div className="flex items-center gap-1">
                       {[1, 2, 3, 4, 5].map((level) => (
                         <div
                           key={level}
                           className={`w-1.5 h-3 rounded-full ${
-                            level <= question.difficulty ? 'bg-[#E40000]' : 'bg-[#22272B]'
+                            level <= question.difficulty ? 'bg-[#E40000]' : 'bg-gray-100 dark:bg-[#22272B]'
                           }`}
                         />
                       ))}
-                      <span className="text-[10px] text-white/30 ml-1">{difficultyLabels[question.difficulty]}</span>
+                      <span className="text-[10px] text-gray-400 dark:text-white/30 ml-1">{difficultyLabels[question.difficulty]}</span>
                     </div>
                     {question.adaptive_paths.length > 0 && (
                       <span className="inline-flex items-center gap-1 text-[10px] text-cyan-400">
@@ -280,7 +280,7 @@ const AssessmentEditorPage: React.FC = () => {
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => setExpandedQuestion(expandedQuestion === question.id ? null : question.id)}
-                    className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/30 hover:text-white/60 transition-colors"
+                    className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-400 dark:text-white/30 hover:text-gray-500 dark:hover:text-white/60 transition-colors"
                   >
                     {expandedQuestion === question.id ? (
                       <ChevronUp className="w-4 h-4" />
@@ -288,12 +288,12 @@ const AssessmentEditorPage: React.FC = () => {
                       <ChevronDown className="w-4 h-4" />
                     )}
                   </button>
-                  <button className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/30 hover:text-white/60 transition-colors">
+                  <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-400 dark:text-white/30 hover:text-gray-500 dark:hover:text-white/60 transition-colors">
                     <Copy className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDeleteQuestion(question.id)}
-                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-white/30 hover:text-red-400 transition-colors"
+                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-400 dark:text-white/30 hover:text-red-400 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -302,29 +302,29 @@ const AssessmentEditorPage: React.FC = () => {
 
               {/* Expanded details */}
               {expandedQuestion === question.id && (
-                <div className="px-4 pb-4 pt-0 border-t border-[#22272B] mt-0">
+                <div className="px-4 pb-4 pt-0 border-t border-gray-200 dark:border-[#22272B] mt-0">
                   <div className="pt-3 space-y-3">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[10px] text-white/40 mb-1">Question Type</label>
-                        <span className="text-xs text-white/60 capitalize">{question.type.replace('_', ' ')}</span>
+                        <label className="block text-[10px] text-gray-400 dark:text-white/40 mb-1">Question Type</label>
+                        <span className="text-xs text-gray-500 dark:text-white/60 capitalize">{question.type.replace('_', ' ')}</span>
                       </div>
                       <div>
-                        <label className="block text-[10px] text-white/40 mb-1">Points</label>
-                        <span className="text-xs text-white/60">{question.points}</span>
+                        <label className="block text-[10px] text-gray-400 dark:text-white/40 mb-1">Points</label>
+                        <span className="text-xs text-gray-500 dark:text-white/60">{question.points}</span>
                       </div>
                     </div>
                     {question.adaptive_paths.length > 0 && (
                       <div>
-                        <label className="block text-[10px] text-white/40 mb-1">Adaptive Paths</label>
+                        <label className="block text-[10px] text-gray-400 dark:text-white/40 mb-1">Adaptive Paths</label>
                         <div className="space-y-1">
                           {question.adaptive_paths.map((path, idx) => (
                             <div key={idx} className="flex items-center gap-2 text-xs">
                               <span className={`px-1.5 py-0.5 rounded text-[10px] ${path.condition === 'correct' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
                                 {path.condition}
                               </span>
-                              <ChevronRight className="w-3 h-3 text-white/20" />
-                              <span className="text-white/50 font-mono">{path.next_question_id}</span>
+                              <ChevronRight className="w-3 h-3 text-gray-400 dark:text-gray-300 dark:text-white/20" />
+                              <span className="text-gray-500 dark:text-white/50 font-mono">{path.next_question_id}</span>
                             </div>
                           ))}
                         </div>
@@ -338,22 +338,22 @@ const AssessmentEditorPage: React.FC = () => {
 
           {/* Add Question Button / Form */}
           {showAddForm ? (
-            <div className="bg-[#181C1F] border border-[#E40000]/30 rounded-xl p-4 space-y-3">
-              <h4 className="text-sm font-medium text-white">Add New Question</h4>
+            <div className="bg-white dark:bg-[#181C1F] border border-[#E40000]/30 rounded-xl p-4 space-y-3">
+              <h4 className="text-sm font-medium text-gray-900 dark:text-white">Add New Question</h4>
               <textarea
                 value={newQuestion.text}
                 onChange={(e) => setNewQuestion({ ...newQuestion, text: e.target.value })}
                 placeholder="Enter question text..."
                 rows={3}
-                className="w-full px-3 py-2 bg-[#22272B] border border-[#333] rounded-lg text-white text-sm focus:outline-none focus:border-[#E40000]/50 resize-none placeholder-white/30"
+                className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#E40000]/50 resize-none placeholder-white/30"
               />
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs text-white/40 mb-1">Type</label>
+                  <label className="block text-xs text-gray-400 dark:text-white/40 mb-1">Type</label>
                   <select
                     value={newQuestion.type}
                     onChange={(e) => setNewQuestion({ ...newQuestion, type: e.target.value as Question['type'] })}
-                    className="w-full px-3 py-2 bg-[#22272B] border border-[#333] rounded-lg text-white text-sm focus:outline-none appearance-none cursor-pointer"
+                    className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none appearance-none cursor-pointer"
                   >
                     <option value="multiple_choice">Multiple Choice</option>
                     <option value="short_answer">Short Answer</option>
@@ -363,7 +363,7 @@ const AssessmentEditorPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs text-white/40 mb-1">Difficulty (1-5)</label>
+                  <label className="block text-xs text-gray-400 dark:text-white/40 mb-1">Difficulty (1-5)</label>
                   <input
                     type="range"
                     min={1}
@@ -372,31 +372,31 @@ const AssessmentEditorPage: React.FC = () => {
                     onChange={(e) => setNewQuestion({ ...newQuestion, difficulty: Number(e.target.value) })}
                     className="w-full mt-2 accent-[#E40000]"
                   />
-                  <span className="text-xs text-white/50">{difficultyLabels[newQuestion.difficulty]}</span>
+                  <span className="text-xs text-gray-500 dark:text-white/50">{difficultyLabels[newQuestion.difficulty]}</span>
                 </div>
                 <div>
-                  <label className="block text-xs text-white/40 mb-1">Points</label>
+                  <label className="block text-xs text-gray-400 dark:text-white/40 mb-1">Points</label>
                   <input
                     type="number"
                     min={1}
                     max={100}
                     value={newQuestion.points}
                     onChange={(e) => setNewQuestion({ ...newQuestion, points: Number(e.target.value) })}
-                    className="w-full px-3 py-2 bg-[#22272B] border border-[#333] rounded-lg text-white text-sm focus:outline-none"
+                    className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none"
                   />
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleAddQuestion}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#E40000] hover:bg-[#C80000] text-white text-sm rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#E40000] hover:bg-[#C80000] text-gray-900 dark:text-white text-sm rounded-lg transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                   Add Question
                 </button>
                 <button
                   onClick={() => setShowAddForm(false)}
-                  className="px-4 py-2 text-sm text-white/50 hover:text-white transition-colors"
+                  className="px-4 py-2 text-sm text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                   Cancel
                 </button>
@@ -405,7 +405,7 @@ const AssessmentEditorPage: React.FC = () => {
           ) : (
             <button
               onClick={() => setShowAddForm(true)}
-              className="w-full flex items-center justify-center gap-2 py-3 border border-dashed border-[#333] rounded-xl text-white/40 hover:text-white/70 hover:border-[#E40000]/40 transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-3 border border-dashed border-gray-300 dark:border-[#333] rounded-xl text-gray-400 dark:text-white/40 hover:text-gray-600 dark:hover:text-white/70 hover:border-[#E40000]/40 transition-colors"
             >
               <Plus className="w-4 h-4" />
               Add Question
@@ -416,38 +416,38 @@ const AssessmentEditorPage: React.FC = () => {
         {/* Sidebar: Config */}
         <motion.div variants={itemVariants} className="space-y-4">
           {/* Assessment Config */}
-          <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-4">
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4">
             <div className="flex items-center gap-2 mb-4">
-              <Settings className="w-4 h-4 text-white/50" />
-              <h3 className="text-sm font-medium text-white">Configuration</h3>
+              <Settings className="w-4 h-4 text-gray-500 dark:text-white/50" />
+              <h3 className="text-sm font-medium text-gray-900 dark:text-white">Configuration</h3>
             </div>
             <div className="space-y-3">
               <div>
-                <label className="block text-xs text-white/40 mb-1">Time Limit (min)</label>
+                <label className="block text-xs text-gray-400 dark:text-white/40 mb-1">Time Limit (min)</label>
                 <input
                   type="number"
                   value={assessment.time_limit_minutes}
                   onChange={(e) => setAssessment({ ...assessment, time_limit_minutes: Number(e.target.value) })}
-                  className="w-full px-3 py-2 bg-[#22272B] border border-[#333] rounded-lg text-white text-sm focus:outline-none"
+                  className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none"
                 />
               </div>
               <div>
-                <label className="block text-xs text-white/40 mb-1">Passing Score (%)</label>
+                <label className="block text-xs text-gray-400 dark:text-white/40 mb-1">Passing Score (%)</label>
                 <input
                   type="number"
                   value={assessment.passing_score}
                   onChange={(e) => setAssessment({ ...assessment, passing_score: Number(e.target.value) })}
-                  className="w-full px-3 py-2 bg-[#22272B] border border-[#333] rounded-lg text-white text-sm focus:outline-none"
+                  className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none"
                 />
               </div>
             </div>
           </div>
 
           {/* Adaptive Config */}
-          <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-4">
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4">
             <div className="flex items-center gap-2 mb-4">
               <Brain className="w-4 h-4 text-cyan-400" />
-              <h3 className="text-sm font-medium text-white">Adaptive Config</h3>
+              <h3 className="text-sm font-medium text-gray-900 dark:text-white">Adaptive Config</h3>
             </div>
             <div className="space-y-3">
               {([
@@ -458,17 +458,17 @@ const AssessmentEditorPage: React.FC = () => {
               ]).map(({ key, label, desc }) => (
                 <div key={key} className="flex items-center justify-between">
                   <div>
-                    <div className="text-xs text-white">{label}</div>
-                    <div className="text-[10px] text-white/30">{desc}</div>
+                    <div className="text-xs text-gray-900 dark:text-white">{label}</div>
+                    <div className="text-[10px] text-gray-400 dark:text-white/30">{desc}</div>
                   </div>
                   <button
                     onClick={() => setAssessment({ ...assessment, [key]: !assessment[key] })}
-                    className="text-white/60 hover:text-white transition-colors"
+                    className="text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white transition-colors"
                   >
                     {assessment[key] ? (
                       <ToggleRight className="w-6 h-6 text-emerald-400" />
                     ) : (
-                      <ToggleLeft className="w-6 h-6 text-white/30" />
+                      <ToggleLeft className="w-6 h-6 text-gray-400 dark:text-white/30" />
                     )}
                   </button>
                 </div>
@@ -477,12 +477,12 @@ const AssessmentEditorPage: React.FC = () => {
           </div>
 
           {/* Rubric placeholder */}
-          <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-4">
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4">
             <div className="flex items-center gap-2 mb-3">
-              <FileText className="w-4 h-4 text-white/50" />
-              <h3 className="text-sm font-medium text-white">Rubric</h3>
+              <FileText className="w-4 h-4 text-gray-500 dark:text-white/50" />
+              <h3 className="text-sm font-medium text-gray-900 dark:text-white">Rubric</h3>
             </div>
-            <p className="text-xs text-white/30">No rubric attached. Click below to create or upload one.</p>
+            <p className="text-xs text-gray-400 dark:text-white/30">No rubric attached. Click below to create or upload one.</p>
             <button className="mt-2 text-xs text-[#E40000] hover:text-[#E40000]/80 transition-colors">
               + Add Rubric
             </button>
@@ -490,11 +490,11 @@ const AssessmentEditorPage: React.FC = () => {
 
           {/* Action Buttons */}
           <div className="space-y-2">
-            <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#22272B] border border-[#333] rounded-lg text-white text-sm hover:border-[#444] transition-colors">
+            <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm hover:border-gray-300 dark:hover:border-[#444] transition-colors">
               <Save className="w-4 h-4" />
               Save Draft
             </button>
-            <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#E40000] hover:bg-[#C80000] text-white text-sm rounded-lg transition-colors">
+            <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#E40000] hover:bg-[#C80000] text-gray-900 dark:text-white text-sm rounded-lg transition-colors">
               <Zap className="w-4 h-4" />
               Activate
             </button>

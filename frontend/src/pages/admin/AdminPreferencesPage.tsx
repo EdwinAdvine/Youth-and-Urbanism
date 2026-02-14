@@ -59,10 +59,10 @@ const AdminPreferencesPage: React.FC = () => {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <button onClick={handleReset} className="flex items-center gap-2 px-4 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors">
+            <button onClick={handleReset} className="flex items-center gap-2 px-4 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors">
               <RotateCcw className="w-4 h-4" />Reset
             </button>
-            <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-4 py-2 text-sm bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50">
+            <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-4 py-2 text-sm bg-red-600 hover:bg-red-700 text-gray-900 dark:text-white rounded-lg transition-colors disabled:opacity-50">
               <Save className="w-4 h-4" />{saving ? 'Saving...' : 'Save'}
             </button>
           </div>
@@ -71,19 +71,19 @@ const AdminPreferencesPage: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Appearance */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Sun className="w-5 h-5 text-white/50" />
-            <h3 className="text-sm font-medium text-white">Appearance</h3>
+            <Sun className="w-5 h-5 text-gray-500 dark:text-white/50" />
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white">Appearance</h3>
           </div>
           <div className="space-y-4">
             <div>
-              <label className="block text-xs text-white/50 mb-2">Theme</label>
+              <label className="block text-xs text-gray-500 dark:text-white/50 mb-2">Theme</label>
               <div className="grid grid-cols-3 gap-2">
                 {(['dark', 'light', 'system'] as const).map(theme => {
                   const Icon = themeIcons[theme];
                   return (
-                    <button key={theme} onClick={() => setPreferences({ ...preferences, theme })} className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border text-sm transition-colors capitalize ${preferences.theme === theme ? 'bg-red-600/20 border-red-600 text-red-400' : 'bg-[#22272B] border-[#333] text-white/60 hover:border-[#444]'}`}>
+                    <button key={theme} onClick={() => setPreferences({ ...preferences, theme })} className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border text-sm transition-colors capitalize ${preferences.theme === theme ? 'bg-red-600/20 border-red-600 text-red-400' : 'bg-gray-100 dark:bg-[#22272B] border-gray-300 dark:border-[#333] text-gray-500 dark:text-white/60 hover:border-gray-300 dark:hover:border-[#444]'}`}>
                       <Icon className="w-4 h-4" />{theme}
                     </button>
                   );
@@ -91,10 +91,10 @@ const AdminPreferencesPage: React.FC = () => {
               </div>
             </div>
             <div>
-              <label className="block text-xs text-white/50 mb-2">Dashboard Layout</label>
+              <label className="block text-xs text-gray-500 dark:text-white/50 mb-2">Dashboard Layout</label>
               <div className="grid grid-cols-3 gap-2">
                 {(['default', 'compact', 'expanded'] as const).map(layout => (
-                  <button key={layout} onClick={() => setPreferences({ ...preferences, dashboard_layout: layout })} className={`px-3 py-2.5 rounded-lg border text-sm transition-colors capitalize ${preferences.dashboard_layout === layout ? 'bg-red-600/20 border-red-600 text-red-400' : 'bg-[#22272B] border-[#333] text-white/60 hover:border-[#444]'}`}>
+                  <button key={layout} onClick={() => setPreferences({ ...preferences, dashboard_layout: layout })} className={`px-3 py-2.5 rounded-lg border text-sm transition-colors capitalize ${preferences.dashboard_layout === layout ? 'bg-red-600/20 border-red-600 text-red-400' : 'bg-gray-100 dark:bg-[#22272B] border-gray-300 dark:border-[#333] text-gray-500 dark:text-white/60 hover:border-gray-300 dark:hover:border-[#444]'}`}>
                     {layout}
                   </button>
                 ))}
@@ -104,15 +104,15 @@ const AdminPreferencesPage: React.FC = () => {
         </motion.div>
 
         {/* Localization */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Globe className="w-5 h-5 text-white/50" />
-            <h3 className="text-sm font-medium text-white">Localization</h3>
+            <Globe className="w-5 h-5 text-gray-500 dark:text-white/50" />
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white">Localization</h3>
           </div>
           <div className="space-y-4">
             <div>
-              <label className="block text-xs text-white/50 mb-1.5">Timezone</label>
-              <select value={preferences.timezone} onChange={e => setPreferences({ ...preferences, timezone: e.target.value })} className="w-full px-3 py-2 bg-[#22272B] border border-[#333] rounded-lg text-white text-sm focus:outline-none focus:border-[#444]">
+              <label className="block text-xs text-gray-500 dark:text-white/50 mb-1.5">Timezone</label>
+              <select value={preferences.timezone} onChange={e => setPreferences({ ...preferences, timezone: e.target.value })} className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-gray-300 dark:focus:border-[#444]">
                 <option value="Africa/Nairobi">Africa/Nairobi (EAT +03:00)</option>
                 <option value="UTC">UTC (+00:00)</option>
                 <option value="America/New_York">America/New York (EST -05:00)</option>
@@ -120,15 +120,15 @@ const AdminPreferencesPage: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs text-white/50 mb-1.5">Language</label>
-              <select value={preferences.language} onChange={e => setPreferences({ ...preferences, language: e.target.value })} className="w-full px-3 py-2 bg-[#22272B] border border-[#333] rounded-lg text-white text-sm focus:outline-none focus:border-[#444]">
+              <label className="block text-xs text-gray-500 dark:text-white/50 mb-1.5">Language</label>
+              <select value={preferences.language} onChange={e => setPreferences({ ...preferences, language: e.target.value })} className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-gray-300 dark:focus:border-[#444]">
                 <option value="en">English</option>
                 <option value="sw">Swahili</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs text-white/50 mb-1.5">Date Format</label>
-              <select value={preferences.date_format} onChange={e => setPreferences({ ...preferences, date_format: e.target.value })} className="w-full px-3 py-2 bg-[#22272B] border border-[#333] rounded-lg text-white text-sm focus:outline-none focus:border-[#444]">
+              <label className="block text-xs text-gray-500 dark:text-white/50 mb-1.5">Date Format</label>
+              <select value={preferences.date_format} onChange={e => setPreferences({ ...preferences, date_format: e.target.value })} className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-gray-300 dark:focus:border-[#444]">
                 <option value="DD/MM/YYYY">DD/MM/YYYY</option>
                 <option value="MM/DD/YYYY">MM/DD/YYYY</option>
                 <option value="YYYY-MM-DD">YYYY-MM-DD</option>
@@ -138,10 +138,10 @@ const AdminPreferencesPage: React.FC = () => {
         </motion.div>
 
         {/* Notifications */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Bell className="w-5 h-5 text-white/50" />
-            <h3 className="text-sm font-medium text-white">Notifications</h3>
+            <Bell className="w-5 h-5 text-gray-500 dark:text-white/50" />
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white">Notifications</h3>
           </div>
           <div className="space-y-3">
             {([
@@ -151,8 +151,8 @@ const AdminPreferencesPage: React.FC = () => {
             ]).map(({ key, label, desc }) => (
               <div key={key} className="flex items-center justify-between py-2">
                 <div>
-                  <div className="text-sm text-white">{label}</div>
-                  <div className="text-xs text-white/40">{desc}</div>
+                  <div className="text-sm text-gray-900 dark:text-white">{label}</div>
+                  <div className="text-xs text-gray-400 dark:text-white/40">{desc}</div>
                 </div>
                 <button onClick={() => setPreferences({ ...preferences, [key]: !preferences[key] })} className={`relative w-11 h-6 rounded-full transition-colors ${preferences[key] ? 'bg-emerald-500' : 'bg-[#333]'}`}>
                   <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform ${preferences[key] ? 'left-[22px]' : 'left-0.5'}`} />
@@ -163,15 +163,15 @@ const AdminPreferencesPage: React.FC = () => {
         </motion.div>
 
         {/* Dashboard Settings */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Layout className="w-5 h-5 text-white/50" />
-            <h3 className="text-sm font-medium text-white">Dashboard Settings</h3>
+            <Layout className="w-5 h-5 text-gray-500 dark:text-white/50" />
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white">Dashboard Settings</h3>
           </div>
           <div className="space-y-4">
             <div>
-              <label className="block text-xs text-white/50 mb-1.5">Auto-Refresh Interval</label>
-              <select value={preferences.auto_refresh_interval} onChange={e => setPreferences({ ...preferences, auto_refresh_interval: Number(e.target.value) })} className="w-full px-3 py-2 bg-[#22272B] border border-[#333] rounded-lg text-white text-sm focus:outline-none focus:border-[#444]">
+              <label className="block text-xs text-gray-500 dark:text-white/50 mb-1.5">Auto-Refresh Interval</label>
+              <select value={preferences.auto_refresh_interval} onChange={e => setPreferences({ ...preferences, auto_refresh_interval: Number(e.target.value) })} className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-gray-300 dark:focus:border-[#444]">
                 <option value={15}>15 seconds</option>
                 <option value={30}>30 seconds</option>
                 <option value={60}>60 seconds</option>
@@ -181,8 +181,8 @@ const AdminPreferencesPage: React.FC = () => {
             </div>
             <div className="flex items-center justify-between py-2">
               <div>
-                <div className="text-sm text-white">Collapsed Sidebar</div>
-                <div className="text-xs text-white/40">Start with sidebar collapsed by default</div>
+                <div className="text-sm text-gray-900 dark:text-white">Collapsed Sidebar</div>
+                <div className="text-xs text-gray-400 dark:text-white/40">Start with sidebar collapsed by default</div>
               </div>
               <button onClick={() => setPreferences({ ...preferences, sidebar_collapsed: !preferences.sidebar_collapsed })} className={`relative w-11 h-6 rounded-full transition-colors ${preferences.sidebar_collapsed ? 'bg-emerald-500' : 'bg-[#333]'}`}>
                 <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform ${preferences.sidebar_collapsed ? 'left-[22px]' : 'left-0.5'}`} />
@@ -193,18 +193,18 @@ const AdminPreferencesPage: React.FC = () => {
       </div>
 
       {/* Keyboard Shortcuts */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Keyboard className="w-5 h-5 text-white/50" />
-          <h3 className="text-sm font-medium text-white">Keyboard Shortcuts</h3>
+          <Keyboard className="w-5 h-5 text-gray-500 dark:text-white/50" />
+          <h3 className="text-sm font-medium text-gray-900 dark:text-white">Keyboard Shortcuts</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#22272B]">
-                <th className="text-left py-2.5 px-3 text-white/50 font-medium text-xs">Shortcut</th>
-                <th className="text-left py-2.5 px-3 text-white/50 font-medium text-xs">Action</th>
-                <th className="text-left py-2.5 px-3 text-white/50 font-medium text-xs">Category</th>
+              <tr className="border-b border-gray-200 dark:border-[#22272B]">
+                <th className="text-left py-2.5 px-3 text-gray-500 dark:text-white/50 font-medium text-xs">Shortcut</th>
+                <th className="text-left py-2.5 px-3 text-gray-500 dark:text-white/50 font-medium text-xs">Action</th>
+                <th className="text-left py-2.5 px-3 text-gray-500 dark:text-white/50 font-medium text-xs">Category</th>
               </tr>
             </thead>
             <tbody>
@@ -221,19 +221,19 @@ const AdminPreferencesPage: React.FC = () => {
                 { keys: ['Ctrl', 'Enter'], action: 'Submit / Confirm', category: 'Actions' },
                 { keys: ['?'], action: 'Show keyboard shortcuts', category: 'Help' },
               ].map((shortcut, idx) => (
-                <tr key={idx} className="border-b border-[#22272B]/50">
+                <tr key={idx} className="border-b border-gray-200 dark:border-[#22272B]/50">
                   <td className="py-2 px-3">
                     <div className="flex items-center gap-1">
                       {shortcut.keys.map((key, i) => (
                         <React.Fragment key={i}>
-                          {i > 0 && <span className="text-white/20 text-xs mx-0.5">+</span>}
-                          <kbd className="px-1.5 py-0.5 bg-[#22272B] border border-[#333] rounded text-[11px] text-white/70 font-mono">{key}</kbd>
+                          {i > 0 && <span className="text-gray-400 dark:text-gray-300 dark:text-white/20 text-xs mx-0.5">+</span>}
+                          <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded text-[11px] text-gray-600 dark:text-white/70 font-mono">{key}</kbd>
                         </React.Fragment>
                       ))}
                     </div>
                   </td>
-                  <td className="py-2 px-3 text-white/60 text-xs">{shortcut.action}</td>
-                  <td className="py-2 px-3 text-white/40 text-xs">{shortcut.category}</td>
+                  <td className="py-2 px-3 text-gray-500 dark:text-white/60 text-xs">{shortcut.action}</td>
+                  <td className="py-2 px-3 text-gray-400 dark:text-white/40 text-xs">{shortcut.category}</td>
                 </tr>
               ))}
             </tbody>

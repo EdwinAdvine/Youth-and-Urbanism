@@ -126,15 +126,15 @@ const ContentPerformancePage: React.FC = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-16 bg-[#22272B] rounded-lg animate-pulse" />
+        <div className="h-16 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 bg-[#22272B] rounded-xl animate-pulse" />
+            <div key={i} className="h-28 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-72 bg-[#22272B] rounded-xl animate-pulse" />
+            <div key={i} className="h-72 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
           ))}
         </div>
       </div>
@@ -151,15 +151,15 @@ const ContentPerformancePage: React.FC = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Content Performance</h1>
-          <p className="text-sm text-white/50 mt-1">Track views, completions, and content ratings</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Content Performance</h1>
+          <p className="text-sm text-gray-500 dark:text-white/50 mt-1">Track views, completions, and content ratings</p>
         </div>
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-white/40" />
+          <Calendar className="w-4 h-4 text-gray-400 dark:text-white/40" />
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="px-3 py-2 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm focus:outline-none focus:border-[#E40000]/50 appearance-none cursor-pointer"
+            className="px-3 py-2 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#E40000]/50 appearance-none cursor-pointer"
           >
             <option value="7d">Last 7 days</option>
             <option value="14d">Last 14 days</option>
@@ -177,14 +177,14 @@ const ContentPerformancePage: React.FC = () => {
           { label: 'Avg Rating', value: '4.5/5', change: '+0.2', icon: Star, color: 'text-yellow-400' },
           { label: 'Top Performing', value: 'Fractions', change: '4,520 views', icon: TrendingUp, color: 'text-[#E40000]' },
         ].map((stat) => (
-          <div key={stat.label} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-4">
+          <div key={stat.label} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/50 text-xs font-medium">{stat.label}</span>
-              <div className={`p-1.5 bg-[#22272B] rounded-lg ${stat.color}`}>
+              <span className="text-gray-500 dark:text-white/50 text-xs font-medium">{stat.label}</span>
+              <div className={`p-1.5 bg-gray-100 dark:bg-[#22272B] rounded-lg ${stat.color}`}>
                 <stat.icon className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-white">{stat.value}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
             <p className="text-xs text-emerald-400 mt-1">{stat.change}</p>
           </div>
         ))}
@@ -193,9 +193,9 @@ const ContentPerformancePage: React.FC = () => {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Views Over Time */}
-        <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-1">Content Views Over Time</h3>
-          <p className="text-xs text-white/40 mb-4">Daily content view count</p>
+        <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Content Views Over Time</h3>
+          <p className="text-xs text-gray-400 dark:text-white/40 mb-4">Daily content view count</p>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={VIEWS_OVER_TIME}>
@@ -216,9 +216,9 @@ const ContentPerformancePage: React.FC = () => {
         </motion.div>
 
         {/* Completion Rates by Type */}
-        <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-1">Completion Rates by Type</h3>
-          <p className="text-xs text-white/40 mb-4">Average completion rate per content type</p>
+        <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Completion Rates by Type</h3>
+          <p className="text-xs text-gray-400 dark:text-white/40 mb-4">Average completion rate per content type</p>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={COMPLETION_BY_TYPE} layout="vertical">
@@ -233,9 +233,9 @@ const ContentPerformancePage: React.FC = () => {
         </motion.div>
 
         {/* Ratings Distribution */}
-        <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-1">Content Ratings Distribution</h3>
-          <p className="text-xs text-white/40 mb-4">Number of ratings per star level</p>
+        <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Content Ratings Distribution</h3>
+          <p className="text-xs text-gray-400 dark:text-white/40 mb-4">Number of ratings per star level</p>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={RATINGS_DISTRIBUTION}>
@@ -250,9 +250,9 @@ const ContentPerformancePage: React.FC = () => {
         </motion.div>
 
         {/* Top Content */}
-        <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-1">Top Content</h3>
-          <p className="text-xs text-white/40 mb-4">Most viewed content items</p>
+        <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Top Content</h3>
+          <p className="text-xs text-gray-400 dark:text-white/40 mb-4">Most viewed content items</p>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={TOP_CONTENT} layout="vertical">
@@ -268,32 +268,32 @@ const ContentPerformancePage: React.FC = () => {
       </div>
 
       {/* Content Performance Table */}
-      <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-[#22272B]">
-          <h3 className="text-sm font-semibold text-white">Content Performance Details</h3>
+      <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-200 dark:border-[#22272B]">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Content Performance Details</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#22272B] text-left">
-                <th className="px-4 py-3 text-white/60 font-medium">Title</th>
-                <th className="px-4 py-3 text-white/60 font-medium text-right">Views</th>
-                <th className="px-4 py-3 text-white/60 font-medium text-right">Completions</th>
-                <th className="px-4 py-3 text-white/60 font-medium text-right">Avg Score</th>
-                <th className="px-4 py-3 text-white/60 font-medium text-right">Rating</th>
+              <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Title</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Views</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Completions</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Avg Score</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Rating</th>
               </tr>
             </thead>
             <tbody>
               {CONTENT_TABLE.map((item) => (
-                <tr key={item.id} className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
+                <tr key={item.id} className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
                   <td className="px-4 py-3">
                     <div>
-                      <span className="text-white font-medium">{item.title}</span>
-                      <span className="block text-xs text-white/40">{item.type} - {item.grade_level}</span>
+                      <span className="text-gray-900 dark:text-white font-medium">{item.title}</span>
+                      <span className="block text-xs text-gray-400 dark:text-white/40">{item.type} - {item.grade_level}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-right text-white/70">{item.views.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-right text-white/70">{item.completions.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-right text-gray-600 dark:text-white/70">{item.views.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-right text-gray-600 dark:text-white/70">{item.completions.toLocaleString()}</td>
                   <td className="px-4 py-3 text-right">
                     <span className={item.avg_score >= 80 ? 'text-emerald-400' : item.avg_score >= 70 ? 'text-yellow-400' : 'text-red-400'}>
                       {item.avg_score}%
@@ -302,7 +302,7 @@ const ContentPerformancePage: React.FC = () => {
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                      <span className="text-white/70">{item.rating}</span>
+                      <span className="text-gray-600 dark:text-white/70">{item.rating}</span>
                     </div>
                   </td>
                 </tr>
@@ -310,14 +310,14 @@ const ContentPerformancePage: React.FC = () => {
             </tbody>
           </table>
         </div>
-        <div className="flex items-center justify-between px-4 py-3 border-t border-[#22272B]">
-          <p className="text-xs text-white/40">Showing 1-{CONTENT_TABLE.length} of {CONTENT_TABLE.length}</p>
+        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-[#22272B]">
+          <p className="text-xs text-gray-400 dark:text-white/40">Showing 1-{CONTENT_TABLE.length} of {CONTENT_TABLE.length}</p>
           <div className="flex items-center gap-1">
-            <button className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 disabled:opacity-30 transition-colors" disabled>
+            <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 disabled:opacity-30 transition-colors" disabled>
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <button className="w-8 h-8 rounded-lg text-xs font-medium bg-[#E40000] text-white">1</button>
-            <button className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 disabled:opacity-30 transition-colors" disabled>
+            <button className="w-8 h-8 rounded-lg text-xs font-medium bg-[#E40000] text-gray-900 dark:text-white">1</button>
+            <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 disabled:opacity-30 transition-colors" disabled>
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>

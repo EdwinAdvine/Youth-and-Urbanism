@@ -103,19 +103,19 @@ function StaffDataTable<T extends Record<string, unknown>>({
   }, [page, totalPages]);
 
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
       {/* Search Toolbar */}
       {onSearchChange && (
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-[#22272B]">
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-[#22272B]">
           <div className="relative flex-1 sm:flex-initial">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
             <input
               type="text"
               placeholder={searchPlaceholder}
               value={currentSearch}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full sm:w-64 pl-9 pr-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg
-                text-white placeholder-white/40 focus:outline-none focus:border-[#E40000]/50 focus:ring-1 focus:ring-[#E40000]/30"
+              className="w-full sm:w-64 pl-9 pr-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg
+                text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-[#E40000]/50 focus:ring-1 focus:ring-[#E40000]/30"
             />
           </div>
         </div>
@@ -125,16 +125,16 @@ function StaffDataTable<T extends Record<string, unknown>>({
       <div className="overflow-x-auto">
         <table className="w-full" role="table">
           <thead>
-            <tr className="bg-[#22272B]">
+            <tr className="bg-gray-100 dark:bg-[#22272B]">
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className="px-4 py-3 text-left text-xs font-semibold text-white/50 uppercase tracking-wider"
+                  className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-white/50 uppercase tracking-wider"
                   style={col.width ? { width: col.width } : undefined}
                 >
                   {col.sortable && onSort ? (
                     <button
-                      className="flex items-center gap-1.5 cursor-pointer hover:text-white/80 transition-colors"
+                      className="flex items-center gap-1.5 cursor-pointer hover:text-gray-700 dark:hover:text-white/80 transition-colors"
                       onClick={() => handleSort(col.key)}
                     >
                       {col.header}
@@ -151,7 +151,7 @@ function StaffDataTable<T extends Record<string, unknown>>({
             {isLoading ? (
               <tr>
                 <td colSpan={columns.length} className="py-16">
-                  <div className="flex flex-col items-center justify-center text-white/40">
+                  <div className="flex flex-col items-center justify-center text-gray-400 dark:text-white/40">
                     <Loader2 className="w-6 h-6 animate-spin mb-2" />
                     <span className="text-sm">Loading data...</span>
                   </div>
@@ -160,7 +160,7 @@ function StaffDataTable<T extends Record<string, unknown>>({
             ) : data.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="py-16">
-                  <div className="flex flex-col items-center justify-center text-white/40">
+                  <div className="flex flex-col items-center justify-center text-gray-400 dark:text-white/40">
                     <span className="text-sm">{emptyMessage}</span>
                   </div>
                 </td>
@@ -170,7 +170,7 @@ function StaffDataTable<T extends Record<string, unknown>>({
                 <tr
                   key={rowIdx}
                   className={`
-                    border-b border-[#22272B] last:border-0 transition-colors
+                    border-b border-gray-200 dark:border-[#22272B] last:border-0 transition-colors
                     ${rowIdx % 2 === 1 ? 'bg-white/[0.01]' : ''}
                     ${onRowClick ? 'cursor-pointer hover:bg-white/[0.04]' : 'hover:bg-white/[0.02]'}
                   `}
@@ -179,7 +179,7 @@ function StaffDataTable<T extends Record<string, unknown>>({
                   {columns.map((col) => (
                     <td
                       key={col.key}
-                      className="px-4 py-3 text-sm text-white/80"
+                      className="px-4 py-3 text-sm text-gray-700 dark:text-white/80"
                     >
                       {col.render
                         ? col.render(item)
@@ -195,8 +195,8 @@ function StaffDataTable<T extends Record<string, unknown>>({
 
       {/* Pagination */}
       {onPageChange && totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-[#22272B]">
-          <span className="text-xs text-white/50">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-gray-200 dark:border-[#22272B]">
+          <span className="text-xs text-gray-500 dark:text-white/50">
             Showing {Math.min((page - 1) * pageSize + 1, totalCount)}
             &ndash;
             {Math.min(page * pageSize, totalCount)} of {totalCount}
@@ -206,7 +206,7 @@ function StaffDataTable<T extends Record<string, unknown>>({
             <button
               onClick={() => onPageChange(1)}
               disabled={page <= 1}
-              className="p-1.5 rounded text-white/50 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 rounded text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               aria-label="First page"
             >
               <ChevronsLeft className="w-4 h-4" />
@@ -214,7 +214,7 @@ function StaffDataTable<T extends Record<string, unknown>>({
             <button
               onClick={() => onPageChange(page - 1)}
               disabled={page <= 1}
-              className="p-1.5 rounded text-white/50 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 rounded text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               aria-label="Previous page"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -228,8 +228,8 @@ function StaffDataTable<T extends Record<string, unknown>>({
                   className={`
                     min-w-[2rem] h-8 text-xs font-medium rounded transition-colors
                     ${page === pageNum
-                      ? 'bg-[#E40000] text-white'
-                      : 'text-white/50 hover:text-white hover:bg-white/5'
+                      ? 'bg-[#E40000] text-gray-900 dark:text-white'
+                      : 'text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'
                     }
                   `}
                 >
@@ -241,7 +241,7 @@ function StaffDataTable<T extends Record<string, unknown>>({
             <button
               onClick={() => onPageChange(page + 1)}
               disabled={page >= totalPages}
-              className="p-1.5 rounded text-white/50 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 rounded text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               aria-label="Next page"
             >
               <ChevronRight className="w-4 h-4" />
@@ -249,7 +249,7 @@ function StaffDataTable<T extends Record<string, unknown>>({
             <button
               onClick={() => onPageChange(totalPages)}
               disabled={page >= totalPages}
-              className="p-1.5 rounded text-white/50 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 rounded text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               aria-label="Last page"
             >
               <ChevronsRight className="w-4 h-4" />

@@ -43,22 +43,22 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess })
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="bg-[#181C1F] rounded-2xl sm:rounded-3xl shadow-2xl shadow-black/50 border border-[#22272B] w-full max-w-md sm:max-w-lg lg:max-w-xl overflow-hidden"
+            className="bg-white dark:bg-[#181C1F] rounded-2xl sm:rounded-3xl shadow-2xl shadow-black/50 border border-gray-200 dark:border-[#22272B] w-full max-w-md sm:max-w-lg lg:max-w-xl overflow-hidden"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-[#22272B]">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-[#22272B]">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-10 bg-[#FF0000] rounded-xl flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">UHS</span>
+                  <span className="text-gray-900 dark:text-white font-bold text-lg">UHS</span>
                 </div>
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-white">Urban Home School</h2>
-                  <p className="text-xs sm:text-sm text-white/60">Welcome back</p>
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Urban Home School</h2>
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-white/60">Welcome back</p>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white/80 hover:text-white"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white"
                 aria-label="Close modal"
               >
                 <X className="w-5 h-5" />
@@ -66,13 +66,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess })
             </div>
 
             {/* Tabs */}
-            <div className="flex border-b border-[#22272B]">
+            <div className="flex border-b border-gray-200 dark:border-[#22272B]">
               <button
                 onClick={() => setActiveTab('login')}
                 className={`flex-1 py-3 px-4 text-sm sm:text-base font-medium transition-colors ${
                   activeTab === 'login'
-                    ? 'text-[#FF0000] border-b-2 border-[#FF0000] bg-[#181C1F]'
-                    : 'text-white/80 hover:text-white hover:bg-white/5'
+                    ? 'text-[#FF0000] border-b-2 border-[#FF0000] bg-white dark:bg-[#181C1F]'
+                    : 'text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'
                 }`}
               >
                 Login
@@ -81,8 +81,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess })
                 onClick={() => setActiveTab('signup')}
                 className={`flex-1 py-3 px-4 text-sm sm:text-base font-medium transition-colors ${
                   activeTab === 'signup'
-                    ? 'text-[#FF0000] border-b-2 border-[#FF0000] bg-[#181C1F]'
-                    : 'text-white/80 hover:text-white hover:bg-white/5'
+                    ? 'text-[#FF0000] border-b-2 border-[#FF0000] bg-white dark:bg-[#181C1F]'
+                    : 'text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'
                 }`}
               >
                 Sign Up
@@ -116,14 +116,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess })
                 transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                 className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
               >
-                <div className="bg-[#181C1F] rounded-2xl sm:rounded-3xl shadow-2xl shadow-black/50 border border-[#22272B] w-full max-w-md p-6">
+                <div className="bg-white dark:bg-[#181C1F] rounded-2xl sm:rounded-3xl shadow-2xl shadow-black/50 border border-gray-200 dark:border-[#22272B] w-full max-w-md p-6">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-10 bg-[#FF0000] rounded-xl flex items-center justify-center">
-                      <span className="text-white font-bold text-lg">UHS</span>
+                      <span className="text-gray-900 dark:text-white font-bold text-lg">UHS</span>
                     </div>
                     <div>
-                      <h3 className="text-lg sm:text-xl font-bold text-white">Reset Password</h3>
-                      <p className="text-xs sm:text-sm text-white/60">Enter your email to receive reset instructions</p>
+                      <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Reset Password</h3>
+                      <p className="text-xs sm:text-sm text-gray-500 dark:text-white/60">Enter your email to receive reset instructions</p>
                     </div>
                   </div>
                   
@@ -172,7 +172,7 @@ const PasswordResetForm: React.FC<PasswordResetFormProps> = ({ onClose }) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="reset-email" className="block text-sm font-medium text-white/80 mb-2">
+        <label htmlFor="reset-email" className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
           Email Address
         </label>
         <input
@@ -180,7 +180,7 @@ const PasswordResetForm: React.FC<PasswordResetFormProps> = ({ onClose }) => {
           id="reset-email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-3 py-2 bg-[#22272B] border border-[#2A3035] rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
+          className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
           placeholder="Enter your email address"
           required
         />
@@ -199,14 +199,14 @@ const PasswordResetForm: React.FC<PasswordResetFormProps> = ({ onClose }) => {
         <button
           type="button"
           onClick={onClose}
-          className="flex-1 px-4 py-2 text-white/80 hover:text-white border border-[#2A3035] rounded-lg hover:border-[#FF0000] transition-colors"
+          className="flex-1 px-4 py-2 text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white border border-[#2A3035] rounded-lg hover:border-[#FF0000] transition-colors"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isLoading}
-          className="flex-1 bg-[#FF0000] hover:bg-[#E40000] text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 bg-[#FF0000] hover:bg-[#E40000] text-gray-900 dark:text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? 'Sending...' : 'Send Reset Link'}
         </button>

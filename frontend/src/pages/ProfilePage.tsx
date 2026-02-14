@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '../store/authStore';
-import DashboardLayout from '../components/layout/DashboardLayout';
 import {
   User,
   Mail,
@@ -331,12 +330,12 @@ export default function ProfilePage() {
   };
 
   return (
-    <DashboardLayout role={user?.role}>
+    <>
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">My Profile</h1>
-          <p className="text-white/60">Manage your account settings and preferences</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">My Profile</h1>
+          <p className="text-gray-500 dark:text-white/60">Manage your account settings and preferences</p>
         </div>
 
         {/* Message Alert */}
@@ -350,7 +349,7 @@ export default function ProfilePage() {
             <span>{message.text}</span>
             <button
               onClick={() => setMessage(null)}
-              className="ml-auto text-white/60 hover:text-white"
+              className="ml-auto text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white"
             >
               <X size={18} />
             </button>
@@ -358,19 +357,19 @@ export default function ProfilePage() {
         )}
 
         {/* Profile Photo Section */}
-        <div className="mb-8 p-6 bg-white/5 border border-white/10 rounded-lg">
+        <div className="mb-8 p-6 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg">
           <div className="flex items-center gap-6">
             <div className="relative">
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center overflow-hidden border-4 border-white/10">
+              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center overflow-hidden border-4 border-gray-200 dark:border-white/10">
                 {imagePreview ? (
                   <img src={imagePreview} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <User size={48} className="text-white" />
+                  <User size={48} className="text-gray-900 dark:text-white" />
                 )}
               </div>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 p-2 bg-blue-500 hover:bg-blue-600 rounded-full text-white transition-colors"
+                className="absolute bottom-0 right-0 p-2 bg-blue-500 hover:bg-blue-600 rounded-full text-gray-900 dark:text-white transition-colors"
               >
                 <Camera size={18} />
               </button>
@@ -383,8 +382,8 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <h3 className="text-xl font-semibold text-white mb-1">{user?.full_name}</h3>
-              <p className="text-white/60 mb-2">{user?.email}</p>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">{user?.full_name}</h3>
+              <p className="text-gray-500 dark:text-white/60 mb-2">{user?.email}</p>
               <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border ${getRoleBadgeColor(user?.role || '')}`}>
                 <Shield size={14} />
                 {user?.role?.toUpperCase()}
@@ -394,13 +393,13 @@ export default function ProfilePage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 border-b border-white/10">
+        <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-white/10">
           <button
             onClick={() => setActiveTab('profile')}
             className={`px-6 py-3 font-medium transition-colors relative ${
               activeTab === 'profile'
                 ? 'text-blue-400'
-                : 'text-white/60 hover:text-white'
+                : 'text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
             Profile Info
@@ -413,7 +412,7 @@ export default function ProfilePage() {
             className={`px-6 py-3 font-medium transition-colors relative ${
               activeTab === 'password'
                 ? 'text-blue-400'
-                : 'text-white/60 hover:text-white'
+                : 'text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
             Change Password
@@ -426,7 +425,7 @@ export default function ProfilePage() {
             className={`px-6 py-3 font-medium transition-colors relative ${
               activeTab === 'security'
                 ? 'text-blue-400'
-                : 'text-white/60 hover:text-white'
+                : 'text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
             Account Security
@@ -441,16 +440,16 @@ export default function ProfilePage() {
           <form onSubmit={handleProfileSubmit} className="space-y-6">
             {/* Full Name */}
             <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                 Full Name <span className="text-red-400">*</span>
               </label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40" size={20} />
                 <input
                   type="text"
                   value={formData.full_name}
                   onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-blue-500"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500"
                   required
                 />
               </div>
@@ -458,51 +457,51 @@ export default function ProfilePage() {
 
             {/* Email (Read-only) */}
             <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40" size={20} />
                 <input
                   type="email"
                   value={formData.email}
                   disabled
-                  className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white/60 cursor-not-allowed"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-500 dark:text-white/60 cursor-not-allowed"
                 />
               </div>
-              <p className="mt-1 text-xs text-white/40">Email cannot be changed</p>
+              <p className="mt-1 text-xs text-gray-400 dark:text-white/40">Email cannot be changed</p>
             </div>
 
             {/* Phone Number */}
             <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                 Phone Number
               </label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40" size={20} />
                 <input
                   type="tel"
                   value={formData.phone_number}
                   onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
                   placeholder="+254712345678"
-                  className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-blue-500"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500"
                 />
               </div>
-              <p className="mt-1 text-xs text-white/40">Format: +254XXXXXXXXX</p>
+              <p className="mt-1 text-xs text-gray-400 dark:text-white/40">Format: +254XXXXXXXXX</p>
             </div>
 
             {/* Date of Birth */}
             <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                 Date of Birth
               </label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40" size={20} />
                 <input
                   type="date"
                   value={formData.date_of_birth}
                   onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-blue-500"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500"
                 />
               </div>
             </div>
@@ -510,13 +509,13 @@ export default function ProfilePage() {
             {/* Grade Level (Students only) */}
             {user?.role === 'student' && (
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                   Grade Level
                 </label>
                 <select
                   value={formData.grade_level}
                   onChange={(e) => setFormData({ ...formData, grade_level: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
                 >
                   <option value="" className="bg-gray-900">Select Grade Level</option>
                   {gradeLevels.map((grade) => (
@@ -530,7 +529,7 @@ export default function ProfilePage() {
 
             {/* Bio */}
             <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                 About Me
               </label>
               <textarea
@@ -538,7 +537,7 @@ export default function ProfilePage() {
                 onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                 rows={4}
                 placeholder="Tell us about yourself..."
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-blue-500 resize-none"
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500 resize-none"
               />
             </div>
 
@@ -547,7 +546,7 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white font-medium rounded-lg transition-colors"
+                className="flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-gray-900 dark:text-white font-medium rounded-lg transition-colors"
               >
                 <Save size={20} />
                 {loading ? 'Saving...' : 'Save Changes'}
@@ -556,7 +555,7 @@ export default function ProfilePage() {
                 type="button"
                 onClick={handleCancel}
                 disabled={loading}
-                className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 disabled:bg-white/5 text-white font-medium rounded-lg border border-white/10 transition-colors"
+                className="flex items-center gap-2 px-6 py-3 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 disabled:bg-gray-50 dark:disabled:bg-white/5 text-gray-900 dark:text-white font-medium rounded-lg border border-gray-200 dark:border-white/10 transition-colors"
               >
                 <X size={20} />
                 Cancel
@@ -569,22 +568,22 @@ export default function ProfilePage() {
           <form onSubmit={handlePasswordSubmit} className="space-y-6">
             {/* Current Password */}
             <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                 Current Password <span className="text-red-400">*</span>
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40" size={20} />
                 <input
                   type={showPasswords.current ? 'text' : 'password'}
                   value={passwordData.current_password}
                   onChange={(e) => setPasswordData({ ...passwordData, current_password: e.target.value })}
-                  className="w-full pl-12 pr-12 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-blue-500"
+                  className="w-full pl-12 pr-12 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPasswords({ ...showPasswords, current: !showPasswords.current })}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white"
                 >
                   {showPasswords.current ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -593,22 +592,22 @@ export default function ProfilePage() {
 
             {/* New Password */}
             <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                 New Password <span className="text-red-400">*</span>
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40" size={20} />
                 <input
                   type={showPasswords.new ? 'text' : 'password'}
                   value={passwordData.new_password}
                   onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
-                  className="w-full pl-12 pr-12 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-blue-500"
+                  className="w-full pl-12 pr-12 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPasswords({ ...showPasswords, new: !showPasswords.new })}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white"
                 >
                   {showPasswords.new ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -618,13 +617,13 @@ export default function ProfilePage() {
               {passwordData.new_password && (
                 <div className="mt-2">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                    <div className="flex-1 h-2 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
                       <div
                         className={`h-full ${passwordStrength.color} transition-all duration-300`}
                         style={{ width: `${(passwordStrength.score / 6) * 100}%` }}
                       />
                     </div>
-                    <span className="text-xs text-white/60">{passwordStrength.label}</span>
+                    <span className="text-xs text-gray-500 dark:text-white/60">{passwordStrength.label}</span>
                   </div>
                 </div>
               )}
@@ -632,22 +631,22 @@ export default function ProfilePage() {
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                 Confirm New Password <span className="text-red-400">*</span>
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40" size={20} />
                 <input
                   type={showPasswords.confirm ? 'text' : 'password'}
                   value={passwordData.confirm_password}
                   onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
-                  className="w-full pl-12 pr-12 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-blue-500"
+                  className="w-full pl-12 pr-12 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPasswords({ ...showPasswords, confirm: !showPasswords.confirm })}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white"
                 >
                   {showPasswords.confirm ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -657,12 +656,12 @@ export default function ProfilePage() {
             {/* Password Requirements */}
             <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
               <h4 className="text-sm font-medium text-blue-400 mb-2">Password Requirements:</h4>
-              <ul className="text-xs text-white/60 space-y-1">
+              <ul className="text-xs text-gray-500 dark:text-white/60 space-y-1">
                 <li className="flex items-center gap-2">
                   {passwordData.new_password.length >= 8 ? (
                     <CheckCircle size={14} className="text-green-400" />
                   ) : (
-                    <div className="w-3.5 h-3.5 rounded-full border border-white/20" />
+                    <div className="w-3.5 h-3.5 rounded-full border border-gray-300 dark:border-white/20" />
                   )}
                   At least 8 characters long
                 </li>
@@ -670,7 +669,7 @@ export default function ProfilePage() {
                   {/[A-Z]/.test(passwordData.new_password) ? (
                     <CheckCircle size={14} className="text-green-400" />
                   ) : (
-                    <div className="w-3.5 h-3.5 rounded-full border border-white/20" />
+                    <div className="w-3.5 h-3.5 rounded-full border border-gray-300 dark:border-white/20" />
                   )}
                   Contains uppercase letter
                 </li>
@@ -678,7 +677,7 @@ export default function ProfilePage() {
                   {/[a-z]/.test(passwordData.new_password) ? (
                     <CheckCircle size={14} className="text-green-400" />
                   ) : (
-                    <div className="w-3.5 h-3.5 rounded-full border border-white/20" />
+                    <div className="w-3.5 h-3.5 rounded-full border border-gray-300 dark:border-white/20" />
                   )}
                   Contains lowercase letter
                 </li>
@@ -686,7 +685,7 @@ export default function ProfilePage() {
                   {/[0-9]/.test(passwordData.new_password) ? (
                     <CheckCircle size={14} className="text-green-400" />
                   ) : (
-                    <div className="w-3.5 h-3.5 rounded-full border border-white/20" />
+                    <div className="w-3.5 h-3.5 rounded-full border border-gray-300 dark:border-white/20" />
                   )}
                   Contains number
                 </li>
@@ -694,7 +693,7 @@ export default function ProfilePage() {
                   {/[^a-zA-Z0-9]/.test(passwordData.new_password) ? (
                     <CheckCircle size={14} className="text-green-400" />
                   ) : (
-                    <div className="w-3.5 h-3.5 rounded-full border border-white/20" />
+                    <div className="w-3.5 h-3.5 rounded-full border border-gray-300 dark:border-white/20" />
                   )}
                   Contains special character
                 </li>
@@ -706,7 +705,7 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white font-medium rounded-lg transition-colors"
+                className="flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-gray-900 dark:text-white font-medium rounded-lg transition-colors"
               >
                 <Lock size={20} />
                 {loading ? 'Updating...' : 'Update Password'}
@@ -718,21 +717,21 @@ export default function ProfilePage() {
         {activeTab === 'security' && (
           <div className="space-y-6">
             {/* Two-Factor Authentication */}
-            <div className="p-6 bg-white/5 border border-white/10 rounded-lg">
+            <div className="p-6 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-white mb-1 flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
                     <Shield size={20} />
                     Two-Factor Authentication
                   </h3>
-                  <p className="text-sm text-white/60">
+                  <p className="text-sm text-gray-500 dark:text-white/60">
                     Add an extra layer of security to your account. Coming soon!
                   </p>
                 </div>
                 <button
                   disabled
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    twoFactorEnabled ? 'bg-blue-500' : 'bg-white/20'
+                    twoFactorEnabled ? 'bg-blue-500' : 'bg-gray-200 dark:bg-white/20'
                   } opacity-50 cursor-not-allowed`}
                 >
                   <span
@@ -745,8 +744,8 @@ export default function ProfilePage() {
             </div>
 
             {/* Active Sessions */}
-            <div className="p-6 bg-white/5 border border-white/10 rounded-lg">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <div className="p-6 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 <Monitor size={20} />
                 Active Sessions
               </h3>
@@ -754,19 +753,19 @@ export default function ProfilePage() {
                 {sessions.map((session) => (
                   <div
                     key={session.id}
-                    className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-lg"
+                    className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <p className="text-white font-medium">{session.device}</p>
+                        <p className="text-gray-900 dark:text-white font-medium">{session.device}</p>
                         {session.current && (
                           <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-full">
                             Current
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-white/60 mt-1">{session.location}</p>
-                      <p className="text-xs text-white/40 mt-1">Last active: {session.lastActive}</p>
+                      <p className="text-sm text-gray-500 dark:text-white/60 mt-1">{session.location}</p>
+                      <p className="text-xs text-gray-400 dark:text-white/40 mt-1">Last active: {session.lastActive}</p>
                     </div>
                     {!session.current && (
                       <button
@@ -787,7 +786,7 @@ export default function ProfilePage() {
                 <Trash2 size={20} />
                 Delete Account
               </h3>
-              <p className="text-sm text-white/60 mb-4">
+              <p className="text-sm text-gray-500 dark:text-white/60 mb-4">
                 Once you delete your account, there is no going back. Please be certain.
               </p>
 
@@ -809,14 +808,14 @@ export default function ProfilePage() {
                     <button
                       onClick={handleDeleteAccount}
                       disabled={loading}
-                      className="px-4 py-2 bg-red-500 hover:bg-red-600 disabled:bg-red-500/50 text-white font-medium rounded-lg transition-colors"
+                      className="px-4 py-2 bg-red-500 hover:bg-red-600 disabled:bg-red-500/50 text-gray-900 dark:text-white font-medium rounded-lg transition-colors"
                     >
                       {loading ? 'Deleting...' : 'Yes, Delete My Account'}
                     </button>
                     <button
                       onClick={() => setShowDeleteConfirm(false)}
                       disabled={loading}
-                      className="px-4 py-2 bg-white/5 hover:bg-white/10 disabled:bg-white/5 text-white font-medium rounded-lg border border-white/10 transition-colors"
+                      className="px-4 py-2 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 disabled:bg-gray-50 dark:disabled:bg-white/5 text-gray-900 dark:text-white font-medium rounded-lg border border-gray-200 dark:border-white/10 transition-colors"
                     >
                       Cancel
                     </button>
@@ -827,6 +826,6 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
-    </DashboardLayout>
+    </>
   );
 }

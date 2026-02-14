@@ -20,6 +20,41 @@ from app.services.ai_orchestrator import AIOrchestrator
 logger = logging.getLogger(__name__)
 
 
+class ModerationService:
+    """Facade exposing moderation functions as static methods."""
+
+    @staticmethod
+    async def get_queue(db, *, page=1, page_size=20, content_type=None, priority=None, status_filter=None, flag_source=None):
+        filters = {}
+        if content_type: filters["content_type"] = content_type
+        if priority: filters["priority"] = priority
+        if status_filter: filters["status"] = status_filter
+        if flag_source: filters["flag_source"] = flag_source
+        return await get_moderation_queue(db, filters=filters, page=page, page_size=page_size)
+
+    @staticmethod
+    async def get_item(db, *, item_id):
+        return await get_moderation_item(db, item_id=item_id)
+
+    @staticmethod
+    async def submit_review(db, *, item_id, reviewer_id, decision, reason=None, notes=None):
+        decision_data = {"moderation_item_id": item_id, "decision": decision, "reason": reason, "notes": notes}
+        return await submit_review_decision(db, reviewer_id=reviewer_id, decision_data=decision_data)
+
+    @staticmethod
+    async def bulk_action(db, *, item_ids, action, reviewer_id, reason=None):
+        bulk_data = {"item_ids": item_ids, "action": action, "reason": reason}
+        return await bulk_moderate(db, reviewer_id=reviewer_id, bulk_action=bulk_data)
+
+    @staticmethod
+    async def check_cbc_alignment(db, *, content_id):
+        return await get_cbc_alignment(db, content_id=content_id, content_text="")
+
+    @staticmethod
+    async def get_safety_flags(db):
+        return await get_safety_flags(db)
+
+
 async def get_moderation_queue(
     db: AsyncSession,
     filters: Optional[Dict[str, Any]] = None,

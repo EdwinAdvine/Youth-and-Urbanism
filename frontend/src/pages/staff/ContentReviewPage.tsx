@@ -117,7 +117,7 @@ const ContentReviewPage: React.FC = () => {
     const color = score >= 70 ? 'bg-red-500' : score >= 40 ? 'bg-yellow-500' : 'bg-green-500';
     return (
       <div className="flex items-center gap-2">
-        <div className="w-16 h-1.5 bg-[#22272B] rounded-full overflow-hidden">
+        <div className="w-16 h-1.5 bg-gray-100 dark:bg-[#22272B] rounded-full overflow-hidden">
           <div className={`h-full rounded-full ${color}`} style={{ width: `${score}%` }} />
         </div>
         <span className={`text-xs font-medium ${getRiskColor(score)}`}>{score}</span>
@@ -157,16 +157,16 @@ const ContentReviewPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="p-6 space-y-6">
-        <div className="h-7 w-56 bg-[#181C1F] rounded animate-pulse" />
+        <div className="h-7 w-56 bg-white dark:bg-[#181C1F] rounded animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-20 bg-[#181C1F] rounded-xl border border-[#22272B] animate-pulse" />
+            <div key={i} className="h-20 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] animate-pulse" />
           ))}
         </div>
-        <div className="h-10 w-full bg-[#181C1F] rounded-lg animate-pulse" />
+        <div className="h-10 w-full bg-white dark:bg-[#181C1F] rounded-lg animate-pulse" />
         <div className="space-y-2">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="h-14 bg-[#181C1F] rounded-lg border border-[#22272B] animate-pulse" />
+            <div key={i} className="h-14 bg-white dark:bg-[#181C1F] rounded-lg border border-gray-200 dark:border-[#22272B] animate-pulse" />
           ))}
         </div>
       </div>
@@ -178,12 +178,12 @@ const ContentReviewPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">Content Review Queue</h1>
-          <p className="text-sm text-white/50 mt-1">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Content Review Queue</h1>
+          <p className="text-sm text-gray-500 dark:text-white/50 mt-1">
             Review, approve, or reject flagged content across the platform
           </p>
         </div>
-        <button className="px-4 py-2 bg-[#181C1F] border border-[#22272B] rounded-lg text-sm text-white/70 hover:text-white hover:border-[#E40000]/50 transition-colors">
+        <button className="px-4 py-2 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-[#E40000]/50 transition-colors">
           Export Report
         </button>
       </div>
@@ -191,24 +191,24 @@ const ContentReviewPage: React.FC = () => {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Pending', value: stats.totalPending, color: 'text-white' },
+          { label: 'Total Pending', value: stats.totalPending, color: 'text-gray-900 dark:text-white' },
           { label: 'Critical', value: stats.critical, color: 'text-red-400' },
           { label: 'High Priority', value: stats.highPriority, color: 'text-orange-400' },
           { label: 'AI-Flagged', value: stats.aiFlagged, color: 'text-purple-400' },
         ].map((stat) => (
-          <div key={stat.label} className="bg-[#181C1F] rounded-xl border border-[#22272B] p-4">
-            <p className="text-xs text-white/50 uppercase tracking-wider">{stat.label}</p>
+          <div key={stat.label} className="bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] p-4">
+            <p className="text-xs text-gray-500 dark:text-white/50 uppercase tracking-wider">{stat.label}</p>
             <p className={`text-2xl font-bold mt-1 ${stat.color}`}>{stat.value}</p>
           </div>
         ))}
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-wrap items-center gap-3 p-3 bg-[#181C1F] rounded-xl border border-[#22272B]">
+      <div className="flex flex-wrap items-center gap-3 p-3 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B]">
         <select
           value={contentTypeFilter}
           onChange={(e) => setContentTypeFilter(e.target.value as ContentTypeFilter)}
-          className="px-3 py-1.5 bg-[#0F1112] border border-[#22272B] rounded-lg text-sm text-white/70 focus:outline-none focus:border-[#E40000]/50"
+          className="px-3 py-1.5 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-600 dark:text-white/70 focus:outline-none focus:border-[#E40000]/50"
         >
           <option value="all">All Types</option>
           <option value="lesson">Lesson</option>
@@ -221,7 +221,7 @@ const ContentReviewPage: React.FC = () => {
         <select
           value={priorityFilter}
           onChange={(e) => setPriorityFilter(e.target.value as PriorityFilter)}
-          className="px-3 py-1.5 bg-[#0F1112] border border-[#22272B] rounded-lg text-sm text-white/70 focus:outline-none focus:border-[#E40000]/50"
+          className="px-3 py-1.5 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-600 dark:text-white/70 focus:outline-none focus:border-[#E40000]/50"
         >
           <option value="all">All Priorities</option>
           <option value="critical">Critical</option>
@@ -232,7 +232,7 @@ const ContentReviewPage: React.FC = () => {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-          className="px-3 py-1.5 bg-[#0F1112] border border-[#22272B] rounded-lg text-sm text-white/70 focus:outline-none focus:border-[#E40000]/50"
+          className="px-3 py-1.5 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-600 dark:text-white/70 focus:outline-none focus:border-[#E40000]/50"
         >
           <option value="all">All Statuses</option>
           <option value="pending">Pending</option>
@@ -243,7 +243,7 @@ const ContentReviewPage: React.FC = () => {
         <select
           value={flagSourceFilter}
           onChange={(e) => setFlagSourceFilter(e.target.value as FlagSourceFilter)}
-          className="px-3 py-1.5 bg-[#0F1112] border border-[#22272B] rounded-lg text-sm text-white/70 focus:outline-none focus:border-[#E40000]/50"
+          className="px-3 py-1.5 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-600 dark:text-white/70 focus:outline-none focus:border-[#E40000]/50"
         >
           <option value="all">All Sources</option>
           <option value="ai">AI Flagged</option>
@@ -251,45 +251,45 @@ const ContentReviewPage: React.FC = () => {
           <option value="system">System</option>
           <option value="auto">Auto</option>
         </select>
-        <span className="text-xs text-white/40 ml-auto">
+        <span className="text-xs text-gray-400 dark:text-white/40 ml-auto">
           {filteredItems.length} of {items.length} items
         </span>
       </div>
 
       {/* Data Table */}
-      <div className="bg-[#181C1F] rounded-xl border border-[#22272B] overflow-hidden">
+      <div className="bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-[#22272B]">
-                <th className="text-left px-4 py-3 text-xs font-medium text-white/50 uppercase tracking-wider">Content</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-white/50 uppercase tracking-wider">Type</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-white/50 uppercase tracking-wider">Author</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-white/50 uppercase tracking-wider">Priority</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-white/50 uppercase tracking-wider">AI Risk</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-white/50 uppercase tracking-wider">Flag</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-white/50 uppercase tracking-wider">Status</th>
-                <th className="text-right px-4 py-3 text-xs font-medium text-white/50 uppercase tracking-wider">Actions</th>
+              <tr className="border-b border-gray-200 dark:border-[#22272B]">
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-white/50 uppercase tracking-wider">Content</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-white/50 uppercase tracking-wider">Type</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-white/50 uppercase tracking-wider">Author</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-white/50 uppercase tracking-wider">Priority</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-white/50 uppercase tracking-wider">AI Risk</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-white/50 uppercase tracking-wider">Flag</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-white/50 uppercase tracking-wider">Status</th>
+                <th className="text-right px-4 py-3 text-xs font-medium text-gray-500 dark:text-white/50 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#22272B]">
+            <tbody className="divide-y divide-gray-200 dark:divide-[#22272B]">
               {filteredItems.map((item) => (
                 <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
                   <td className="px-4 py-3">
                     <div>
-                      <p className="text-sm text-white font-medium">{item.contentTitle}</p>
-                      <p className="text-xs text-white/40 mt-0.5">{item.grade} &middot; {item.flagReason}</p>
+                      <p className="text-sm text-gray-900 dark:text-white font-medium">{item.contentTitle}</p>
+                      <p className="text-xs text-gray-400 dark:text-white/40 mt-0.5">{item.grade} &middot; {item.flagReason}</p>
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-xs text-white/60 bg-[#0F1112] px-2 py-1 rounded">
+                    <span className="text-xs text-gray-500 dark:text-white/60 bg-gray-50 dark:bg-[#0F1112] px-2 py-1 rounded">
                       {getContentTypeLabel(item.contentType)}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <div>
-                      <p className="text-sm text-white/80">{item.author}</p>
-                      <p className="text-xs text-white/40">{item.authorRole}</p>
+                      <p className="text-sm text-gray-700 dark:text-white/80">{item.author}</p>
+                      <p className="text-xs text-gray-400 dark:text-white/40">{item.authorRole}</p>
                     </div>
                   </td>
                   <td className="px-4 py-3">{getPriorityBadge(item.priority)}</td>
@@ -313,7 +313,7 @@ const ContentReviewPage: React.FC = () => {
                         </button>
                       </div>
                     ) : (
-                      <span className="text-xs text-white/30">--</span>
+                      <span className="text-xs text-gray-400 dark:text-white/30">--</span>
                     )}
                   </td>
                 </tr>

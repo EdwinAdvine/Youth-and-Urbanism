@@ -115,15 +115,15 @@ const StudentProgressPage: React.FC = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-16 bg-[#22272B] rounded-lg animate-pulse" />
+        <div className="h-16 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 bg-[#22272B] rounded-xl animate-pulse" />
+            <div key={i} className="h-28 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
           ))}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="h-40 bg-[#22272B] rounded-xl animate-pulse" />
+            <div key={i} className="h-40 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
           ))}
         </div>
       </div>
@@ -140,15 +140,15 @@ const StudentProgressPage: React.FC = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Student Progress</h1>
-          <p className="text-sm text-white/50 mt-1">Monitor student engagement, progress, and risk indicators</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Student Progress</h1>
+          <p className="text-sm text-gray-500 dark:text-white/50 mt-1">Monitor student engagement, progress, and risk indicators</p>
         </div>
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-white/40" />
+          <Filter className="w-4 h-4 text-gray-400 dark:text-white/40" />
           <select
             value={gradeFilter}
             onChange={(e) => setGradeFilter(e.target.value)}
-            className="px-3 py-2 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm focus:outline-none focus:border-[#E40000]/50 appearance-none cursor-pointer"
+            className="px-3 py-2 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#E40000]/50 appearance-none cursor-pointer"
           >
             <option value="">All Grades</option>
             {grades.map((g) => (
@@ -166,14 +166,14 @@ const StudentProgressPage: React.FC = () => {
           { label: 'At Risk', value: atRisk, icon: AlertTriangle, color: 'text-red-400' },
           { label: 'Excelling', value: excelling, icon: Award, color: 'text-yellow-400' },
         ].map((stat) => (
-          <div key={stat.label} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-4">
+          <div key={stat.label} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/50 text-xs font-medium">{stat.label}</span>
-              <div className={`p-1.5 bg-[#22272B] rounded-lg ${stat.color}`}>
+              <span className="text-gray-500 dark:text-white/50 text-xs font-medium">{stat.label}</span>
+              <div className={`p-1.5 bg-gray-100 dark:bg-[#22272B] rounded-lg ${stat.color}`}>
                 <stat.icon className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-white">{stat.value}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
           </div>
         ))}
       </motion.div>
@@ -181,21 +181,21 @@ const StudentProgressPage: React.FC = () => {
       {/* Search and Sort */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
           <input
             type="text"
             placeholder="Search students..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
           />
         </div>
         <div className="flex items-center gap-2">
-          <ArrowUpDown className="w-4 h-4 text-white/40" />
+          <ArrowUpDown className="w-4 h-4 text-gray-400 dark:text-white/40" />
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="px-3 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm focus:outline-none focus:border-[#E40000]/50 appearance-none cursor-pointer"
+            className="px-3 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#E40000]/50 appearance-none cursor-pointer"
           >
             <option value="name">Sort by Name</option>
             <option value="progress">Sort by Progress</option>
@@ -209,23 +209,23 @@ const StudentProgressPage: React.FC = () => {
       {filteredStudents.length === 0 ? (
         <motion.div variants={itemVariants} className="text-center py-16">
           <Users className="w-12 h-12 text-white/10 mx-auto mb-3" />
-          <p className="text-white/40 text-sm">No students found matching your criteria</p>
+          <p className="text-gray-400 dark:text-white/40 text-sm">No students found matching your criteria</p>
         </motion.div>
       ) : (
         <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredStudents.map((student) => (
             <div
               key={student.id}
-              className="bg-[#181C1F] border border-[#22272B] rounded-xl p-4 hover:border-[#333] transition-colors cursor-pointer"
+              className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4 hover:border-gray-300 dark:hover:border-[#333] transition-colors cursor-pointer"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#22272B] flex items-center justify-center text-sm font-bold text-white/60">
+                  <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-[#22272B] flex items-center justify-center text-sm font-bold text-gray-500 dark:text-white/60">
                     {student.name.split(' ').map((n) => n[0]).join('')}
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium text-white">{student.name}</h4>
-                    <p className="text-xs text-white/40">{student.grade}</p>
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-white">{student.name}</h4>
+                    <p className="text-xs text-gray-400 dark:text-white/40">{student.grade}</p>
                   </div>
                 </div>
                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border capitalize ${riskColors[student.risk]}`}>
@@ -236,10 +236,10 @@ const StudentProgressPage: React.FC = () => {
               {/* Progress Bar */}
               <div className="mb-3">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] text-white/40">Overall Progress</span>
-                  <span className="text-[10px] font-medium text-white">{student.completion_percent}%</span>
+                  <span className="text-[10px] text-gray-400 dark:text-white/40">Overall Progress</span>
+                  <span className="text-[10px] font-medium text-gray-900 dark:text-white">{student.completion_percent}%</span>
                 </div>
-                <div className="h-2 bg-[#22272B] rounded-full overflow-hidden">
+                <div className="h-2 bg-gray-100 dark:bg-[#22272B] rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all ${
                       student.progress >= 80 ? 'bg-emerald-400' : student.progress >= 60 ? 'bg-yellow-400' : 'bg-red-400'
@@ -252,22 +252,22 @@ const StudentProgressPage: React.FC = () => {
               {/* Details */}
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div>
-                  <p className="text-xs font-medium text-white">{student.avg_score}%</p>
-                  <p className="text-[10px] text-white/30">Avg Score</p>
+                  <p className="text-xs font-medium text-gray-900 dark:text-white">{student.avg_score}%</p>
+                  <p className="text-[10px] text-gray-400 dark:text-white/30">Avg Score</p>
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-white">{student.ai_sessions}</p>
-                  <p className="text-[10px] text-white/30">AI Sessions</p>
+                  <p className="text-xs font-medium text-gray-900 dark:text-white">{student.ai_sessions}</p>
+                  <p className="text-[10px] text-gray-400 dark:text-white/30">AI Sessions</p>
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-white">{student.subjects_enrolled}</p>
-                  <p className="text-[10px] text-white/30">Subjects</p>
+                  <p className="text-xs font-medium text-gray-900 dark:text-white">{student.subjects_enrolled}</p>
+                  <p className="text-[10px] text-gray-400 dark:text-white/30">Subjects</p>
                 </div>
               </div>
 
-              <div className="mt-3 pt-3 border-t border-[#22272B] flex items-center justify-between">
-                <span className="text-[10px] text-white/30">Last active: {formatDate(student.last_active)}</span>
-                <span className="text-[10px] text-white/20 font-mono">{student.id}</span>
+              <div className="mt-3 pt-3 border-t border-gray-200 dark:border-[#22272B] flex items-center justify-between">
+                <span className="text-[10px] text-gray-400 dark:text-white/30">Last active: {formatDate(student.last_active)}</span>
+                <span className="text-[10px] text-gray-400 dark:text-gray-300 dark:text-white/20 font-mono">{student.id}</span>
               </div>
             </div>
           ))}

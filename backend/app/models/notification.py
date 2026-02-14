@@ -25,6 +25,9 @@ class NotificationType(str, enum.Enum):
     achievement = "achievement"
     system = "system"
     payment = "payment"
+    ai = "ai"
+    moderation = "moderation"
+    enrollment = "enrollment"
 
 
 class Notification(Base):

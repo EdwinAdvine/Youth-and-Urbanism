@@ -23,26 +23,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
     setSuccess('');
 
     try {
-      console.log('[Auth] LoginForm: calling login...');
       await login({ email, password });
-      console.log('[Auth] LoginForm: login succeeded');
-
       setSuccess('Login successful! Redirecting...');
 
       // Get the user from store after successful login
       const currentUser = useAuthStore.getState().user;
-      console.log('[Auth] LoginForm: currentUser from store:', currentUser);
 
       // Notify parent (AuthModal -> App) to handle navigation
       if (onLoginSuccess) {
-        console.log('[Auth] LoginForm: calling onLoginSuccess');
         onLoginSuccess(currentUser);
-      } else {
-        console.warn('[Auth] LoginForm: onLoginSuccess is not defined!');
       }
-    } catch (error) {
-      // Error is already set in store
-      console.error('[Auth] LoginForm: login failed:', error);
+    } catch {
+      // Error is already set in store by useAuthStore
     }
   };
 
@@ -50,7 +42,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Email Field */}
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-white/80 mb-2">
+        <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
           Email Address
         </label>
         <input
@@ -58,7 +50,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-3 py-2 bg-[#22272B] border border-[#2A3035] rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
+          className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
           placeholder="Enter your email address"
           required
         />
@@ -66,7 +58,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
 
       {/* Password Field */}
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-white/80 mb-2">
+        <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
           Password
         </label>
         <div className="relative">
@@ -75,14 +67,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2 bg-[#22272B] border border-[#2A3035] rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent pr-10"
+            className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent pr-10"
             placeholder="Enter your password"
             required
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-white/60 hover:text-white"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white"
           >
             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
           </button>
@@ -91,7 +83,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
 
       {/* Remember Me & Forgot Password */}
       <div className="flex items-center justify-between">
-        <label className="flex items-center text-sm text-white/80">
+        <label className="flex items-center text-sm text-gray-700 dark:text-white/80">
           <input
             type="checkbox"
             checked={rememberMe}
@@ -129,7 +121,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-[#FF0000] hover:bg-[#E40000] text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full bg-[#FF0000] hover:bg-[#E40000] text-gray-900 dark:text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {isLoading ? (
           <>
@@ -142,7 +134,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
       </button>
 
       {/* Sign Up Link */}
-      <div className="text-center text-sm text-white/60">
+      <div className="text-center text-sm text-gray-500 dark:text-white/60">
         Don't have an account?{' '}
         <button
           type="button"

@@ -46,7 +46,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
 
   if (messages.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center text-white/60 text-sm">
+      <div className="flex-1 flex items-center justify-center text-gray-500 dark:text-white/60 text-sm">
         Start a conversation with your AI assistant
       </div>
     );
@@ -63,8 +63,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
             className={`
               max-w-xs lg:max-w-md px-4 py-2 rounded-2xl shadow-lg
               ${message.sender === 'user'
-                ? 'bg-gradient-to-r from-[#FF0000] to-[#E40000] text-white ml-8'
-                : 'bg-[#22272B] text-white mr-8'
+                ? 'bg-gradient-to-r from-[#FF0000] to-[#E40000] text-gray-900 dark:text-white ml-8'
+                : 'bg-gray-100 dark:bg-[#22272B] text-gray-900 dark:text-white mr-8'
               }
               animate-in slide-in-from-bottom-2 duration-300
             `}

@@ -155,13 +155,13 @@ const LearningAnalyticsPage: React.FC = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-16 bg-[#22272B] rounded-lg animate-pulse" />
+        <div className="h-16 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 bg-[#22272B] rounded-xl animate-pulse" />
+            <div key={i} className="h-28 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
           ))}
         </div>
-        <div className="h-80 bg-[#22272B] rounded-xl animate-pulse" />
+        <div className="h-80 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
       </div>
     );
   }
@@ -185,7 +185,7 @@ const LearningAnalyticsPage: React.FC = () => {
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
@@ -227,12 +227,12 @@ const LearningAnalyticsPage: React.FC = () => {
       {/* CBC Strand Progress Chart */}
       <motion.div
         variants={itemVariants}
-        className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6"
+        className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6"
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
           <div>
-            <h2 className="text-lg font-semibold text-white">CBC Strand Progress by Grade</h2>
-            <p className="text-sm text-white/50 mt-1">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">CBC Strand Progress by Grade</h2>
+            <p className="text-sm text-gray-500 dark:text-white/50 mt-1">
               Average completion percentage across CBC curriculum strands
             </p>
           </div>
@@ -255,7 +255,7 @@ const LearningAnalyticsPage: React.FC = () => {
               domain={[0, 100]}
               tickFormatter={(v) => `${v}%`}
             />
-            <Tooltip contentStyle={tooltipStyle} formatter={(value: number) => [`${value}%`, '']} />
+            <Tooltip contentStyle={tooltipStyle} formatter={((value: number) => [`${value}%`, '']) as any} />
             <Legend
               wrapperStyle={{ fontSize: '11px', color: '#999' }}
               iconType="circle"
@@ -277,11 +277,11 @@ const LearningAnalyticsPage: React.FC = () => {
       {/* Skill Acquisition Curves */}
       <motion.div
         variants={itemVariants}
-        className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6"
+        className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6"
       >
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-white">Skill Acquisition Curves</h2>
-          <p className="text-sm text-white/50 mt-1">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Skill Acquisition Curves</h2>
+          <p className="text-sm text-gray-500 dark:text-white/50 mt-1">
             Progression of core skills over the academic year
           </p>
         </div>
@@ -303,7 +303,7 @@ const LearningAnalyticsPage: React.FC = () => {
               domain={[0, 100]}
               tickFormatter={(v) => `${v}%`}
             />
-            <Tooltip contentStyle={tooltipStyle} formatter={(value: number) => [`${value}%`, '']} />
+            <Tooltip contentStyle={tooltipStyle} formatter={((value: number) => [`${value}%`, '']) as any} />
             <Legend
               wrapperStyle={{ fontSize: '11px', color: '#999' }}
               iconType="circle"
@@ -348,34 +348,34 @@ const LearningAnalyticsPage: React.FC = () => {
       {/* Cohort Comparison Table */}
       <motion.div
         variants={itemVariants}
-        className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6"
+        className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6"
       >
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-white">Cohort Comparison</h2>
-          <p className="text-sm text-white/50 mt-1">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Cohort Comparison</h2>
+          <p className="text-sm text-gray-500 dark:text-white/50 mt-1">
             Performance comparison across grade-level cohorts
           </p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#22272B]">
-                <th className="text-left py-3 px-4 text-white/50 font-medium">Cohort</th>
-                <th className="text-right py-3 px-4 text-white/50 font-medium">Students</th>
-                <th className="text-right py-3 px-4 text-white/50 font-medium">Avg Progress</th>
-                <th className="text-right py-3 px-4 text-white/50 font-medium">Avg Score</th>
-                <th className="text-right py-3 px-4 text-white/50 font-medium">Completion</th>
-                <th className="text-right py-3 px-4 text-white/50 font-medium">AI Engagement</th>
+              <tr className="border-b border-gray-200 dark:border-[#22272B]">
+                <th className="text-left py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Cohort</th>
+                <th className="text-right py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Students</th>
+                <th className="text-right py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Avg Progress</th>
+                <th className="text-right py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Avg Score</th>
+                <th className="text-right py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Completion</th>
+                <th className="text-right py-3 px-4 text-gray-500 dark:text-white/50 font-medium">AI Engagement</th>
               </tr>
             </thead>
             <tbody>
               {COHORT_DATA.map((row, idx) => (
                 <tr
                   key={idx}
-                  className="border-b border-[#22272B]/50 hover:bg-[#22272B]/30 transition-colors"
+                  className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-gray-100 dark:hover:bg-[#22272B]/30 transition-colors"
                 >
-                  <td className="py-3 px-4 text-white font-medium">{row.cohort}</td>
-                  <td className="py-3 px-4 text-right text-white/80">
+                  <td className="py-3 px-4 text-gray-900 dark:text-white font-medium">{row.cohort}</td>
+                  <td className="py-3 px-4 text-right text-gray-700 dark:text-white/80">
                     {row.students.toLocaleString()}
                   </td>
                   <td className="py-3 px-4 text-right">
@@ -397,13 +397,13 @@ const LearningAnalyticsPage: React.FC = () => {
                   </td>
                   <td className="py-3 px-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <div className="w-16 h-1.5 bg-[#22272B] rounded-full overflow-hidden">
+                      <div className="w-16 h-1.5 bg-gray-100 dark:bg-[#22272B] rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full bg-[#E40000]"
                           style={{ width: `${row.completionRate}%` }}
                         />
                       </div>
-                      <span className="text-white/80 text-xs w-10 text-right">{row.completionRate}%</span>
+                      <span className="text-gray-700 dark:text-white/80 text-xs w-10 text-right">{row.completionRate}%</span>
                     </div>
                   </td>
                   <td className="py-3 px-4 text-right">

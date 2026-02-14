@@ -10,7 +10,6 @@ import {
   CheckCheck,
   Check,
   Filter,
-  X,
   ChevronDown,
   Clock,
   Trash2,
@@ -95,7 +94,7 @@ const PRIORITY_BADGE: Record<Priority, { label: string; className: string }> = {
   critical: { label: 'Critical', className: 'bg-red-500/20 text-red-400 border border-red-500/30' },
   high: { label: 'High', className: 'bg-orange-500/20 text-orange-400 border border-orange-500/30' },
   medium: { label: 'Medium', className: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' },
-  low: { label: 'Low', className: 'bg-white/10 text-white/50 border border-white/10' },
+  low: { label: 'Low', className: 'bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/50 border border-gray-200 dark:border-white/10' },
 };
 
 function timeAgo(date: Date): string {
@@ -346,16 +345,16 @@ const AdminNotificationsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
             <Bell className="w-7 h-7 text-[#E40000]" />
             Notifications
             {unreadCount > 0 && (
-              <span className="ml-1 px-2.5 py-0.5 text-sm font-semibold rounded-full bg-[#E40000] text-white">
+              <span className="ml-1 px-2.5 py-0.5 text-sm font-semibold rounded-full bg-[#E40000] text-gray-900 dark:text-white">
                 {unreadCount}
               </span>
             )}
           </h1>
-          <p className="text-white/50 text-sm mt-1">
+          <p className="text-gray-500 dark:text-white/50 text-sm mt-1">
             Stay on top of platform events and alerts
           </p>
         </div>
@@ -365,7 +364,7 @@ const AdminNotificationsPage: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-              className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors"
             >
               <Filter className="w-4 h-4" />
               <span className="hidden sm:inline">
@@ -383,15 +382,15 @@ const AdminNotificationsPage: React.FC = () => {
                 <motion.div
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="absolute right-0 top-full mt-1 z-20 w-52 bg-[#1E2328] border border-[#333] rounded-lg shadow-xl overflow-hidden"
+                  className="absolute right-0 top-full mt-1 z-20 w-52 bg-gray-50 dark:bg-[#1E2328] border border-gray-300 dark:border-[#333] rounded-lg shadow-xl overflow-hidden"
                 >
                   <button
                     onClick={() => {
                       setFilterType('all');
                       setShowFilterDropdown(false);
                     }}
-                    className={`w-full text-left px-4 py-2.5 text-sm hover:bg-[#22272B] transition-colors ${
-                      filterType === 'all' ? 'text-white bg-[#22272B]' : 'text-white/60'
+                    className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 dark:hover:bg-[#22272B] transition-colors ${
+                      filterType === 'all' ? 'text-gray-900 dark:text-white bg-gray-100 dark:bg-[#22272B]' : 'text-gray-500 dark:text-white/60'
                     }`}
                   >
                     All Types
@@ -405,8 +404,8 @@ const AdminNotificationsPage: React.FC = () => {
                           setFilterType(type);
                           setShowFilterDropdown(false);
                         }}
-                        className={`w-full flex items-center gap-2.5 text-left px-4 py-2.5 text-sm hover:bg-[#22272B] transition-colors ${
-                          filterType === type ? 'text-white bg-[#22272B]' : 'text-white/60'
+                        className={`w-full flex items-center gap-2.5 text-left px-4 py-2.5 text-sm hover:bg-gray-100 dark:hover:bg-[#22272B] transition-colors ${
+                          filterType === type ? 'text-gray-900 dark:text-white bg-gray-100 dark:bg-[#22272B]' : 'text-gray-500 dark:text-white/60'
                         }`}
                       >
                         {cfg.icon}
@@ -423,7 +422,7 @@ const AdminNotificationsPage: React.FC = () => {
           <button
             onClick={markAllAsRead}
             disabled={unreadCount === 0}
-            className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <CheckCheck className="w-4 h-4" />
             <span className="hidden sm:inline">Mark All Read</span>
@@ -444,14 +443,14 @@ const AdminNotificationsPage: React.FC = () => {
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
                 filterType === type
                   ? `${cfg.bgColor} ${cfg.color} ${cfg.borderColor}`
-                  : 'bg-[#22272B] border-[#333] text-white/50 hover:text-white/70 hover:border-[#444]'
+                  : 'bg-gray-100 dark:bg-[#22272B] border-gray-300 dark:border-[#333] text-gray-500 dark:text-white/50 hover:text-gray-600 dark:hover:text-white/70 hover:border-gray-300 dark:hover:border-[#444]'
               }`}
             >
               {cfg.icon}
               {cfg.label}
               <span className="opacity-60">{count}</span>
               {unread > 0 && (
-                <span className="w-5 h-5 flex items-center justify-center rounded-full bg-[#E40000] text-white text-[10px] font-bold">
+                <span className="w-5 h-5 flex items-center justify-center rounded-full bg-[#E40000] text-gray-900 dark:text-white text-[10px] font-bold">
                   {unread}
                 </span>
               )}
@@ -465,11 +464,11 @@ const AdminNotificationsPage: React.FC = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="bg-[#181C1F] border border-[#22272B] rounded-xl p-12 text-center"
+          className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-12 text-center"
         >
-          <Bell className="w-12 h-12 text-white/20 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-white mb-1">No notifications</h3>
-          <p className="text-white/50 text-sm">
+          <Bell className="w-12 h-12 text-gray-400 dark:text-gray-300 dark:text-white/20 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">No notifications</h3>
+          <p className="text-gray-500 dark:text-white/50 text-sm">
             {filterType !== 'all'
               ? `No ${TYPE_CONFIG[filterType].label.toLowerCase()} notifications found.`
               : 'You are all caught up.'}
@@ -493,9 +492,9 @@ const AdminNotificationsPage: React.FC = () => {
                   variants={itemVariants}
                   exit="exit"
                   layout
-                  className={`group relative bg-[#181C1F] border rounded-xl overflow-hidden transition-colors ${
+                  className={`group relative bg-white dark:bg-[#181C1F] border rounded-xl overflow-hidden transition-colors ${
                     notification.read
-                      ? 'border-[#22272B] opacity-60 hover:opacity-80'
+                      ? 'border-gray-200 dark:border-[#22272B] opacity-60 hover:opacity-80'
                       : `border-l-4 ${cfg.borderColor} border-t-[#22272B] border-r-[#22272B] border-b-[#22272B]`
                   }`}
                 >
@@ -512,7 +511,7 @@ const AdminNotificationsPage: React.FC = () => {
                       <div className="flex flex-wrap items-center gap-2 mb-1">
                         <h3
                           className={`text-sm font-semibold ${
-                            notification.read ? 'text-white/70' : 'text-white'
+                            notification.read ? 'text-gray-600 dark:text-white/70' : 'text-gray-900 dark:text-white'
                           }`}
                         >
                           {notification.title}
@@ -528,14 +527,14 @@ const AdminNotificationsPage: React.FC = () => {
                       </div>
                       <p
                         className={`text-sm leading-relaxed ${
-                          notification.read ? 'text-white/40' : 'text-white/60'
+                          notification.read ? 'text-gray-400 dark:text-white/40' : 'text-gray-500 dark:text-white/60'
                         }`}
                       >
                         {notification.message}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
-                        <Clock className="w-3.5 h-3.5 text-white/30" />
-                        <span className="text-xs text-white/30">
+                        <Clock className="w-3.5 h-3.5 text-gray-400 dark:text-white/30" />
+                        <span className="text-xs text-gray-400 dark:text-white/30">
                           {timeAgo(notification.timestamp)}
                         </span>
                       </div>
@@ -546,7 +545,7 @@ const AdminNotificationsPage: React.FC = () => {
                       {!notification.read && (
                         <button
                           onClick={() => markAsRead(notification.id)}
-                          className="p-2 rounded-lg hover:bg-[#22272B] text-white/40 hover:text-green-400 transition-colors"
+                          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-400 dark:text-white/40 hover:text-green-400 transition-colors"
                           title="Mark as read"
                         >
                           <Check className="w-4 h-4" />
@@ -554,7 +553,7 @@ const AdminNotificationsPage: React.FC = () => {
                       )}
                       <button
                         onClick={() => deleteNotification(notification.id)}
-                        className="p-2 rounded-lg hover:bg-[#22272B] text-white/40 hover:text-red-400 transition-colors"
+                        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-400 dark:text-white/40 hover:text-red-400 transition-colors"
                         title="Delete notification"
                       >
                         <Trash2 className="w-4 h-4" />

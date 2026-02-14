@@ -22,6 +22,48 @@ from app.services.ai_orchestrator import AIOrchestrator
 logger = logging.getLogger(__name__)
 
 
+class TeamService:
+    """Facade used by route handlers to access team service functions."""
+
+    @staticmethod
+    async def get_my_performance(db: AsyncSession, *, user_id: str) -> Dict[str, Any]:
+        return await get_my_performance(db, user_id)
+
+    @staticmethod
+    async def get_team_pulse(db: AsyncSession, *, leader_id: str) -> Dict[str, Any]:
+        return await get_team_pulse(db, leader_id)
+
+    @staticmethod
+    async def rebalance_workload(db: AsyncSession, *, leader_id: str) -> Dict[str, Any]:
+        return await get_workload_suggestions(db, leader_id)
+
+    @staticmethod
+    async def list_learning_resources(
+        db: AsyncSession,
+        *,
+        page: int = 1,
+        page_size: int = 20,
+        category: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        filters: Dict[str, Any] = {}
+        if category:
+            filters["category"] = category
+        return await get_learning_resources(db, filters)
+
+    @staticmethod
+    async def list_members(
+        db: AsyncSession,
+        *,
+        leader_id: str,
+        page: int = 1,
+        page_size: int = 20,
+        department: Optional[str] = None,
+        search: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Stub: list team members for a given leader."""
+        return {"items": [], "total": 0, "page": page, "page_size": page_size}
+
+
 async def get_my_performance(
     db: AsyncSession,
     user_id: str,

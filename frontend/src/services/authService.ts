@@ -77,6 +77,15 @@ class AuthService {
   }
 
   async logout(): Promise<void> {
+    // Invalidate token on the server (best-effort)
+    try {
+      const token = localStorage.getItem('access_token');
+      if (token) {
+        await apiClient.post('/api/v1/auth/logout');
+      }
+    } catch {
+      // Ignore errors – we still clear local state below
+    }
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');

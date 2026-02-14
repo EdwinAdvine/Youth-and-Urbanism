@@ -117,9 +117,9 @@ const TicketDetailPage: React.FC = () => {
       waiting_on_customer: { label: 'Waiting (Customer)', color: 'bg-yellow-500/20 text-yellow-400' },
       waiting_on_internal: { label: 'Waiting (Internal)', color: 'bg-purple-500/20 text-purple-400' },
       resolved: { label: 'Resolved', color: 'bg-green-500/20 text-green-400' },
-      closed: { label: 'Closed', color: 'bg-white/10 text-white/40' },
+      closed: { label: 'Closed', color: 'bg-gray-100 dark:bg-white/10 text-gray-400 dark:text-white/40' },
     };
-    const { label, color } = config[status] || { label: status, color: 'bg-white/10 text-white/40' };
+    const { label, color } = config[status] || { label: status, color: 'bg-gray-100 dark:bg-white/10 text-gray-400 dark:text-white/40' };
     return <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${color}`}>{label}</span>;
   };
 
@@ -163,15 +163,15 @@ const TicketDetailPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="p-6 space-y-6">
-        <div className="h-5 w-48 bg-[#181C1F] rounded animate-pulse" />
-        <div className="h-16 w-full bg-[#181C1F] rounded-xl border border-[#22272B] animate-pulse" />
+        <div className="h-5 w-48 bg-white dark:bg-[#181C1F] rounded animate-pulse" />
+        <div className="h-16 w-full bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] animate-pulse" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-24 bg-[#181C1F] rounded-xl border border-[#22272B] animate-pulse" />
+              <div key={i} className="h-24 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] animate-pulse" />
             ))}
           </div>
-          <div className="h-80 bg-[#181C1F] rounded-xl border border-[#22272B] animate-pulse" />
+          <div className="h-80 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] animate-pulse" />
         </div>
       </div>
     );
@@ -185,15 +185,15 @@ const TicketDetailPage: React.FC = () => {
     <div className="p-6 space-y-6">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm">
-        <button onClick={() => navigate('/staff/tickets')} className="text-white/40 hover:text-white transition-colors">
+        <button onClick={() => navigate('/staff/tickets')} className="text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white transition-colors">
           Tickets
         </button>
-        <span className="text-white/20">/</span>
-        <span className="text-white/70">{ticket.ticketNumber}</span>
+        <span className="text-gray-400 dark:text-gray-300 dark:text-white/20">/</span>
+        <span className="text-gray-600 dark:text-white/70">{ticket.ticketNumber}</span>
       </div>
 
       {/* Ticket Header */}
-      <div className="bg-[#181C1F] rounded-xl border border-[#22272B] p-4">
+      <div className="bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] p-4">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
@@ -201,7 +201,7 @@ const TicketDetailPage: React.FC = () => {
               {getPriorityBadge(ticket.priority)}
               {getStatusBadge(ticket.status)}
             </div>
-            <h1 className="text-lg font-bold text-white">{ticket.subject}</h1>
+            <h1 className="text-lg font-bold text-gray-900 dark:text-white">{ticket.subject}</h1>
           </div>
           <div className={`px-3 py-2 rounded-lg border text-center ${getSLAColor(ticket.slaStatus)}`}>
             <p className="text-xs uppercase tracking-wider opacity-70">SLA</p>
@@ -221,7 +221,7 @@ const TicketDetailPage: React.FC = () => {
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 showInternalNotes
                   ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                  : 'bg-[#181C1F] text-white/40 border border-[#22272B]'
+                  : 'bg-white dark:bg-[#181C1F] text-gray-400 dark:text-white/40 border border-gray-200 dark:border-[#22272B]'
               }`}
             >
               {showInternalNotes ? 'Showing' : 'Hiding'} Internal Notes
@@ -236,29 +236,29 @@ const TicketDetailPage: React.FC = () => {
                 className={`rounded-xl border p-4 ${
                   msg.isInternal
                     ? 'bg-purple-500/5 border-purple-500/20'
-                    : 'bg-[#181C1F] border-[#22272B]'
+                    : 'bg-white dark:bg-[#181C1F] border-gray-200 dark:border-[#22272B]'
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${getAvatarColor(msg.senderName)}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-gray-900 dark:text-white flex-shrink-0 ${getAvatarColor(msg.senderName)}`}>
                     {msg.senderAvatar}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-semibold text-white">{msg.senderName}</span>
-                      <span className="text-xs text-white/30">{msg.senderRole}</span>
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white">{msg.senderName}</span>
+                      <span className="text-xs text-gray-400 dark:text-white/30">{msg.senderRole}</span>
                       {msg.isInternal && (
                         <span className="px-1.5 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded">Internal</span>
                       )}
-                      <span className="text-xs text-white/30 ml-auto">{formatDate(msg.timestamp)}</span>
+                      <span className="text-xs text-gray-400 dark:text-white/30 ml-auto">{formatDate(msg.timestamp)}</span>
                     </div>
-                    <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap">
+                    <p className="text-sm text-gray-600 dark:text-white/70 leading-relaxed whitespace-pre-wrap">
                       {msg.isInternal ? msg.content.replace('INTERNAL: ', '') : msg.content}
                     </p>
                     {msg.attachments.length > 0 && (
                       <div className="flex items-center gap-2 mt-2">
                         {msg.attachments.map((att, i) => (
-                          <span key={i} className="px-2 py-1 bg-[#0F1112] rounded text-xs text-white/50 border border-[#22272B]">
+                          <span key={i} className="px-2 py-1 bg-gray-50 dark:bg-[#0F1112] rounded text-xs text-gray-500 dark:text-white/50 border border-gray-200 dark:border-[#22272B]">
                             <svg className="w-3 h-3 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                             </svg>
@@ -274,12 +274,12 @@ const TicketDetailPage: React.FC = () => {
           </div>
 
           {/* Message Input */}
-          <div className="bg-[#181C1F] rounded-xl border border-[#22272B] p-4">
+          <div className="bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] p-4">
             <div className="flex items-center gap-2 mb-3">
               <button
                 onClick={() => setIsInternalNote(false)}
                 className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                  !isInternalNote ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
+                  !isInternalNote ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-400 dark:text-white/40 hover:text-gray-500 dark:hover:text-white/60'
                 }`}
               >
                 Reply
@@ -287,7 +287,7 @@ const TicketDetailPage: React.FC = () => {
               <button
                 onClick={() => setIsInternalNote(true)}
                 className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                  isInternalNote ? 'bg-purple-500/20 text-purple-400' : 'text-white/40 hover:text-white/60'
+                  isInternalNote ? 'bg-purple-500/20 text-purple-400' : 'text-gray-400 dark:text-white/40 hover:text-gray-500 dark:hover:text-white/60'
                 }`}
               >
                 Internal Note
@@ -298,14 +298,14 @@ const TicketDetailPage: React.FC = () => {
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder={isInternalNote ? 'Add an internal note...' : 'Type your reply...'}
               rows={3}
-              className={`w-full px-4 py-3 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none resize-none ${
+              className={`w-full px-4 py-3 rounded-lg text-sm text-gray-900 dark:text-white placeholder-white/30 focus:outline-none resize-none ${
                 isInternalNote
                   ? 'bg-purple-500/5 border border-purple-500/20 focus:border-purple-500/40'
-                  : 'bg-[#0F1112] border border-[#22272B] focus:border-[#E40000]/50'
+                  : 'bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] focus:border-[#E40000]/50'
               }`}
             />
             <div className="flex items-center justify-between mt-3">
-              <button className="text-xs text-white/30 hover:text-white/50 transition-colors">
+              <button className="text-xs text-gray-400 dark:text-white/30 hover:text-gray-500 dark:hover:text-white/50 transition-colors">
                 Attach file
               </button>
               <button
@@ -313,8 +313,8 @@ const TicketDetailPage: React.FC = () => {
                 disabled={!newMessage.trim()}
                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                   isInternalNote
-                    ? 'bg-purple-600 hover:bg-purple-700 text-white disabled:opacity-40'
-                    : 'bg-[#E40000] hover:bg-[#E40000]/90 text-white disabled:opacity-40'
+                    ? 'bg-purple-600 hover:bg-purple-700 text-gray-900 dark:text-white disabled:opacity-40'
+                    : 'bg-[#E40000] hover:bg-[#E40000]/90 text-gray-900 dark:text-white disabled:opacity-40'
                 }`}
               >
                 {isInternalNote ? 'Add Note' : 'Send Reply'}
@@ -326,31 +326,31 @@ const TicketDetailPage: React.FC = () => {
         {/* Right: Ticket Details */}
         <div className="space-y-4">
           {/* Details Panel */}
-          <div className="bg-[#181C1F] rounded-xl border border-[#22272B] p-4 space-y-4">
-            <h3 className="text-sm font-semibold text-white">Ticket Details</h3>
+          <div className="bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] p-4 space-y-4">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Ticket Details</h3>
 
             <div>
-              <p className="text-xs text-white/40 mb-1">Assigned To</p>
-              <p className="text-sm text-white">{ticket.assignedTo}</p>
+              <p className="text-xs text-gray-400 dark:text-white/40 mb-1">Assigned To</p>
+              <p className="text-sm text-gray-900 dark:text-white">{ticket.assignedTo}</p>
             </div>
 
             <div>
-              <p className="text-xs text-white/40 mb-1">Reporter</p>
-              <p className="text-sm text-white">{ticket.reporterName}</p>
-              <p className="text-xs text-white/40">{ticket.reporterEmail}</p>
-              <p className="text-xs text-white/40">{ticket.reporterRole}</p>
+              <p className="text-xs text-gray-400 dark:text-white/40 mb-1">Reporter</p>
+              <p className="text-sm text-gray-900 dark:text-white">{ticket.reporterName}</p>
+              <p className="text-xs text-gray-400 dark:text-white/40">{ticket.reporterEmail}</p>
+              <p className="text-xs text-gray-400 dark:text-white/40">{ticket.reporterRole}</p>
             </div>
 
             <div>
-              <p className="text-xs text-white/40 mb-1">Category</p>
-              <p className="text-sm text-white">{ticket.category}</p>
+              <p className="text-xs text-gray-400 dark:text-white/40 mb-1">Category</p>
+              <p className="text-sm text-gray-900 dark:text-white">{ticket.category}</p>
             </div>
 
             <div>
-              <p className="text-xs text-white/40 mb-1">Tags</p>
+              <p className="text-xs text-gray-400 dark:text-white/40 mb-1">Tags</p>
               <div className="flex flex-wrap gap-1">
                 {ticket.tags.map((tag) => (
-                  <span key={tag} className="px-2 py-0.5 bg-[#0F1112] border border-[#22272B] rounded text-xs text-white/50">
+                  <span key={tag} className="px-2 py-0.5 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded text-xs text-gray-500 dark:text-white/50">
                     {tag}
                   </span>
                 ))}
@@ -358,19 +358,19 @@ const TicketDetailPage: React.FC = () => {
             </div>
 
             <div>
-              <p className="text-xs text-white/40 mb-1">Created</p>
-              <p className="text-xs text-white/60">{formatDate(ticket.createdAt)}</p>
+              <p className="text-xs text-gray-400 dark:text-white/40 mb-1">Created</p>
+              <p className="text-xs text-gray-500 dark:text-white/60">{formatDate(ticket.createdAt)}</p>
             </div>
 
             <div>
-              <p className="text-xs text-white/40 mb-1">Last Updated</p>
-              <p className="text-xs text-white/60">{formatDate(ticket.updatedAt)}</p>
+              <p className="text-xs text-gray-400 dark:text-white/40 mb-1">Last Updated</p>
+              <p className="text-xs text-gray-500 dark:text-white/60">{formatDate(ticket.updatedAt)}</p>
             </div>
 
             {ticket.firstResponseAt && (
               <div>
-                <p className="text-xs text-white/40 mb-1">First Response</p>
-                <p className="text-xs text-white/60">{formatDate(ticket.firstResponseAt)}</p>
+                <p className="text-xs text-gray-400 dark:text-white/40 mb-1">First Response</p>
+                <p className="text-xs text-gray-500 dark:text-white/60">{formatDate(ticket.firstResponseAt)}</p>
               </div>
             )}
           </div>
@@ -392,16 +392,16 @@ const TicketDetailPage: React.FC = () => {
 
           {/* Action Buttons */}
           <div className="space-y-2">
-            <button className="w-full px-4 py-2 bg-[#181C1F] border border-[#22272B] rounded-lg text-sm text-white/70 hover:text-white hover:border-blue-500/50 transition-colors text-left">
+            <button className="w-full px-4 py-2 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-blue-500/50 transition-colors text-left">
               Assign to...
             </button>
-            <button className="w-full px-4 py-2 bg-[#181C1F] border border-[#22272B] rounded-lg text-sm text-white/70 hover:text-white hover:border-orange-500/50 transition-colors text-left">
+            <button className="w-full px-4 py-2 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-orange-500/50 transition-colors text-left">
               Escalate
             </button>
             <button className="w-full px-4 py-2 bg-green-600/10 border border-green-500/30 rounded-lg text-sm text-green-400 hover:bg-green-600/20 transition-colors text-left">
               Mark as Resolved
             </button>
-            <button className="w-full px-4 py-2 bg-[#181C1F] border border-[#22272B] rounded-lg text-sm text-white/40 hover:text-white/60 transition-colors text-left">
+            <button className="w-full px-4 py-2 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-400 dark:text-white/40 hover:text-gray-500 dark:hover:text-white/60 transition-colors text-left">
               Close Ticket
             </button>
           </div>

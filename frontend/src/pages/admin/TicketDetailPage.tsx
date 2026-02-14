@@ -200,7 +200,7 @@ const TicketDetailPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigate('/dashboard/admin/tickets')}
-              className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Tickets
@@ -216,17 +216,17 @@ const TicketDetailPage: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6"
+            className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6"
           >
             <div className="flex flex-wrap items-center gap-3 mb-4">
               <PriorityBadge priority={data.priority} />
               <StatusBadge status={data.status} />
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-[#22272B] text-white/60 border-[#333]">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-gray-100 dark:bg-[#22272B] text-gray-500 dark:text-white/60 border-gray-300 dark:border-[#333]">
                 {data.category}
               </span>
             </div>
-            <h2 className="text-lg font-semibold text-white mb-2">{data.subject}</h2>
-            <p className="text-sm text-white/60">{data.description}</p>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{data.subject}</h2>
+            <p className="text-sm text-gray-500 dark:text-white/60">{data.description}</p>
           </motion.div>
 
           {/* Message Thread */}
@@ -248,19 +248,19 @@ const TicketDetailPage: React.FC = () => {
                   className={`max-w-[80%] rounded-xl p-4 ${
                     msg.sender_role === 'agent'
                       ? 'bg-[#E40000]/10 border border-[#E40000]/20'
-                      : 'bg-[#181C1F] border border-[#22272B]'
+                      : 'bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B]'
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                      msg.sender_role === 'agent' ? 'bg-[#E40000]/20 text-red-400' : 'bg-[#22272B] text-white/60'
+                      msg.sender_role === 'agent' ? 'bg-[#E40000]/20 text-red-400' : 'bg-gray-100 dark:bg-[#22272B] text-gray-500 dark:text-white/60'
                     }`}>
                       {msg.sender.slice(0, 1)}
                     </div>
-                    <span className="text-xs font-medium text-white/80">{msg.sender}</span>
-                    <span className="text-xs text-white/30">{formatDate(msg.timestamp)}</span>
+                    <span className="text-xs font-medium text-gray-700 dark:text-white/80">{msg.sender}</span>
+                    <span className="text-xs text-gray-400 dark:text-white/30">{formatDate(msg.timestamp)}</span>
                   </div>
-                  <p className="text-sm text-white/70 leading-relaxed">{msg.content}</p>
+                  <p className="text-sm text-gray-600 dark:text-white/70 leading-relaxed">{msg.content}</p>
                 </motion.div>
               </div>
             ))}
@@ -271,14 +271,14 @@ const TicketDetailPage: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-[#181C1F] border border-[#22272B] rounded-xl p-4"
+            className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4"
           >
             <textarea
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               placeholder="Type your reply..."
               rows={4}
-              className="w-full px-4 py-3 bg-[#0F1112] border border-[#22272B] rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors resize-none"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors resize-none"
             />
             <div className="flex items-center justify-between mt-3">
               <div className="flex items-center gap-2">
@@ -294,7 +294,7 @@ const TicketDetailPage: React.FC = () => {
               <button
                 onClick={handleSendReply}
                 disabled={!replyText.trim()}
-                className="flex items-center gap-2 px-4 py-2 text-sm bg-[#E40000] rounded-lg text-white hover:bg-[#C00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-[#E40000] rounded-lg text-gray-900 dark:text-white hover:bg-[#C00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send className="w-4 h-4" />
                 Send Reply
@@ -308,53 +308,53 @@ const TicketDetailPage: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5"
+            className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5"
           >
-            <h3 className="text-sm font-semibold text-white mb-4">Ticket Information</h3>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Ticket Information</h3>
             <div className="space-y-4">
               <div>
-                <span className="text-xs text-white/40 block mb-1">Reporter</span>
+                <span className="text-xs text-gray-400 dark:text-white/40 block mb-1">Reporter</span>
                 <div className="flex items-center gap-2">
-                  <User className="w-4 h-4 text-white/40" />
+                  <User className="w-4 h-4 text-gray-400 dark:text-white/40" />
                   <div>
-                    <span className="text-sm text-white">{data.reporter}</span>
-                    <span className="block text-xs text-white/40">{data.reporter_email}</span>
+                    <span className="text-sm text-gray-900 dark:text-white">{data.reporter}</span>
+                    <span className="block text-xs text-gray-400 dark:text-white/40">{data.reporter_email}</span>
                   </div>
                 </div>
               </div>
 
               <div>
-                <span className="text-xs text-white/40 block mb-1">Assignee</span>
+                <span className="text-xs text-gray-400 dark:text-white/40 block mb-1">Assignee</span>
                 <div className="flex items-center gap-2">
-                  <User className="w-4 h-4 text-white/40" />
-                  <span className="text-sm text-white">{data.assignee}</span>
+                  <User className="w-4 h-4 text-gray-400 dark:text-white/40" />
+                  <span className="text-sm text-gray-900 dark:text-white">{data.assignee}</span>
                 </div>
               </div>
 
               <div>
-                <span className="text-xs text-white/40 block mb-1">Category</span>
+                <span className="text-xs text-gray-400 dark:text-white/40 block mb-1">Category</span>
                 <div className="flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-white/40" />
-                  <span className="text-sm text-white">{data.category}</span>
+                  <Tag className="w-4 h-4 text-gray-400 dark:text-white/40" />
+                  <span className="text-sm text-gray-900 dark:text-white">{data.category}</span>
                 </div>
               </div>
 
               <div>
-                <span className="text-xs text-white/40 block mb-1">Priority</span>
+                <span className="text-xs text-gray-400 dark:text-white/40 block mb-1">Priority</span>
                 <PriorityBadge priority={data.priority} />
               </div>
 
               <div>
-                <span className="text-xs text-white/40 block mb-1">Status</span>
+                <span className="text-xs text-gray-400 dark:text-white/40 block mb-1">Status</span>
                 <StatusBadge status={data.status} />
               </div>
 
-              <div className="pt-3 border-t border-[#22272B]">
-                <span className="text-xs text-white/40 block mb-1">SLA Deadline</span>
+              <div className="pt-3 border-t border-gray-200 dark:border-[#22272B]">
+                <span className="text-xs text-gray-400 dark:text-white/40 block mb-1">SLA Deadline</span>
                 <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-white/40" />
+                  <Clock className="w-4 h-4 text-gray-400 dark:text-white/40" />
                   <span className={`text-sm ${
-                    new Date(data.sla_deadline) < new Date() ? 'text-red-400' : 'text-white'
+                    new Date(data.sla_deadline) < new Date() ? 'text-red-400' : 'text-gray-900 dark:text-white'
                   }`}>
                     {formatDate(data.sla_deadline)}
                   </span>
@@ -367,14 +367,14 @@ const TicketDetailPage: React.FC = () => {
                 )}
               </div>
 
-              <div className="pt-3 border-t border-[#22272B]">
-                <span className="text-xs text-white/40 block mb-1">Created</span>
-                <span className="text-sm text-white/60">{formatDate(data.created_at)}</span>
+              <div className="pt-3 border-t border-gray-200 dark:border-[#22272B]">
+                <span className="text-xs text-gray-400 dark:text-white/40 block mb-1">Created</span>
+                <span className="text-sm text-gray-500 dark:text-white/60">{formatDate(data.created_at)}</span>
               </div>
 
               <div>
-                <span className="text-xs text-white/40 block mb-1">Last Updated</span>
-                <span className="text-sm text-white/60">{formatDate(data.updated_at)}</span>
+                <span className="text-xs text-gray-400 dark:text-white/40 block mb-1">Last Updated</span>
+                <span className="text-sm text-gray-500 dark:text-white/60">{formatDate(data.updated_at)}</span>
               </div>
             </div>
           </motion.div>
@@ -384,20 +384,20 @@ const TicketDetailPage: React.FC = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5"
+            className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5"
           >
-            <h3 className="text-sm font-semibold text-white mb-4">Quick Actions</h3>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
             <div className="space-y-2">
-              <button className="w-full text-left px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-[#22272B] rounded-lg transition-colors">
+              <button className="w-full text-left px-3 py-2 text-sm text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] rounded-lg transition-colors">
                 Reassign Ticket
               </button>
-              <button className="w-full text-left px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-[#22272B] rounded-lg transition-colors">
+              <button className="w-full text-left px-3 py-2 text-sm text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] rounded-lg transition-colors">
                 Change Priority
               </button>
-              <button className="w-full text-left px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-[#22272B] rounded-lg transition-colors">
+              <button className="w-full text-left px-3 py-2 text-sm text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] rounded-lg transition-colors">
                 Escalate to Manager
               </button>
-              <button className="w-full text-left px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-[#22272B] rounded-lg transition-colors">
+              <button className="w-full text-left px-3 py-2 text-sm text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] rounded-lg transition-colors">
                 Merge with Another Ticket
               </button>
             </div>

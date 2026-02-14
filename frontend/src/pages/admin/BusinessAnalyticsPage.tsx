@@ -20,7 +20,6 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import DashboardLayout from '../../components/layout/DashboardLayout';
 import AdminPageHeader from '../../components/admin/shared/AdminPageHeader';
 import AdminStatsCard from '../../components/admin/shared/AdminStatsCard';
 
@@ -191,22 +190,22 @@ const BusinessAnalyticsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <DashboardLayout role="admin">
+      <>
         <div className="space-y-6">
-          <div className="h-16 bg-[#22272B] rounded-lg animate-pulse" />
+          <div className="h-16 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-28 bg-[#22272B] rounded-xl animate-pulse" />
+              <div key={i} className="h-28 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
             ))}
           </div>
-          <div className="h-80 bg-[#22272B] rounded-xl animate-pulse" />
+          <div className="h-80 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
         </div>
-      </DashboardLayout>
+      </>
     );
   }
 
   return (
-    <DashboardLayout role="admin">
+    <>
       <motion.div
         className="space-y-6"
         variants={containerVariants}
@@ -224,7 +223,7 @@ const BusinessAnalyticsPage: React.FC = () => {
           actions={
             <div className="flex items-center gap-2">
               <button
-                className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors"
               >
                 <Download className="w-4 h-4" />
                 Export
@@ -232,7 +231,7 @@ const BusinessAnalyticsPage: React.FC = () => {
               <button
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-50"
               >
                 <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
                 Refresh
@@ -275,12 +274,12 @@ const BusinessAnalyticsPage: React.FC = () => {
         {/* MRR & Signups Area Chart */}
         <motion.div
           variants={itemVariants}
-          className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6"
+          className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
             <div>
-              <h2 className="text-lg font-semibold text-white">Revenue & Signups Trend</h2>
-              <p className="text-sm text-white/50 mt-1">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Revenue & Signups Trend</h2>
+              <p className="text-sm text-gray-500 dark:text-white/50 mt-1">
                 Monthly recurring revenue and new user signups over 6 months
               </p>
             </div>
@@ -323,10 +322,10 @@ const BusinessAnalyticsPage: React.FC = () => {
               />
               <Tooltip
                 contentStyle={tooltipStyle}
-                formatter={(value: number, name: string) => [
+                formatter={((value: number, name: string) => [
                   name === 'mrr' ? formatKES(value) : value,
                   name === 'mrr' ? 'MRR' : 'Signups',
-                ]}
+                ]) as any}
               />
               <Legend
                 wrapperStyle={{ fontSize: '11px', color: '#999' }}
@@ -357,11 +356,11 @@ const BusinessAnalyticsPage: React.FC = () => {
         {/* Churn & LTV Line Chart */}
         <motion.div
           variants={itemVariants}
-          className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6"
+          className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6"
         >
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-white">Churn Rate & Lifetime Value</h2>
-            <p className="text-sm text-white/50 mt-1">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Churn Rate & Lifetime Value</h2>
+            <p className="text-sm text-gray-500 dark:text-white/50 mt-1">
               Monthly churn rate percentage and customer lifetime value
             </p>
           </div>
@@ -395,10 +394,10 @@ const BusinessAnalyticsPage: React.FC = () => {
               />
               <Tooltip
                 contentStyle={tooltipStyle}
-                formatter={(value: number, name: string) => [
+                formatter={((value: number, name: string) => [
                   name === 'churn' ? `${value}%` : formatKES(value),
                   name === 'churn' ? 'Churn Rate' : 'LTV',
-                ]}
+                ]) as any}
               />
               <Legend
                 wrapperStyle={{ fontSize: '11px', color: '#999' }}
@@ -431,39 +430,39 @@ const BusinessAnalyticsPage: React.FC = () => {
         {/* Partner Performance Table */}
         <motion.div
           variants={itemVariants}
-          className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6"
+          className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6"
         >
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-white">Partner Performance</h2>
-            <p className="text-sm text-white/50 mt-1">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Partner Performance</h2>
+            <p className="text-sm text-gray-500 dark:text-white/50 mt-1">
               Revenue contribution and conversion metrics by partner
             </p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#22272B]">
-                  <th className="text-left py-3 px-4 text-white/50 font-medium">Partner</th>
-                  <th className="text-left py-3 px-4 text-white/50 font-medium">Region</th>
-                  <th className="text-right py-3 px-4 text-white/50 font-medium">Students</th>
-                  <th className="text-right py-3 px-4 text-white/50 font-medium">Revenue</th>
-                  <th className="text-right py-3 px-4 text-white/50 font-medium">Conversion</th>
-                  <th className="text-right py-3 px-4 text-white/50 font-medium">Churn</th>
-                  <th className="text-center py-3 px-4 text-white/50 font-medium">Status</th>
+                <tr className="border-b border-gray-200 dark:border-[#22272B]">
+                  <th className="text-left py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Partner</th>
+                  <th className="text-left py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Region</th>
+                  <th className="text-right py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Students</th>
+                  <th className="text-right py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Revenue</th>
+                  <th className="text-right py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Conversion</th>
+                  <th className="text-right py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Churn</th>
+                  <th className="text-center py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {PARTNER_DATA.map((partner) => (
                   <tr
                     key={partner.id}
-                    className="border-b border-[#22272B]/50 hover:bg-[#22272B]/30 transition-colors"
+                    className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-gray-100 dark:hover:bg-[#22272B]/30 transition-colors"
                   >
-                    <td className="py-3 px-4 text-white font-medium">{partner.name}</td>
-                    <td className="py-3 px-4 text-white/60">{partner.region}</td>
-                    <td className="py-3 px-4 text-right text-white/80">
+                    <td className="py-3 px-4 text-gray-900 dark:text-white font-medium">{partner.name}</td>
+                    <td className="py-3 px-4 text-gray-500 dark:text-white/60">{partner.region}</td>
+                    <td className="py-3 px-4 text-right text-gray-700 dark:text-white/80">
                       {partner.studentsReferred.toLocaleString()}
                     </td>
-                    <td className="py-3 px-4 text-right text-white/80">
+                    <td className="py-3 px-4 text-right text-gray-700 dark:text-white/80">
                       {formatKES(partner.revenue)}
                     </td>
                     <td className="py-3 px-4 text-right">
@@ -502,7 +501,7 @@ const BusinessAnalyticsPage: React.FC = () => {
           </div>
         </motion.div>
       </motion.div>
-    </DashboardLayout>
+    </>
   );
 };
 

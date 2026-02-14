@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useThemeStore, useUserStore, useCoPilotStore } from '../../store';
+import { useAuthStore } from '../../store/authStore';
 import Sidebar from './Sidebar';
-import PartnerSidebar from '../partner/PartnerSidebar';
+import StudentSidebar from '../student/sidebar/StudentSidebar';
+import PartnerSidebar from '../partner/sidebar/PartnerSidebar';
 import ParentSidebar from '../parent/ParentSidebar';
 import InstructorSidebar from '../instructor/sidebar/InstructorSidebar';
 import AdminSidebar from '../admin/sidebar/AdminSidebar';
@@ -24,24 +26,45 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onOpenAuthM
   const { updatePreferences } = useUserStore();
   const { theme } = useThemeStore();
   const { isExpanded, detectDashboardType } = useCoPilotStore();
+  const authUser = useAuthStore((state) => state.user);
 
-  // Mock user data for direct dashboard access - moved outside component to prevent recreation
-  const user = React.useMemo(() => ({
-    id: 'demo-user',
-    name: 'Demo User',
-    email: 'demo@example.com',
-    role: role as 'student' | 'parent' | 'instructor' | 'admin' | 'partner' | 'staff',
-    createdAt: new Date(),
-    lastLogin: new Date(),
-    preferences: {
-      theme: 'light' as const,
-      language: 'en' as const,
-      notifications: true,
-      emailNotifications: true,
-      pushNotifications: false,
-      dashboardWidgets: []
+  // Use authenticated user data when available, fallback to demo data for development
+  const user = React.useMemo(() => {
+    if (authUser) {
+      return {
+        id: authUser.id || 'auth-user',
+        name: authUser.name || authUser.email?.split('@')[0] || 'User',
+        email: authUser.email || '',
+        role: (authUser.role || role) as 'student' | 'parent' | 'instructor' | 'admin' | 'partner' | 'staff',
+        createdAt: new Date(),
+        lastLogin: new Date(),
+        preferences: {
+          theme: 'light' as const,
+          language: 'en' as const,
+          notifications: true,
+          emailNotifications: true,
+          pushNotifications: false,
+          dashboardWidgets: []
+        }
+      };
     }
-  }), [role]);
+    return {
+      id: 'demo-user',
+      name: 'Demo User',
+      email: 'demo@example.com',
+      role: role as 'student' | 'parent' | 'instructor' | 'admin' | 'partner' | 'staff',
+      createdAt: new Date(),
+      lastLogin: new Date(),
+      preferences: {
+        theme: 'light' as const,
+        language: 'en' as const,
+        notifications: true,
+        emailNotifications: true,
+        pushNotifications: false,
+        dashboardWidgets: []
+      }
+    };
+  }, [authUser, role]);
 
   // Initialize theme on mount
   useEffect(() => {
@@ -70,7 +93,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onOpenAuthM
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0F1112] to-[#181C1F]">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#0F1112] dark:to-[#181C1F] transition-colors duration-200">
       {/* Global Topbar - Fixed at top */}
       <Topbar onSidebarToggle={handleSidebarToggle} isSidebarOpen={isSidebarOpen} role={user.role} />
 
@@ -105,15 +128,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onOpenAuthM
             onOpenAuthModal={onOpenAuthModal}
           />
         ) : user.role === 'partner' ? (
-          <PartnerSidebar 
-            isOpen={isSidebarOpen} 
-            onClose={() => setIsSidebarOpen(false)} 
-            onOpenAuthModal={onOpenAuthModal}
+          <PartnerSidebar
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
           />
         ) : (
-          <Sidebar 
-            isOpen={isSidebarOpen} 
-            onClose={() => setIsSidebarOpen(false)} 
+          <StudentSidebar
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
             onOpenAuthModal={onOpenAuthModal}
           />
         )}
@@ -123,28 +145,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onOpenAuthM
           {/* Page Content */}
           <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
             <div className="max-w-7xl mx-auto">
-              {/* Page Header */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-white">
-                      {location.pathname.split('/').filter(Boolean).pop()?.replace('-', ' ') || 'Dashboard'}
-                    </h1>
-                    <p className="text-white/60 text-sm mt-1">
-                      Welcome back, {user?.name}! Here's what's happening with your learning journey today.
-                    </p>
-                  </div>
-                  <div className="hidden sm:flex items-center gap-2 text-sm text-white/60">
-                    <span>Home</span>
-                    <span>›</span>
-                    <span className="text-white font-medium">
-                      {location.pathname.split('/').filter(Boolean).pop()?.replace('-', ' ') || 'Dashboard'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Content Area */}
               {children || <Outlet />}
             </div>
           </main>

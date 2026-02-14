@@ -42,12 +42,12 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isDisabled = false
   }, [isDisabled]);
 
   return (
-    <div className="border-t border-[#22272B] bg-gradient-to-t from-[#0F1112] to-transparent p-4">
+    <div className="border-t border-gray-200 dark:border-[#22272B] bg-gradient-to-t from-gray-50 dark:from-[#0F1112] to-transparent p-4">
       <form onSubmit={handleSubmit} className="flex items-center gap-3">
         {/* Attach Button */}
         <button
           type="button"
-          className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+          className="p-2 text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
           disabled={isDisabled}
           title="Attach file"
         >
@@ -57,7 +57,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isDisabled = false
         {/* Voice Input Button */}
         <button
           type="button"
-          className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+          className="p-2 text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
           disabled={isDisabled}
           title="Voice input"
         >
@@ -75,8 +75,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isDisabled = false
             placeholder={isDisabled ? "Chat mode is not active" : "Type your message..."}
             disabled={isDisabled}
             className={`
-              w-full px-4 py-3 pr-12 bg-[#22272B] border border-[#2A3035] rounded-full
-              text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 focus:border-transparent
+              w-full px-4 py-3 pr-12 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-full
+              text-gray-900 dark:text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 focus:border-transparent
               transition-all disabled:opacity-50 disabled:cursor-not-allowed
               ${isTyping ? 'ring-2 ring-[#FF0000]/30 border-[#FF0000]/50' : ''}
             `}
@@ -84,7 +84,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isDisabled = false
           
           {/* Character Counter */}
           {message.length > 0 && (
-            <div className="absolute right-12 top-1/2 transform -translate-y-1/2 text-xs text-white/60">
+            <div className="absolute right-12 top-1/2 transform -translate-y-1/2 text-xs text-gray-500 dark:text-white/60">
               {message.length}
             </div>
           )}
@@ -97,8 +97,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isDisabled = false
           className={`
             p-2 rounded-full transition-all transform hover:scale-105
             ${message.trim().length > 0 && !isDisabled 
-              ? 'bg-gradient-to-r from-[#FF0000] to-[#E40000] text-white shadow-lg shadow-[#FF0000]/30' 
-              : 'bg-white/10 text-white/60 cursor-not-allowed'
+              ? 'bg-gradient-to-r from-[#FF0000] to-[#E40000] text-gray-900 dark:text-white shadow-lg shadow-[#FF0000]/30' 
+              : 'bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/60 cursor-not-allowed'
             }
           `}
           title="Send message (Enter)"
@@ -109,7 +109,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isDisabled = false
 
       {/* Typing Indicator */}
       {isTyping && !isDisabled && (
-        <div className="flex items-center gap-2 mt-2 text-xs text-white/60">
+        <div className="flex items-center gap-2 mt-2 text-xs text-gray-500 dark:text-white/60">
           <div className="flex gap-1">
             <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
             <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>

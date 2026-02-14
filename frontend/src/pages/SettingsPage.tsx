@@ -24,7 +24,6 @@ import {
   Check,
   AlertCircle
 } from 'lucide-react';
-import DashboardLayout from '../components/layout/DashboardLayout';
 import { useAuthStore } from '../store/authStore';
 import { useThemeStore, useUserStore } from '../store';
 import apiClient from '../services/api';
@@ -217,23 +216,23 @@ const SettingsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <DashboardLayout role={user?.role || 'student'}>
+      <>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
         </div>
-      </DashboardLayout>
+      </>
     );
   }
 
   return (
-    <DashboardLayout role={user?.role || 'student'}>
+    <>
       <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <h1 className="text-3xl font-bold text-white">Settings</h1>
-              <p className="text-white/60 mt-1">Manage your account preferences and settings</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+              <p className="text-gray-500 dark:text-white/60 mt-1">Manage your account preferences and settings</p>
             </div>
             {hasChanges && (
               <div className="flex items-center gap-2 px-4 py-2 bg-orange-500/20 border border-orange-500/50 rounded-lg">
@@ -255,21 +254,21 @@ const SettingsPage: React.FC = () => {
         {/* Settings Sections */}
         <div className="space-y-6">
           {/* Appearance Settings */}
-          <section className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <section className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-blue-500/20 rounded-lg">
                 <Sparkles className="w-5 h-5 text-blue-400" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-white">Appearance</h2>
-                <p className="text-sm text-white/60">Customize how the platform looks</p>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Appearance</h2>
+                <p className="text-sm text-gray-500 dark:text-white/60">Customize how the platform looks</p>
               </div>
             </div>
 
             <div className="space-y-6">
               {/* Theme Selector */}
               <div>
-                <label className="block text-sm font-medium text-white mb-3">Theme</label>
+                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-3">Theme</label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {[
                     { value: 'light', label: 'Light', icon: Sun },
@@ -282,11 +281,11 @@ const SettingsPage: React.FC = () => {
                       className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
                         settings.theme === value
                           ? 'bg-blue-500/20 border-blue-500'
-                          : 'bg-[#22272B] border-[#2A3035] hover:border-[#3A4045]'
+                          : 'bg-gray-100 dark:bg-[#22272B] border-[#2A3035] hover:border-[#3A4045]'
                       }`}
                     >
-                      <Icon className={`w-5 h-5 ${settings.theme === value ? 'text-blue-400' : 'text-white/60'}`} />
-                      <span className={`font-medium ${settings.theme === value ? 'text-blue-400' : 'text-white'}`}>
+                      <Icon className={`w-5 h-5 ${settings.theme === value ? 'text-blue-400' : 'text-gray-500 dark:text-white/60'}`} />
+                      <span className={`font-medium ${settings.theme === value ? 'text-blue-400' : 'text-gray-900 dark:text-white'}`}>
                         {label}
                       </span>
                     </button>
@@ -296,7 +295,7 @@ const SettingsPage: React.FC = () => {
 
               {/* Language Selector */}
               <div>
-                <label className="block text-sm font-medium text-white mb-3">Language</label>
+                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-3">Language</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
                     { value: 'en', label: 'English', flag: '🇬🇧' },
@@ -310,17 +309,17 @@ const SettingsPage: React.FC = () => {
                         settings.language === value
                           ? 'bg-blue-500/20 border-blue-500'
                           : disabled
-                          ? 'bg-[#22272B] border-[#2A3035] opacity-50 cursor-not-allowed'
-                          : 'bg-[#22272B] border-[#2A3035] hover:border-[#3A4045]'
+                          ? 'bg-gray-100 dark:bg-[#22272B] border-[#2A3035] opacity-50 cursor-not-allowed'
+                          : 'bg-gray-100 dark:bg-[#22272B] border-[#2A3035] hover:border-[#3A4045]'
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{flag}</span>
-                        <span className={`font-medium ${settings.language === value ? 'text-blue-400' : 'text-white'}`}>
+                        <span className={`font-medium ${settings.language === value ? 'text-blue-400' : 'text-gray-900 dark:text-white'}`}>
                           {label}
                         </span>
                       </div>
-                      {disabled && <span className="text-xs text-white/40">Coming soon</span>}
+                      {disabled && <span className="text-xs text-gray-400 dark:text-white/40">Coming soon</span>}
                     </button>
                   ))}
                 </div>
@@ -328,7 +327,7 @@ const SettingsPage: React.FC = () => {
 
               {/* Font Size */}
               <div>
-                <label className="block text-sm font-medium text-white mb-3">Font Size</label>
+                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-3">Font Size</label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {[
                     { value: 'small', label: 'Small', icon: Type },
@@ -341,11 +340,11 @@ const SettingsPage: React.FC = () => {
                       className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
                         settings.fontSize === value
                           ? 'bg-blue-500/20 border-blue-500'
-                          : 'bg-[#22272B] border-[#2A3035] hover:border-[#3A4045]'
+                          : 'bg-gray-100 dark:bg-[#22272B] border-[#2A3035] hover:border-[#3A4045]'
                       }`}
                     >
-                      <Icon className={`w-5 h-5 ${settings.fontSize === value ? 'text-blue-400' : 'text-white/60'}`} />
-                      <span className={`font-medium ${settings.fontSize === value ? 'text-blue-400' : 'text-white'}`}>
+                      <Icon className={`w-5 h-5 ${settings.fontSize === value ? 'text-blue-400' : 'text-gray-500 dark:text-white/60'}`} />
+                      <span className={`font-medium ${settings.fontSize === value ? 'text-blue-400' : 'text-gray-900 dark:text-white'}`}>
                         {label}
                       </span>
                     </button>
@@ -356,24 +355,24 @@ const SettingsPage: React.FC = () => {
           </section>
 
           {/* Notification Settings */}
-          <section className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <section className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-green-500/20 rounded-lg">
                 <Bell className="w-5 h-5 text-green-400" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-white">Notifications</h2>
-                <p className="text-sm text-white/60">Manage how you receive updates</p>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Notifications</h2>
+                <p className="text-sm text-gray-500 dark:text-white/60">Manage how you receive updates</p>
               </div>
             </div>
 
             <div className="space-y-6">
               {/* Email & Push Toggles */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex items-center justify-between p-4 bg-[#22272B] rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Mail className="w-5 h-5 text-white/60" />
-                    <span className="font-medium text-white">Email Notifications</span>
+                    <Mail className="w-5 h-5 text-gray-500 dark:text-white/60" />
+                    <span className="font-medium text-gray-900 dark:text-white">Email Notifications</span>
                   </div>
                   <button
                     onClick={() => updateSetting('notifications.email', !settings.notifications.email)}
@@ -389,12 +388,12 @@ const SettingsPage: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-[#22272B] rounded-lg opacity-50">
+                <div className="flex items-center justify-between p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg opacity-50">
                   <div className="flex items-center gap-3">
-                    <MessageSquare className="w-5 h-5 text-white/60" />
+                    <MessageSquare className="w-5 h-5 text-gray-500 dark:text-white/60" />
                     <div>
-                      <span className="font-medium text-white block">Push Notifications</span>
-                      <span className="text-xs text-white/40">Coming soon</span>
+                      <span className="font-medium text-gray-900 dark:text-white block">Push Notifications</span>
+                      <span className="text-xs text-gray-400 dark:text-white/40">Coming soon</span>
                     </div>
                   </div>
                   <button
@@ -408,7 +407,7 @@ const SettingsPage: React.FC = () => {
 
               {/* Notification Types */}
               <div>
-                <label className="block text-sm font-medium text-white mb-3">Notification Types</label>
+                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-3">Notification Types</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
                     { value: 'assignments', label: 'New Assignments', icon: BookOpen },
@@ -423,11 +422,11 @@ const SettingsPage: React.FC = () => {
                       className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
                         settings.notifications.types.includes(value)
                           ? 'bg-blue-500/20 border-blue-500'
-                          : 'bg-[#22272B] border-[#2A3035] hover:border-[#3A4045]'
+                          : 'bg-gray-100 dark:bg-[#22272B] border-[#2A3035] hover:border-[#3A4045]'
                       }`}
                     >
-                      <Icon className={`w-4 h-4 ${settings.notifications.types.includes(value) ? 'text-blue-400' : 'text-white/60'}`} />
-                      <span className={`text-sm ${settings.notifications.types.includes(value) ? 'text-blue-400' : 'text-white'}`}>
+                      <Icon className={`w-4 h-4 ${settings.notifications.types.includes(value) ? 'text-blue-400' : 'text-gray-500 dark:text-white/60'}`} />
+                      <span className={`text-sm ${settings.notifications.types.includes(value) ? 'text-blue-400' : 'text-gray-900 dark:text-white'}`}>
                         {label}
                       </span>
                       {settings.notifications.types.includes(value) && (
@@ -440,7 +439,7 @@ const SettingsPage: React.FC = () => {
 
               {/* Frequency */}
               <div>
-                <label className="block text-sm font-medium text-white mb-3">Notification Frequency</label>
+                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-3">Notification Frequency</label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {[
                     { value: 'immediate', label: 'Immediately' },
@@ -453,7 +452,7 @@ const SettingsPage: React.FC = () => {
                       className={`p-4 rounded-lg border-2 transition-all ${
                         settings.notifications.frequency === value
                           ? 'bg-blue-500/20 border-blue-500 text-blue-400'
-                          : 'bg-[#22272B] border-[#2A3035] text-white hover:border-[#3A4045]'
+                          : 'bg-gray-100 dark:bg-[#22272B] border-[#2A3035] text-gray-900 dark:text-white hover:border-[#3A4045]'
                       }`}
                     >
                       <span className="font-medium">{label}</span>
@@ -465,21 +464,21 @@ const SettingsPage: React.FC = () => {
           </section>
 
           {/* Privacy Settings */}
-          <section className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <section className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-purple-500/20 rounded-lg">
                 <Lock className="w-5 h-5 text-purple-400" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-white">Privacy</h2>
-                <p className="text-sm text-white/60">Control your data and visibility</p>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Privacy</h2>
+                <p className="text-sm text-gray-500 dark:text-white/60">Control your data and visibility</p>
               </div>
             </div>
 
             <div className="space-y-6">
               {/* Profile Visibility */}
               <div>
-                <label className="block text-sm font-medium text-white mb-3">Profile Visibility</label>
+                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-3">Profile Visibility</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
                     { value: 'public', label: 'Public', icon: Eye, description: 'Visible to all users' },
@@ -491,15 +490,15 @@ const SettingsPage: React.FC = () => {
                       className={`flex items-start gap-3 p-4 rounded-lg border-2 transition-all text-left ${
                         settings.privacy.profileVisibility === value
                           ? 'bg-blue-500/20 border-blue-500'
-                          : 'bg-[#22272B] border-[#2A3035] hover:border-[#3A4045]'
+                          : 'bg-gray-100 dark:bg-[#22272B] border-[#2A3035] hover:border-[#3A4045]'
                       }`}
                     >
-                      <Icon className={`w-5 h-5 mt-0.5 ${settings.privacy.profileVisibility === value ? 'text-blue-400' : 'text-white/60'}`} />
+                      <Icon className={`w-5 h-5 mt-0.5 ${settings.privacy.profileVisibility === value ? 'text-blue-400' : 'text-gray-500 dark:text-white/60'}`} />
                       <div>
-                        <span className={`font-medium block ${settings.privacy.profileVisibility === value ? 'text-blue-400' : 'text-white'}`}>
+                        <span className={`font-medium block ${settings.privacy.profileVisibility === value ? 'text-blue-400' : 'text-gray-900 dark:text-white'}`}>
                           {label}
                         </span>
-                        <span className="text-xs text-white/60">{description}</span>
+                        <span className="text-xs text-gray-500 dark:text-white/60">{description}</span>
                       </div>
                     </button>
                   ))}
@@ -509,12 +508,12 @@ const SettingsPage: React.FC = () => {
               {/* Privacy Toggles */}
               <div className="space-y-3">
                 {user?.role === 'student' && (
-                  <div className="flex items-center justify-between p-4 bg-[#22272B] rounded-lg">
+                  <div className="flex items-center justify-between p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg">
                     <div className="flex items-center gap-3">
-                      <Users className="w-5 h-5 text-white/60" />
+                      <Users className="w-5 h-5 text-gray-500 dark:text-white/60" />
                       <div>
-                        <span className="font-medium text-white block">Show Progress to Parents</span>
-                        <span className="text-xs text-white/60">Allow parents to view your learning progress</span>
+                        <span className="font-medium text-gray-900 dark:text-white block">Show Progress to Parents</span>
+                        <span className="text-xs text-gray-500 dark:text-white/60">Allow parents to view your learning progress</span>
                       </div>
                     </div>
                     <button
@@ -532,12 +531,12 @@ const SettingsPage: React.FC = () => {
                   </div>
                 )}
 
-                <div className="flex items-center justify-between p-4 bg-[#22272B] rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg">
                   <div className="flex items-center gap-3">
-                    <MessageSquare className="w-5 h-5 text-white/60" />
+                    <MessageSquare className="w-5 h-5 text-gray-500 dark:text-white/60" />
                     <div>
-                      <span className="font-medium text-white block">Allow Forum Posts</span>
-                      <span className="text-xs text-white/60">Enable posting in community forums</span>
+                      <span className="font-medium text-gray-900 dark:text-white block">Allow Forum Posts</span>
+                      <span className="text-xs text-gray-500 dark:text-white/60">Enable posting in community forums</span>
                     </div>
                   </div>
                   <button
@@ -554,12 +553,12 @@ const SettingsPage: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-[#22272B] rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Activity className="w-5 h-5 text-white/60" />
+                    <Activity className="w-5 h-5 text-gray-500 dark:text-white/60" />
                     <div>
-                      <span className="font-medium text-white block">Analytics</span>
-                      <span className="text-xs text-white/60">Help improve the platform with usage data</span>
+                      <span className="font-medium text-gray-900 dark:text-white block">Analytics</span>
+                      <span className="text-xs text-gray-500 dark:text-white/60">Help improve the platform with usage data</span>
                     </div>
                   </div>
                   <button
@@ -576,12 +575,12 @@ const SettingsPage: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-[#22272B] rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Sparkles className="w-5 h-5 text-white/60" />
+                    <Sparkles className="w-5 h-5 text-gray-500 dark:text-white/60" />
                     <div>
-                      <span className="font-medium text-white block">Personalization</span>
-                      <span className="text-xs text-white/60">Personalized content recommendations</span>
+                      <span className="font-medium text-gray-900 dark:text-white block">Personalization</span>
+                      <span className="text-xs text-gray-500 dark:text-white/60">Personalized content recommendations</span>
                     </div>
                   </div>
                   <button
@@ -603,21 +602,21 @@ const SettingsPage: React.FC = () => {
 
           {/* Learning Preferences (Students only) */}
           {user?.role === 'student' && (
-            <section className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+            <section className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2 bg-orange-500/20 rounded-lg">
                   <BookOpen className="w-5 h-5 text-orange-400" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-white">Learning Preferences</h2>
-                  <p className="text-sm text-white/60">Customize your AI tutor experience</p>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Learning Preferences</h2>
+                  <p className="text-sm text-gray-500 dark:text-white/60">Customize your AI tutor experience</p>
                 </div>
               </div>
 
               <div className="space-y-6">
                 {/* Response Mode */}
                 <div>
-                  <label className="block text-sm font-medium text-white mb-3">Preferred Response Mode</label>
+                  <label className="block text-sm font-medium text-gray-900 dark:text-white mb-3">Preferred Response Mode</label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {[
                       { value: 'text', label: 'Text Only', icon: Type },
@@ -630,11 +629,11 @@ const SettingsPage: React.FC = () => {
                         className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
                           settings.learning?.responseMode === value
                             ? 'bg-blue-500/20 border-blue-500'
-                            : 'bg-[#22272B] border-[#2A3035] hover:border-[#3A4045]'
+                            : 'bg-gray-100 dark:bg-[#22272B] border-[#2A3035] hover:border-[#3A4045]'
                         }`}
                       >
-                        <Icon className={`w-6 h-6 ${settings.learning?.responseMode === value ? 'text-blue-400' : 'text-white/60'}`} />
-                        <span className={`font-medium text-sm ${settings.learning?.responseMode === value ? 'text-blue-400' : 'text-white'}`}>
+                        <Icon className={`w-6 h-6 ${settings.learning?.responseMode === value ? 'text-blue-400' : 'text-gray-500 dark:text-white/60'}`} />
+                        <span className={`font-medium text-sm ${settings.learning?.responseMode === value ? 'text-blue-400' : 'text-gray-900 dark:text-white'}`}>
                           {label}
                         </span>
                       </button>
@@ -644,7 +643,7 @@ const SettingsPage: React.FC = () => {
 
                 {/* AI Personality */}
                 <div>
-                  <label className="block text-sm font-medium text-white mb-3">AI Tutor Personality</label>
+                  <label className="block text-sm font-medium text-gray-900 dark:text-white mb-3">AI Tutor Personality</label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {[
                       { value: 'encouraging', label: 'Encouraging', description: 'Supportive and motivating' },
@@ -657,13 +656,13 @@ const SettingsPage: React.FC = () => {
                         className={`flex flex-col items-start gap-1 p-4 rounded-lg border-2 transition-all text-left ${
                           settings.learning?.aiPersonality === value
                             ? 'bg-blue-500/20 border-blue-500'
-                            : 'bg-[#22272B] border-[#2A3035] hover:border-[#3A4045]'
+                            : 'bg-gray-100 dark:bg-[#22272B] border-[#2A3035] hover:border-[#3A4045]'
                         }`}
                       >
-                        <span className={`font-medium ${settings.learning?.aiPersonality === value ? 'text-blue-400' : 'text-white'}`}>
+                        <span className={`font-medium ${settings.learning?.aiPersonality === value ? 'text-blue-400' : 'text-gray-900 dark:text-white'}`}>
                           {label}
                         </span>
-                        <span className="text-xs text-white/60">{description}</span>
+                        <span className="text-xs text-gray-500 dark:text-white/60">{description}</span>
                       </button>
                     ))}
                   </div>
@@ -671,7 +670,7 @@ const SettingsPage: React.FC = () => {
 
                 {/* Difficulty */}
                 <div>
-                  <label className="block text-sm font-medium text-white mb-3">Difficulty Preference</label>
+                  <label className="block text-sm font-medium text-gray-900 dark:text-white mb-3">Difficulty Preference</label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {[
                       { value: 'easier', label: 'Easier', description: 'More guidance' },
@@ -684,13 +683,13 @@ const SettingsPage: React.FC = () => {
                         className={`flex flex-col items-start gap-1 p-4 rounded-lg border-2 transition-all text-left ${
                           settings.learning?.difficulty === value
                             ? 'bg-blue-500/20 border-blue-500'
-                            : 'bg-[#22272B] border-[#2A3035] hover:border-[#3A4045]'
+                            : 'bg-gray-100 dark:bg-[#22272B] border-[#2A3035] hover:border-[#3A4045]'
                         }`}
                       >
-                        <span className={`font-medium ${settings.learning?.difficulty === value ? 'text-blue-400' : 'text-white'}`}>
+                        <span className={`font-medium ${settings.learning?.difficulty === value ? 'text-blue-400' : 'text-gray-900 dark:text-white'}`}>
                           {label}
                         </span>
-                        <span className="text-xs text-white/60">{description}</span>
+                        <span className="text-xs text-gray-500 dark:text-white/60">{description}</span>
                       </button>
                     ))}
                   </div>
@@ -701,21 +700,21 @@ const SettingsPage: React.FC = () => {
 
           {/* Parental Controls (Parents only) */}
           {user?.role === 'parent' && (
-            <section className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+            <section className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2 bg-red-500/20 rounded-lg">
                   <Shield className="w-5 h-5 text-red-400" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-white">Parental Controls</h2>
-                  <p className="text-sm text-white/60">Manage children's learning environment</p>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Parental Controls</h2>
+                  <p className="text-sm text-gray-500 dark:text-white/60">Manage children's learning environment</p>
                 </div>
               </div>
 
               <div className="space-y-6">
                 {/* Screen Time Limit */}
                 <div>
-                  <label className="block text-sm font-medium text-white mb-3">
+                  <label className="block text-sm font-medium text-gray-900 dark:text-white mb-3">
                     Daily Screen Time Limit (minutes)
                   </label>
                   <input
@@ -725,20 +724,20 @@ const SettingsPage: React.FC = () => {
                     step="30"
                     value={settings.parentalControls?.screenTimeLimit || 120}
                     onChange={(e) => updateSetting('parentalControls.screenTimeLimit', parseInt(e.target.value))}
-                    className="w-full px-4 py-3 bg-[#22272B] border border-[#2A3035] rounded-lg text-white focus:outline-none focus:border-blue-500"
+                    className="w-full px-4 py-3 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
                   />
-                  <p className="text-xs text-white/60 mt-2">
+                  <p className="text-xs text-gray-500 dark:text-white/60 mt-2">
                     Current limit: {settings.parentalControls?.screenTimeLimit || 120} minutes ({Math.floor((settings.parentalControls?.screenTimeLimit || 120) / 60)}h {(settings.parentalControls?.screenTimeLimit || 120) % 60}m)
                   </p>
                 </div>
 
                 {/* Content Filter */}
-                <div className="flex items-center justify-between p-4 bg-[#22272B] rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Shield className="w-5 h-5 text-white/60" />
+                    <Shield className="w-5 h-5 text-gray-500 dark:text-white/60" />
                     <div>
-                      <span className="font-medium text-white block">Content Filters</span>
-                      <span className="text-xs text-white/60">Filter age-inappropriate content</span>
+                      <span className="font-medium text-gray-900 dark:text-white block">Content Filters</span>
+                      <span className="text-xs text-gray-500 dark:text-white/60">Filter age-inappropriate content</span>
                     </div>
                   </div>
                   <button
@@ -757,7 +756,7 @@ const SettingsPage: React.FC = () => {
 
                 {/* Activity Reports */}
                 <div>
-                  <label className="block text-sm font-medium text-white mb-3">Activity Reports Frequency</label>
+                  <label className="block text-sm font-medium text-gray-900 dark:text-white mb-3">Activity Reports Frequency</label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {[
                       { value: 'daily', label: 'Daily' },
@@ -770,7 +769,7 @@ const SettingsPage: React.FC = () => {
                         className={`p-4 rounded-lg border-2 transition-all ${
                           settings.parentalControls?.activityReportsFrequency === value
                             ? 'bg-blue-500/20 border-blue-500 text-blue-400'
-                            : 'bg-[#22272B] border-[#2A3035] text-white hover:border-[#3A4045]'
+                            : 'bg-gray-100 dark:bg-[#22272B] border-[#2A3035] text-gray-900 dark:text-white hover:border-[#3A4045]'
                         }`}
                       >
                         <span className="font-medium">{label}</span>
@@ -784,14 +783,14 @@ const SettingsPage: React.FC = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-8 flex flex-col sm:flex-row gap-4 sticky bottom-4 bg-gradient-to-t from-[#0F1112] via-[#0F1112]/95 to-transparent pt-6 pb-4">
+        <div className="mt-8 flex flex-col sm:flex-row gap-4 sticky bottom-4 bg-gradient-to-t from-gray-50 dark:from-[#0F1112] via-[#0F1112]/95 to-transparent pt-6 pb-4">
           <button
             onClick={saveSettings}
             disabled={!hasChanges || isSaving}
             className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
               hasChanges && !isSaving
-                ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                : 'bg-[#22272B] text-white/40 cursor-not-allowed'
+                ? 'bg-blue-500 hover:bg-blue-600 text-gray-900 dark:text-white'
+                : 'bg-gray-100 dark:bg-[#22272B] text-gray-400 dark:text-white/40 cursor-not-allowed'
             }`}
           >
             {isSaving ? (
@@ -809,7 +808,7 @@ const SettingsPage: React.FC = () => {
 
           <button
             onClick={() => setShowResetConfirm(true)}
-            className="sm:w-auto px-6 py-3 bg-[#22272B] hover:bg-[#2A3035] border border-[#2A3035] text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2"
+            className="sm:w-auto px-6 py-3 bg-gray-100 dark:bg-[#22272B] hover:bg-[#2A3035] border border-[#2A3035] text-gray-900 dark:text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2"
           >
             <RotateCcw className="w-5 h-5" />
             <span>Reset to Defaults</span>
@@ -819,26 +818,26 @@ const SettingsPage: React.FC = () => {
         {/* Reset Confirmation Modal */}
         {showResetConfirm && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6 max-w-md w-full">
+            <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6 max-w-md w-full">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-orange-500/20 rounded-lg">
                   <AlertCircle className="w-6 h-6 text-orange-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-white">Reset to Defaults?</h3>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Reset to Defaults?</h3>
               </div>
-              <p className="text-white/60 mb-6">
+              <p className="text-gray-500 dark:text-white/60 mb-6">
                 This will reset all settings to their default values. This action cannot be undone.
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={resetToDefaults}
-                  className="flex-1 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-all"
+                  className="flex-1 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-gray-900 dark:text-white rounded-lg font-medium transition-all"
                 >
                   Reset Settings
                 </button>
                 <button
                   onClick={() => setShowResetConfirm(false)}
-                  className="flex-1 px-4 py-2 bg-[#22272B] hover:bg-[#2A3035] text-white rounded-lg font-medium transition-all"
+                  className="flex-1 px-4 py-2 bg-gray-100 dark:bg-[#22272B] hover:bg-[#2A3035] text-gray-900 dark:text-white rounded-lg font-medium transition-all"
                 >
                   Cancel
                 </button>
@@ -847,7 +846,7 @@ const SettingsPage: React.FC = () => {
           </div>
         )}
       </div>
-    </DashboardLayout>
+    </>
   );
 };
 

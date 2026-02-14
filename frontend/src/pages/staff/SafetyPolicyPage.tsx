@@ -151,7 +151,7 @@ const SafetyPolicyPage: React.FC = () => {
       investigating: { label: 'Investigating', color: 'bg-blue-500/20 text-blue-400' },
       resolved: { label: 'Resolved', color: 'bg-green-500/20 text-green-400' },
       escalated: { label: 'Escalated', color: 'bg-purple-500/20 text-purple-400' },
-      dismissed: { label: 'Dismissed', color: 'bg-white/10 text-white/40' },
+      dismissed: { label: 'Dismissed', color: 'bg-gray-100 dark:bg-white/10 text-gray-400 dark:text-white/40' },
     };
     const { label, color } = config[status];
     return <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${color}`}>{label}</span>;
@@ -174,7 +174,7 @@ const SafetyPolicyPage: React.FC = () => {
     const textColor = score >= 80 ? 'text-red-400' : score >= 60 ? 'text-orange-400' : score >= 40 ? 'text-yellow-400' : 'text-green-400';
     return (
       <div className="flex items-center gap-2">
-        <div className="w-20 h-2 bg-[#22272B] rounded-full overflow-hidden">
+        <div className="w-20 h-2 bg-gray-100 dark:bg-[#22272B] rounded-full overflow-hidden">
           <div className={`h-full rounded-full ${color}`} style={{ width: `${score}%` }} />
         </div>
         <span className={`text-xs font-bold ${textColor}`}>{score}</span>
@@ -191,15 +191,15 @@ const SafetyPolicyPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="p-6 space-y-6">
-        <div className="h-7 w-44 bg-[#181C1F] rounded animate-pulse" />
+        <div className="h-7 w-44 bg-white dark:bg-[#181C1F] rounded animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-20 bg-[#181C1F] rounded-xl border border-[#22272B] animate-pulse" />
+            <div key={i} className="h-20 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] animate-pulse" />
           ))}
         </div>
         <div className="space-y-2">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="h-16 bg-[#181C1F] rounded-lg border border-[#22272B] animate-pulse" />
+            <div key={i} className="h-16 bg-white dark:bg-[#181C1F] rounded-lg border border-gray-200 dark:border-[#22272B] animate-pulse" />
           ))}
         </div>
       </div>
@@ -211,42 +211,42 @@ const SafetyPolicyPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">Safety & Policy</h1>
-          <p className="text-sm text-white/50 mt-1">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Safety & Policy</h1>
+          <p className="text-sm text-gray-500 dark:text-white/50 mt-1">
             Monitor safety flags, risk incidents, and policy compliance across the platform
           </p>
         </div>
-        <button className="px-4 py-2 bg-[#E40000] hover:bg-[#E40000]/90 text-white text-sm font-medium rounded-lg transition-colors">
+        <button className="px-4 py-2 bg-[#E40000] hover:bg-[#E40000]/90 text-gray-900 dark:text-white text-sm font-medium rounded-lg transition-colors">
           Report Incident
         </button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#181C1F] rounded-xl border border-[#22272B] p-4">
-          <p className="text-xs text-white/50 uppercase tracking-wider">Active Flags</p>
+        <div className="bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] p-4">
+          <p className="text-xs text-gray-500 dark:text-white/50 uppercase tracking-wider">Active Flags</p>
           <p className="text-2xl font-bold text-red-400 mt-1">{stats.activeFlags}</p>
         </div>
-        <div className="bg-[#181C1F] rounded-xl border border-[#22272B] p-4">
-          <p className="text-xs text-white/50 uppercase tracking-wider">High Risk</p>
+        <div className="bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] p-4">
+          <p className="text-xs text-gray-500 dark:text-white/50 uppercase tracking-wider">High Risk</p>
           <p className="text-2xl font-bold text-orange-400 mt-1">{stats.highRisk}</p>
         </div>
-        <div className="bg-[#181C1F] rounded-xl border border-[#22272B] p-4">
-          <p className="text-xs text-white/50 uppercase tracking-wider">Resolved Today</p>
+        <div className="bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] p-4">
+          <p className="text-xs text-gray-500 dark:text-white/50 uppercase tracking-wider">Resolved Today</p>
           <p className="text-2xl font-bold text-green-400 mt-1">{stats.resolvedToday}</p>
         </div>
-        <div className="bg-[#181C1F] rounded-xl border border-[#22272B] p-4">
-          <p className="text-xs text-white/50 uppercase tracking-wider">Avg Resolution</p>
-          <p className="text-2xl font-bold text-white mt-1">{stats.avgResolutionHours}h</p>
+        <div className="bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] p-4">
+          <p className="text-xs text-gray-500 dark:text-white/50 uppercase tracking-wider">Avg Resolution</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.avgResolutionHours}h</p>
         </div>
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-wrap items-center gap-3 p-3 bg-[#181C1F] rounded-xl border border-[#22272B]">
+      <div className="flex flex-wrap items-center gap-3 p-3 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B]">
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
-          className="px-3 py-1.5 bg-[#0F1112] border border-[#22272B] rounded-lg text-sm text-white/70 focus:outline-none focus:border-[#E40000]/50"
+          className="px-3 py-1.5 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-600 dark:text-white/70 focus:outline-none focus:border-[#E40000]/50"
         >
           <option value="all">All Types</option>
           <option value="content_safety">Content Safety</option>
@@ -259,7 +259,7 @@ const SafetyPolicyPage: React.FC = () => {
         <select
           value={severityFilter}
           onChange={(e) => setSeverityFilter(e.target.value)}
-          className="px-3 py-1.5 bg-[#0F1112] border border-[#22272B] rounded-lg text-sm text-white/70 focus:outline-none focus:border-[#E40000]/50"
+          className="px-3 py-1.5 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-600 dark:text-white/70 focus:outline-none focus:border-[#E40000]/50"
         >
           <option value="all">All Severities</option>
           <option value="critical">Critical</option>
@@ -270,7 +270,7 @@ const SafetyPolicyPage: React.FC = () => {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-3 py-1.5 bg-[#0F1112] border border-[#22272B] rounded-lg text-sm text-white/70 focus:outline-none focus:border-[#E40000]/50"
+          className="px-3 py-1.5 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-600 dark:text-white/70 focus:outline-none focus:border-[#E40000]/50"
         >
           <option value="all">All Statuses</option>
           <option value="active">Active</option>
@@ -279,38 +279,38 @@ const SafetyPolicyPage: React.FC = () => {
           <option value="escalated">Escalated</option>
           <option value="dismissed">Dismissed</option>
         </select>
-        <span className="text-xs text-white/40 ml-auto">
+        <span className="text-xs text-gray-400 dark:text-white/40 ml-auto">
           {filteredFlags.length} of {flags.length} flags
         </span>
       </div>
 
       {/* Data Table */}
-      <div className="bg-[#181C1F] rounded-xl border border-[#22272B] overflow-hidden">
+      <div className="bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-[#22272B]">
-                <th className="text-left px-4 py-3 text-xs font-medium text-white/50 uppercase tracking-wider">Flag</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-white/50 uppercase tracking-wider">Type</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-white/50 uppercase tracking-wider">Risk Score</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-white/50 uppercase tracking-wider">Severity</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-white/50 uppercase tracking-wider">Status</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-white/50 uppercase tracking-wider">Assigned To</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-white/50 uppercase tracking-wider">Reported</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-white/50 uppercase tracking-wider">Affected</th>
+              <tr className="border-b border-gray-200 dark:border-[#22272B]">
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-white/50 uppercase tracking-wider">Flag</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-white/50 uppercase tracking-wider">Type</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-white/50 uppercase tracking-wider">Risk Score</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-white/50 uppercase tracking-wider">Severity</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-white/50 uppercase tracking-wider">Status</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-white/50 uppercase tracking-wider">Assigned To</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-white/50 uppercase tracking-wider">Reported</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-white/50 uppercase tracking-wider">Affected</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#22272B]">
+            <tbody className="divide-y divide-gray-200 dark:divide-[#22272B]">
               {filteredFlags.map((flag) => (
                 <tr key={flag.id} className="hover:bg-white/[0.02] transition-colors cursor-pointer">
                   <td className="px-4 py-3">
                     <div>
-                      <p className="text-sm text-white font-medium">{flag.title}</p>
-                      <p className="text-xs text-white/40 mt-0.5 line-clamp-1">{flag.description}</p>
+                      <p className="text-sm text-gray-900 dark:text-white font-medium">{flag.title}</p>
+                      <p className="text-xs text-gray-400 dark:text-white/40 mt-0.5 line-clamp-1">{flag.description}</p>
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-xs text-white/60 bg-[#0F1112] px-2 py-1 rounded whitespace-nowrap">
+                    <span className="text-xs text-gray-500 dark:text-white/60 bg-gray-50 dark:bg-[#0F1112] px-2 py-1 rounded whitespace-nowrap">
                       {getTypeLabel(flag.type)}
                     </span>
                   </td>
@@ -318,18 +318,18 @@ const SafetyPolicyPage: React.FC = () => {
                   <td className="px-4 py-3">{getSeverityBadge(flag.severity)}</td>
                   <td className="px-4 py-3">{getStatusBadge(flag.status)}</td>
                   <td className="px-4 py-3">
-                    <span className={`text-xs ${flag.assignedTo === 'Unassigned' ? 'text-red-400' : 'text-white/60'}`}>
+                    <span className={`text-xs ${flag.assignedTo === 'Unassigned' ? 'text-red-400' : 'text-gray-500 dark:text-white/60'}`}>
                       {flag.assignedTo}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <div>
-                      <p className="text-xs text-white/60">{formatDate(flag.reportedAt)}</p>
-                      <p className="text-xs text-white/30">{flag.reportedBy}</p>
+                      <p className="text-xs text-gray-500 dark:text-white/60">{formatDate(flag.reportedAt)}</p>
+                      <p className="text-xs text-gray-400 dark:text-white/30">{flag.reportedBy}</p>
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-xs text-white/60">{flag.affectedUsers} user{flag.affectedUsers !== 1 ? 's' : ''}</span>
+                    <span className="text-xs text-gray-500 dark:text-white/60">{flag.affectedUsers} user{flag.affectedUsers !== 1 ? 's' : ''}</span>
                   </td>
                 </tr>
               ))}

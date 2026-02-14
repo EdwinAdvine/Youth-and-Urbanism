@@ -24,6 +24,7 @@ from app.models.course import Course
 from app.models.enrollment import Enrollment
 from app.models.payment import Transaction
 from app.models.ai_tutor import AITutor
+from app.models.admin.operations import SupportTicket, ModerationItem
 
 logger = logging.getLogger(__name__)
 
@@ -230,10 +231,19 @@ class DashboardService:
         pending_transactions_result = await db.execute(pending_transactions_q)
         pending_transactions: int = pending_transactions_result.scalar() or 0
 
-        # Open tickets and moderation items are mocked until those models
-        # exist in the database.
-        open_tickets: int = 7  # placeholder
-        moderation_items: int = 3  # placeholder
+        # Open support tickets
+        open_tickets_q = select(func.count(SupportTicket.id)).where(
+            SupportTicket.status.in_(["open", "in_progress", "escalated"])
+        )
+        open_tickets_result = await db.execute(open_tickets_q)
+        open_tickets: int = open_tickets_result.scalar() or 0
+
+        # Pending moderation items
+        moderation_q = select(func.count(ModerationItem.id)).where(
+            ModerationItem.status == "pending_review"
+        )
+        moderation_result = await db.execute(moderation_q)
+        moderation_items: int = moderation_result.scalar() or 0
 
         total = (
             pending_enrollments

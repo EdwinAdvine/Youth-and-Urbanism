@@ -101,7 +101,7 @@ const ContactPage: React.FC = () => {
   return (
     <div>
       {/* Hero Section */}
-      <section className="py-20 sm:py-28 bg-[#0F1112]">
+      <section className="py-20 sm:py-28 bg-gray-50 dark:bg-[#0F1112]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial="hidden"
@@ -113,10 +113,10 @@ const ContactPage: React.FC = () => {
             <span className="inline-block bg-[#FF0000]/10 text-[#FF0000] text-sm font-semibold px-4 py-2 rounded-full mb-6 border border-[#FF0000]/20">
               Contact Us
             </span>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
               Get in <span className="text-[#FF0000]">Touch</span>
             </h1>
-            <p className="text-lg sm:text-xl text-white/80 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl text-gray-700 dark:text-white/80 max-w-2xl mx-auto leading-relaxed">
               Have questions about Urban Home School? We would love to hear from you.
               Reach out and our team will get back to you as soon as possible.
             </p>
@@ -125,7 +125,7 @@ const ContactPage: React.FC = () => {
       </section>
 
       {/* Contact Form & Info */}
-      <section className="py-16 sm:py-24 bg-[#181C1F]">
+      <section className="py-16 sm:py-24 bg-white dark:bg-[#181C1F]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 sm:gap-12">
             {/* Contact Form - Left Side */}
@@ -137,8 +137,8 @@ const ContactPage: React.FC = () => {
               transition={{ duration: 0.6 }}
               className="lg:col-span-3"
             >
-              <div className="bg-[#0F1112] border border-[#22272B] rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10">
-                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-6">
+              <div className="bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-6">
                   Send Us a Message
                 </h2>
 
@@ -155,7 +155,7 @@ const ContactPage: React.FC = () => {
                   <div>
                     <label
                       htmlFor="name"
-                      className="block text-sm font-medium text-white/80 mb-2"
+                      className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2"
                     >
                       Full Name
                     </label>
@@ -167,14 +167,14 @@ const ContactPage: React.FC = () => {
                       onChange={handleChange}
                       required
                       placeholder="Enter your full name"
-                      className="w-full bg-[#181C1F] border border-[#22272B] rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors"
+                      className="w-full bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors"
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor="email"
-                      className="block text-sm font-medium text-white/80 mb-2"
+                      className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2"
                     >
                       Email Address
                     </label>
@@ -186,14 +186,14 @@ const ContactPage: React.FC = () => {
                       onChange={handleChange}
                       required
                       placeholder="you@example.com"
-                      className="w-full bg-[#181C1F] border border-[#22272B] rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors"
+                      className="w-full bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors"
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor="subject"
-                      className="block text-sm font-medium text-white/80 mb-2"
+                      className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2"
                     >
                       Subject
                     </label>
@@ -203,13 +203,13 @@ const ContactPage: React.FC = () => {
                       value={formData.subject}
                       onChange={handleChange}
                       required
-                      className="w-full bg-[#181C1F] border border-[#22272B] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors appearance-none"
+                      className="w-full bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors appearance-none"
                     >
                       <option value="" disabled>
                         Select a subject
                       </option>
                       {subjectOptions.map((option) => (
-                        <option key={option} value={option} className="bg-[#181C1F]">
+                        <option key={option} value={option} className="bg-white dark:bg-[#181C1F]">
                           {option}
                         </option>
                       ))}
@@ -219,7 +219,7 @@ const ContactPage: React.FC = () => {
                   <div>
                     <label
                       htmlFor="message"
-                      className="block text-sm font-medium text-white/80 mb-2"
+                      className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2"
                     >
                       Message
                     </label>
@@ -231,14 +231,14 @@ const ContactPage: React.FC = () => {
                       required
                       rows={5}
                       placeholder="How can we help you?"
-                      className="w-full bg-[#181C1F] border border-[#22272B] rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors resize-none"
+                      className="w-full bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors resize-none"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#FF0000] hover:bg-[#E40000] disabled:opacity-60 disabled:cursor-not-allowed text-white px-8 py-3.5 rounded-xl font-semibold text-base transition-all duration-200 hover:scale-[1.02]"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#FF0000] hover:bg-[#E40000] disabled:opacity-60 disabled:cursor-not-allowed text-gray-900 dark:text-white px-8 py-3.5 rounded-xl font-semibold text-base transition-all duration-200 hover:scale-[1.02]"
                   >
                     {isSubmitting ? (
                       <>
@@ -273,29 +273,29 @@ const ContactPage: React.FC = () => {
                   viewport={{ once: true, amount: 0.2 }}
                   variants={fadeInUp}
                   transition={{ duration: 0.4, delay: index * 0.1 }}
-                  className="bg-[#0F1112] border border-[#22272B] rounded-2xl p-5 sm:p-6 hover:border-[#FF0000]/30 transition-all duration-300"
+                  className="bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-2xl p-5 sm:p-6 hover:border-[#FF0000]/30 transition-all duration-300"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-11 h-11 bg-[#FF0000]/10 rounded-xl flex items-center justify-center text-[#FF0000] shrink-0">
                       {info.icon}
                     </div>
                     <div>
-                      <p className="text-sm text-white/50 mb-1">{info.label}</p>
-                      <p className="text-base sm:text-lg font-semibold text-white mb-1">
+                      <p className="text-sm text-gray-500 dark:text-white/50 mb-1">{info.label}</p>
+                      <p className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-1">
                         {info.value}
                       </p>
-                      <p className="text-sm text-white/50">{info.detail}</p>
+                      <p className="text-sm text-gray-500 dark:text-white/50">{info.detail}</p>
                     </div>
                   </div>
                 </motion.div>
               ))}
 
               {/* Map Placeholder */}
-              <div className="bg-[#0F1112] border border-[#22272B] rounded-2xl aspect-[4/3] flex items-center justify-center">
+              <div className="bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-2xl aspect-[4/3] flex items-center justify-center">
                 <div className="text-center">
                   <MapPin className="w-10 h-10 text-[#FF0000]/40 mx-auto mb-3" />
-                  <p className="text-white/40 text-sm">Map Placeholder</p>
-                  <p className="text-white/30 text-xs mt-1">Nairobi, Kenya</p>
+                  <p className="text-gray-400 dark:text-white/40 text-sm">Map Placeholder</p>
+                  <p className="text-gray-400 dark:text-white/30 text-xs mt-1">Nairobi, Kenya</p>
                 </div>
               </div>
             </motion.div>

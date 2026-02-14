@@ -337,24 +337,24 @@ function formatNumber(n: number): string {
 // =============================================================================
 
 const SkeletonCard: React.FC = () => (
-  <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5 animate-pulse">
+  <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5 animate-pulse">
     <div className="flex items-start gap-4">
-      <div className="w-11 h-11 rounded-full bg-white/5 flex-shrink-0" />
+      <div className="w-11 h-11 rounded-full bg-gray-50 dark:bg-white/5 flex-shrink-0" />
       <div className="flex-1 space-y-3">
-        <div className="h-5 bg-white/5 rounded w-3/4" />
-        <div className="h-3 bg-white/5 rounded w-1/3" />
+        <div className="h-5 bg-gray-50 dark:bg-white/5 rounded w-3/4" />
+        <div className="h-3 bg-gray-50 dark:bg-white/5 rounded w-1/3" />
         <div className="space-y-2">
-          <div className="h-3 bg-white/5 rounded w-full" />
-          <div className="h-3 bg-white/5 rounded w-5/6" />
+          <div className="h-3 bg-gray-50 dark:bg-white/5 rounded w-full" />
+          <div className="h-3 bg-gray-50 dark:bg-white/5 rounded w-5/6" />
         </div>
         <div className="flex gap-2">
-          <div className="h-5 bg-white/5 rounded-full w-14" />
-          <div className="h-5 bg-white/5 rounded-full w-16" />
+          <div className="h-5 bg-gray-50 dark:bg-white/5 rounded-full w-14" />
+          <div className="h-5 bg-gray-50 dark:bg-white/5 rounded-full w-16" />
         </div>
         <div className="flex gap-6">
-          <div className="h-4 bg-white/5 rounded w-10" />
-          <div className="h-4 bg-white/5 rounded w-10" />
-          <div className="h-4 bg-white/5 rounded w-10" />
+          <div className="h-4 bg-gray-50 dark:bg-white/5 rounded w-10" />
+          <div className="h-4 bg-gray-50 dark:bg-white/5 rounded w-10" />
+          <div className="h-4 bg-gray-50 dark:bg-white/5 rounded w-10" />
         </div>
       </div>
     </div>
@@ -379,7 +379,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onTagClick }) => {
   return (
     <motion.div
       variants={cardVariants}
-      className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5 hover:border-[#2E3338] hover:shadow-lg hover:shadow-black/20 transition-all duration-200 cursor-pointer group"
+      className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5 hover:border-[#2E3338] hover:shadow-lg hover:shadow-black/20 transition-all duration-200 cursor-pointer group"
       onClick={() => navigate(`/dashboard/forum?post=${post.id}`)}
     >
       <div className="flex items-start gap-4">
@@ -387,7 +387,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onTagClick }) => {
         <div
           className={`w-11 h-11 rounded-full bg-gradient-to-br ${
             AVATAR_GRADIENTS[post.author.role] ?? 'from-gray-500 to-slate-500'
-          } flex items-center justify-center text-white font-semibold text-sm flex-shrink-0`}
+          } flex items-center justify-center text-gray-900 dark:text-white font-semibold text-sm flex-shrink-0`}
         >
           {post.author.name.charAt(0).toUpperCase()}
         </div>
@@ -396,7 +396,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onTagClick }) => {
         <div className="flex-1 min-w-0">
           {/* Title row */}
           <div className="flex items-start gap-2 flex-wrap mb-1.5">
-            <h3 className="text-[15px] font-semibold text-white group-hover:text-[#FF0000] transition-colors leading-snug">
+            <h3 className="text-[15px] font-semibold text-gray-900 dark:text-white group-hover:text-[#FF0000] transition-colors leading-snug">
               {post.title}
             </h3>
             {post.pinned && (
@@ -414,8 +414,8 @@ const PostCard: React.FC<PostCardProps> = ({ post, onTagClick }) => {
           </div>
 
           {/* Author info */}
-          <div className="flex items-center gap-2 flex-wrap text-xs text-white/50 mb-2.5">
-            <span className="text-white/70 font-medium">{post.author.name}</span>
+          <div className="flex items-center gap-2 flex-wrap text-xs text-gray-500 dark:text-white/50 mb-2.5">
+            <span className="text-gray-600 dark:text-white/70 font-medium">{post.author.name}</span>
             <span
               className={`px-1.5 py-0.5 rounded text-[10px] font-medium border ${
                 ROLE_COLORS[post.author.role] ?? ''
@@ -423,10 +423,10 @@ const PostCard: React.FC<PostCardProps> = ({ post, onTagClick }) => {
             >
               {post.author.role}
             </span>
-            <span className="text-white/30">in</span>
-            <span className="text-white/60">{categoryLabel}</span>
-            <span className="text-white/20">&middot;</span>
-            <span className="flex items-center gap-1 text-white/40">
+            <span className="text-gray-400 dark:text-white/30">in</span>
+            <span className="text-gray-500 dark:text-white/60">{categoryLabel}</span>
+            <span className="text-gray-400 dark:text-gray-300 dark:text-white/20">&middot;</span>
+            <span className="flex items-center gap-1 text-gray-400 dark:text-white/40">
               <Clock className="w-3 h-3" />
               {formatTimeAgo(post.lastActivity)}
             </span>
@@ -447,7 +447,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onTagClick }) => {
                   e.stopPropagation();
                   onTagClick(tag);
                 }}
-                className="px-2 py-0.5 bg-white/5 text-white/50 text-[11px] rounded-md border border-white/8 hover:bg-white/10 hover:text-white/70 transition-colors"
+                className="px-2 py-0.5 bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-white/50 text-[11px] rounded-md border border-white/8 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-600 dark:hover:text-white/70 transition-colors"
               >
                 {tag}
               </button>
@@ -455,7 +455,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onTagClick }) => {
           </div>
 
           {/* Stats */}
-          <div className="flex items-center gap-5 text-xs text-white/40">
+          <div className="flex items-center gap-5 text-xs text-gray-400 dark:text-white/40">
             <span className="flex items-center gap-1.5">
               <Eye className="w-3.5 h-3.5" />
               {formatNumber(post.stats.views)}
@@ -646,11 +646,11 @@ const PublicForumPage: React.FC = () => {
   // Render
   // ---------------------------------------------------------------------------
   return (
-    <div className="min-h-screen bg-[#0F1112]">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0F1112]">
       {/* ------------------------------------------------------------------ */}
       {/* Hero / Header */}
       {/* ------------------------------------------------------------------ */}
-      <section className="border-b border-[#22272B]">
+      <section className="border-b border-gray-200 dark:border-[#22272B]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -661,21 +661,21 @@ const PublicForumPage: React.FC = () => {
               <div className="w-10 h-10 rounded-xl bg-[#FF0000]/10 flex items-center justify-center">
                 <MessageSquare className="w-5 h-5 text-[#FF0000]" />
               </div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-white">Community Forum</h1>
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">Community Forum</h1>
             </div>
-            <p className="text-white/50 text-base sm:text-lg max-w-2xl mt-2 mb-6">
+            <p className="text-gray-500 dark:text-white/50 text-base sm:text-lg max-w-2xl mt-2 mb-6">
               Connect with students, parents, and instructors. Ask questions, share knowledge, and grow together.
             </p>
 
             {/* Search bar */}
             <div className="relative max-w-2xl">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-white/30" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 placeholder="Search discussions, topics, or tags..."
-                className="w-full pl-12 pr-4 py-3 bg-[#181C1F] border border-[#22272B] rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/20 transition-colors"
+                className="w-full pl-12 pr-4 py-3 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl text-gray-900 dark:text-white placeholder-white/30 focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/20 transition-colors"
               />
             </div>
           </motion.div>
@@ -685,7 +685,7 @@ const PublicForumPage: React.FC = () => {
       {/* ------------------------------------------------------------------ */}
       {/* Filters Row */}
       {/* ------------------------------------------------------------------ */}
-      <section className="border-b border-[#22272B] sticky top-0 z-20 bg-[#0F1112]/95 backdrop-blur-sm">
+      <section className="border-b border-gray-200 dark:border-[#22272B] sticky top-0 z-20 bg-gray-50 dark:bg-[#0F1112]/95 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             {/* Category tabs */}
@@ -698,7 +698,7 @@ const PublicForumPage: React.FC = () => {
                   className={`px-3.5 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200 ${
                     activeCategory === cat.id
                       ? 'bg-[#FF0000]/15 text-[#FF0000] border border-[#FF0000]/30'
-                      : 'bg-transparent text-white/50 border border-transparent hover:bg-white/5 hover:text-white/70'
+                      : 'bg-transparent text-gray-500 dark:text-white/50 border border-transparent hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-600 dark:hover:text-white/70'
                   }`}
                 >
                   {cat.label}
@@ -708,7 +708,7 @@ const PublicForumPage: React.FC = () => {
 
             {/* Sort buttons */}
             <div className="flex items-center gap-1.5">
-              <Filter className="w-4 h-4 text-white/30 mr-1 hidden sm:block" />
+              <Filter className="w-4 h-4 text-gray-400 dark:text-white/30 mr-1 hidden sm:block" />
               {SORT_OPTIONS.map((opt) => {
                 const Icon = opt.icon;
                 return (
@@ -718,8 +718,8 @@ const PublicForumPage: React.FC = () => {
                     onClick={() => setSortBy(opt.id)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
                       sortBy === opt.id
-                        ? 'bg-white/10 text-white border border-white/15'
-                        : 'text-white/40 hover:text-white/60 hover:bg-white/5'
+                        ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white border border-white/15'
+                        : 'text-gray-400 dark:text-white/40 hover:text-gray-500 dark:hover:text-white/60 hover:bg-gray-50 dark:hover:bg-white/5'
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -751,13 +751,13 @@ const PublicForumPage: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center py-20 bg-[#181C1F] rounded-xl border border-[#22272B]"
+                className="text-center py-20 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B]"
               >
                 <MessageSquare className="w-14 h-14 text-white/10 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-white/70 mb-2">
+                <h3 className="text-lg font-semibold text-gray-600 dark:text-white/70 mb-2">
                   No discussions found
                 </h3>
-                <p className="text-white/40 text-sm max-w-sm mx-auto mb-6">
+                <p className="text-gray-400 dark:text-white/40 text-sm max-w-sm mx-auto mb-6">
                   Try adjusting your search or filters. You can also start a new discussion to get the conversation going.
                 </p>
                 {debouncedSearch && (
@@ -797,7 +797,7 @@ const PublicForumPage: React.FC = () => {
                       type="button"
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
-                      className="p-2 rounded-lg bg-[#181C1F] border border-[#22272B] text-white/60 hover:text-white hover:border-[#2E3338] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      className="p-2 rounded-lg bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:border-[#2E3338] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
@@ -810,8 +810,8 @@ const PublicForumPage: React.FC = () => {
                           onClick={() => setCurrentPage(page)}
                           className={`w-9 h-9 rounded-lg text-sm font-medium transition-all duration-200 ${
                             currentPage === page
-                              ? 'bg-[#FF0000] text-white'
-                              : 'bg-[#181C1F] border border-[#22272B] text-white/50 hover:text-white hover:border-[#2E3338]'
+                              ? 'bg-[#FF0000] text-gray-900 dark:text-white'
+                              : 'bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:border-[#2E3338]'
                           }`}
                         >
                           {page}
@@ -822,7 +822,7 @@ const PublicForumPage: React.FC = () => {
                       type="button"
                       onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
-                      className="p-2 rounded-lg bg-[#181C1F] border border-[#22272B] text-white/60 hover:text-white hover:border-[#2E3338] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      className="p-2 rounded-lg bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:border-[#2E3338] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     >
                       <ChevronRight className="w-4 h-4" />
                     </button>
@@ -835,9 +835,9 @@ const PublicForumPage: React.FC = () => {
           {/* ---- Sidebar (desktop) ---- */}
           <aside className="hidden lg:block w-80 flex-shrink-0 space-y-6">
             {/* CTA */}
-            <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
-              <h3 className="text-white font-semibold text-sm mb-2">Join the Conversation</h3>
-              <p className="text-white/40 text-xs mb-4 leading-relaxed">
+            <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
+              <h3 className="text-gray-900 dark:text-white font-semibold text-sm mb-2">Join the Conversation</h3>
+              <p className="text-gray-400 dark:text-white/40 text-xs mb-4 leading-relaxed">
                 {isAuthenticated
                   ? 'Share your knowledge and help others in the community.'
                   : 'Sign in to ask questions, share tips, and connect with the community.'}
@@ -845,7 +845,7 @@ const PublicForumPage: React.FC = () => {
               {isAuthenticated ? (
                 <Link
                   to="/dashboard/forum"
-                  className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#FF0000] hover:bg-[#E40000] text-white text-sm font-semibold rounded-lg transition-colors"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#FF0000] hover:bg-[#E40000] text-gray-900 dark:text-white text-sm font-semibold rounded-lg transition-colors"
                 >
                   <MessageSquare className="w-4 h-4" />
                   Start a Discussion
@@ -853,7 +853,7 @@ const PublicForumPage: React.FC = () => {
               ) : (
                 <Link
                   to="/dashboard/forum"
-                  className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#FF0000] hover:bg-[#E40000] text-white text-sm font-semibold rounded-lg transition-colors"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#FF0000] hover:bg-[#E40000] text-gray-900 dark:text-white text-sm font-semibold rounded-lg transition-colors"
                 >
                   Sign In to Post
                 </Link>
@@ -861,9 +861,9 @@ const PublicForumPage: React.FC = () => {
             </div>
 
             {/* Popular tags */}
-            <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
-              <h3 className="text-white font-semibold text-sm mb-3 flex items-center gap-2">
-                <Hash className="w-4 h-4 text-white/40" />
+            <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
+              <h3 className="text-gray-900 dark:text-white font-semibold text-sm mb-3 flex items-center gap-2">
+                <Hash className="w-4 h-4 text-gray-400 dark:text-white/40" />
                 Popular Tags
               </h3>
               <div className="flex flex-wrap gap-1.5">
@@ -875,7 +875,7 @@ const PublicForumPage: React.FC = () => {
                     className={`px-2.5 py-1 text-[11px] rounded-md border transition-colors ${
                       debouncedSearch === tag
                         ? 'bg-[#FF0000]/15 text-[#FF0000] border-[#FF0000]/30'
-                        : 'bg-white/5 text-white/50 border-white/8 hover:bg-white/10 hover:text-white/70'
+                        : 'bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-white/50 border-white/8 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-600 dark:hover:text-white/70'
                     }`}
                   >
                     {tag}
@@ -885,36 +885,36 @@ const PublicForumPage: React.FC = () => {
             </div>
 
             {/* Community stats */}
-            <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
-              <h3 className="text-white font-semibold text-sm mb-3 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-white/40" />
+            <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
+              <h3 className="text-gray-900 dark:text-white font-semibold text-sm mb-3 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-gray-400 dark:text-white/40" />
                 Community Stats
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-2 text-white/50 text-xs">
+                  <span className="flex items-center gap-2 text-gray-500 dark:text-white/50 text-xs">
                     <Users className="w-3.5 h-3.5" />
                     Members
                   </span>
-                  <span className="text-white font-semibold text-sm">
+                  <span className="text-gray-900 dark:text-white font-semibold text-sm">
                     {formatNumber(communityStats.members)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-2 text-white/50 text-xs">
+                  <span className="flex items-center gap-2 text-gray-500 dark:text-white/50 text-xs">
                     <FileText className="w-3.5 h-3.5" />
                     Posts
                   </span>
-                  <span className="text-white font-semibold text-sm">
+                  <span className="text-gray-900 dark:text-white font-semibold text-sm">
                     {formatNumber(communityStats.posts)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-2 text-white/50 text-xs">
+                  <span className="flex items-center gap-2 text-gray-500 dark:text-white/50 text-xs">
                     <MessageCircle className="w-3.5 h-3.5" />
                     Discussions
                   </span>
-                  <span className="text-white font-semibold text-sm">
+                  <span className="text-gray-900 dark:text-white font-semibold text-sm">
                     {formatNumber(communityStats.discussions)}
                   </span>
                 </div>
@@ -922,12 +922,12 @@ const PublicForumPage: React.FC = () => {
             </div>
 
             {/* Community guidelines */}
-            <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
-              <h3 className="text-white font-semibold text-sm mb-3 flex items-center gap-2">
-                <Shield className="w-4 h-4 text-white/40" />
+            <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
+              <h3 className="text-gray-900 dark:text-white font-semibold text-sm mb-3 flex items-center gap-2">
+                <Shield className="w-4 h-4 text-gray-400 dark:text-white/40" />
                 Community Guidelines
               </h3>
-              <ul className="space-y-2 text-white/40 text-xs leading-relaxed">
+              <ul className="space-y-2 text-gray-400 dark:text-white/40 text-xs leading-relaxed">
                 <li className="flex items-start gap-2">
                   <span className="w-1 h-1 rounded-full bg-[#FF0000] mt-1.5 flex-shrink-0" />
                   Be respectful and kind to all members

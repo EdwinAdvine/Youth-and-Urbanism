@@ -76,7 +76,8 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        authService.logout();
+        // Fire-and-forget the async server call; state is cleared immediately
+        authService.logout().catch(() => {});
         set({
           user: null,
           isAuthenticated: false,

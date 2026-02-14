@@ -151,7 +151,7 @@ const BecomeInstructorPage: React.FC = () => {
   return (
     <div>
       {/* Hero Section */}
-      <section className="py-20 sm:py-28 bg-[#0F1112]">
+      <section className="py-20 sm:py-28 bg-gray-50 dark:bg-[#0F1112]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial="hidden"
@@ -163,10 +163,10 @@ const BecomeInstructorPage: React.FC = () => {
             <span className="inline-block bg-[#FF0000]/10 text-[#FF0000] text-sm font-semibold px-4 py-2 rounded-full mb-6 border border-[#FF0000]/20">
               For Educators
             </span>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
               Teach on <span className="text-[#FF0000]">Urban Home School</span>
             </h1>
-            <p className="text-lg sm:text-xl text-white/80 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl text-gray-700 dark:text-white/80 max-w-2xl mx-auto leading-relaxed">
               Share your knowledge with thousands of Kenyan children. Create CBC-aligned
               courses, earn revenue, and make a lasting impact on education.
             </p>
@@ -175,7 +175,7 @@ const BecomeInstructorPage: React.FC = () => {
       </section>
 
       {/* Revenue Split Section */}
-      <section className="py-16 sm:py-24 bg-[#181C1F]">
+      <section className="py-16 sm:py-24 bg-white dark:bg-[#181C1F]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="hidden"
@@ -185,10 +185,10 @@ const BecomeInstructorPage: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Earn While You Teach
             </h2>
-            <p className="text-lg text-white/70 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-white/70 max-w-2xl mx-auto">
               Our transparent revenue model ensures instructors are fairly compensated
               for their expertise and effort.
             </p>
@@ -202,26 +202,26 @@ const BecomeInstructorPage: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8"
           >
-            <div className="bg-[#0F1112] border-2 border-[#FF0000]/40 rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-center">
+            <div className="bg-gray-50 dark:bg-[#0F1112] border-2 border-[#FF0000]/40 rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-center">
               <div className="text-5xl sm:text-6xl font-bold text-[#FF0000] mb-2">70%</div>
-              <h3 className="text-xl font-bold text-white mb-2">Instructor</h3>
-              <p className="text-sm text-white/60">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Instructor</h3>
+              <p className="text-sm text-gray-500 dark:text-white/60">
                 You keep the majority of every sale. Your expertise, your earnings.
               </p>
             </div>
 
-            <div className="bg-[#0F1112] border border-[#22272B] rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-center">
-              <div className="text-5xl sm:text-6xl font-bold text-white/80 mb-2">20%</div>
-              <h3 className="text-xl font-bold text-white mb-2">Platform</h3>
-              <p className="text-sm text-white/60">
+            <div className="bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-center">
+              <div className="text-5xl sm:text-6xl font-bold text-gray-700 dark:text-white/80 mb-2">20%</div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Platform</h3>
+              <p className="text-sm text-gray-500 dark:text-white/60">
                 Covers platform development, AI infrastructure, and student acquisition.
               </p>
             </div>
 
-            <div className="bg-[#0F1112] border border-[#22272B] rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-center">
-              <div className="text-5xl sm:text-6xl font-bold text-white/80 mb-2">10%</div>
-              <h3 className="text-xl font-bold text-white mb-2">Maintenance</h3>
-              <p className="text-sm text-white/60">
+            <div className="bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-center">
+              <div className="text-5xl sm:text-6xl font-bold text-gray-700 dark:text-white/80 mb-2">10%</div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Maintenance</h3>
+              <p className="text-sm text-gray-500 dark:text-white/60">
                 Server hosting, security, M-Pesa processing, and ongoing support.
               </p>
             </div>
@@ -230,7 +230,7 @@ const BecomeInstructorPage: React.FC = () => {
       </section>
 
       {/* Benefits Grid */}
-      <section className="py-16 sm:py-24 bg-[#0F1112]">
+      <section className="py-16 sm:py-24 bg-gray-50 dark:bg-[#0F1112]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="hidden"
@@ -240,10 +240,10 @@ const BecomeInstructorPage: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-12 sm:mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Why Teach With Us
             </h2>
-            <p className="text-lg text-white/70 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-white/70 max-w-2xl mx-auto">
               Join a growing community of educators making a difference in Kenyan education.
             </p>
           </motion.div>
@@ -257,15 +257,15 @@ const BecomeInstructorPage: React.FC = () => {
                 viewport={{ once: true, amount: 0.2 }}
                 variants={fadeInUp}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-[#181C1F] border border-[#22272B] rounded-2xl sm:rounded-3xl p-6 sm:p-8 hover:border-[#FF0000]/30 transition-all duration-300"
+                className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-2xl sm:rounded-3xl p-6 sm:p-8 hover:border-[#FF0000]/30 transition-all duration-300"
               >
                 <div className="w-12 h-12 bg-[#FF0000]/10 rounded-xl flex items-center justify-center text-[#FF0000] mb-5">
                   {benefit.icon}
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3">
                   {benefit.title}
                 </h3>
-                <p className="text-base text-white/70 leading-relaxed">
+                <p className="text-base text-gray-600 dark:text-white/70 leading-relaxed">
                   {benefit.description}
                 </p>
               </motion.div>
@@ -275,7 +275,7 @@ const BecomeInstructorPage: React.FC = () => {
       </section>
 
       {/* How It Works */}
-      <section className="py-16 sm:py-24 bg-[#181C1F]">
+      <section className="py-16 sm:py-24 bg-white dark:bg-[#181C1F]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="hidden"
@@ -285,10 +285,10 @@ const BecomeInstructorPage: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-12 sm:mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               How It Works
             </h2>
-            <p className="text-lg text-white/70 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-white/70 max-w-2xl mx-auto">
               Three simple steps to start teaching and earning on Urban Home School.
             </p>
           </motion.div>
@@ -302,21 +302,21 @@ const BecomeInstructorPage: React.FC = () => {
                 viewport={{ once: true, amount: 0.2 }}
                 variants={fadeInUp}
                 transition={{ duration: 0.5, delay: index * 0.15 }}
-                className="bg-[#0F1112] border border-[#22272B] rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-center relative"
+                className="bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-center relative"
               >
-                <div className="w-14 h-14 bg-[#FF0000] rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-5">
+                <div className="w-14 h-14 bg-[#FF0000] rounded-2xl flex items-center justify-center text-gray-900 dark:text-white font-bold text-2xl mx-auto mb-5">
                   {step.number}
                 </div>
                 <div className="w-12 h-12 bg-[#FF0000]/10 rounded-xl flex items-center justify-center text-[#FF0000] mx-auto mb-4">
                   {step.icon}
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
-                <p className="text-base text-white/70 leading-relaxed">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{step.title}</h3>
+                <p className="text-base text-gray-600 dark:text-white/70 leading-relaxed">
                   {step.description}
                 </p>
                 {index < howItWorksSteps.length - 1 && (
                   <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2">
-                    <ArrowRight className="w-6 h-6 text-white/20" />
+                    <ArrowRight className="w-6 h-6 text-gray-400 dark:text-gray-300 dark:text-white/20" />
                   </div>
                 )}
               </motion.div>
@@ -326,7 +326,7 @@ const BecomeInstructorPage: React.FC = () => {
       </section>
 
       {/* Application Form */}
-      <section className="py-16 sm:py-24 bg-[#0F1112]">
+      <section className="py-16 sm:py-24 bg-gray-50 dark:bg-[#0F1112]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="hidden"
@@ -336,10 +336,10 @@ const BecomeInstructorPage: React.FC = () => {
             transition={{ duration: 0.6 }}
           >
             <div className="text-center mb-10">
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                 Apply to Teach
               </h2>
-              <p className="text-lg text-white/70 max-w-xl mx-auto">
+              <p className="text-lg text-gray-600 dark:text-white/70 max-w-xl mx-auto">
                 Ready to make a difference? Fill out the form below and our team
                 will review your application.
               </p>
@@ -350,7 +350,7 @@ const BecomeInstructorPage: React.FC = () => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
-                className="bg-[#181C1F] border-2 border-green-500/40 rounded-2xl sm:rounded-3xl p-8 sm:p-12 text-center"
+                className="bg-white dark:bg-[#181C1F] border-2 border-green-500/40 rounded-2xl sm:rounded-3xl p-8 sm:p-12 text-center"
               >
                 <div className="w-16 h-16 bg-green-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <CheckCircle className="w-8 h-8 text-green-400" />
@@ -358,20 +358,20 @@ const BecomeInstructorPage: React.FC = () => {
                 <h3 className="text-2xl font-bold text-green-400 mb-4">
                   Application Submitted!
                 </h3>
-                <p className="text-base text-white/70 leading-relaxed max-w-md mx-auto">
+                <p className="text-base text-gray-600 dark:text-white/70 leading-relaxed max-w-md mx-auto">
                   Thank you for your interest in teaching on Urban Home School. Our team
                   will review your application and get back to you within 3 business days
                   via email.
                 </p>
               </motion.div>
             ) : (
-              <div className="bg-[#181C1F] border border-[#22272B] rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10">
+              <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10">
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                       <label
                         htmlFor="name"
-                        className="block text-sm font-medium text-white/80 mb-2"
+                        className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2"
                       >
                         Full Name
                       </label>
@@ -383,14 +383,14 @@ const BecomeInstructorPage: React.FC = () => {
                         onChange={handleChange}
                         required
                         placeholder="Your full name"
-                        className="w-full bg-[#0F1112] border border-[#22272B] rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors"
+                        className="w-full bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors"
                       />
                     </div>
 
                     <div>
                       <label
                         htmlFor="email"
-                        className="block text-sm font-medium text-white/80 mb-2"
+                        className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2"
                       >
                         Email Address
                       </label>
@@ -402,7 +402,7 @@ const BecomeInstructorPage: React.FC = () => {
                         onChange={handleChange}
                         required
                         placeholder="you@example.com"
-                        className="w-full bg-[#0F1112] border border-[#22272B] rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors"
+                        className="w-full bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors"
                       />
                     </div>
                   </div>
@@ -411,7 +411,7 @@ const BecomeInstructorPage: React.FC = () => {
                     <div>
                       <label
                         htmlFor="phone"
-                        className="block text-sm font-medium text-white/80 mb-2"
+                        className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2"
                       >
                         Phone Number
                       </label>
@@ -423,14 +423,14 @@ const BecomeInstructorPage: React.FC = () => {
                         onChange={handleChange}
                         required
                         placeholder="+254 700 000 000"
-                        className="w-full bg-[#0F1112] border border-[#22272B] rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors"
+                        className="w-full bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors"
                       />
                     </div>
 
                     <div>
                       <label
                         htmlFor="expertise"
-                        className="block text-sm font-medium text-white/80 mb-2"
+                        className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2"
                       >
                         Area of Expertise
                       </label>
@@ -440,13 +440,13 @@ const BecomeInstructorPage: React.FC = () => {
                         value={formData.expertise}
                         onChange={handleChange}
                         required
-                        className="w-full bg-[#0F1112] border border-[#22272B] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors appearance-none"
+                        className="w-full bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors appearance-none"
                       >
                         <option value="" disabled>
                           Select your area
                         </option>
                         {expertiseOptions.map((option) => (
-                          <option key={option} value={option} className="bg-[#0F1112]">
+                          <option key={option} value={option} className="bg-gray-50 dark:bg-[#0F1112]">
                             {option}
                           </option>
                         ))}
@@ -457,7 +457,7 @@ const BecomeInstructorPage: React.FC = () => {
                   <div>
                     <label
                       htmlFor="experience"
-                      className="block text-sm font-medium text-white/80 mb-2"
+                      className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2"
                     >
                       Years of Teaching Experience
                     </label>
@@ -467,24 +467,24 @@ const BecomeInstructorPage: React.FC = () => {
                       value={formData.experience}
                       onChange={handleChange}
                       required
-                      className="w-full bg-[#0F1112] border border-[#22272B] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors appearance-none"
+                      className="w-full bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors appearance-none"
                     >
                       <option value="" disabled>
                         Select experience
                       </option>
-                      <option value="0-1" className="bg-[#0F1112]">
+                      <option value="0-1" className="bg-gray-50 dark:bg-[#0F1112]">
                         Less than 1 year
                       </option>
-                      <option value="1-3" className="bg-[#0F1112]">
+                      <option value="1-3" className="bg-gray-50 dark:bg-[#0F1112]">
                         1 - 3 years
                       </option>
-                      <option value="3-5" className="bg-[#0F1112]">
+                      <option value="3-5" className="bg-gray-50 dark:bg-[#0F1112]">
                         3 - 5 years
                       </option>
-                      <option value="5-10" className="bg-[#0F1112]">
+                      <option value="5-10" className="bg-gray-50 dark:bg-[#0F1112]">
                         5 - 10 years
                       </option>
-                      <option value="10+" className="bg-[#0F1112]">
+                      <option value="10+" className="bg-gray-50 dark:bg-[#0F1112]">
                         10+ years
                       </option>
                     </select>
@@ -493,7 +493,7 @@ const BecomeInstructorPage: React.FC = () => {
                   <div>
                     <label
                       htmlFor="bio"
-                      className="block text-sm font-medium text-white/80 mb-2"
+                      className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2"
                     >
                       Short Bio
                     </label>
@@ -505,14 +505,14 @@ const BecomeInstructorPage: React.FC = () => {
                       required
                       rows={4}
                       placeholder="Tell us about your teaching background, qualifications, and why you want to teach on Urban Home School..."
-                      className="w-full bg-[#0F1112] border border-[#22272B] rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors resize-none"
+                      className="w-full bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-[#FF0000]/50 focus:ring-1 focus:ring-[#FF0000]/50 transition-colors resize-none"
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor="cv"
-                      className="block text-sm font-medium text-white/80 mb-2"
+                      className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2"
                     >
                       Upload CV / Resume
                     </label>
@@ -527,16 +527,16 @@ const BecomeInstructorPage: React.FC = () => {
                       />
                       <label
                         htmlFor="cv"
-                        className="flex items-center gap-3 w-full bg-[#0F1112] border border-dashed border-[#22272B] hover:border-[#FF0000]/50 rounded-xl px-4 py-4 cursor-pointer transition-colors group"
+                        className="flex items-center gap-3 w-full bg-gray-50 dark:bg-[#0F1112] border border-dashed border-gray-200 dark:border-[#22272B] hover:border-[#FF0000]/50 rounded-xl px-4 py-4 cursor-pointer transition-colors group"
                       >
                         <div className="w-10 h-10 bg-[#FF0000]/10 rounded-lg flex items-center justify-center text-[#FF0000] group-hover:bg-[#FF0000]/20 transition-colors">
                           <Upload className="w-5 h-5" />
                         </div>
                         <div>
-                          <p className="text-sm text-white/80">
+                          <p className="text-sm text-gray-700 dark:text-white/80">
                             {formData.cv ? formData.cv.name : 'Click to upload your CV'}
                           </p>
-                          <p className="text-xs text-white/40">
+                          <p className="text-xs text-gray-400 dark:text-white/40">
                             PDF, DOC, or DOCX (max 10MB)
                           </p>
                         </div>
@@ -547,7 +547,7 @@ const BecomeInstructorPage: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full inline-flex items-center justify-center gap-2 bg-[#FF0000] hover:bg-[#E40000] disabled:opacity-60 disabled:cursor-not-allowed text-white px-8 py-4 rounded-xl font-semibold text-base transition-all duration-200 hover:scale-[1.02]"
+                    className="w-full inline-flex items-center justify-center gap-2 bg-[#FF0000] hover:bg-[#E40000] disabled:opacity-60 disabled:cursor-not-allowed text-gray-900 dark:text-white px-8 py-4 rounded-xl font-semibold text-base transition-all duration-200 hover:scale-[1.02]"
                   >
                     {isSubmitting ? (
                       <>
@@ -562,7 +562,7 @@ const BecomeInstructorPage: React.FC = () => {
                     )}
                   </button>
 
-                  <p className="text-xs text-white/40 text-center mt-4">
+                  <p className="text-xs text-gray-400 dark:text-white/40 text-center mt-4">
                     By submitting this form, you agree to our Terms of Service and
                     Instructor Agreement. We will review your application and respond
                     within 3 business days.

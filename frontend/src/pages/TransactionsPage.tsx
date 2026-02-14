@@ -18,7 +18,6 @@ import {
   Eye,
   RotateCcw
 } from 'lucide-react';
-import DashboardLayout from '../components/layout/DashboardLayout';
 import { getTransactionHistory } from '../services/paymentService';
 
 // Types
@@ -405,19 +404,19 @@ const TransactionsPage: React.FC = () => {
   const totalPages = Math.ceil(sortedTransactions.length / itemsPerPage);
 
   return (
-    <DashboardLayout>
-      <div className="min-h-screen bg-[#181C1F] p-6">
+    <>
+      <div className="min-h-screen bg-white dark:bg-[#181C1F] p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white">Transaction History</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Transaction History</h1>
               <p className="text-gray-400 mt-1">View and manage all your transactions</p>
             </div>
             <button
               onClick={handleExportCSV}
               disabled={isExporting}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-gray-900 dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isExporting ? (
                 <RefreshCcw className="w-5 h-5 animate-spin" />
@@ -434,7 +433,7 @@ const TransactionsPage: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-sm">Total Transactions</p>
-                  <p className="text-2xl font-bold text-white mt-1">
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
                     {stats.totalTransactions}
                   </p>
                 </div>
@@ -448,7 +447,7 @@ const TransactionsPage: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-sm">Net Amount</p>
-                  <p className="text-2xl font-bold text-white mt-1">
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
                     KES {stats.totalAmount.toLocaleString()}
                   </p>
                 </div>
@@ -462,7 +461,7 @@ const TransactionsPage: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-sm">Success Rate</p>
-                  <p className="text-2xl font-bold text-white mt-1">
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
                     {stats.successRate.toFixed(1)}%
                   </p>
                 </div>
@@ -476,7 +475,7 @@ const TransactionsPage: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-sm">Most Used</p>
-                  <p className="text-2xl font-bold text-white mt-1">
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
                     {stats.mostUsedGateway}
                   </p>
                 </div>
@@ -498,14 +497,14 @@ const TransactionsPage: React.FC = () => {
                   placeholder="Search by reference or description..."
                   value={filters.searchQuery}
                   onChange={e => handleFilterChange('searchQuery', e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-[#181C1F] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2 bg-white dark:bg-[#181C1F] border border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
                 />
               </div>
 
               {/* Filter Toggle */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2 px-4 py-2 bg-[#181C1F] border border-gray-700 rounded-lg text-white hover:border-gray-600 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#181C1F] border border-gray-700 rounded-lg text-gray-900 dark:text-white hover:border-gray-600 transition-colors"
               >
                 <Filter className="w-5 h-5" />
                 Filters
@@ -525,7 +524,7 @@ const TransactionsPage: React.FC = () => {
                     <select
                       value={filters.dateRange}
                       onChange={e => handleFilterChange('dateRange', e.target.value)}
-                      className="w-full px-3 py-2 bg-[#181C1F] border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                      className="w-full px-3 py-2 bg-white dark:bg-[#181C1F] border border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
                     >
                       <option value="last7days">Last 7 days</option>
                       <option value="last30days">Last 30 days</option>
@@ -542,7 +541,7 @@ const TransactionsPage: React.FC = () => {
                     <select
                       value={filters.gateway}
                       onChange={e => handleFilterChange('gateway', e.target.value)}
-                      className="w-full px-3 py-2 bg-[#181C1F] border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                      className="w-full px-3 py-2 bg-white dark:bg-[#181C1F] border border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
                     >
                       <option value="all">All Gateways</option>
                       <option value="M-Pesa">M-Pesa</option>
@@ -559,7 +558,7 @@ const TransactionsPage: React.FC = () => {
                     <select
                       value={filters.status}
                       onChange={e => handleFilterChange('status', e.target.value)}
-                      className="w-full px-3 py-2 bg-[#181C1F] border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                      className="w-full px-3 py-2 bg-white dark:bg-[#181C1F] border border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
                     >
                       <option value="all">All Status</option>
                       <option value="completed">Completed</option>
@@ -577,7 +576,7 @@ const TransactionsPage: React.FC = () => {
                     <select
                       value={filters.type}
                       onChange={e => handleFilterChange('type', e.target.value)}
-                      className="w-full px-3 py-2 bg-[#181C1F] border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                      className="w-full px-3 py-2 bg-white dark:bg-[#181C1F] border border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
                     >
                       <option value="all">All Types</option>
                       <option value="deposit">Deposits</option>
@@ -597,7 +596,7 @@ const TransactionsPage: React.FC = () => {
                           type="date"
                           value={filters.customStartDate}
                           onChange={e => handleFilterChange('customStartDate', e.target.value)}
-                          className="w-full px-3 py-2 bg-[#181C1F] border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                          className="w-full px-3 py-2 bg-white dark:bg-[#181C1F] border border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
                         />
                       </div>
                       <div>
@@ -608,7 +607,7 @@ const TransactionsPage: React.FC = () => {
                           type="date"
                           value={filters.customEndDate}
                           onChange={e => handleFilterChange('customEndDate', e.target.value)}
-                          className="w-full px-3 py-2 bg-[#181C1F] border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                          className="w-full px-3 py-2 bg-white dark:bg-[#181C1F] border border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
                         />
                       </div>
                     </>
@@ -618,7 +617,7 @@ const TransactionsPage: React.FC = () => {
                 <div className="mt-4 flex justify-end">
                   <button
                     onClick={handleResetFilters}
-                    className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                   >
                     <RotateCcw className="w-4 h-4" />
                     Reset Filters
@@ -633,10 +632,10 @@ const TransactionsPage: React.FC = () => {
             {/* Desktop Table */}
             <div className="hidden lg:block overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-[#181C1F] border-b border-gray-800">
+                <thead className="bg-white dark:bg-[#181C1F] border-b border-gray-800">
                   <tr>
                     <th
-                      className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white"
+                      className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-900 dark:hover:text-white"
                       onClick={() => handleSort('date')}
                     >
                       <div className="flex items-center gap-2">
@@ -647,7 +646,7 @@ const TransactionsPage: React.FC = () => {
                       </div>
                     </th>
                     <th
-                      className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white"
+                      className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-900 dark:hover:text-white"
                       onClick={() => handleSort('reference')}
                     >
                       <div className="flex items-center gap-2">
@@ -664,7 +663,7 @@ const TransactionsPage: React.FC = () => {
                       Gateway
                     </th>
                     <th
-                      className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white"
+                      className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-900 dark:hover:text-white"
                       onClick={() => handleSort('amount')}
                     >
                       <div className="flex items-center gap-2">
@@ -675,7 +674,7 @@ const TransactionsPage: React.FC = () => {
                       </div>
                     </th>
                     <th
-                      className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white"
+                      className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-900 dark:hover:text-white"
                       onClick={() => handleSort('status')}
                     >
                       <div className="flex items-center gap-2">
@@ -696,7 +695,7 @@ const TransactionsPage: React.FC = () => {
                       <td colSpan={7} className="px-6 py-12 text-center">
                         <div className="flex flex-col items-center justify-center">
                           <FileText className="w-16 h-16 text-gray-600 mb-4" />
-                          <h3 className="text-lg font-medium text-white mb-2">No transactions found</h3>
+                          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No transactions found</h3>
                           <p className="text-gray-400">Try adjusting your filters</p>
                         </div>
                       </td>
@@ -705,14 +704,14 @@ const TransactionsPage: React.FC = () => {
                     paginatedTransactions.map(transaction => (
                       <tr
                         key={transaction.id}
-                        className="hover:bg-[#181C1F] cursor-pointer transition-colors"
+                        className="hover:bg-white dark:hover:bg-[#181C1F] cursor-pointer transition-colors"
                         onClick={() => setSelectedTransaction(transaction)}
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-gray-500" />
                             <div>
-                              <div className="text-sm text-white">
+                              <div className="text-sm text-gray-900 dark:text-white">
                                 {transaction.date.toLocaleDateString()}
                               </div>
                               <div className="text-xs text-gray-500">
@@ -722,7 +721,7 @@ const TransactionsPage: React.FC = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-mono text-white">{transaction.reference}</div>
+                          <div className="text-sm font-mono text-gray-900 dark:text-white">{transaction.reference}</div>
                           <div className="text-xs text-gray-500">{transaction.id}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -736,14 +735,14 @@ const TransactionsPage: React.FC = () => {
                             {transaction.type === 'payment' && (
                               <CreditCard className="w-4 h-4 text-blue-500" />
                             )}
-                            <span className="text-sm text-white capitalize">{transaction.type}</span>
+                            <span className="text-sm text-gray-900 dark:text-white capitalize">{transaction.type}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="text-sm text-white">{transaction.gateway}</span>
+                          <span className="text-sm text-gray-900 dark:text-white">{transaction.gateway}</span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-semibold text-white">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
                             {transaction.currency} {transaction.amount.toLocaleString()}
                           </div>
                         </td>
@@ -774,7 +773,7 @@ const TransactionsPage: React.FC = () => {
                 <div className="px-6 py-12 text-center">
                   <div className="flex flex-col items-center justify-center">
                     <FileText className="w-16 h-16 text-gray-600 mb-4" />
-                    <h3 className="text-lg font-medium text-white mb-2">No transactions found</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No transactions found</h3>
                     <p className="text-gray-400">Try adjusting your filters</p>
                   </div>
                 </div>
@@ -782,12 +781,12 @@ const TransactionsPage: React.FC = () => {
                 paginatedTransactions.map(transaction => (
                   <div
                     key={transaction.id}
-                    className="p-4 hover:bg-[#181C1F] cursor-pointer transition-colors"
+                    className="p-4 hover:bg-white dark:hover:bg-[#181C1F] cursor-pointer transition-colors"
                     onClick={() => setSelectedTransaction(transaction)}
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <div className="text-sm font-mono text-white">{transaction.reference}</div>
+                        <div className="text-sm font-mono text-gray-900 dark:text-white">{transaction.reference}</div>
                         <div className="text-xs text-gray-500 mt-1">{transaction.id}</div>
                       </div>
                       <StatusBadge status={transaction.status} />
@@ -796,7 +795,7 @@ const TransactionsPage: React.FC = () => {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-400">Date</span>
-                        <span className="text-sm text-white">
+                        <span className="text-sm text-gray-900 dark:text-white">
                           {transaction.date.toLocaleDateString()}
                         </span>
                       </div>
@@ -813,18 +812,18 @@ const TransactionsPage: React.FC = () => {
                           {transaction.type === 'payment' && (
                             <CreditCard className="w-4 h-4 text-blue-500" />
                           )}
-                          <span className="text-sm text-white capitalize">{transaction.type}</span>
+                          <span className="text-sm text-gray-900 dark:text-white capitalize">{transaction.type}</span>
                         </div>
                       </div>
 
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-400">Gateway</span>
-                        <span className="text-sm text-white">{transaction.gateway}</span>
+                        <span className="text-sm text-gray-900 dark:text-white">{transaction.gateway}</span>
                       </div>
 
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-400">Amount</span>
-                        <span className="text-sm font-semibold text-white">
+                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
                           {transaction.currency} {transaction.amount.toLocaleString()}
                         </span>
                       </div>
@@ -836,7 +835,7 @@ const TransactionsPage: React.FC = () => {
 
             {/* Pagination */}
             {paginatedTransactions.length > 0 && (
-              <div className="px-6 py-4 bg-[#181C1F] border-t border-gray-800">
+              <div className="px-6 py-4 bg-white dark:bg-[#181C1F] border-t border-gray-800">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-400">Show</span>
@@ -846,7 +845,7 @@ const TransactionsPage: React.FC = () => {
                         setItemsPerPage(Number(e.target.value));
                         setCurrentPage(1);
                       }}
-                      className="px-3 py-1 bg-[#1a1f26] border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
+                      className="px-3 py-1 bg-[#1a1f26] border border-gray-700 rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-500"
                     >
                       <option value={10}>10</option>
                       <option value={20}>20</option>
@@ -861,7 +860,7 @@ const TransactionsPage: React.FC = () => {
                     <button
                       onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                       disabled={currentPage === 1}
-                      className="px-3 py-1 bg-[#1a1f26] border border-gray-700 rounded-lg text-white text-sm hover:border-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-1 bg-[#1a1f26] border border-gray-700 rounded-lg text-gray-900 dark:text-white text-sm hover:border-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Previous
                     </button>
@@ -885,8 +884,8 @@ const TransactionsPage: React.FC = () => {
                             onClick={() => setCurrentPage(pageNum)}
                             className={`px-3 py-1 rounded-lg text-sm transition-colors ${
                               currentPage === pageNum
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-[#1a1f26] border border-gray-700 text-white hover:border-gray-600'
+                                ? 'bg-blue-600 text-gray-900 dark:text-white'
+                                : 'bg-[#1a1f26] border border-gray-700 text-gray-900 dark:text-white hover:border-gray-600'
                             }`}
                           >
                             {pageNum}
@@ -898,7 +897,7 @@ const TransactionsPage: React.FC = () => {
                     <button
                       onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                       disabled={currentPage === totalPages}
-                      className="px-3 py-1 bg-[#1a1f26] border border-gray-700 rounded-lg text-white text-sm hover:border-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-1 bg-[#1a1f26] border border-gray-700 rounded-lg text-gray-900 dark:text-white text-sm hover:border-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Next
                     </button>
@@ -919,7 +918,7 @@ const TransactionsPage: React.FC = () => {
           />
         )}
       </div>
-    </DashboardLayout>
+    </>
   );
 };
 
@@ -985,12 +984,12 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
         {/* Header */}
         <div className="sticky top-0 bg-[#1a1f26] border-b border-gray-800 px-6 py-4 flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-white">Transaction Details</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Transaction Details</h2>
             <p className="text-sm text-gray-400 mt-1">{transaction.reference}</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-[#181C1F] rounded-lg transition-colors"
+            className="p-2 hover:bg-white dark:hover:bg-[#181C1F] rounded-lg transition-colors"
           >
             <X className="w-5 h-5 text-gray-400" />
           </button>
@@ -1006,79 +1005,79 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-400 mb-1">Amount</p>
-              <p className="text-2xl font-bold text-white">
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {transaction.currency} {transaction.amount.toLocaleString()}
               </p>
             </div>
           </div>
 
           {/* Basic Information */}
-          <div className="bg-[#181C1F] rounded-lg p-4 space-y-3">
-            <h3 className="text-sm font-semibold text-white mb-3">Basic Information</h3>
+          <div className="bg-white dark:bg-[#181C1F] rounded-lg p-4 space-y-3">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Basic Information</h3>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-xs text-gray-400 mb-1">Transaction ID</p>
-                <p className="text-sm text-white font-mono">{transaction.id}</p>
+                <p className="text-sm text-gray-900 dark:text-white font-mono">{transaction.id}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-400 mb-1">Reference</p>
-                <p className="text-sm text-white font-mono">{transaction.reference}</p>
+                <p className="text-sm text-gray-900 dark:text-white font-mono">{transaction.reference}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-400 mb-1">Type</p>
-                <p className="text-sm text-white capitalize">{transaction.type}</p>
+                <p className="text-sm text-gray-900 dark:text-white capitalize">{transaction.type}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-400 mb-1">Gateway</p>
-                <p className="text-sm text-white">{transaction.gateway}</p>
+                <p className="text-sm text-gray-900 dark:text-white">{transaction.gateway}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-400 mb-1">Date</p>
-                <p className="text-sm text-white">{transaction.date.toLocaleString()}</p>
+                <p className="text-sm text-gray-900 dark:text-white">{transaction.date.toLocaleString()}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-400 mb-1">Description</p>
-                <p className="text-sm text-white">{transaction.description}</p>
+                <p className="text-sm text-gray-900 dark:text-white">{transaction.description}</p>
               </div>
             </div>
           </div>
 
           {/* Gateway Information */}
-          <div className="bg-[#181C1F] rounded-lg p-4 space-y-3">
-            <h3 className="text-sm font-semibold text-white mb-3">Gateway Information</h3>
+          <div className="bg-white dark:bg-[#181C1F] rounded-lg p-4 space-y-3">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Gateway Information</h3>
 
             <div className="space-y-3">
               {transaction.phoneNumber && (
                 <div>
                   <p className="text-xs text-gray-400 mb-1">Phone Number</p>
-                  <p className="text-sm text-white">{transaction.phoneNumber}</p>
+                  <p className="text-sm text-gray-900 dark:text-white">{transaction.phoneNumber}</p>
                 </div>
               )}
               {transaction.email && (
                 <div>
                   <p className="text-xs text-gray-400 mb-1">Email</p>
-                  <p className="text-sm text-white">{transaction.email}</p>
+                  <p className="text-sm text-gray-900 dark:text-white">{transaction.email}</p>
                 </div>
               )}
               {transaction.senderName && (
                 <div>
                   <p className="text-xs text-gray-400 mb-1">Sender</p>
-                  <p className="text-sm text-white">{transaction.senderName}</p>
+                  <p className="text-sm text-gray-900 dark:text-white">{transaction.senderName}</p>
                 </div>
               )}
               {transaction.recipientName && (
                 <div>
                   <p className="text-xs text-gray-400 mb-1">Recipient</p>
-                  <p className="text-sm text-white">{transaction.recipientName}</p>
+                  <p className="text-sm text-gray-900 dark:text-white">{transaction.recipientName}</p>
                 </div>
               )}
             </div>
           </div>
 
           {/* Timeline */}
-          <div className="bg-[#181C1F] rounded-lg p-4">
-            <h3 className="text-sm font-semibold text-white mb-4">Status Timeline</h3>
+          <div className="bg-white dark:bg-[#181C1F] rounded-lg p-4">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Status Timeline</h3>
 
             <div className="space-y-4">
               {transaction.timeline.map((event, index) => (
@@ -1097,7 +1096,7 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                   </div>
 
                   <div className="flex-1 pb-4">
-                    <p className="text-sm font-medium text-white capitalize">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
                       {event.status}
                     </p>
                     <p className="text-xs text-gray-400 mt-1">{event.description}</p>
@@ -1112,8 +1111,8 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
           {/* Metadata */}
           {transaction.metadata && (
-            <div className="bg-[#181C1F] rounded-lg p-4 space-y-3">
-              <h3 className="text-sm font-semibold text-white mb-3">Additional Information</h3>
+            <div className="bg-white dark:bg-[#181C1F] rounded-lg p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Additional Information</h3>
 
               <div className="grid grid-cols-2 gap-4">
                 {Object.entries(transaction.metadata).map(([key, value]) => (
@@ -1121,7 +1120,7 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                     <p className="text-xs text-gray-400 mb-1 capitalize">
                       {key.replace(/([A-Z])/g, ' $1').trim()}
                     </p>
-                    <p className="text-sm text-white">{String(value)}</p>
+                    <p className="text-sm text-gray-900 dark:text-white">{String(value)}</p>
                   </div>
                 ))}
               </div>
@@ -1132,7 +1131,7 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => onDownloadReceipt(transaction)}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-gray-900 dark:text-white rounded-lg transition-colors"
             >
               <Download className="w-4 h-4" />
               Download Receipt
@@ -1141,7 +1140,7 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
             {transaction.status === 'completed' && (
               <button
                 onClick={() => onRefund(transaction)}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-gray-900 dark:text-white rounded-lg transition-colors"
               >
                 <RotateCcw className="w-4 h-4" />
                 Request Refund

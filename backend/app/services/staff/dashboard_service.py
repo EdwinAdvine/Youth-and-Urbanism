@@ -25,6 +25,22 @@ from app.services.ai_orchestrator import AIOrchestrator
 logger = logging.getLogger(__name__)
 
 
+class StaffDashboardService:
+    """Facade that exposes staff-dashboard queries as static methods."""
+
+    @staticmethod
+    async def get_overview(db: AsyncSession, user_id: str) -> Dict[str, Any]:
+        return await get_dashboard_stats(db, user_id)
+
+    @staticmethod
+    async def get_my_focus(db: AsyncSession, user_id: str) -> Dict[str, Any]:
+        return await get_my_focus(db, user_id)
+
+    @staticmethod
+    async def get_ai_agenda(db: AsyncSession, user_id: str) -> List[Dict[str, Any]]:
+        return await get_ai_agenda(db, user_id)
+
+
 async def get_dashboard_stats(db: AsyncSession, user_id: str) -> Dict[str, Any]:
     """
     Return numeric counts for the staff dashboard stat cards.

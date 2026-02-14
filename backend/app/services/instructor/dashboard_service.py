@@ -14,9 +14,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.course import Course
 from app.models.enrollment import Enrollment
 from app.models.staff.live_session import LiveSession
-from app.models.staff.assessment import Assessment
+from app.models.staff.assessment import AdaptiveAssessment as Assessment
 from app.models.instructor.instructor_earnings import InstructorEarning
-from app.models.instructor.instructor_points import InstructorPoints
+from app.models.instructor.instructor_gamification import InstructorPoints
 from app.services.ai_orchestrator import AIOrchestrator
 
 logger = logging.getLogger(__name__)
@@ -96,18 +96,62 @@ async def get_dashboard_stats(
         earnings_total_result = await db.execute(earnings_total_q)
         earnings_total = earnings_total_result.scalar() or 0.0
 
-        # Average rating and reviews
-        # TODO: Calculate from course ratings
-        average_rating = 0.0
-        total_reviews = 0
+        # Average rating and reviews (from courses)
+        rating_q = select(
+            func.coalesce(func.avg(Course.average_rating), 0),
+            func.coalesce(func.sum(Course.total_reviews), 0),
+        ).where(
+            and_(
+                Course.instructor_id == instructor_id,
+                Course.is_published == True,
+            )
+        )
+        rating_row = (await db.execute(rating_q)).one()
+        average_rating = float(rating_row[0] or 0)
+        total_reviews = int(rating_row[1] or 0)
 
-        # Pending submissions
-        # TODO: Count from assessment submissions where is_graded = False
-        pending_submissions = 0
+        # Pending submissions (ungraded across all instructor's assessments)
+        from app.models.assessment import Assessment as CoreAssessment, AssessmentSubmission
+        course_ids_q = select(Course.id).where(Course.instructor_id == instructor_id)
+        assessment_ids_q = select(CoreAssessment.id).where(
+            CoreAssessment.course_id.in_(course_ids_q)
+        )
+        pending_subs_q = select(func.count()).select_from(AssessmentSubmission).where(
+            and_(
+                AssessmentSubmission.assessment_id.in_(assessment_ids_q),
+                AssessmentSubmission.is_graded == False,
+                AssessmentSubmission.is_submitted == True,
+            )
+        )
+        pending_submissions = (await db.execute(pending_subs_q)).scalar() or 0
 
-        # AI-flagged students
-        # TODO: Get from student intervention/flag system
-        ai_flagged_students = []
+        # AI-flagged students (students with low progress across instructor's courses)
+        flagged_q = (
+            select(
+                Enrollment.student_id,
+                func.avg(Enrollment.progress_percentage).label("avg_progress"),
+            )
+            .join(Course, Course.id == Enrollment.course_id)
+            .where(
+                and_(
+                    Course.instructor_id == instructor_id,
+                    Enrollment.status == "active",
+                    Enrollment.is_deleted == False,
+                )
+            )
+            .group_by(Enrollment.student_id)
+            .having(func.avg(Enrollment.progress_percentage) < 20)
+            .limit(10)
+        )
+        flagged_result = await db.execute(flagged_q)
+        ai_flagged_students = [
+            {
+                "student_id": str(row.student_id),
+                "average_progress": float(row.avg_progress or 0),
+                "flag_reason": "Low engagement - progress below 20%",
+            }
+            for row in flagged_result.all()
+        ]
 
         # Points and streaks
         points_q = select(InstructorPoints).where(
@@ -177,13 +221,40 @@ async def get_dashboard_overview(
             for session in sessions
         ]
 
-        # Pending submissions
-        # TODO: Get from assessment submissions
-        pending_submissions = []
+        # Pending submissions (recent ungraded)
+        from app.models.assessment import Assessment as CoreAssessment, AssessmentSubmission
+        from app.models.user import User
+        course_ids_q = select(Course.id).where(Course.instructor_id == instructor_id)
+        assessment_ids_q = select(CoreAssessment.id).where(
+            CoreAssessment.course_id.in_(course_ids_q)
+        )
+        pending_q = (
+            select(AssessmentSubmission, CoreAssessment.title.label("assessment_title"))
+            .join(CoreAssessment, CoreAssessment.id == AssessmentSubmission.assessment_id)
+            .where(
+                and_(
+                    AssessmentSubmission.assessment_id.in_(assessment_ids_q),
+                    AssessmentSubmission.is_graded == False,
+                    AssessmentSubmission.is_submitted == True,
+                )
+            )
+            .order_by(AssessmentSubmission.submitted_at.desc())
+            .limit(5)
+        )
+        pending_result = await db.execute(pending_q)
+        pending_submissions = [
+            {
+                "id": str(row[0].id),
+                "assessment_title": row[1],
+                "student_id": str(row[0].student_id),
+                "submitted_at": row[0].submitted_at.isoformat() if row[0].submitted_at else None,
+                "days_pending": (now - row[0].submitted_at).days if row[0].submitted_at else 0,
+            }
+            for row in pending_result.all()
+        ]
 
-        # AI-flagged students
-        # TODO: Get from intervention system
-        ai_flagged_students = []
+        # AI-flagged students from stats
+        ai_flagged_students = stats.get("ai_flagged_students", [])
 
         # Quick actions (context-aware)
         quick_actions = [

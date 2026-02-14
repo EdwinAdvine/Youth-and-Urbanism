@@ -124,7 +124,7 @@ const BirdChatPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-b from-[#0F1112] to-[#181C1F]">
+    <div className="flex flex-col h-screen bg-gradient-to-b from-gray-50 dark:from-[#0F1112] to-gray-100 dark:to-[#181C1F]">
       {/* Header */}
       <ChatHeader 
         onNewChat={handleNewChat}
@@ -141,15 +141,15 @@ const BirdChatPage: React.FC = () => {
       </div>
 
       {/* Response Mode Selector */}
-      <div className="px-4 py-2 border-t border-white/10">
+      <div className="px-4 py-2 border-t border-gray-200 dark:border-white/10">
         <div className="flex gap-2 items-center">
-          <span className="text-white/60 text-sm">Response:</span>
+          <span className="text-gray-500 dark:text-white/60 text-sm">Response:</span>
           <button
             onClick={() => handleResponseModeChange('text')}
             className={`px-3 py-1 rounded text-sm transition-colors ${
               responseMode === 'text'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white/10 text-white/60 hover:bg-white/20'
+                ? 'bg-blue-600 text-gray-900 dark:text-white'
+                : 'bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/20'
             }`}
           >
             Text
@@ -158,8 +158,8 @@ const BirdChatPage: React.FC = () => {
             onClick={() => handleResponseModeChange('voice')}
             className={`px-3 py-1 rounded text-sm transition-colors ${
               responseMode === 'voice'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white/10 text-white/60 hover:bg-white/20'
+                ? 'bg-blue-600 text-gray-900 dark:text-white'
+                : 'bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/20'
             }`}
           >
             Voice
@@ -168,8 +168,8 @@ const BirdChatPage: React.FC = () => {
             onClick={() => handleResponseModeChange('video')}
             className={`px-3 py-1 rounded text-sm transition-colors ${
               responseMode === 'video'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white/10 text-white/60 hover:bg-white/20'
+                ? 'bg-blue-600 text-gray-900 dark:text-white'
+                : 'bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/20'
             }`}
           >
             Video

@@ -4,7 +4,6 @@ import {
   FileText, AlertCircle, ThumbsUp, BarChart3, Clock,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import DashboardLayout from '../../components/layout/DashboardLayout';
 import AdminPageHeader from '../../components/admin/shared/AdminPageHeader';
 
 // ------------------------------------------------------------------
@@ -217,18 +216,18 @@ const StatsCard: React.FC<{
   <motion.div
     initial={{ opacity: 0, y: 8 }}
     animate={{ opacity: 1, y: 0 }}
-    className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6"
+    className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6"
   >
     <div className="flex items-center justify-between mb-2">
-      <span className="text-white/60 text-sm">{label}</span>
+      <span className="text-gray-500 dark:text-white/60 text-sm">{label}</span>
       <div className={iconColor}>{icon}</div>
     </div>
-    <p className="text-2xl font-bold text-white">{value}</p>
+    <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
     {change && (
       <p className={`text-xs mt-1 ${
         changeType === 'positive' ? 'text-emerald-400' :
         changeType === 'negative' ? 'text-red-400' :
-        'text-white/40'
+        'text-gray-400 dark:text-white/40'
       }`}>
         {change}
       </p>
@@ -307,7 +306,7 @@ const AIContentReviewPage: React.FC = () => {
   });
 
   return (
-    <DashboardLayout role="admin">
+    <>
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -323,7 +322,7 @@ const AIContentReviewPage: React.FC = () => {
             { label: 'Content Review' },
           ]}
           actions={
-            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors">
+            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors">
               <RefreshCw className="w-4 h-4" />
               Refresh
             </button>
@@ -369,21 +368,21 @@ const AIContentReviewPage: React.FC = () => {
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
             <input
               type="text"
               placeholder="Search by title or subject..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
             />
           </div>
           <div className="relative">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
             <select
               value={contentTypeFilter}
               onChange={(e) => setContentTypeFilter(e.target.value)}
-              className="pl-10 pr-8 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[150px]"
+              className="pl-10 pr-8 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[150px]"
             >
               <option value="">All Types</option>
               <option value="lesson">Lesson</option>
@@ -396,7 +395,7 @@ const AIContentReviewPage: React.FC = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[150px]"
+            className="px-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[150px]"
           >
             <option value="">All Status</option>
             <option value="pending">Pending</option>
@@ -407,55 +406,55 @@ const AIContentReviewPage: React.FC = () => {
         </div>
 
         {/* Content review table */}
-        <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+        <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
           {filteredItems.length === 0 ? (
             <div className="text-center py-16">
               <FileText className="w-16 h-16 text-white/10 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-white mb-2">No Content Items</h3>
-              <p className="text-white/40 text-sm">No content matches your current filters.</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Content Items</h3>
+              <p className="text-gray-400 dark:text-white/40 text-sm">No content matches your current filters.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#22272B] text-left">
-                    <th className="px-4 py-3 text-white/60 font-medium">Title</th>
-                    <th className="px-4 py-3 text-white/60 font-medium">Content Type</th>
-                    <th className="px-4 py-3 text-white/60 font-medium">Model</th>
-                    <th className="px-4 py-3 text-white/60 font-medium">Accuracy</th>
-                    <th className="px-4 py-3 text-white/60 font-medium">Status</th>
-                    <th className="px-4 py-3 text-white/60 font-medium">Generated</th>
-                    <th className="px-4 py-3 text-white/60 font-medium text-right">Actions</th>
+                  <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Title</th>
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Content Type</th>
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Model</th>
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Accuracy</th>
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Status</th>
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Generated</th>
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredItems.map((item) => (
                     <tr
                       key={item.id}
-                      className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
+                      className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
                     >
                       <td className="px-4 py-3">
                         <div>
-                          <p className="text-white font-medium truncate max-w-[220px]">{item.title}</p>
-                          <p className="text-xs text-white/40">{item.subject} &middot; {item.grade_level}</p>
+                          <p className="text-gray-900 dark:text-white font-medium truncate max-w-[220px]">{item.title}</p>
+                          <p className="text-xs text-gray-400 dark:text-white/40">{item.subject} &middot; {item.grade_level}</p>
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <ContentTypeBadge type={item.content_type} />
                       </td>
-                      <td className="px-4 py-3 text-white/50">{item.model_used}</td>
+                      <td className="px-4 py-3 text-gray-500 dark:text-white/50">{item.model_used}</td>
                       <td className="px-4 py-3">
                         <AccuracyScore score={item.accuracy_score} />
                       </td>
                       <td className="px-4 py-3">
                         <ReviewStatusBadge status={item.review_status} />
                       </td>
-                      <td className="px-4 py-3 text-white/40 text-xs">{formatDate(item.generated_at)}</td>
+                      <td className="px-4 py-3 text-gray-400 dark:text-white/40 text-xs">{formatDate(item.generated_at)}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-1">
                           <button
                             title="Preview Content"
-                            className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors"
+                            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
@@ -464,14 +463,14 @@ const AIContentReviewPage: React.FC = () => {
                               <button
                                 onClick={() => handleApprove(item.id)}
                                 title="Approve"
-                                className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-white/50 hover:text-emerald-400 transition-colors"
+                                className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-gray-500 dark:text-white/50 hover:text-emerald-400 transition-colors"
                               >
                                 <CheckCircle className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => handleReject(item.id)}
                                 title="Reject"
-                                className="p-1.5 rounded-lg hover:bg-red-500/10 text-white/50 hover:text-red-400 transition-colors"
+                                className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 dark:text-white/50 hover:text-red-400 transition-colors"
                               >
                                 <XCircle className="w-4 h-4" />
                               </button>
@@ -488,11 +487,11 @@ const AIContentReviewPage: React.FC = () => {
 
           {/* Footer */}
           {filteredItems.length > 0 && (
-            <div className="flex items-center justify-between px-4 py-3 border-t border-[#22272B]">
-              <p className="text-xs text-white/40">
+            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-[#22272B]">
+              <p className="text-xs text-gray-400 dark:text-white/40">
                 Showing {filteredItems.length} of {items.length} items
               </p>
-              <p className="text-xs text-white/40">
+              <p className="text-xs text-gray-400 dark:text-white/40">
                 {items.filter((i) => i.review_status === 'pending').length} pending review
               </p>
             </div>
@@ -506,8 +505,8 @@ const AIContentReviewPage: React.FC = () => {
           <div
             className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
               toast.type === 'success'
-                ? 'bg-emerald-500 text-white'
-                : 'bg-red-500 text-white'
+                ? 'bg-emerald-500 text-gray-900 dark:text-white'
+                : 'bg-red-500 text-gray-900 dark:text-white'
             }`}
           >
             {toast.type === 'success' ? (
@@ -519,7 +518,7 @@ const AIContentReviewPage: React.FC = () => {
           </div>
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 };
 

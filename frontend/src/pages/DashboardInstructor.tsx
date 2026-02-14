@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Users, Book, Calendar, MessageSquare, Eye, Coins, ShieldAlert } from 'lucide-react';
-import DashboardLayout from '../components/layout/DashboardLayout';
 import courseService from '../services/courseService';
 import { useAuthStore } from '../store/authStore';
 
@@ -35,15 +34,15 @@ const DashboardInstructor: React.FC = () => {
   }, []);
 
   return (
-    <DashboardLayout role="instructor">
+    <>
       <div className="space-y-8">
         {/* Welcome Section */}
         <motion.div variants={fadeUp} initial="hidden" animate="visible">
-          <div className="bg-gradient-to-r from-[#E40000]/20 to-transparent border border-[#22272B] rounded-2xl p-6 mb-8">
+          <div className="bg-gradient-to-r from-[#E40000]/20 to-transparent border border-gray-200 dark:border-[#22272B] rounded-2xl p-6 mb-8">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome{user?.full_name ? `, ${user.full_name}` : ''}!</h2>
-                <p className="text-white/80 text-sm sm:text-base">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome{user?.full_name ? `, ${user.full_name}` : ''}!</h2>
+                <p className="text-gray-600 dark:text-white/80 text-sm sm:text-base">
                   Your comprehensive teaching platform. Use the sidebar to access all instructor features including course management, student engagement, and earnings tracking.
                 </p>
               </div>
@@ -58,11 +57,11 @@ const DashboardInstructor: React.FC = () => {
 
         {/* Quick Stats */}
         <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-          <motion.div variants={fadeUp} whileHover={{ scale: 1.02 }} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <motion.div variants={fadeUp} whileHover={{ scale: 1.02 }} className="bg-gray-50 dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-white/60">Total Students</p>
-                <p className="text-2xl font-bold text-white">{stats.students}</p>
+                <p className="text-sm text-gray-500 dark:text-white/60">Total Students</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.students}</p>
               </div>
               <div className="w-12 h-12 bg-[#E40000]/20 border border-[#E40000]/50 rounded-lg flex items-center justify-center">
                 <Users className="w-6 h-6 text-[#E40000]" />
@@ -70,11 +69,11 @@ const DashboardInstructor: React.FC = () => {
             </div>
           </motion.div>
 
-          <motion.div variants={fadeUp} whileHover={{ scale: 1.02 }} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <motion.div variants={fadeUp} whileHover={{ scale: 1.02 }} className="bg-gray-50 dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-white/60">Courses</p>
-                <p className="text-2xl font-bold text-white">{stats.courses}</p>
+                <p className="text-sm text-gray-500 dark:text-white/60">Courses</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.courses}</p>
               </div>
               <div className="w-12 h-12 bg-[#E40000]/20 border border-[#E40000]/50 rounded-lg flex items-center justify-center">
                 <Book className="w-6 h-6 text-[#E40000]" />
@@ -82,11 +81,11 @@ const DashboardInstructor: React.FC = () => {
             </div>
           </motion.div>
 
-          <motion.div variants={fadeUp} whileHover={{ scale: 1.02 }} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <motion.div variants={fadeUp} whileHover={{ scale: 1.02 }} className="bg-gray-50 dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-white/60">Upcoming Sessions</p>
-                <p className="text-2xl font-bold text-white">5</p>
+                <p className="text-sm text-gray-500 dark:text-white/60">Upcoming Sessions</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">5</p>
               </div>
               <div className="w-12 h-12 bg-[#E40000]/20 border border-[#E40000]/50 rounded-lg flex items-center justify-center">
                 <Calendar className="w-6 h-6 text-[#E40000]" />
@@ -94,11 +93,11 @@ const DashboardInstructor: React.FC = () => {
             </div>
           </motion.div>
 
-          <motion.div variants={fadeUp} whileHover={{ scale: 1.02 }} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <motion.div variants={fadeUp} whileHover={{ scale: 1.02 }} className="bg-gray-50 dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-white/60">Earnings This Month</p>
-                <p className="text-2xl font-bold text-white">KSh 45,200</p>
+                <p className="text-sm text-gray-500 dark:text-white/60">Earnings This Month</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">KSh 45,200</p>
               </div>
               <div className="w-12 h-12 bg-[#E40000]/20 border border-[#E40000]/50 rounded-lg flex items-center justify-center">
                 <Coins className="w-6 h-6 text-[#E40000]" />
@@ -106,11 +105,11 @@ const DashboardInstructor: React.FC = () => {
             </div>
           </motion.div>
 
-          <motion.div variants={fadeUp} whileHover={{ scale: 1.02 }} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <motion.div variants={fadeUp} whileHover={{ scale: 1.02 }} className="bg-gray-50 dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-white/60">Needs Attention</p>
-                <p className="text-2xl font-bold text-white">3</p>
+                <p className="text-sm text-gray-500 dark:text-white/60">Needs Attention</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">3</p>
               </div>
               <div className="w-12 h-12 bg-[#E40000]/20 border border-[#E40000]/50 rounded-lg flex items-center justify-center">
                 <ShieldAlert className="w-6 h-6 text-[#E40000]" />
@@ -121,11 +120,11 @@ const DashboardInstructor: React.FC = () => {
 
         {/* Quick Actions */}
         <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          <motion.div variants={fadeUp} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <motion.div variants={fadeUp} className="bg-gray-50 dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold text-white">Today's Overview</h3>
-                <p className="text-sm text-white/60">Quick heartbeat view of your teaching day</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Today's Overview</h3>
+                <p className="text-sm text-gray-500 dark:text-white/60">Quick heartbeat view of your teaching day</p>
               </div>
               <Eye className="w-8 h-8 text-[#E40000]" />
             </div>
@@ -137,27 +136,27 @@ const DashboardInstructor: React.FC = () => {
             </button>
           </motion.div>
 
-          <motion.div variants={fadeUp} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <motion.div variants={fadeUp} className="bg-gray-50 dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold text-white">Course Management</h3>
-                <p className="text-sm text-white/60">Create, edit, and manage your courses</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Course Management</h3>
+                <p className="text-sm text-gray-500 dark:text-white/60">Create, edit, and manage your courses</p>
               </div>
               <Book className="w-8 h-8 text-[#E40000]" />
             </div>
             <button
               onClick={() => navigate('/dashboard/instructor/teaching/courses')}
-              className="w-full py-2 px-4 bg-[#E40000] text-white rounded-lg hover:bg-[#FF0000] transition-colors"
+              className="w-full py-2 px-4 bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#FF0000] transition-colors"
             >
               Manage Courses
             </button>
           </motion.div>
 
-          <motion.div variants={fadeUp} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <motion.div variants={fadeUp} className="bg-gray-50 dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold text-white">Student Engagement</h3>
-                <p className="text-sm text-white/60">Track progress and interact with students</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Student Engagement</h3>
+                <p className="text-sm text-gray-500 dark:text-white/60">Track progress and interact with students</p>
               </div>
               <MessageSquare className="w-8 h-8 text-[#E40000]" />
             </div>
@@ -172,38 +171,38 @@ const DashboardInstructor: React.FC = () => {
 
         {/* Features Overview */}
         <motion.div variants={fadeUp} initial="hidden" animate="visible">
-          <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Available Features</h3>
+          <div className="bg-gray-50 dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Available Features</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="p-4 bg-[#22272B] rounded-lg">
-                <h4 className="font-medium text-white mb-2">Today / Overview</h4>
-                <p className="text-xs text-white/60">Quick heartbeat view with active students, upcoming sessions, and earnings</p>
+              <div className="p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg">
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2">Today / Overview</h4>
+                <p className="text-xs text-gray-500 dark:text-white/60">Quick heartbeat view with active students, upcoming sessions, and earnings</p>
               </div>
-              <div className="p-4 bg-[#22272B] rounded-lg">
-                <h4 className="font-medium text-white mb-2">My Teaching Space</h4>
-                <p className="text-xs text-white/60">Course creation, CBC alignment, and usage analytics</p>
+              <div className="p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg">
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2">My Teaching Space</h4>
+                <p className="text-xs text-gray-500 dark:text-white/60">Course creation, CBC alignment, and usage analytics</p>
               </div>
-              <div className="p-4 bg-[#22272B] rounded-lg">
-                <h4 className="font-medium text-white mb-2">Assessments & Activities</h4>
-                <p className="text-xs text-white/60">Assignment creation, batch grading, and AI-assisted feedback</p>
+              <div className="p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg">
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2">Assessments & Activities</h4>
+                <p className="text-xs text-gray-500 dark:text-white/60">Assignment creation, batch grading, and AI-assisted feedback</p>
               </div>
-              <div className="p-4 bg-[#22272B] rounded-lg">
-                <h4 className="font-medium text-white mb-2">Students & Engagement</h4>
-                <p className="text-xs text-white/60">Live sessions, attendance tracking, and student interactions</p>
+              <div className="p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg">
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2">Students & Engagement</h4>
+                <p className="text-xs text-gray-500 dark:text-white/60">Live sessions, attendance tracking, and student interactions</p>
               </div>
-              <div className="p-4 bg-[#22272B] rounded-lg">
-                <h4 className="font-medium text-white mb-2">Impact & Recognition</h4>
-                <p className="text-xs text-white/60">Student feedback, ratings, and performance tracking</p>
+              <div className="p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg">
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2">Impact & Recognition</h4>
+                <p className="text-xs text-gray-500 dark:text-white/60">Student feedback, ratings, and performance tracking</p>
               </div>
-              <div className="p-4 bg-[#22272B] rounded-lg">
-                <h4 className="font-medium text-white mb-2">Earnings & Finances</h4>
-                <p className="text-xs text-white/60">Earnings dashboard, payouts, and rate management</p>
+              <div className="p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg">
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2">Earnings & Finances</h4>
+                <p className="text-xs text-gray-500 dark:text-white/60">Earnings dashboard, payouts, and rate management</p>
               </div>
             </div>
           </div>
         </motion.div>
       </div>
-    </DashboardLayout>
+    </>
   );
 };
 

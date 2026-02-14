@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useThemeStore } from '../../store';
 import { useAuthStore } from '../../store/authStore';
-import { 
+import { useStudentStore } from '../../store/studentStore';
+import {
   LayoutDashboard, 
   Calendar, 
   BookOpen, 
@@ -160,9 +160,7 @@ interface NavItem {
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenAuthModal }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { theme, isDarkMode } = useThemeStore();
-  
-  const [openSections, setOpenSections] = useState<string[]>(['learning', 'assessments', 'progress', 'finance', 'community']);
+  const { openSidebarSections, toggleSidebarSection } = useStudentStore();
   
   const navigationItems: NavItem[] = [
     {
@@ -899,27 +897,24 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenAuthModal }) =
     }
   ];
 
-  const toggleSection = (sectionId: string) => {
-    setOpenSections(prev => 
-      prev.includes(sectionId) 
-        ? prev.filter(id => id !== sectionId)
-        : [...prev, sectionId]
-    );
-  };
-
   const isActive = (path?: string) => {
     if (!path) return false;
-    return location.pathname === path;
+    if (path === '/dashboard/student') return location.pathname === '/dashboard/student';
+    return location.pathname.startsWith(path);
+  };
+
+  const isSectionActive = (item: NavItem): boolean => {
+    if (item.path && isActive(item.path)) return true;
+    if (item.children) return item.children.some(isSectionActive);
+    return false;
   };
 
   const { logout } = useAuthStore();
 
   const handleLogout = () => {
     logout();
-    if (window.innerWidth < 768) {
-      onClose();
-    }
-    navigate('/');
+    useAuthStore.persist.clearStorage();
+    window.location.href = '/';
   };
 
   const handleNavigation = (path?: string, onClick?: () => void) => {
@@ -930,7 +925,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenAuthModal }) =
       }
       return;
     }
-    
+
     if (path) {
       if (path === '/logout') {
         handleLogout();
@@ -960,7 +955,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenAuthModal }) =
       {/* Sidebar */}
       <div className={`
         fixed lg:sticky lg:static top-0 left-0 z-40 w-72 transform transition-transform duration-300 ease-in-out
-        bg-gradient-to-b from-[#0F1112] to-[#181C1F] border-r border-[#22272B]
+        bg-gradient-to-b from-gray-50 dark:from-[#0F1112] to-gray-100 dark:to-[#181C1F] border-r border-gray-200 dark:border-[#22272B]
         shadow-xl lg:shadow-none lg:border-r-0 lg:rounded-r-none
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
@@ -970,7 +965,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenAuthModal }) =
           {navigationItems.map((section) => (
             <div key={section.id} className="space-y-1">
               {section.title !== 'MAIN' && (
-                <div className="px-3 py-2 text-xs font-semibold text-white/60 uppercase tracking-wider">
+                <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-white/60 uppercase tracking-wider">
                   {section.title}
                 </div>
               )}
@@ -980,11 +975,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenAuthModal }) =
                   {item.children ? (
                     <div>
                       <button
-                        onClick={() => toggleSection(item.id)}
+                        onClick={() => toggleSidebarSection(item.id)}
                         className={`
                           w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg
                           transition-colors duration-200
-                          ${isActive(item.children?.[0]?.path) ? 'bg-[#FF0000]/20 text-[#FF0000]' : 'text-white/80 hover:text-white hover:bg-white/5'}
+                          ${isSectionActive(item) ? 'bg-[#E40000]/15 text-[#E40000]' : 'text-gray-600 dark:text-white/80 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'}
                         `}
                       >
                         <div className="flex items-center gap-3">
@@ -999,14 +994,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenAuthModal }) =
                           )}
                           <ChevronDown 
                             className={`w-4 h-4 transition-transform duration-200 ${
-                              openSections.includes(item.id) ? 'rotate-180' : ''
+                              openSidebarSections.includes(item.id) ? 'rotate-180' : ''
                             }`} 
                           />
                         </div>
                       </button>
                       
-                      {openSections.includes(item.id) && (
-                        <div className="ml-6 mt-1 space-y-1 border-l-2 border-[#22272B] pl-4">
+                      {openSidebarSections.includes(item.id) && (
+                        <div className="ml-6 mt-1 space-y-1 border-l-2 border-gray-200 dark:border-[#22272B] pl-4">
                           {item.children.map((child) => (
                             <button
                               key={child.id}
@@ -1016,8 +1011,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenAuthModal }) =
                                 w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg
                                 transition-colors duration-200
                                 ${isActive(child.path) 
-                                  ? 'bg-[#FF0000]/20 text-[#FF0000] border-l-2 border-[#FF0000]' 
-                                  : 'text-white/70 hover:text-white hover:bg-white/5'
+                                  ? 'bg-[#E40000]/15 text-[#FF4444] border-l-2 border-[#E40000]' 
+                                  : 'text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'
                                 }
                                 ${child.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                               `}
@@ -1042,8 +1037,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenAuthModal }) =
                         w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg
                         transition-colors duration-200
                         ${isActive(item.path) 
-                          ? 'bg-[#FF0000]/20 text-[#FF0000] border-l-2 border-[#FF0000]' 
-                          : 'text-white/80 hover:text-white hover:bg-white/5'
+                          ? 'bg-[#E40000]/15 text-[#FF4444] border-l-2 border-[#E40000]' 
+                          : 'text-gray-600 dark:text-white/80 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'
                         }
                         ${item.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                       `}
@@ -1064,13 +1059,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenAuthModal }) =
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-[#22272B] bg-gradient-to-t from-[#0F1112] to-transparent">
-          <div className="flex items-center justify-between text-xs text-white/60">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-[#22272B] bg-gradient-to-t from-gray-50 dark:from-[#0F1112] to-transparent">
+          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-white/60">
             <span>Version 1.0.0</span>
-            <div className="flex items-center gap-2">
-              <span>{isDarkMode ? 'Dark' : 'Light'} Mode</span>
-              <div className={`w-3 h-3 rounded-full ${isDarkMode ? 'bg-gray-400' : 'bg-yellow-400'}`}></div>
-            </div>
           </div>
         </div>
       </div>

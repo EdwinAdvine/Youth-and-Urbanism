@@ -26,7 +26,6 @@ import {
   Globe,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import DashboardLayout from '../../components/layout/DashboardLayout';
 import AdminPageHeader from '../../components/admin/shared/AdminPageHeader';
 
 // ------------------------------------------------------------------
@@ -302,8 +301,8 @@ const TabButton: React.FC<{
     onClick={() => onClick(tab)}
     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
       activeTab === tab
-        ? 'bg-[#E40000] text-white'
-        : 'bg-[#22272B] text-white/60 hover:text-white hover:bg-[#2A3035]'
+        ? 'bg-[#E40000] text-gray-900 dark:text-white'
+        : 'bg-gray-100 dark:bg-[#22272B] text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-[#2A3035]'
     }`}
   >
     {icon}
@@ -353,7 +352,7 @@ const UserDetailPage: React.FC = () => {
   void _userId;
 
   return (
-    <DashboardLayout role="admin">
+    <>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -371,14 +370,14 @@ const UserDetailPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate('/dashboard/admin/users')}
-                className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back
               </button>
               <button
                 onClick={handleResetPassword}
-                className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors"
               >
                 <KeyRound className="w-4 h-4" />
                 Reset Password
@@ -408,10 +407,10 @@ const UserDetailPage: React.FC = () => {
         />
 
         {/* User Info Card */}
-        <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+        <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
           <div className="flex flex-col sm:flex-row items-start gap-6">
             {/* Avatar */}
-            <div className="w-20 h-20 rounded-full bg-[#22272B] flex items-center justify-center text-white/60 text-2xl font-bold uppercase flex-shrink-0">
+            <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-[#22272B] flex items-center justify-center text-gray-500 dark:text-white/60 text-2xl font-bold uppercase flex-shrink-0">
               {mockUser.full_name.slice(0, 2)}
             </div>
 
@@ -419,7 +418,7 @@ const UserDetailPage: React.FC = () => {
             <div className="flex-1 min-w-0 space-y-3">
               <div>
                 <div className="flex items-center gap-3 flex-wrap">
-                  <h2 className="text-xl font-bold text-white">{mockUser.full_name}</h2>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">{mockUser.full_name}</h2>
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border capitalize ${
                       roleBadgeColors[mockUser.role] || 'bg-gray-500/20 text-gray-400 border-gray-500/30'
@@ -441,20 +440,20 @@ const UserDetailPage: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                <div className="flex items-center gap-2 text-white/60">
-                  <Mail className="w-4 h-4 text-white/40" />
+                <div className="flex items-center gap-2 text-gray-500 dark:text-white/60">
+                  <Mail className="w-4 h-4 text-gray-400 dark:text-white/40" />
                   <span className="truncate">{mockUser.email}</span>
                 </div>
-                <div className="flex items-center gap-2 text-white/60">
-                  <Calendar className="w-4 h-4 text-white/40" />
+                <div className="flex items-center gap-2 text-gray-500 dark:text-white/60">
+                  <Calendar className="w-4 h-4 text-gray-400 dark:text-white/40" />
                   <span>Joined {formatDate(mockUser.created_at)}</span>
                 </div>
-                <div className="flex items-center gap-2 text-white/60">
-                  <Clock className="w-4 h-4 text-white/40" />
+                <div className="flex items-center gap-2 text-gray-500 dark:text-white/60">
+                  <Clock className="w-4 h-4 text-gray-400 dark:text-white/40" />
                   <span>Last login {formatDate(mockUser.last_login)}</span>
                 </div>
-                <div className="flex items-center gap-2 text-white/60">
-                  <Activity className="w-4 h-4 text-white/40" />
+                <div className="flex items-center gap-2 text-gray-500 dark:text-white/60">
+                  <Activity className="w-4 h-4 text-gray-400 dark:text-white/40" />
                   <span>{mockUser.login_count} total logins</span>
                 </div>
               </div>
@@ -481,8 +480,8 @@ const UserDetailPage: React.FC = () => {
           {activeTab === 'profile' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Account Details */}
-              <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
-                <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+              <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                   <User className="w-4 h-4 text-[#E40000]" />
                   Account Details
                 </h3>
@@ -495,9 +494,9 @@ const UserDetailPage: React.FC = () => {
                     { label: 'Email Verified', value: mockUser.email_verified ? 'Yes' : 'No' },
                     { label: 'Two-Factor Auth', value: mockUser.two_factor_enabled ? 'Enabled' : 'Disabled' },
                   ].map((item) => (
-                    <div key={item.label} className="flex items-center justify-between py-2 border-b border-[#22272B]/50 last:border-0">
-                      <span className="text-sm text-white/50">{item.label}</span>
-                      <span className={`text-sm text-white font-medium ${item.capitalize ? 'capitalize' : ''}`}>
+                    <div key={item.label} className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-[#22272B]/50 last:border-0">
+                      <span className="text-sm text-gray-500 dark:text-white/50">{item.label}</span>
+                      <span className={`text-sm text-gray-900 dark:text-white font-medium ${item.capitalize ? 'capitalize' : ''}`}>
                         {item.value}
                       </span>
                     </div>
@@ -506,43 +505,43 @@ const UserDetailPage: React.FC = () => {
               </div>
 
               {/* Profile Data */}
-              <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
-                <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+              <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                   <Settings className="w-4 h-4 text-[#E40000]" />
                   Profile Data
                 </h3>
                 <div className="space-y-4">
                   {Object.entries(mockUser.profile_data).map(([key, value]) => (
-                    <div key={key} className="flex items-center justify-between py-2 border-b border-[#22272B]/50 last:border-0">
-                      <span className="text-sm text-white/50 capitalize">
+                    <div key={key} className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-[#22272B]/50 last:border-0">
+                      <span className="text-sm text-gray-500 dark:text-white/50 capitalize">
                         {key.replace(/_/g, ' ')}
                       </span>
-                      <span className="text-sm text-white font-medium">{value}</span>
+                      <span className="text-sm text-gray-900 dark:text-white font-medium">{value}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Security Summary */}
-              <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6 lg:col-span-2">
-                <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+              <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6 lg:col-span-2">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                   <Lock className="w-4 h-4 text-[#E40000]" />
                   Security Summary
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="bg-[#0F1112] border border-[#22272B] rounded-lg p-4 text-center">
-                    <p className="text-2xl font-bold text-white">{mockUser.login_count}</p>
-                    <p className="text-xs text-white/50 mt-1">Total Logins</p>
+                  <div className="bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg p-4 text-center">
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{mockUser.login_count}</p>
+                    <p className="text-xs text-gray-500 dark:text-white/50 mt-1">Total Logins</p>
                   </div>
-                  <div className="bg-[#0F1112] border border-[#22272B] rounded-lg p-4 text-center">
+                  <div className="bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg p-4 text-center">
                     <p className="text-2xl font-bold text-emerald-400">{mockDevices.length}</p>
-                    <p className="text-xs text-white/50 mt-1">Active Devices</p>
+                    <p className="text-xs text-gray-500 dark:text-white/50 mt-1">Active Devices</p>
                   </div>
-                  <div className="bg-[#0F1112] border border-[#22272B] rounded-lg p-4 text-center">
+                  <div className="bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg p-4 text-center">
                     <p className="text-2xl font-bold text-orange-400">
                       {mockUser.two_factor_enabled ? 'On' : 'Off'}
                     </p>
-                    <p className="text-xs text-white/50 mt-1">Two-Factor Auth</p>
+                    <p className="text-xs text-gray-500 dark:text-white/50 mt-1">Two-Factor Auth</p>
                   </div>
                 </div>
               </div>
@@ -551,14 +550,14 @@ const UserDetailPage: React.FC = () => {
 
           {/* Activity Timeline Tab */}
           {activeTab === 'activity' && (
-            <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
-              <h3 className="text-base font-semibold text-white mb-6 flex items-center gap-2">
+            <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                 <Activity className="w-4 h-4 text-[#E40000]" />
                 Recent Activity
               </h3>
               <div className="relative">
                 {/* Timeline line */}
-                <div className="absolute left-[19px] top-0 bottom-0 w-px bg-[#22272B]" />
+                <div className="absolute left-[19px] top-0 bottom-0 w-px bg-gray-100 dark:bg-[#22272B]" />
 
                 <div className="space-y-6">
                   {mockActivities.map((activity, index) => (
@@ -570,14 +569,14 @@ const UserDetailPage: React.FC = () => {
                       className="relative flex items-start gap-4 pl-0"
                     >
                       {/* Icon dot */}
-                      <div className="w-10 h-10 rounded-full bg-[#22272B] flex items-center justify-center flex-shrink-0 z-10 border-2 border-[#181C1F]">
+                      <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-[#22272B] flex items-center justify-center flex-shrink-0 z-10 border-2 border-[#181C1F]">
                         {activity.icon}
                       </div>
 
                       {/* Content */}
                       <div className="flex-1 min-w-0 pb-2">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm font-medium text-white">{activity.action}</span>
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">{activity.action}</span>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-medium capitalize ${
                             activity.type === 'auth'
                               ? 'bg-blue-500/20 text-blue-400'
@@ -590,8 +589,8 @@ const UserDetailPage: React.FC = () => {
                             {activity.type}
                           </span>
                         </div>
-                        <p className="text-sm text-white/50 mt-0.5">{activity.description}</p>
-                        <p className="text-xs text-white/30 mt-1">{timeAgo(activity.timestamp)}</p>
+                        <p className="text-sm text-gray-500 dark:text-white/50 mt-0.5">{activity.description}</p>
+                        <p className="text-xs text-gray-400 dark:text-white/30 mt-1">{timeAgo(activity.timestamp)}</p>
                       </div>
                     </motion.div>
                   ))}
@@ -606,26 +605,26 @@ const UserDetailPage: React.FC = () => {
               {mockDevices.map((device) => (
                 <div
                   key={device.id}
-                  className={`bg-[#181C1F] border rounded-xl p-5 ${
+                  className={`bg-white dark:bg-[#181C1F] border rounded-xl p-5 ${
                     device.isCurrent
                       ? 'border-emerald-500/30'
-                      : 'border-[#22272B]'
+                      : 'border-gray-200 dark:border-[#22272B]'
                   }`}
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-[#22272B] flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-[#22272B] flex items-center justify-center flex-shrink-0">
                       {device.icon}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h4 className="text-sm font-semibold text-white">{device.device}</h4>
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{device.device}</h4>
                         {device.isCurrent && (
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                             Current Session
                           </span>
                         )}
                       </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2 text-xs text-white/50">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2 text-xs text-gray-500 dark:text-white/50">
                         <div className="flex items-center gap-1">
                           <Globe className="w-3 h-3" />
                           {device.browser}
@@ -634,14 +633,14 @@ const UserDetailPage: React.FC = () => {
                         <div>{device.ip}</div>
                         <div>{device.location}</div>
                       </div>
-                      <p className="text-xs text-white/30 mt-2">
+                      <p className="text-xs text-gray-400 dark:text-white/30 mt-2">
                         Last active: {timeAgo(device.lastActive)}
                       </p>
                     </div>
                     {!device.isCurrent && (
                       <button
                         onClick={() => showToast('Session revoked', 'success')}
-                        className="p-2 rounded-lg hover:bg-red-500/10 text-white/40 hover:text-red-400 transition-colors flex-shrink-0"
+                        className="p-2 rounded-lg hover:bg-red-500/10 text-gray-400 dark:text-white/40 hover:text-red-400 transition-colors flex-shrink-0"
                         title="Revoke session"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -655,36 +654,36 @@ const UserDetailPage: React.FC = () => {
 
           {/* Permissions Tab */}
           {activeTab === 'permissions' && (
-            <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
-              <div className="px-6 py-4 border-b border-[#22272B]">
-                <h3 className="text-base font-semibold text-white flex items-center gap-2">
+            <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-[#22272B]">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                   <Shield className="w-4 h-4 text-[#E40000]" />
                   User Permissions
                 </h3>
-                <p className="text-xs text-white/40 mt-1">
+                <p className="text-xs text-gray-400 dark:text-white/40 mt-1">
                   Toggle individual permissions for this user. Role defaults are applied automatically.
                 </p>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-[#22272B] text-left">
-                      <th className="px-6 py-3 text-white/60 font-medium">Permission</th>
-                      <th className="px-6 py-3 text-white/60 font-medium">Description</th>
-                      <th className="px-6 py-3 text-white/60 font-medium">Granted By</th>
-                      <th className="px-6 py-3 text-white/60 font-medium text-center">Status</th>
+                    <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
+                      <th className="px-6 py-3 text-gray-500 dark:text-white/60 font-medium">Permission</th>
+                      <th className="px-6 py-3 text-gray-500 dark:text-white/60 font-medium">Description</th>
+                      <th className="px-6 py-3 text-gray-500 dark:text-white/60 font-medium">Granted By</th>
+                      <th className="px-6 py-3 text-gray-500 dark:text-white/60 font-medium text-center">Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {permissions.map((perm) => (
-                      <tr key={perm.id} className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
+                      <tr key={perm.id} className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
                         <td className="px-6 py-3">
-                          <code className="text-xs px-2 py-1 rounded bg-[#22272B] text-white/80 font-mono">
+                          <code className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-[#22272B] text-gray-700 dark:text-white/80 font-mono">
                             {perm.name}
                           </code>
                         </td>
-                        <td className="px-6 py-3 text-white/50">{perm.description}</td>
-                        <td className="px-6 py-3 text-white/40 text-xs">{perm.grantedBy}</td>
+                        <td className="px-6 py-3 text-gray-500 dark:text-white/50">{perm.description}</td>
+                        <td className="px-6 py-3 text-gray-400 dark:text-white/40 text-xs">{perm.grantedBy}</td>
                         <td className="px-6 py-3 text-center">
                           <button
                             onClick={() => handleTogglePermission(perm.id)}
@@ -714,8 +713,8 @@ const UserDetailPage: React.FC = () => {
             <div
               className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
                 toast.type === 'success'
-                  ? 'bg-emerald-500 text-white'
-                  : 'bg-red-500 text-white'
+                  ? 'bg-emerald-500 text-gray-900 dark:text-white'
+                  : 'bg-red-500 text-gray-900 dark:text-white'
               }`}
             >
               {toast.type === 'success' ? (
@@ -728,7 +727,7 @@ const UserDetailPage: React.FC = () => {
           </div>
         )}
       </motion.div>
-    </DashboardLayout>
+    </>
   );
 };
 

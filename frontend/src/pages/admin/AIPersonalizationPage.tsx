@@ -8,7 +8,6 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell,
 } from 'recharts';
-import DashboardLayout from '../../components/layout/DashboardLayout';
 import AdminPageHeader from '../../components/admin/shared/AdminPageHeader';
 
 // ------------------------------------------------------------------
@@ -253,18 +252,18 @@ const StatsCard: React.FC<{
   <motion.div
     initial={{ opacity: 0, y: 8 }}
     animate={{ opacity: 1, y: 0 }}
-    className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6"
+    className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6"
   >
     <div className="flex items-center justify-between mb-2">
-      <span className="text-white/60 text-sm">{label}</span>
+      <span className="text-gray-500 dark:text-white/60 text-sm">{label}</span>
       <div className={iconColor}>{icon}</div>
     </div>
-    <p className="text-2xl font-bold text-white">{value}</p>
+    <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
     {change && (
       <p className={`text-xs mt-1 ${
         changeType === 'positive' ? 'text-emerald-400' :
         changeType === 'negative' ? 'text-red-400' :
-        'text-white/40'
+        'text-gray-400 dark:text-white/40'
       }`}>
         {change}
       </p>
@@ -282,12 +281,12 @@ const CustomTooltip: React.FC<{
   if (!active || !payload?.length) return null;
   const data = payload[0];
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-lg p-3 shadow-xl">
-      <p className="text-white font-medium text-sm">{data.payload.category}</p>
-      <p className="text-sm text-white/60">
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg p-3 shadow-xl">
+      <p className="text-gray-900 dark:text-white font-medium text-sm">{data.payload.category}</p>
+      <p className="text-sm text-gray-500 dark:text-white/60">
         Score: <span className={data.value >= data.payload.threshold ? 'text-emerald-400' : 'text-red-400'}>{data.value}%</span>
       </p>
-      <p className="text-xs text-white/40">Threshold: {data.payload.threshold}%</p>
+      <p className="text-xs text-gray-400 dark:text-white/40">Threshold: {data.payload.threshold}%</p>
     </div>
   );
 };
@@ -329,7 +328,7 @@ const AIPersonalizationPage: React.FC = () => {
   ];
 
   return (
-    <DashboardLayout role="admin">
+    <>
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -345,7 +344,7 @@ const AIPersonalizationPage: React.FC = () => {
             { label: 'Personalization' },
           ]}
           actions={
-            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors">
+            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors">
               <RefreshCw className="w-4 h-4" />
               Refresh
             </button>
@@ -396,14 +395,14 @@ const AIPersonalizationPage: React.FC = () => {
               onClick={() => setActiveTab(tab.key)}
               className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
                 activeTab === tab.key
-                  ? 'bg-[#E40000] text-white'
-                  : 'bg-[#22272B] text-white/60 hover:text-white hover:bg-[#2A3035]'
+                  ? 'bg-[#E40000] text-gray-900 dark:text-white'
+                  : 'bg-gray-100 dark:bg-[#22272B] text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-[#2A3035]'
               }`}
             >
               {tab.label}
               {tab.count !== undefined && (
                 <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-                  activeTab === tab.key ? 'bg-white/20' : 'bg-[#2A3035]'
+                  activeTab === tab.key ? 'bg-gray-200 dark:bg-white/20' : 'bg-[#2A3035]'
                 }`}>
                   {tab.count}
                 </span>
@@ -420,8 +419,8 @@ const AIPersonalizationPage: React.FC = () => {
             className="space-y-6"
           >
             {/* Bias Fairness Chart */}
-            <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-white mb-6">Bias & Fairness Scores by Category</h3>
+            <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Bias & Fairness Scores by Category</h3>
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={mockBiasChartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
@@ -451,7 +450,7 @@ const AIPersonalizationPage: React.FC = () => {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-              <div className="flex items-center gap-4 mt-4 text-xs text-white/40">
+              <div className="flex items-center gap-4 mt-4 text-xs text-gray-400 dark:text-white/40">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded bg-emerald-500/80" />
                   <span>Above threshold (85%)</span>
@@ -465,32 +464,32 @@ const AIPersonalizationPage: React.FC = () => {
 
             {/* Quick audit summary */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6 text-center">
+              <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6 text-center">
                 <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-3">
                   <Shield className="w-6 h-6 text-emerald-400" />
                 </div>
                 <p className="text-2xl font-bold text-emerald-400">
                   {mockLearningPathAudits.filter((a) => a.audit_status === 'compliant').length}
                 </p>
-                <p className="text-sm text-white/40 mt-1">Compliant Paths</p>
+                <p className="text-sm text-gray-400 dark:text-white/40 mt-1">Compliant Paths</p>
               </div>
-              <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6 text-center">
+              <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6 text-center">
                 <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center mx-auto mb-3">
                   <AlertTriangle className="w-6 h-6 text-yellow-400" />
                 </div>
                 <p className="text-2xl font-bold text-yellow-400">
                   {mockLearningPathAudits.filter((a) => a.audit_status === 'review_needed').length}
                 </p>
-                <p className="text-sm text-white/40 mt-1">Review Needed</p>
+                <p className="text-sm text-gray-400 dark:text-white/40 mt-1">Review Needed</p>
               </div>
-              <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6 text-center">
+              <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6 text-center">
                 <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-3">
                   <TrendingUp className="w-6 h-6 text-red-400" />
                 </div>
                 <p className="text-2xl font-bold text-red-400">
                   {mockLearningPathAudits.filter((a) => a.audit_status === 'non_compliant').length}
                 </p>
-                <p className="text-sm text-white/40 mt-1">Non-Compliant</p>
+                <p className="text-sm text-gray-400 dark:text-white/40 mt-1">Non-Compliant</p>
               </div>
             </div>
           </motion.div>
@@ -506,7 +505,7 @@ const AIPersonalizationPage: React.FC = () => {
             {mockBiasReports.map((report) => (
               <div
                 key={report.id}
-                className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6"
+                className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-4 min-w-0">
@@ -523,14 +522,14 @@ const AIPersonalizationPage: React.FC = () => {
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-3 mb-1 flex-wrap">
-                        <h4 className="text-white font-semibold">{report.metric_name}</h4>
+                        <h4 className="text-gray-900 dark:text-white font-semibold">{report.metric_name}</h4>
                         <BiasStatusBadge status={report.status} />
-                        <span className="px-2.5 py-0.5 rounded-full text-xs font-medium border bg-[#22272B] text-white/50 border-[#333] capitalize">
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-medium border bg-gray-100 dark:bg-[#22272B] text-gray-500 dark:text-white/50 border-gray-300 dark:border-[#333] capitalize">
                           {report.category}
                         </span>
                       </div>
-                      <p className="text-sm text-white/50 mb-2">{report.description}</p>
-                      <div className="flex items-center gap-4 text-xs text-white/40 flex-wrap">
+                      <p className="text-sm text-gray-500 dark:text-white/50 mb-2">{report.description}</p>
+                      <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-white/40 flex-wrap">
                         <span>Fairness Score: <span className={report.fairness_score >= report.threshold ? 'text-emerald-400' : 'text-red-400'}>{report.fairness_score}%</span></span>
                         <span>Threshold: {report.threshold}%</span>
                         {report.affected_students > 0 && (
@@ -542,7 +541,7 @@ const AIPersonalizationPage: React.FC = () => {
                   </div>
                   <button
                     title="View Details"
-                    className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors flex-shrink-0"
+                    className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors flex-shrink-0"
                   >
                     <Eye className="w-4 h-4" />
                   </button>
@@ -562,21 +561,21 @@ const AIPersonalizationPage: React.FC = () => {
             {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
                 <input
                   type="text"
                   placeholder="Search by student name or path..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
+                  className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
                 />
               </div>
               <div className="relative">
-                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
                 <select
                   value={auditFilter}
                   onChange={(e) => setAuditFilter(e.target.value)}
-                  className="pl-10 pr-8 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[160px]"
+                  className="pl-10 pr-8 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[160px]"
                 >
                   <option value="">All Status</option>
                   <option value="compliant">Compliant</option>
@@ -587,47 +586,47 @@ const AIPersonalizationPage: React.FC = () => {
             </div>
 
             {/* Audits table */}
-            <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+            <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
               {filteredAudits.length === 0 ? (
                 <div className="text-center py-16">
                   <GitBranch className="w-16 h-16 text-white/10 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-white mb-2">No Audits Found</h3>
-                  <p className="text-white/40 text-sm">No learning path audits match your current filters.</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Audits Found</h3>
+                  <p className="text-gray-400 dark:text-white/40 text-sm">No learning path audits match your current filters.</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-[#22272B] text-left">
-                        <th className="px-4 py-3 text-white/60 font-medium">Student</th>
-                        <th className="px-4 py-3 text-white/60 font-medium">Learning Path</th>
-                        <th className="px-4 py-3 text-white/60 font-medium">Subjects</th>
-                        <th className="px-4 py-3 text-white/60 font-medium">Customization</th>
-                        <th className="px-4 py-3 text-white/60 font-medium">Quality</th>
-                        <th className="px-4 py-3 text-white/60 font-medium">AI Model</th>
-                        <th className="px-4 py-3 text-white/60 font-medium">Status</th>
-                        <th className="px-4 py-3 text-white/60 font-medium text-right">Actions</th>
+                      <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
+                        <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Student</th>
+                        <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Learning Path</th>
+                        <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Subjects</th>
+                        <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Customization</th>
+                        <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Quality</th>
+                        <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">AI Model</th>
+                        <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Status</th>
+                        <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredAudits.map((audit) => (
                         <tr
                           key={audit.id}
-                          className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
+                          className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
                         >
                           <td className="px-4 py-3">
                             <div>
-                              <p className="text-white font-medium">{audit.student_name}</p>
-                              <p className="text-xs text-white/40">{audit.grade_level}</p>
+                              <p className="text-gray-900 dark:text-white font-medium">{audit.student_name}</p>
+                              <p className="text-xs text-gray-400 dark:text-white/40">{audit.grade_level}</p>
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-white/70">{audit.path_name}</td>
+                          <td className="px-4 py-3 text-gray-600 dark:text-white/70">{audit.path_name}</td>
                           <td className="px-4 py-3">
                             <div className="flex flex-wrap gap-1">
                               {audit.subjects.map((subject) => (
                                 <span
                                   key={subject}
-                                  className="px-2 py-0.5 rounded text-xs bg-[#22272B] text-white/50 border border-[#333]"
+                                  className="px-2 py-0.5 rounded text-xs bg-gray-100 dark:bg-[#22272B] text-gray-500 dark:text-white/50 border border-gray-300 dark:border-[#333]"
                                 >
                                   {subject}
                                 </span>
@@ -636,7 +635,7 @@ const AIPersonalizationPage: React.FC = () => {
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2">
-                              <div className="w-16 h-1.5 bg-[#22272B] rounded-full overflow-hidden">
+                              <div className="w-16 h-1.5 bg-gray-100 dark:bg-[#22272B] rounded-full overflow-hidden">
                                 <div
                                   className={`h-full rounded-full ${
                                     audit.customization_level >= 85 ? 'bg-emerald-400' :
@@ -646,7 +645,7 @@ const AIPersonalizationPage: React.FC = () => {
                                   style={{ width: `${audit.customization_level}%` }}
                                 />
                               </div>
-                              <span className="text-white/50 text-xs">{audit.customization_level}%</span>
+                              <span className="text-gray-500 dark:text-white/50 text-xs">{audit.customization_level}%</span>
                             </div>
                           </td>
                           <td className="px-4 py-3">
@@ -658,7 +657,7 @@ const AIPersonalizationPage: React.FC = () => {
                               {audit.recommendation_quality}%
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-white/50 text-xs">{audit.ai_model}</td>
+                          <td className="px-4 py-3 text-gray-500 dark:text-white/50 text-xs">{audit.ai_model}</td>
                           <td className="px-4 py-3">
                             <AuditStatusBadge status={audit.audit_status} />
                           </td>
@@ -666,7 +665,7 @@ const AIPersonalizationPage: React.FC = () => {
                             <div className="flex items-center justify-end">
                               <button
                                 title="View Audit"
-                                className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors"
+                                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                               >
                                 <Eye className="w-4 h-4" />
                               </button>
@@ -682,7 +681,7 @@ const AIPersonalizationPage: React.FC = () => {
           </motion.div>
         )}
       </motion.div>
-    </DashboardLayout>
+    </>
   );
 };
 

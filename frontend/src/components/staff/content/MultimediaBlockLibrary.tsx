@@ -71,7 +71,7 @@ const BLOCK_TYPES: BlockType[] = [
     label: 'Divider',
     icon: <Minus className="w-5 h-5" />,
     description: 'Visual separator between sections',
-    color: 'text-white/40',
+    color: 'text-gray-400 dark:text-white/40',
   },
   {
     type: 'callout',
@@ -91,11 +91,11 @@ const BLOCK_TYPES: BlockType[] = [
 
 const MultimediaBlockLibrary: React.FC<MultimediaBlockLibraryProps> = ({ onInsert }) => {
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-3.5 border-b border-[#22272B]">
-        <h3 className="text-sm font-semibold text-white">Content Blocks</h3>
-        <p className="text-xs text-white/40 mt-0.5">Click to insert a block</p>
+      <div className="px-5 py-3.5 border-b border-gray-200 dark:border-[#22272B]">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Content Blocks</h3>
+        <p className="text-xs text-gray-400 dark:text-white/40 mt-0.5">Click to insert a block</p>
       </div>
 
       {/* Block Grid */}
@@ -105,15 +105,15 @@ const MultimediaBlockLibrary: React.FC<MultimediaBlockLibraryProps> = ({ onInser
             <button
               key={block.type}
               onClick={() => onInsert(block.type)}
-              className="group relative flex flex-col items-center gap-2 p-3 rounded-lg border border-[#22272B] bg-[#22272B]/30 hover:bg-[#22272B] hover:border-[#333] transition-all duration-200"
+              className="group relative flex flex-col items-center gap-2 p-3 rounded-lg border border-gray-200 dark:border-[#22272B] bg-gray-100 dark:bg-[#22272B]/30 hover:bg-gray-100 dark:hover:bg-[#22272B] hover:border-gray-300 dark:hover:border-[#333] transition-all duration-200"
             >
               <span className={`${block.color} transition-transform group-hover:scale-110`}>
                 {block.icon}
               </span>
-              <span className="text-xs text-white/70 font-medium">{block.label}</span>
+              <span className="text-xs text-gray-600 dark:text-white/70 font-medium">{block.label}</span>
 
               {/* Hover tooltip */}
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-[#22272B] border border-[#333] rounded-lg text-[10px] text-white/60 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-[10px] text-gray-500 dark:text-white/60 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                 {block.description}
                 <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-[#333]" />
               </div>

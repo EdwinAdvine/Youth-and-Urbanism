@@ -54,13 +54,13 @@ const AdminProfilePage: React.FC = () => {
         ]}
       />
 
-      <div className="flex gap-1 bg-[#181C1F] border border-[#22272B] rounded-lg p-1 w-fit">
+      <div className="flex gap-1 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg p-1 w-fit">
         {(['profile', 'security', 'sessions'] as const).map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 text-sm rounded-md transition-colors capitalize ${
-              activeTab === tab ? 'bg-[#22272B] text-white' : 'text-white/50 hover:text-white/70'
+              activeTab === tab ? 'bg-gray-100 dark:bg-[#22272B] text-gray-900 dark:text-white' : 'text-gray-500 dark:text-white/50 hover:text-gray-600 dark:hover:text-white/70'
             }`}
           >
             {tab === 'sessions' ? 'Active Sessions' : tab}
@@ -69,43 +69,43 @@ const AdminProfilePage: React.FC = () => {
       </div>
 
       {activeTab === 'profile' && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
           <div className="flex items-start gap-6">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-white text-2xl font-bold shrink-0">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-gray-900 dark:text-white text-2xl font-bold shrink-0">
               {profile.first_name[0]}{profile.last_name[0]}
             </div>
             <div className="flex-1 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs text-white/50 mb-1.5">First Name</label>
-                  <input type="text" value={profile.first_name} onChange={e => setProfile({ ...profile, first_name: e.target.value })} className="w-full px-3 py-2 bg-[#22272B] border border-[#333] rounded-lg text-white text-sm focus:outline-none focus:border-[#444]" />
+                  <label className="block text-xs text-gray-500 dark:text-white/50 mb-1.5">First Name</label>
+                  <input type="text" value={profile.first_name} onChange={e => setProfile({ ...profile, first_name: e.target.value })} className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-gray-300 dark:focus:border-[#444]" />
                 </div>
                 <div>
-                  <label className="block text-xs text-white/50 mb-1.5">Last Name</label>
-                  <input type="text" value={profile.last_name} onChange={e => setProfile({ ...profile, last_name: e.target.value })} className="w-full px-3 py-2 bg-[#22272B] border border-[#333] rounded-lg text-white text-sm focus:outline-none focus:border-[#444]" />
+                  <label className="block text-xs text-gray-500 dark:text-white/50 mb-1.5">Last Name</label>
+                  <input type="text" value={profile.last_name} onChange={e => setProfile({ ...profile, last_name: e.target.value })} className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-gray-300 dark:focus:border-[#444]" />
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs text-white/50 mb-1.5">Email</label>
-                  <div className="flex items-center gap-2 px-3 py-2 bg-[#22272B] border border-[#333] rounded-lg">
-                    <Mail className="w-4 h-4 text-white/30" />
-                    <input type="email" value={profile.email} onChange={e => setProfile({ ...profile, email: e.target.value })} className="flex-1 bg-transparent text-white text-sm focus:outline-none" />
+                  <label className="block text-xs text-gray-500 dark:text-white/50 mb-1.5">Email</label>
+                  <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg">
+                    <Mail className="w-4 h-4 text-gray-400 dark:text-white/30" />
+                    <input type="email" value={profile.email} onChange={e => setProfile({ ...profile, email: e.target.value })} className="flex-1 bg-transparent text-gray-900 dark:text-white text-sm focus:outline-none" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs text-white/50 mb-1.5">Phone</label>
-                  <div className="flex items-center gap-2 px-3 py-2 bg-[#22272B] border border-[#333] rounded-lg">
-                    <Phone className="w-4 h-4 text-white/30" />
-                    <input type="tel" value={profile.phone} onChange={e => setProfile({ ...profile, phone: e.target.value })} className="flex-1 bg-transparent text-white text-sm focus:outline-none" />
+                  <label className="block text-xs text-gray-500 dark:text-white/50 mb-1.5">Phone</label>
+                  <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg">
+                    <Phone className="w-4 h-4 text-gray-400 dark:text-white/30" />
+                    <input type="tel" value={profile.phone} onChange={e => setProfile({ ...profile, phone: e.target.value })} className="flex-1 bg-transparent text-gray-900 dark:text-white text-sm focus:outline-none" />
                   </div>
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-white/50 mb-1.5">Bio</label>
-                <textarea value={profile.bio} onChange={e => setProfile({ ...profile, bio: e.target.value })} rows={3} className="w-full px-3 py-2 bg-[#22272B] border border-[#333] rounded-lg text-white text-sm focus:outline-none focus:border-[#444] resize-none" />
+                <label className="block text-xs text-gray-500 dark:text-white/50 mb-1.5">Bio</label>
+                <textarea value={profile.bio} onChange={e => setProfile({ ...profile, bio: e.target.value })} rows={3} className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-gray-300 dark:focus:border-[#444] resize-none" />
               </div>
-              <button className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg transition-colors">
+              <button className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-gray-900 dark:text-white text-sm rounded-lg transition-colors">
                 <Save className="w-4 h-4" />Save Changes
               </button>
             </div>
@@ -115,41 +115,41 @@ const AdminProfilePage: React.FC = () => {
 
       {activeTab === 'security' && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-          <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Key className="w-5 h-5 text-white/50" />
-              <h3 className="text-sm font-medium text-white">Change Password</h3>
+              <Key className="w-5 h-5 text-gray-500 dark:text-white/50" />
+              <h3 className="text-sm font-medium text-gray-900 dark:text-white">Change Password</h3>
             </div>
             <div className="space-y-3 max-w-md">
               <div>
-                <label className="block text-xs text-white/50 mb-1.5">Current Password</label>
+                <label className="block text-xs text-gray-500 dark:text-white/50 mb-1.5">Current Password</label>
                 <div className="relative">
-                  <input type={showPassword ? 'text' : 'password'} placeholder="Enter current password" className="w-full px-3 py-2 pr-10 bg-[#22272B] border border-[#333] rounded-lg text-white text-sm focus:outline-none focus:border-[#444]" />
-                  <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60">
+                  <input type={showPassword ? 'text' : 'password'} placeholder="Enter current password" className="w-full px-3 py-2 pr-10 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-gray-300 dark:focus:border-[#444]" />
+                  <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/30 hover:text-gray-500 dark:hover:text-white/60">
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-white/50 mb-1.5">New Password</label>
-                <input type="password" placeholder="Enter new password" className="w-full px-3 py-2 bg-[#22272B] border border-[#333] rounded-lg text-white text-sm focus:outline-none focus:border-[#444]" />
+                <label className="block text-xs text-gray-500 dark:text-white/50 mb-1.5">New Password</label>
+                <input type="password" placeholder="Enter new password" className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-gray-300 dark:focus:border-[#444]" />
               </div>
               <div>
-                <label className="block text-xs text-white/50 mb-1.5">Confirm New Password</label>
-                <input type="password" placeholder="Confirm new password" className="w-full px-3 py-2 bg-[#22272B] border border-[#333] rounded-lg text-white text-sm focus:outline-none focus:border-[#444]" />
+                <label className="block text-xs text-gray-500 dark:text-white/50 mb-1.5">Confirm New Password</label>
+                <input type="password" placeholder="Confirm new password" className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-gray-300 dark:focus:border-[#444]" />
               </div>
-              <button className="flex items-center gap-2 px-4 py-2 bg-[#22272B] border border-[#333] text-white text-sm rounded-lg hover:border-[#444] transition-colors">
+              <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] text-gray-900 dark:text-white text-sm rounded-lg hover:border-gray-300 dark:hover:border-[#444] transition-colors">
                 <Save className="w-4 h-4" />Update Password
               </button>
             </div>
           </div>
-          <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Shield className="w-5 h-5 text-white/50" />
+                <Shield className="w-5 h-5 text-gray-500 dark:text-white/50" />
                 <div>
-                  <h3 className="text-sm font-medium text-white">Two-Factor Authentication</h3>
-                  <p className="text-xs text-white/40 mt-0.5">Add an extra layer of security to your account</p>
+                  <h3 className="text-sm font-medium text-gray-900 dark:text-white">Two-Factor Authentication</h3>
+                  <p className="text-xs text-gray-400 dark:text-white/40 mt-0.5">Add an extra layer of security to your account</p>
                 </div>
               </div>
               <button onClick={() => setTwoFactorEnabled(!twoFactorEnabled)} className={`relative w-11 h-6 rounded-full transition-colors ${twoFactorEnabled ? 'bg-emerald-500' : 'bg-[#333]'}`}>
@@ -163,23 +163,23 @@ const AdminProfilePage: React.FC = () => {
       {activeTab === 'sessions' && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
           {mockSessions.map(session => (
-            <div key={session.id} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-4">
+            <div key={session.id} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-[#22272B]">
-                    {session.device.includes('iPhone') ? <Smartphone className="w-5 h-5 text-white/50" /> : <Monitor className="w-5 h-5 text-white/50" />}
+                  <div className="p-2 rounded-lg bg-gray-100 dark:bg-[#22272B]">
+                    {session.device.includes('iPhone') ? <Smartphone className="w-5 h-5 text-gray-500 dark:text-white/50" /> : <Monitor className="w-5 h-5 text-gray-500 dark:text-white/50" />}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-white">{session.device}</span>
+                      <span className="text-sm text-gray-900 dark:text-white">{session.device}</span>
                       {session.is_current && <span className="text-[10px] px-1.5 py-0.5 bg-emerald-400/10 text-emerald-400 rounded">Current</span>}
                     </div>
-                    <div className="flex items-center gap-3 mt-0.5 text-xs text-white/40">
+                    <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-400 dark:text-white/40">
                       <span>{session.browser}</span>
                       <span>{session.ip_address}</span>
                       <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{session.location}</span>
                     </div>
-                    <div className="text-[10px] text-white/30 mt-1">Last active: {new Date(session.last_active).toLocaleString()}</div>
+                    <div className="text-[10px] text-gray-400 dark:text-white/30 mt-1">Last active: {new Date(session.last_active).toLocaleString()}</div>
                   </div>
                 </div>
                 {!session.is_current && (

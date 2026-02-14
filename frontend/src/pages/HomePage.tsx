@@ -179,11 +179,11 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
               ? 'fill-yellow-400 text-yellow-400'
               : i === full && hasHalf
               ? 'fill-yellow-400/50 text-yellow-400'
-              : 'text-white/20'
+              : 'text-gray-400 dark:text-gray-300 dark:text-white/20'
           }`}
         />
       ))}
-      <span className="ml-1 text-xs text-white/70">{rating}</span>
+      <span className="ml-1 text-xs text-gray-600 dark:text-white/70">{rating}</span>
     </span>
   );
 };
@@ -219,20 +219,20 @@ const HomePage: React.FC = () => {
           }}
         />
         {/* Dark overlay */}
-        <div className="absolute inset-0 z-[1] bg-[#0F1112]/80" />
+        <div className="absolute inset-0 z-[1] bg-gray-50 dark:bg-[#0F1112]/80" />
 
         {/* Content */}
         <motion.div
-          className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white"
+          className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-900 dark:text-white"
           style={{ opacity: heroOpacity }}
         >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl text-xs sm:text-sm mb-4 sm:mb-6 border border-white/20"
+            className="inline-flex items-center gap-2 bg-gray-100 dark:bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl text-xs sm:text-sm mb-4 sm:mb-6 border border-gray-300 dark:border-white/20"
           >
-            <span className="bg-[#FF0000] text-white text-xs font-bold px-2 py-1 rounded-xl">NEW</span>
+            <span className="bg-[#FF0000] text-gray-900 dark:text-white text-xs font-bold px-2 py-1 rounded-xl">NEW</span>
             AI Tutoring Platform for Kenyan Children
           </motion.div>
 
@@ -251,7 +251,7 @@ const HomePage: React.FC = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl mx-auto mb-6 sm:mb-10 leading-relaxed"
+            className="text-base sm:text-lg md:text-xl text-gray-800 dark:text-white/90 max-w-2xl mx-auto mb-6 sm:mb-10 leading-relaxed"
           >
             Personalized learning aligned with the Competency-Based Curriculum (CBC). Works offline. Safe for children. In
             English and Kiswahili. Designed by Students for Students.
@@ -266,7 +266,7 @@ const HomePage: React.FC = () => {
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Link
                 to="/how-it-works"
-                className="bg-[#FF0000] hover:bg-[#E40000] text-white px-8 py-3 sm:px-10 sm:py-4 rounded-2xl sm:rounded-3xl font-semibold text-base sm:text-lg flex items-center justify-center gap-2 sm:gap-3 transition-colors duration-200 min-h-[44px]"
+                className="bg-[#FF0000] hover:bg-[#E40000] text-gray-900 dark:text-white px-8 py-3 sm:px-10 sm:py-4 rounded-2xl sm:rounded-3xl font-semibold text-base sm:text-lg flex items-center justify-center gap-2 sm:gap-3 transition-colors duration-200 min-h-[44px]"
               >
                 Get Started Free
                 <ArrowRight className="w-5 h-5" />
@@ -274,7 +274,7 @@ const HomePage: React.FC = () => {
             </motion.div>
             <a
               href="#how-it-works"
-              className="border-2 border-white/30 hover:border-[#FF0000] hover:bg-[#FF0000]/20 px-8 py-3 sm:px-10 sm:py-4 rounded-2xl sm:rounded-3xl font-semibold text-base sm:text-lg transition-all duration-200 min-h-[44px] flex items-center justify-center text-white/90 hover:text-white"
+              className="border-2 border-white/30 hover:border-[#FF0000] hover:bg-[#FF0000]/20 px-8 py-3 sm:px-10 sm:py-4 rounded-2xl sm:rounded-3xl font-semibold text-base sm:text-lg transition-all duration-200 min-h-[44px] flex items-center justify-center text-gray-800 dark:text-white/90 hover:text-gray-900 dark:hover:text-white"
             >
               How It Works
             </a>
@@ -284,7 +284,7 @@ const HomePage: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.7 }}
-            className="mt-8 sm:mt-16 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10 text-xs sm:text-sm text-white/80"
+            className="mt-8 sm:mt-16 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10 text-xs sm:text-sm text-gray-700 dark:text-white/80"
           >
             {['Compliant with Kenya\'s Data Protection Act', 'Parental consent required', 'Offline mode available'].map(
               (text, i) => (
@@ -313,13 +313,13 @@ const HomePage: React.FC = () => {
         viewport={{ once: true, amount: 0.3 }}
         variants={fadeUp}
         transition={{ duration: 0.6 }}
-        className="py-16 sm:py-20 bg-[#181C1F]"
+        className="py-16 sm:py-20 bg-white dark:bg-[#181C1F]"
       >
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 sm:mb-12 text-white">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 sm:mb-12 text-gray-900 dark:text-white">
             Every Child Deserves a Chance to Shine
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-gray-800 dark:text-white/90 max-w-3xl mx-auto leading-relaxed">
             In Kenya's urban informal settlements, bright children face overcrowded classrooms, teacher shortages, and
             limited resources. Parents work hard but worry their child is falling behind. Traditional schooling alone isn't
             enough to unlock every child's full potential.
@@ -330,7 +330,7 @@ const HomePage: React.FC = () => {
       {/* ================================================================
           POPULAR CATEGORIES GRID (NEW)
       ================================================================ */}
-      <section className="py-16 sm:py-20 bg-[#0F1112]">
+      <section className="py-16 sm:py-20 bg-gray-50 dark:bg-[#0F1112]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="hidden"
@@ -340,10 +340,10 @@ const HomePage: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-12 sm:mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               CBC Learning Areas
             </h2>
-            <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-gray-700 dark:text-white/80 max-w-2xl mx-auto">
               Explore all subjects aligned with Kenya's Competency-Based Curriculum
             </p>
           </motion.div>
@@ -361,16 +361,16 @@ const HomePage: React.FC = () => {
                 <motion.div key={cat.slug} variants={staggerItem}>
                   <Link
                     to={`/categories/${cat.slug}`}
-                    className="group flex items-start gap-4 bg-[#181C1F] rounded-2xl p-5 sm:p-6 border border-[#22272B] hover:border-[#FF0000]/40 transition-all duration-300 hover:shadow-lg hover:shadow-[#FF0000]/5"
+                    className="group flex items-start gap-4 bg-white dark:bg-[#181C1F] rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-[#22272B] hover:border-[#FF0000]/40 transition-all duration-300 hover:shadow-lg hover:shadow-[#FF0000]/5"
                   >
                     <div className="shrink-0 w-11 h-11 rounded-xl bg-[#FF0000]/10 flex items-center justify-center group-hover:bg-[#FF0000]/20 transition-colors duration-300">
                       <Icon className="w-5 h-5 text-[#FF0000]" />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="font-semibold text-white text-sm sm:text-base mb-1 group-hover:text-[#FF0000] transition-colors duration-300">
+                      <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base mb-1 group-hover:text-[#FF0000] transition-colors duration-300">
                         {cat.name}
                       </h3>
-                      <p className="text-xs sm:text-sm text-white/60 leading-relaxed">{cat.description}</p>
+                      <p className="text-xs sm:text-sm text-gray-500 dark:text-white/60 leading-relaxed">{cat.description}</p>
                     </div>
                   </Link>
                 </motion.div>
@@ -383,7 +383,7 @@ const HomePage: React.FC = () => {
       {/* ================================================================
           OUR SOLUTION / FEATURES SECTION
       ================================================================ */}
-      <section id="features" className="py-16 sm:py-20 bg-[#181C1F]">
+      <section id="features" className="py-16 sm:py-20 bg-white dark:bg-[#181C1F]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="hidden"
@@ -393,10 +393,10 @@ const HomePage: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-12 sm:mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
               Meet The Bird AI &ndash; The Dedicated Tutor in Your Pocket
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-4xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-gray-800 dark:text-white/90 max-w-4xl mx-auto leading-relaxed">
               The Bird AI gives your child a patient, personalized tutor available anytime. Using advanced AI, it delivers
               one-on-one lessons, conversations, and quizzes that follow Kenya's official CBC. It learns your child's
               unique needs and adapts in real time &mdash; all while keeping data private and secure.
@@ -414,11 +414,11 @@ const HomePage: React.FC = () => {
               <motion.div
                 key={feature.id}
                 variants={staggerItem}
-                className="bg-[#0F1112] rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-[#22272B] hover:border-[#FF0000]/30 transition-all duration-300 hover:shadow-lg hover:shadow-[#FF0000]/10 hover:-translate-y-1"
+                className="bg-gray-50 dark:bg-[#0F1112] rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-[#22272B] hover:border-[#FF0000]/30 transition-all duration-300 hover:shadow-lg hover:shadow-[#FF0000]/10 hover:-translate-y-1"
               >
                 <div className="text-4xl sm:text-5xl mb-4">{feature.icon}</div>
-                <h3 className="font-bold text-xl sm:text-2xl text-white mb-3">{feature.title}</h3>
-                <p className="text-sm sm:text-base text-white/80 leading-relaxed">{feature.description}</p>
+                <h3 className="font-bold text-xl sm:text-2xl text-gray-900 dark:text-white mb-3">{feature.title}</h3>
+                <p className="text-sm sm:text-base text-gray-700 dark:text-white/80 leading-relaxed">{feature.description}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -428,7 +428,7 @@ const HomePage: React.FC = () => {
       {/* ================================================================
           FEATURED COURSES CAROUSEL (NEW)
       ================================================================ */}
-      <section className="py-16 sm:py-20 bg-[#0F1112]">
+      <section className="py-16 sm:py-20 bg-gray-50 dark:bg-[#0F1112]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="hidden"
@@ -439,8 +439,8 @@ const HomePage: React.FC = () => {
             className="flex items-end justify-between mb-10 sm:mb-12"
           >
             <div>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3">Featured Courses</h2>
-              <p className="text-base sm:text-lg text-white/80">Handpicked by our educators for every grade</p>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-3">Featured Courses</h2>
+              <p className="text-base sm:text-lg text-gray-700 dark:text-white/80">Handpicked by our educators for every grade</p>
             </div>
             <Link
               to="/courses"
@@ -462,7 +462,7 @@ const HomePage: React.FC = () => {
                 <motion.div
                   key={course.id}
                   variants={staggerItem}
-                  className="snap-start shrink-0 w-[280px] sm:w-[320px] bg-[#181C1F] rounded-2xl border border-[#22272B] overflow-hidden hover:border-[#FF0000]/30 transition-all duration-300 group"
+                  className="snap-start shrink-0 w-[280px] sm:w-[320px] bg-white dark:bg-[#181C1F] rounded-2xl border border-gray-200 dark:border-[#22272B] overflow-hidden hover:border-[#FF0000]/30 transition-all duration-300 group"
                 >
                   <div className="relative h-40 overflow-hidden">
                     <img
@@ -474,19 +474,19 @@ const HomePage: React.FC = () => {
                     <span
                       className={`absolute top-3 right-3 text-xs font-bold px-3 py-1 rounded-full ${
                         course.price === 'Free'
-                          ? 'bg-green-500/90 text-white'
-                          : 'bg-[#FF0000]/90 text-white'
+                          ? 'bg-green-500/90 text-gray-900 dark:text-white'
+                          : 'bg-[#FF0000]/90 text-gray-900 dark:text-white'
                       }`}
                     >
                       {course.price}
                     </span>
                   </div>
                   <div className="p-5">
-                    <h3 className="font-semibold text-white text-sm sm:text-base mb-1 line-clamp-2">{course.title}</h3>
-                    <p className="text-xs text-white/60 mb-3">{course.instructor}</p>
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base mb-1 line-clamp-2">{course.title}</h3>
+                    <p className="text-xs text-gray-500 dark:text-white/60 mb-3">{course.instructor}</p>
                     <div className="flex items-center justify-between">
                       <StarRating rating={course.rating} />
-                      <span className="text-xs text-white/50 flex items-center gap-1">
+                      <span className="text-xs text-gray-500 dark:text-white/50 flex items-center gap-1">
                         <Users className="w-3 h-3" />
                         {course.enrolled.toLocaleString()}
                       </span>
@@ -511,7 +511,7 @@ const HomePage: React.FC = () => {
       {/* ================================================================
           HOW IT WORKS SECTION
       ================================================================ */}
-      <section id="how-it-works" className="py-16 sm:py-20 bg-[#181C1F]">
+      <section id="how-it-works" className="py-16 sm:py-20 bg-white dark:bg-[#181C1F]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="hidden"
@@ -521,8 +521,8 @@ const HomePage: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-12 sm:mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">Simple. Safe. Effective.</h2>
-            <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-3xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">Simple. Safe. Effective.</h2>
+            <p className="text-base sm:text-lg md:text-xl text-gray-800 dark:text-white/90 max-w-3xl mx-auto">
               Everything your child needs to succeed
             </p>
           </motion.div>
@@ -543,13 +543,13 @@ const HomePage: React.FC = () => {
               <motion.div
                 key={item.step}
                 variants={staggerItem}
-                className="bg-[#0F1112] rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-[#22272B] text-center hover:border-[#FF0000]/30 transition-all duration-300"
+                className="bg-gray-50 dark:bg-[#0F1112] rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-[#22272B] text-center hover:border-[#FF0000]/30 transition-all duration-300"
               >
-                <div className="w-12 h-12 bg-[#FF0000] rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
+                <div className="w-12 h-12 bg-[#FF0000] rounded-full flex items-center justify-center text-gray-900 dark:text-white font-bold text-xl mx-auto mb-4">
                   {item.step}
                 </div>
-                <h3 className="font-bold text-lg sm:text-xl text-white mb-3">{item.title}</h3>
-                <p className="text-sm sm:text-base text-white/80 leading-relaxed">{item.desc}</p>
+                <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white mb-3">{item.title}</h3>
+                <p className="text-sm sm:text-base text-gray-700 dark:text-white/80 leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -559,7 +559,7 @@ const HomePage: React.FC = () => {
       {/* ================================================================
           AI BOT TEASER (NEW)
       ================================================================ */}
-      <section className="py-16 sm:py-20 bg-[#0F1112]">
+      <section className="py-16 sm:py-20 bg-gray-50 dark:bg-[#0F1112]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="hidden"
@@ -569,10 +569,10 @@ const HomePage: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-10 sm:mb-14"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               See The Bird AI in Action
             </h2>
-            <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-gray-700 dark:text-white/80 max-w-2xl mx-auto">
               A patient, encouraging tutor that explains concepts step by step
             </p>
           </motion.div>
@@ -584,14 +584,14 @@ const HomePage: React.FC = () => {
               whileInView="visible"
               viewport={{ once: true, amount: 0.3 }}
               variants={staggerContainer}
-              className="bg-[#181C1F] rounded-2xl border border-[#22272B] overflow-hidden"
+              className="bg-white dark:bg-[#181C1F] rounded-2xl border border-gray-200 dark:border-[#22272B] overflow-hidden"
             >
               {/* Title bar */}
-              <div className="flex items-center gap-2 px-5 py-3 border-b border-[#22272B]">
+              <div className="flex items-center gap-2 px-5 py-3 border-b border-gray-200 dark:border-[#22272B]">
                 <div className="w-3 h-3 rounded-full bg-[#FF0000]" />
                 <div className="w-3 h-3 rounded-full bg-yellow-500" />
                 <div className="w-3 h-3 rounded-full bg-green-500" />
-                <span className="ml-2 text-sm text-white/60 font-medium">The Bird AI</span>
+                <span className="ml-2 text-sm text-gray-500 dark:text-white/60 font-medium">The Bird AI</span>
               </div>
 
               {/* Messages */}
@@ -612,8 +612,8 @@ const HomePage: React.FC = () => {
                     <div
                       className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                         bubble.role === 'user'
-                          ? 'bg-[#FF0000] text-white rounded-br-md'
-                          : 'bg-[#22272B] text-white/90 rounded-bl-md'
+                          ? 'bg-[#FF0000] text-gray-900 dark:text-white rounded-br-md'
+                          : 'bg-gray-100 dark:bg-[#22272B] text-gray-800 dark:text-white/90 rounded-bl-md'
                       }`}
                     >
                       {bubble.text}
@@ -624,10 +624,10 @@ const HomePage: React.FC = () => {
 
               {/* Input bar mock */}
               <div className="px-5 pb-5">
-                <div className="flex items-center gap-3 bg-[#0F1112] rounded-xl px-4 py-3 border border-[#22272B]">
-                  <span className="text-white/40 text-sm flex-1">Ask The Bird AI anything...</span>
+                <div className="flex items-center gap-3 bg-gray-50 dark:bg-[#0F1112] rounded-xl px-4 py-3 border border-gray-200 dark:border-[#22272B]">
+                  <span className="text-gray-400 dark:text-white/40 text-sm flex-1">Ask The Bird AI anything...</span>
                   <div className="w-8 h-8 rounded-lg bg-[#FF0000] flex items-center justify-center shrink-0">
-                    <ArrowRight className="w-4 h-4 text-white" />
+                    <ArrowRight className="w-4 h-4 text-gray-900 dark:text-white" />
                   </div>
                 </div>
               </div>
@@ -645,7 +645,7 @@ const HomePage: React.FC = () => {
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Link
                   to="/the-bird"
-                  className="inline-flex items-center gap-2 bg-[#FF0000] hover:bg-[#E40000] text-white px-8 py-3 rounded-2xl font-semibold transition-colors duration-200"
+                  className="inline-flex items-center gap-2 bg-[#FF0000] hover:bg-[#E40000] text-gray-900 dark:text-white px-8 py-3 rounded-2xl font-semibold transition-colors duration-200"
                 >
                   Try The Bird AI
                   <ArrowRight className="w-5 h-5" />
@@ -659,7 +659,7 @@ const HomePage: React.FC = () => {
       {/* ================================================================
           IMPACT SECTION
       ================================================================ */}
-      <section className="py-16 sm:py-20 bg-[#181C1F]">
+      <section className="py-16 sm:py-20 bg-white dark:bg-[#181C1F]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial="hidden"
@@ -668,10 +668,10 @@ const HomePage: React.FC = () => {
             variants={fadeUp}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 sm:mb-12 text-white">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 sm:mb-12 text-gray-900 dark:text-white">
               Real Learning Gains for Kenyan Children
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-3xl mx-auto mb-10 sm:mb-12 leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-gray-800 dark:text-white/90 max-w-3xl mx-auto mb-10 sm:mb-12 leading-relaxed">
               Early pilots and similar AI tutoring programs show up to 30% improvement in learning outcomes. Our vision:
               80%+ retention and measurable gains in CBC competencies.
             </p>
@@ -692,10 +692,10 @@ const HomePage: React.FC = () => {
               <motion.div
                 key={i}
                 variants={staggerItem}
-                className="bg-[#0F1112] rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-[#22272B] text-center"
+                className="bg-gray-50 dark:bg-[#0F1112] rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-[#22272B] text-center"
               >
                 <div className="text-4xl sm:text-5xl mb-4">{item.icon}</div>
-                <h3 className="font-bold text-lg sm:text-xl text-white">{item.label}</h3>
+                <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white">{item.label}</h3>
               </motion.div>
             ))}
           </motion.div>
@@ -706,7 +706,7 @@ const HomePage: React.FC = () => {
             viewport={{ once: true, amount: 0.5 }}
             variants={fadeUp}
             transition={{ duration: 0.5 }}
-            className="text-base sm:text-lg md:text-xl text-white/90"
+            className="text-base sm:text-lg md:text-xl text-gray-800 dark:text-white/90"
           >
             Children feel confident. Parents feel supported. Communities grow stronger.
           </motion.p>
@@ -716,7 +716,7 @@ const HomePage: React.FC = () => {
       {/* ================================================================
           PRICING TEASER (NEW)
       ================================================================ */}
-      <section className="py-16 sm:py-20 bg-[#0F1112]">
+      <section className="py-16 sm:py-20 bg-gray-50 dark:bg-[#0F1112]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="hidden"
@@ -726,10 +726,10 @@ const HomePage: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-12 sm:mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               Affordable Plans for Every Family
             </h2>
-            <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-gray-700 dark:text-white/80 max-w-2xl mx-auto">
               Quality education shouldn't be a luxury. Choose the plan that fits your needs.
             </p>
           </motion.div>
@@ -747,25 +747,25 @@ const HomePage: React.FC = () => {
                 variants={staggerItem}
                 className={`relative rounded-2xl p-6 sm:p-7 border transition-all duration-300 ${
                   tier.highlighted
-                    ? 'bg-[#181C1F] border-[#FF0000]/60 shadow-lg shadow-[#FF0000]/10'
-                    : 'bg-[#181C1F] border-[#22272B] hover:border-[#FF0000]/30'
+                    ? 'bg-white dark:bg-[#181C1F] border-[#FF0000]/60 shadow-lg shadow-[#FF0000]/10'
+                    : 'bg-white dark:bg-[#181C1F] border-gray-200 dark:border-[#22272B] hover:border-[#FF0000]/30'
                 }`}
               >
                 {tier.highlighted && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FF0000] text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FF0000] text-gray-900 dark:text-white text-xs font-bold px-3 py-1 rounded-full">
                     POPULAR
                   </span>
                 )}
-                <h3 className="font-bold text-lg text-white mb-2">{tier.name}</h3>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">{tier.name}</h3>
                 <div className="mb-5">
-                  <span className="text-3xl font-bold text-white">{tier.price}</span>
+                  <span className="text-3xl font-bold text-gray-900 dark:text-white">{tier.price}</span>
                   {tier.period !== 'forever' && (
-                    <span className="text-sm text-white/60">{tier.period}</span>
+                    <span className="text-sm text-gray-500 dark:text-white/60">{tier.period}</span>
                   )}
                 </div>
                 <ul className="space-y-2.5 mb-6">
                   {tier.features.map((f, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-white/80">
+                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-white/80">
                       <svg className="w-4 h-4 text-[#FF0000] shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path
                           fillRule="evenodd"
@@ -782,8 +782,8 @@ const HomePage: React.FC = () => {
                     to="/pricing"
                     className={`block w-full text-center py-2.5 rounded-xl font-semibold text-sm transition-colors duration-200 ${
                       tier.highlighted
-                        ? 'bg-[#FF0000] hover:bg-[#E40000] text-white'
-                        : 'bg-white/5 hover:bg-white/10 text-white border border-[#22272B]'
+                        ? 'bg-[#FF0000] hover:bg-[#E40000] text-gray-900 dark:text-white'
+                        : 'bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-900 dark:text-white border border-gray-200 dark:border-[#22272B]'
                     }`}
                   >
                     Get Started
@@ -814,7 +814,7 @@ const HomePage: React.FC = () => {
       {/* ================================================================
           TESTIMONIALS SECTION
       ================================================================ */}
-      <section className="py-16 sm:py-20 bg-[#181C1F]">
+      <section className="py-16 sm:py-20 bg-white dark:bg-[#181C1F]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="hidden"
@@ -824,7 +824,7 @@ const HomePage: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-12 sm:mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
               What Kenyan Parents Are Saying
             </h2>
           </motion.div>
@@ -840,7 +840,7 @@ const HomePage: React.FC = () => {
               <motion.div
                 key={testimonial.id}
                 variants={staggerItem}
-                className="bg-[#0F1112] rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-[#22272B] hover:border-[#FF0000]/30 transition-all duration-300"
+                className="bg-gray-50 dark:bg-[#0F1112] rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-[#22272B] hover:border-[#FF0000]/30 transition-all duration-300"
               >
                 <div className="flex items-center gap-4 mb-4">
                   <img
@@ -850,11 +850,11 @@ const HomePage: React.FC = () => {
                     loading="lazy"
                   />
                   <div>
-                    <h4 className="font-bold text-white">{testimonial.name}</h4>
-                    <p className="text-sm text-white/80">{testimonial.role}</p>
+                    <h4 className="font-bold text-gray-900 dark:text-white">{testimonial.name}</h4>
+                    <p className="text-sm text-gray-700 dark:text-white/80">{testimonial.role}</p>
                   </div>
                 </div>
-                <p className="text-sm sm:text-base text-white/90 italic">
+                <p className="text-sm sm:text-base text-gray-800 dark:text-white/90 italic">
                   &ldquo;{testimonial.quote}&rdquo;
                 </p>
               </motion.div>
@@ -872,13 +872,13 @@ const HomePage: React.FC = () => {
         viewport={{ once: true, amount: 0.3 }}
         variants={fadeUp}
         transition={{ duration: 0.6 }}
-        className="py-16 sm:py-20 bg-[#0F1112]"
+        className="py-16 sm:py-20 bg-gray-50 dark:bg-[#0F1112]"
       >
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
             Give Your Child the Light of Quality Education Today
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-3xl mx-auto mb-10 sm:mb-12 leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-gray-800 dark:text-white/90 max-w-3xl mx-auto mb-10 sm:mb-12 leading-relaxed">
             Join the The Bird AI pilot in Nairobi. Limited spots for families in informal settlements.
           </p>
 
@@ -886,7 +886,7 @@ const HomePage: React.FC = () => {
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Link
                 to="/how-it-works"
-                className="bg-[#FF0000] hover:bg-[#E40000] text-white px-8 py-3 sm:px-10 sm:py-4 rounded-2xl sm:rounded-3xl font-semibold text-base sm:text-lg flex items-center justify-center gap-2 sm:gap-3 transition-colors duration-200 min-h-[44px]"
+                className="bg-[#FF0000] hover:bg-[#E40000] text-gray-900 dark:text-white px-8 py-3 sm:px-10 sm:py-4 rounded-2xl sm:rounded-3xl font-semibold text-base sm:text-lg flex items-center justify-center gap-2 sm:gap-3 transition-colors duration-200 min-h-[44px]"
               >
                 Enroll Your Child Now
                 <ArrowRight className="w-5 h-5" />
@@ -895,7 +895,7 @@ const HomePage: React.FC = () => {
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Link
                 to="/about"
-                className="border-2 border-white/30 hover:border-[#FF0000] hover:bg-[#FF0000]/20 px-8 py-3 sm:px-10 sm:py-4 rounded-2xl sm:rounded-3xl font-semibold text-base sm:text-lg transition-all duration-200 min-h-[44px] flex items-center justify-center text-white/90 hover:text-white"
+                className="border-2 border-white/30 hover:border-[#FF0000] hover:bg-[#FF0000]/20 px-8 py-3 sm:px-10 sm:py-4 rounded-2xl sm:rounded-3xl font-semibold text-base sm:text-lg transition-all duration-200 min-h-[44px] flex items-center justify-center text-gray-800 dark:text-white/90 hover:text-gray-900 dark:hover:text-white"
               >
                 Learn More for Schools & NGOs
               </Link>
@@ -903,7 +903,7 @@ const HomePage: React.FC = () => {
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Link
                 to="/contact"
-                className="border-2 border-white/30 hover:border-[#FF0000] hover:bg-[#FF0000]/20 px-8 py-3 sm:px-10 sm:py-4 rounded-2xl sm:rounded-3xl font-semibold text-base sm:text-lg transition-all duration-200 min-h-[44px] flex items-center justify-center text-white/90 hover:text-white"
+                className="border-2 border-white/30 hover:border-[#FF0000] hover:bg-[#FF0000]/20 px-8 py-3 sm:px-10 sm:py-4 rounded-2xl sm:rounded-3xl font-semibold text-base sm:text-lg transition-all duration-200 min-h-[44px] flex items-center justify-center text-gray-800 dark:text-white/90 hover:text-gray-900 dark:hover:text-white"
               >
                 Join Waitlist
               </Link>

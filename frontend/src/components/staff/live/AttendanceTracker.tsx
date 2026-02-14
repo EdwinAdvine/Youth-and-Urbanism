@@ -34,11 +34,11 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({ participants }) =
   const absentCount = participants.length - presentCount;
 
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-2 px-5 py-3.5 border-b border-[#22272B]">
-        <UserCheck className="w-4 h-4 text-white/60" />
-        <h3 className="text-sm font-semibold text-white">Attendance</h3>
+      <div className="flex items-center gap-2 px-5 py-3.5 border-b border-gray-200 dark:border-[#22272B]">
+        <UserCheck className="w-4 h-4 text-gray-500 dark:text-white/60" />
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Attendance</h3>
       </div>
 
       {/* Summary cards */}
@@ -59,9 +59,9 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({ participants }) =
 
       {/* Participants table */}
       <div className="px-4 pb-4">
-        <div className="rounded-lg border border-[#22272B] overflow-hidden">
+        <div className="rounded-lg border border-gray-200 dark:border-[#22272B] overflow-hidden">
           {/* Table header */}
-          <div className="grid grid-cols-[1fr_80px_80px_70px] gap-2 px-3 py-2 bg-[#22272B]/50 text-[10px] uppercase tracking-wider text-white/40 font-medium">
+          <div className="grid grid-cols-[1fr_80px_80px_70px] gap-2 px-3 py-2 bg-gray-100 dark:bg-[#22272B]/50 text-[10px] uppercase tracking-wider text-gray-400 dark:text-white/40 font-medium">
             <span>Name</span>
             <span>Joined</span>
             <span>Duration</span>
@@ -69,31 +69,31 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({ participants }) =
           </div>
 
           {/* Table body */}
-          <div className="divide-y divide-[#22272B]">
+          <div className="divide-y divide-gray-200 dark:divide-[#22272B]">
             {participants.length === 0 ? (
               <div className="px-3 py-6 text-center">
                 <Users className="w-6 h-6 text-white/10 mx-auto mb-1" />
-                <p className="text-xs text-white/30">No participants</p>
+                <p className="text-xs text-gray-400 dark:text-white/30">No participants</p>
               </div>
             ) : (
               participants.map((participant) => (
                 <div
                   key={participant.id}
-                  className="grid grid-cols-[1fr_80px_80px_70px] gap-2 px-3 py-2.5 items-center hover:bg-[#22272B]/30 transition-colors"
+                  className="grid grid-cols-[1fr_80px_80px_70px] gap-2 px-3 py-2.5 items-center hover:bg-gray-100 dark:hover:bg-[#22272B]/30 transition-colors"
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <span
                       className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                        participant.isPresent ? 'bg-green-400' : 'bg-white/20'
+                        participant.isPresent ? 'bg-green-400' : 'bg-gray-200 dark:bg-white/20'
                       }`}
                     />
-                    <span className="text-sm text-white/80 truncate">{participant.name}</span>
+                    <span className="text-sm text-gray-700 dark:text-white/80 truncate">{participant.name}</span>
                   </div>
-                  <span className="text-xs text-white/40 flex items-center gap-1">
+                  <span className="text-xs text-gray-400 dark:text-white/40 flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {formatTime(participant.joinedAt)}
                   </span>
-                  <span className="text-xs text-white/40 tabular-nums">
+                  <span className="text-xs text-gray-400 dark:text-white/40 tabular-nums">
                     {calculateDuration(participant.joinedAt)}
                   </span>
                   <div className="flex justify-center">
@@ -103,7 +103,7 @@ const AttendanceTracker: React.FC<AttendanceTrackerProps> = ({ participants }) =
                         Here
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-white/5 text-white/40">
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-gray-50 dark:bg-white/5 text-gray-400 dark:text-white/40">
                         <XCircle className="w-3 h-3" />
                         Left
                       </span>

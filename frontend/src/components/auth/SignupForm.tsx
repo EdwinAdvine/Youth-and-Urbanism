@@ -141,8 +141,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
     return (
       <div className="space-y-4">
         <div className="text-center">
-          <h3 className="text-lg font-semibold text-white mb-2">Choose Your Role</h3>
-          <p className="text-sm text-white/60">Select how you'll use Urban Home School</p>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Choose Your Role</h3>
+          <p className="text-sm text-gray-500 dark:text-white/60">Select how you'll use Urban Home School</p>
         </div>
 
         <div className="grid grid-cols-1 gap-3">
@@ -158,17 +158,17 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
               className={`p-4 text-left rounded-lg border-2 transition-all ${
                 selectedRole === role
                   ? 'border-[#FF0000] bg-[#FF0000]/10'
-                  : 'border-[#2A3035] hover:border-[#FF0000]/50 hover:bg-white/5'
+                  : 'border-[#2A3035] hover:border-[#FF0000]/50 hover:bg-gray-50 dark:hover:bg-white/5'
               }`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 ${color} rounded-lg flex items-center justify-center`}>
-                    <span className="text-white font-bold">{letter}</span>
+                    <span className="text-gray-900 dark:text-white font-bold">{letter}</span>
                   </div>
                   <div>
-                    <h4 className="font-medium text-white">{label}</h4>
-                    <p className="text-xs text-white/60">{desc}</p>
+                    <h4 className="font-medium text-gray-900 dark:text-white">{label}</h4>
+                    <p className="text-xs text-gray-500 dark:text-white/60">{desc}</p>
                   </div>
                 </div>
                 {selectedRole === role && <Check className="w-5 h-5 text-[#FF0000]" />}
@@ -183,7 +183,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
           </p>
         </div>
 
-        <div className="text-center text-sm text-white/60">
+        <div className="text-center text-sm text-gray-500 dark:text-white/60">
           Already have an account?{' '}
           <button
             onClick={onSwitchToLogin}
@@ -202,7 +202,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
       <button
         type="button"
         onClick={() => setStep('role')}
-        className="text-sm text-white/60 hover:text-white transition-colors"
+        className="text-sm text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white transition-colors"
       >
         &larr; Change role ({selectedRole})
       </button>
@@ -210,7 +210,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
       {/* First Name & Last Name */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label htmlFor="firstName" className="block text-sm font-medium text-white/80 mb-2">
+          <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
             First Name
           </label>
           <input
@@ -219,13 +219,13 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
             name="firstName"
             value={formData.firstName}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 bg-[#22272B] border border-[#2A3035] rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
+            className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
             placeholder="First name"
             required
           />
         </div>
         <div>
-          <label htmlFor="lastName" className="block text-sm font-medium text-white/80 mb-2">
+          <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
             Last Name
           </label>
           <input
@@ -234,7 +234,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
             name="lastName"
             value={formData.lastName}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 bg-[#22272B] border border-[#2A3035] rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
+            className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
             placeholder="Last name"
             required
           />
@@ -243,7 +243,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
 
       {/* Email */}
       <div>
-        <label htmlFor="signup-email" className="block text-sm font-medium text-white/80 mb-2">
+        <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
           Email Address
         </label>
         <input
@@ -252,7 +252,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
           name="email"
           value={formData.email}
           onChange={handleInputChange}
-          className="w-full px-3 py-2 bg-[#22272B] border border-[#2A3035] rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
+          className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
           placeholder="Enter your email address"
           required
         />
@@ -260,7 +260,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
 
       {/* Phone Number with Country Code */}
       <div>
-        <label htmlFor="phoneNumber" className="block text-sm font-medium text-white/80 mb-2">
+        <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
           Phone Number
         </label>
         <div className="flex gap-2">
@@ -269,13 +269,13 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
             <button
               type="button"
               onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-              className="flex items-center gap-1 px-3 py-2 bg-[#22272B] border border-[#2A3035] rounded-lg text-white text-sm hover:border-[#FF0000]/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent min-w-[100px]"
+              className="flex items-center gap-1 px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white text-sm hover:border-[#FF0000]/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent min-w-[100px]"
             >
               <span>{formData.countryCode}</span>
-              <ChevronDown className="w-3 h-3 text-white/60" />
+              <ChevronDown className="w-3 h-3 text-gray-500 dark:text-white/60" />
             </button>
             {showCountryDropdown && (
-              <div className="absolute top-full left-0 mt-1 w-56 bg-[#22272B] border border-[#2A3035] rounded-lg shadow-xl z-10 max-h-48 overflow-y-auto">
+              <div className="absolute top-full left-0 mt-1 w-56 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg shadow-xl z-10 max-h-48 overflow-y-auto">
                 {COUNTRY_CODES.map((item) => (
                   <button
                     key={item.code}
@@ -284,8 +284,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
                       setFormData(prev => ({ ...prev, countryCode: item.code }));
                       setShowCountryDropdown(false);
                     }}
-                    className={`w-full text-left px-3 py-2 text-sm hover:bg-white/10 transition-colors ${
-                      formData.countryCode === item.code ? 'text-[#FF0000] bg-white/5' : 'text-white/80'
+                    className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/10 transition-colors ${
+                      formData.countryCode === item.code ? 'text-[#FF0000] bg-gray-50 dark:bg-white/5' : 'text-gray-700 dark:text-white/80'
                     }`}
                   >
                     {item.label}
@@ -301,7 +301,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
             name="phoneNumber"
             value={formData.phoneNumber}
             onChange={handleInputChange}
-            className="flex-1 px-3 py-2 bg-[#22272B] border border-[#2A3035] rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
+            className="flex-1 px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
             placeholder="712 345 678"
           />
         </div>
@@ -309,7 +309,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
 
       {/* Password */}
       <div>
-        <label htmlFor="signup-password" className="block text-sm font-medium text-white/80 mb-2">
+        <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
           Password
         </label>
         <div className="relative">
@@ -319,14 +319,14 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
             name="password"
             value={formData.password}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 bg-[#22272B] border border-[#2A3035] rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent pr-10"
+            className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent pr-10"
             placeholder="Create a password (min 8 characters)"
             required
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-white/60 hover:text-white"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white"
           >
             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
           </button>
@@ -335,7 +335,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
         {/* Password Strength Indicator */}
         {formData.password && (
           <div className="mt-2">
-            <div className="flex items-center gap-2 text-xs text-white/60">
+            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-white/60">
               <span>Strength:</span>
               <div className="flex-1 bg-[#2A3035] rounded-full h-2">
                 <div
@@ -355,7 +355,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
 
       {/* Confirm Password */}
       <div>
-        <label htmlFor="signup-confirmPassword" className="block text-sm font-medium text-white/80 mb-2">
+        <label htmlFor="signup-confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
           Confirm Password
         </label>
         <div className="relative">
@@ -365,14 +365,14 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 bg-[#22272B] border border-[#2A3035] rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent pr-10"
+            className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent pr-10"
             placeholder="Confirm your password"
             required
           />
           <button
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-white/60 hover:text-white"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white"
           >
             {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
           </button>
@@ -398,7 +398,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-[#FF0000] hover:bg-[#E40000] text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full bg-[#FF0000] hover:bg-[#E40000] text-gray-900 dark:text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {isLoading ? (
           <>
@@ -411,7 +411,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
       </button>
 
       {/* Login Link */}
-      <div className="text-center text-sm text-white/60">
+      <div className="text-center text-sm text-gray-500 dark:text-white/60">
         Already have an account?{' '}
         <button
           type="button"

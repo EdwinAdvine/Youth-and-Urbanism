@@ -41,16 +41,16 @@ const KBSuggestions: React.FC<KBSuggestionsProps> = ({
 
   if (suggestions.length === 0) {
     return (
-      <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5 text-center">
+      <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5 text-center">
         <Sparkles className="w-8 h-8 text-white/10 mx-auto mb-2" />
-        <p className="text-sm text-white/40">No AI suggestions at the moment</p>
+        <p className="text-sm text-gray-400 dark:text-white/40">No AI suggestions at the moment</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#181C1F] border border-purple-500/20 rounded-xl p-4">
-      <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+    <div className="bg-white dark:bg-[#181C1F] border border-purple-500/20 rounded-xl p-4">
+      <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
         <Sparkles className="w-4 h-4 text-purple-400" />
         AI Suggestions
       </h3>
@@ -62,7 +62,7 @@ const KBSuggestions: React.FC<KBSuggestionsProps> = ({
           return (
             <div
               key={suggestion.id}
-              className="p-3 bg-[#22272B]/50 border border-[#2A2F34] rounded-lg hover:border-purple-500/20 transition-colors"
+              className="p-3 bg-gray-100 dark:bg-[#22272B]/50 border border-gray-200 dark:border-[#2A2F34] rounded-lg hover:border-purple-500/20 transition-colors"
             >
               <div className="flex items-start gap-3">
                 <div className={`p-2 rounded-lg ${config.color}`}>
@@ -70,7 +70,7 @@ const KBSuggestions: React.FC<KBSuggestionsProps> = ({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs text-white/40">{config.label}</span>
+                    <span className="text-xs text-gray-400 dark:text-white/40">{config.label}</span>
                     <span
                       className={`text-[10px] px-1.5 py-0.5 rounded-full border ${
                         priorityBadge[suggestion.priority]
@@ -79,8 +79,8 @@ const KBSuggestions: React.FC<KBSuggestionsProps> = ({
                       {suggestion.priority}
                     </span>
                   </div>
-                  <h4 className="text-sm text-white font-medium mb-1">{suggestion.title}</h4>
-                  <p className="text-xs text-white/50">{suggestion.description}</p>
+                  <h4 className="text-sm text-gray-900 dark:text-white font-medium mb-1">{suggestion.title}</h4>
+                  <p className="text-xs text-gray-500 dark:text-white/50">{suggestion.description}</p>
                   <div className="flex items-center gap-2 mt-2">
                     {suggestion.type === 'missing' && onCreateArticle && (
                       <button
@@ -103,7 +103,7 @@ const KBSuggestions: React.FC<KBSuggestionsProps> = ({
                     {onDismiss && (
                       <button
                         onClick={() => onDismiss(suggestion.id)}
-                        className="text-xs px-2 py-1 text-white/40 hover:text-white"
+                        className="text-xs px-2 py-1 text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white"
                       >
                         Dismiss
                       </button>

@@ -17,7 +17,6 @@ import {
   Users,
   Award
 } from 'lucide-react';
-import DashboardLayout from '../components/layout/DashboardLayout';
 
 interface Course {
   id: string;
@@ -96,21 +95,21 @@ const CoursesPage: React.FC = () => {
   };
 
   return (
-    <DashboardLayout>
+    <>
       <div className="space-y-6">
         {/* Page Header */}
-        <div className="bg-gradient-to-br from-[#181C1F] to-[#22272B] border border-[#2A3035] rounded-2xl p-6">
+        <div className="bg-gradient-to-br from-white dark:from-[#181C1F] to-[#22272B] border border-[#2A3035] rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-white">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 {category ? category.replace('-', ' ').toUpperCase() : 'All Courses'}
               </h1>
-              <p className="text-white/60 text-sm">
+              <p className="text-gray-500 dark:text-white/60 text-sm">
                 Continue your learning journey with our comprehensive courses
               </p>
             </div>
             <div className="hidden sm:flex items-center gap-4">
-              <div className="flex items-center gap-2 text-white/60">
+              <div className="flex items-center gap-2 text-gray-500 dark:text-white/60">
                 <BookOpen className="w-5 h-5" />
                 <span>{courses.length} courses</span>
               </div>
@@ -124,13 +123,13 @@ const CoursesPage: React.FC = () => {
           {/* Filters and Search */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-white/60 w-5 h-5" />
               <input
                 type="text"
                 placeholder="Search courses, instructors, or topics..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-[#22272B] border border-[#2A3035] rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 focus:border-transparent transition-all"
+                className="w-full pl-10 pr-4 py-3 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 focus:border-transparent transition-all"
               />
             </div>
             
@@ -138,7 +137,7 @@ const CoursesPage: React.FC = () => {
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value as any)}
-                className="px-4 py-3 bg-[#22272B] border border-[#2A3035] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 focus:border-transparent transition-all"
+                className="px-4 py-3 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 focus:border-transparent transition-all"
               >
                 <option value="all">All Status</option>
                 <option value="enrolled">Enrolled</option>
@@ -149,7 +148,7 @@ const CoursesPage: React.FC = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="px-4 py-3 bg-[#22272B] border border-[#2A3035] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 focus:border-transparent transition-all"
+                className="px-4 py-3 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 focus:border-transparent transition-all"
               >
                 <option value="title">Sort by Title</option>
                 <option value="progress">Sort by Progress</option>
@@ -165,24 +164,24 @@ const CoursesPage: React.FC = () => {
             filteredCourses.map((course) => (
               <div
                 key={course.id}
-                className="bg-gradient-to-br from-[#181C1F] to-[#22272B] border border-[#2A3035] rounded-2xl p-6 hover:border-[#FF0000]/50 transition-all duration-300 cursor-pointer group"
+                className="bg-gradient-to-br from-white dark:from-[#181C1F] to-[#22272B] border border-[#2A3035] rounded-2xl p-6 hover:border-[#FF0000]/50 transition-all duration-300 cursor-pointer group"
                 onClick={() => navigate(`/dashboard/student/courses/${course.id}`)}
               >
                 {/* Course Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className={`w-12 h-12 bg-gradient-to-br ${getStatusColor(course.status)} rounded-xl flex items-center justify-center text-white font-bold text-lg group-hover:scale-105 transition-transform`}>
+                    <div className={`w-12 h-12 bg-gradient-to-br ${getStatusColor(course.status)} rounded-xl flex items-center justify-center text-gray-900 dark:text-white font-bold text-lg group-hover:scale-105 transition-transform`}>
                       {getStatusIcon(course.status)}
                     </div>
                     <div>
-                      <h3 className="font-bold text-white text-lg group-hover:text-[#FF0000] transition-colors">
+                      <h3 className="font-bold text-gray-900 dark:text-white text-lg group-hover:text-[#FF0000] transition-colors">
                         {course.title}
                       </h3>
-                      <p className="text-sm text-white/60">{course.instructor}</p>
+                      <p className="text-sm text-gray-500 dark:text-white/60">{course.instructor}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className={`w-16 h-16 bg-gradient-to-br ${getProgressColor(course.progress)} rounded-full flex items-center justify-center text-white font-bold text-lg group-hover:scale-105 transition-transform`}>
+                    <div className={`w-16 h-16 bg-gradient-to-br ${getProgressColor(course.progress)} rounded-full flex items-center justify-center text-gray-900 dark:text-white font-bold text-lg group-hover:scale-105 transition-transform`}>
                       {course.progress}%
                     </div>
                   </div>
@@ -190,9 +189,9 @@ const CoursesPage: React.FC = () => {
 
                 {/* Course Details */}
                 <div className="space-y-3 mb-4">
-                  <p className="text-sm text-white/80 line-clamp-3">{course.description}</p>
+                  <p className="text-sm text-gray-700 dark:text-white/80 line-clamp-3">{course.description}</p>
                   
-                  <div className="flex items-center gap-4 text-xs text-white/60">
+                  <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-white/60">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       {course.duration}
@@ -212,7 +211,7 @@ const CoursesPage: React.FC = () => {
 
                 {/* Progress Bar */}
                 <div className="mb-4">
-                  <div className="flex items-center justify-between text-xs text-white/60 mb-2">
+                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-white/60 mb-2">
                     <span>Progress</span>
                     <span>{course.progress}%</span>
                   </div>
@@ -227,7 +226,7 @@ const CoursesPage: React.FC = () => {
                 {/* Actions */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${getStatusColor(course.status)} text-white`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${getStatusColor(course.status)} text-gray-900 dark:text-white`}>
                       {course.status}
                     </span>
                     {course.status === 'completed' && (
@@ -235,7 +234,7 @@ const CoursesPage: React.FC = () => {
                     )}
                   </div>
                   
-                  <div className="flex items-center gap-2 text-white/60">
+                  <div className="flex items-center gap-2 text-gray-500 dark:text-white/60">
                     <MessageCircle className="w-4 h-4" />
                     <Users className="w-4 h-4" />
                     <span className="text-xs">Community</span>
@@ -246,10 +245,10 @@ const CoursesPage: React.FC = () => {
           ) : (
             <div className="col-span-full text-center py-12">
               <div className="w-16 h-16 bg-gradient-to-br from-[#FF0000] to-[#E40000] rounded-full flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="w-8 h-8 text-white" />
+                <BookOpen className="w-8 h-8 text-gray-900 dark:text-white" />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">No courses found</h3>
-              <p className="text-white/60 mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No courses found</h3>
+              <p className="text-gray-500 dark:text-white/60 mb-6">
                 Try adjusting your search criteria or filters to find what you're looking for.
               </p>
               <button
@@ -257,7 +256,7 @@ const CoursesPage: React.FC = () => {
                   setSearchQuery('');
                   setFilterStatus('all');
                 }}
-                className="bg-gradient-to-r from-[#FF0000] to-[#E40000] text-white px-6 py-2 rounded-lg hover:from-[#E40000] hover:to-[#CC0000] transition-all duration-200"
+                className="bg-gradient-to-r from-[#FF0000] to-[#E40000] text-gray-900 dark:text-white px-6 py-2 rounded-lg hover:from-[#E40000] hover:to-[#CC0000] transition-all duration-200"
               >
                 Clear Filters
               </button>
@@ -269,22 +268,22 @@ const CoursesPage: React.FC = () => {
         {category && filteredCourses.length === 0 && courses.filter(c => c.category === category).length === 0 && (
           <div className="text-center py-12">
             <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-6">
-              <BookOpen className="w-12 h-12 text-white" />
+              <BookOpen className="w-12 h-12 text-gray-900 dark:text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-2">No courses in this category yet</h3>
-            <p className="text-white/60 mb-6">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">No courses in this category yet</h3>
+            <p className="text-gray-500 dark:text-white/60 mb-6">
               We're working on adding more courses to this category. Check back soon or explore other categories!
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <button
                 onClick={() => navigate('/dashboard/student/courses/browse')}
-                className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-200"
+                className="bg-gradient-to-r from-blue-500 to-cyan-500 text-gray-900 dark:text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-200"
               >
                 Browse All Courses
               </button>
               <button
                 onClick={() => navigate('/dashboard/student/support/new-student-guide')}
-                className="border border-[#2A3035] text-white px-6 py-3 rounded-lg hover:border-[#FF0000] hover:text-[#FF0000] transition-all duration-200"
+                className="border border-[#2A3035] text-gray-900 dark:text-white px-6 py-3 rounded-lg hover:border-[#FF0000] hover:text-[#FF0000] transition-all duration-200"
               >
                 Get Course Recommendations
               </button>
@@ -292,7 +291,7 @@ const CoursesPage: React.FC = () => {
           </div>
         )}
       </div>
-    </DashboardLayout>
+    </>
   );
 };
 

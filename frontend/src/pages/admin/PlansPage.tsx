@@ -202,13 +202,13 @@ const PlansPage: React.FC = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-16 bg-[#22272B] rounded-lg animate-pulse" />
+        <div className="h-16 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-28 bg-[#22272B] rounded-xl animate-pulse" />
+            <div key={i} className="h-28 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
           ))}
         </div>
-        <div className="h-80 bg-[#22272B] rounded-xl animate-pulse" />
+        <div className="h-80 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
       </div>
     );
   }
@@ -232,7 +232,7 @@ const PlansPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => { setEditingPlan(null); setShowForm(true); }}
-              className="flex items-center gap-2 px-3 py-2 text-sm bg-[#E40000] rounded-lg text-white hover:bg-[#C00] transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-[#E40000] rounded-lg text-gray-900 dark:text-white hover:bg-[#C00] transition-colors"
             >
               <Plus className="w-4 h-4" />
               New Plan
@@ -240,7 +240,7 @@ const PlansPage: React.FC = () => {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
@@ -272,43 +272,43 @@ const PlansPage: React.FC = () => {
       </motion.div>
 
       {/* Plans Table */}
-      <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+      <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#22272B] text-left">
-                <th className="px-4 py-3 text-white/60 font-medium">Plan Name</th>
-                <th className="px-4 py-3 text-white/60 font-medium">Price</th>
-                <th className="px-4 py-3 text-white/60 font-medium">Billing Cycle</th>
-                <th className="px-4 py-3 text-white/60 font-medium">Subscribers</th>
-                <th className="px-4 py-3 text-white/60 font-medium">Revenue</th>
-                <th className="px-4 py-3 text-white/60 font-medium">Status</th>
-                <th className="px-4 py-3 text-white/60 font-medium text-right">Actions</th>
+              <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Plan Name</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Price</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Billing Cycle</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Subscribers</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Revenue</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Status</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {plans.map((plan) => (
-                <tr key={plan.id} className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
+                <tr key={plan.id} className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
                   <td className="px-4 py-3">
                     <div>
-                      <span className="text-white font-medium">{plan.name}</span>
-                      <span className="block text-xs text-white/40 mt-0.5">
+                      <span className="text-gray-900 dark:text-white font-medium">{plan.name}</span>
+                      <span className="block text-xs text-gray-400 dark:text-white/40 mt-0.5">
                         {plan.features.slice(0, 2).join(', ')}
                         {plan.features.length > 2 && ` +${plan.features.length - 2} more`}
                       </span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-white font-medium">{formatKES(plan.price)}</td>
+                  <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">{formatKES(plan.price)}</td>
                   <td className="px-4 py-3"><CycleBadge cycle={plan.billing_cycle} /></td>
-                  <td className="px-4 py-3 text-white/80">{plan.subscriber_count.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-white/80">{formatKES(plan.revenue)}</td>
+                  <td className="px-4 py-3 text-gray-700 dark:text-white/80">{plan.subscriber_count.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-gray-700 dark:text-white/80">{formatKES(plan.revenue)}</td>
                   <td className="px-4 py-3"><StatusBadge status={plan.status} /></td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
                       <button
                         onClick={() => handleToggleStatus(plan.id)}
                         title={plan.status === 'active' ? 'Deactivate' : 'Activate'}
-                        className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                       >
                         {plan.status === 'active' ? (
                           <ToggleRight className="w-4 h-4 text-emerald-400" />
@@ -319,14 +319,14 @@ const PlansPage: React.FC = () => {
                       <button
                         onClick={() => { setEditingPlan(plan); setShowForm(true); }}
                         title="Edit"
-                        className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                       >
                         <Edit3 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(plan.id)}
                         title="Delete"
-                        className="p-1.5 rounded-lg hover:bg-red-500/10 text-white/50 hover:text-red-400 transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 dark:text-white/50 hover:text-red-400 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -345,15 +345,15 @@ const PlansPage: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6 w-full max-w-lg"
+            className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6 w-full max-w-lg"
           >
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-white">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {editingPlan ? 'Edit Plan' : 'Create New Plan'}
               </h2>
               <button
                 onClick={() => setShowForm(false)}
-                className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors"
+                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -361,29 +361,29 @@ const PlansPage: React.FC = () => {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm text-white/60 mb-1.5">Plan Name</label>
+                <label className="block text-sm text-gray-500 dark:text-white/60 mb-1.5">Plan Name</label>
                 <input
                   type="text"
                   defaultValue={editingPlan?.name || ''}
                   placeholder="Enter plan name"
-                  className="w-full px-4 py-2.5 bg-[#0F1112] border border-[#22272B] rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
+                  className="w-full px-4 py-2.5 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-white/60 mb-1.5">Price (KES)</label>
+                  <label className="block text-sm text-gray-500 dark:text-white/60 mb-1.5">Price (KES)</label>
                   <input
                     type="number"
                     defaultValue={editingPlan?.price || ''}
                     placeholder="0"
-                    className="w-full px-4 py-2.5 bg-[#0F1112] border border-[#22272B] rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
+                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-white/60 mb-1.5">Billing Cycle</label>
+                  <label className="block text-sm text-gray-500 dark:text-white/60 mb-1.5">Billing Cycle</label>
                   <select
                     defaultValue={editingPlan?.billing_cycle || 'monthly'}
-                    className="w-full px-4 py-2.5 bg-[#0F1112] border border-[#22272B] rounded-lg text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors"
+                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors"
                   >
                     <option value="monthly">Monthly</option>
                     <option value="quarterly">Quarterly</option>
@@ -392,12 +392,12 @@ const PlansPage: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm text-white/60 mb-1.5">Features (one per line)</label>
+                <label className="block text-sm text-gray-500 dark:text-white/60 mb-1.5">Features (one per line)</label>
                 <textarea
                   rows={4}
                   defaultValue={editingPlan?.features.join('\n') || ''}
                   placeholder="Feature 1&#10;Feature 2&#10;Feature 3"
-                  className="w-full px-4 py-2.5 bg-[#0F1112] border border-[#22272B] rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors resize-none"
+                  className="w-full px-4 py-2.5 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors resize-none"
                 />
               </div>
             </div>
@@ -405,13 +405,13 @@ const PlansPage: React.FC = () => {
             <div className="flex items-center justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowForm(false)}
-                className="px-4 py-2 text-sm text-white/60 hover:text-white transition-colors"
+                className="px-4 py-2 text-sm text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={() => setShowForm(false)}
-                className="flex items-center gap-2 px-4 py-2 text-sm bg-[#E40000] rounded-lg text-white hover:bg-[#C00] transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-[#E40000] rounded-lg text-gray-900 dark:text-white hover:bg-[#C00] transition-colors"
               >
                 <Check className="w-4 h-4" />
                 {editingPlan ? 'Save Changes' : 'Create Plan'}

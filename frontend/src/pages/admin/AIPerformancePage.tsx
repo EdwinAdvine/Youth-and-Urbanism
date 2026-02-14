@@ -8,7 +8,6 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend,
 } from 'recharts';
-import DashboardLayout from '../../components/layout/DashboardLayout';
 import AdminPageHeader from '../../components/admin/shared/AdminPageHeader';
 
 // ------------------------------------------------------------------
@@ -224,18 +223,18 @@ const StatsCard: React.FC<{
   <motion.div
     initial={{ opacity: 0, y: 8 }}
     animate={{ opacity: 1, y: 0 }}
-    className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6"
+    className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6"
   >
     <div className="flex items-center justify-between mb-2">
-      <span className="text-white/60 text-sm">{label}</span>
+      <span className="text-gray-500 dark:text-white/60 text-sm">{label}</span>
       <div className={iconColor}>{icon}</div>
     </div>
-    <p className="text-2xl font-bold text-white">{value}</p>
+    <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
     {change && (
       <p className={`text-xs mt-1 ${
         changeType === 'positive' ? 'text-emerald-400' :
         changeType === 'negative' ? 'text-red-400' :
-        'text-white/40'
+        'text-gray-400 dark:text-white/40'
       }`}>
         {change}
       </p>
@@ -253,10 +252,10 @@ const CustomTooltip: React.FC<{
 }> = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-lg p-3 shadow-xl">
-      <p className="text-white font-medium text-sm mb-2">{label}</p>
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg p-3 shadow-xl">
+      <p className="text-gray-900 dark:text-white font-medium text-sm mb-2">{label}</p>
       {payload.map((entry) => (
-        <p key={entry.name} className="text-xs text-white/60">
+        <p key={entry.name} className="text-xs text-gray-500 dark:text-white/60">
           <span style={{ color: entry.color }}>{entry.name}</span>: {entry.value}s
         </p>
       ))}
@@ -299,7 +298,7 @@ const AIPerformancePage: React.FC = () => {
   ];
 
   return (
-    <DashboardLayout role="admin">
+    <>
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -315,7 +314,7 @@ const AIPerformancePage: React.FC = () => {
             { label: 'Performance' },
           ]}
           actions={
-            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors">
+            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors">
               <RefreshCw className="w-4 h-4" />
               Refresh
             </button>
@@ -359,18 +358,18 @@ const AIPerformancePage: React.FC = () => {
         </div>
 
         {/* Response Time Chart */}
-        <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+        <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-white">Response Time Over Time</h3>
-            <div className="flex items-center gap-1 bg-[#0F1112] border border-[#22272B] rounded-lg p-1">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Response Time Over Time</h3>
+            <div className="flex items-center gap-1 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg p-1">
               {timeRanges.map((range) => (
                 <button
                   key={range.value}
                   onClick={() => setSelectedTimeRange(range.value)}
                   className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
                     selectedTimeRange === range.value
-                      ? 'bg-[#E40000] text-white'
-                      : 'text-white/50 hover:text-white'
+                      ? 'bg-[#E40000] text-gray-900 dark:text-white'
+                      : 'text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   {range.label}
@@ -398,7 +397,7 @@ const AIPerformancePage: React.FC = () => {
                 <Legend
                   wrapperStyle={{ paddingTop: '16px' }}
                   formatter={(value: string) => (
-                    <span className="text-xs text-white/60">{value}</span>
+                    <span className="text-xs text-gray-500 dark:text-white/60">{value}</span>
                   )}
                 />
                 <Line
@@ -443,38 +442,38 @@ const AIPerformancePage: React.FC = () => {
         </div>
 
         {/* Provider Performance Table */}
-        <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#22272B]">
-            <h3 className="text-lg font-semibold text-white">Provider Performance</h3>
-            <p className="text-xs text-white/40 mt-1">Real-time performance metrics for all AI providers</p>
+        <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-[#22272B]">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Provider Performance</h3>
+            <p className="text-xs text-gray-400 dark:text-white/40 mt-1">Real-time performance metrics for all AI providers</p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#22272B] text-left">
-                  <th className="px-4 py-3 text-white/60 font-medium">Provider</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Avg Latency</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">P95 Latency</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Error Rate</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Satisfaction</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Requests Today</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Status</th>
-                  <th className="px-4 py-3 text-white/60 font-medium text-right">Actions</th>
+                <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Provider</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Avg Latency</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">P95 Latency</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Error Rate</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Satisfaction</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Requests Today</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Status</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {mockProviderPerformance.map((provider) => (
                   <tr
                     key={provider.id}
-                    className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
+                    className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-[#22272B] flex items-center justify-center flex-shrink-0">
-                          <Server className="w-4 h-4 text-white/60" />
+                        <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-[#22272B] flex items-center justify-center flex-shrink-0">
+                          <Server className="w-4 h-4 text-gray-500 dark:text-white/60" />
                         </div>
                         <div>
-                          <p className="text-white font-medium">{provider.provider}</p>
+                          <p className="text-gray-900 dark:text-white font-medium">{provider.provider}</p>
                           {provider.last_error && (
                             <p className="text-xs text-red-400 truncate max-w-[200px]">{provider.last_error}</p>
                           )}
@@ -490,7 +489,7 @@ const AIPerformancePage: React.FC = () => {
                         {formatLatency(provider.avg_latency_ms)}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-white/50">{formatLatency(provider.p95_latency_ms)}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-white/50">{formatLatency(provider.p95_latency_ms)}</td>
                     <td className="px-4 py-3">
                       <span className={`font-medium ${
                         provider.error_rate <= 1 ? 'text-emerald-400' :
@@ -502,11 +501,11 @@ const AIPerformancePage: React.FC = () => {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
-                        <ThumbsUp className="w-3 h-3 text-white/40" />
-                        <span className="text-white/70">{provider.satisfaction}</span>
+                        <ThumbsUp className="w-3 h-3 text-gray-400 dark:text-white/40" />
+                        <span className="text-gray-600 dark:text-white/70">{provider.satisfaction}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-white/50">{provider.total_requests_today.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-white/50">{provider.total_requests_today.toLocaleString()}</td>
                     <td className="px-4 py-3">
                       <ProviderStatusBadge status={provider.status} />
                     </td>
@@ -514,7 +513,7 @@ const AIPerformancePage: React.FC = () => {
                       <div className="flex items-center justify-end">
                         <button
                           title="View Details"
-                          className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors"
+                          className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
@@ -528,13 +527,13 @@ const AIPerformancePage: React.FC = () => {
         </div>
 
         {/* Recent Incidents */}
-        <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Recent Incidents</h3>
+        <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Incidents</h3>
           <div className="space-y-3">
             {mockRecentIncidents.map((incident) => (
               <div
                 key={incident.id}
-                className="flex items-start justify-between p-4 bg-[#0F1112] border border-[#22272B] rounded-lg"
+                className="flex items-start justify-between p-4 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg"
               >
                 <div className="flex items-start gap-3 min-w-0">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
@@ -546,8 +545,8 @@ const AIPerformancePage: React.FC = () => {
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <h4 className="text-sm font-semibold text-white">{incident.incident_type}</h4>
-                      <span className="px-2 py-0.5 rounded text-xs bg-[#22272B] text-white/50 border border-[#333]">
+                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{incident.incident_type}</h4>
+                      <span className="px-2 py-0.5 rounded text-xs bg-gray-100 dark:bg-[#22272B] text-gray-500 dark:text-white/50 border border-gray-300 dark:border-[#333]">
                         {incident.provider}
                       </span>
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${
@@ -558,8 +557,8 @@ const AIPerformancePage: React.FC = () => {
                         {incident.resolved_at ? 'Resolved' : 'Ongoing'}
                       </span>
                     </div>
-                    <p className="text-xs text-white/50 mb-1">{incident.description}</p>
-                    <div className="flex items-center gap-3 text-xs text-white/40">
+                    <p className="text-xs text-gray-500 dark:text-white/50 mb-1">{incident.description}</p>
+                    <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-white/40">
                       <span>Started: {formatDate(incident.started_at)}</span>
                       {incident.duration_minutes !== null && (
                         <span>Duration: {incident.duration_minutes}min</span>
@@ -572,7 +571,7 @@ const AIPerformancePage: React.FC = () => {
           </div>
         </div>
       </motion.div>
-    </DashboardLayout>
+    </>
   );
 };
 

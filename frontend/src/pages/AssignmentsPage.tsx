@@ -18,7 +18,6 @@ import {
   AlertCircle,
   FileCheck
 } from 'lucide-react';
-import DashboardLayout from '../components/layout/DashboardLayout';
 
 interface Assignment {
   id: string;
@@ -104,21 +103,21 @@ const AssignmentsPage: React.FC = () => {
   };
 
   return (
-    <DashboardLayout>
+    <>
       <div className="space-y-6">
         {/* Page Header */}
-        <div className="bg-gradient-to-br from-[#181C1F] to-[#22272B] border border-[#2A3035] rounded-2xl p-6">
+        <div className="bg-gradient-to-br from-white dark:from-[#181C1F] to-[#22272B] border border-[#2A3035] rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-white">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 {filterStatus === 'all' ? 'All Assignments' : `${filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1)} Assignments`}
               </h1>
-              <p className="text-white/60 text-sm">
+              <p className="text-gray-500 dark:text-white/60 text-sm">
                 Manage your assignments and track your progress
               </p>
             </div>
             <div className="hidden sm:flex items-center gap-4">
-              <div className="flex items-center gap-2 text-white/60">
+              <div className="flex items-center gap-2 text-gray-500 dark:text-white/60">
                 <FileText className="w-5 h-5" />
                 <span>{assignments.length} assignments</span>
               </div>
@@ -133,13 +132,13 @@ const AssignmentsPage: React.FC = () => {
           {/* Filters and Search */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-white/60 w-5 h-5" />
               <input
                 type="text"
                 placeholder="Search assignments, courses, or descriptions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-[#22272B] border border-[#2A3035] rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 focus:border-transparent transition-all"
+                className="w-full pl-10 pr-4 py-3 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 focus:border-transparent transition-all"
               />
             </div>
             
@@ -147,7 +146,7 @@ const AssignmentsPage: React.FC = () => {
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value as any)}
-                className="px-4 py-3 bg-[#22272B] border border-[#2A3035] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 focus:border-transparent transition-all"
+                className="px-4 py-3 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 focus:border-transparent transition-all"
               >
                 <option value="all">All Status</option>
                 <option value="pending">Pending</option>
@@ -158,7 +157,7 @@ const AssignmentsPage: React.FC = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="px-4 py-3 bg-[#22272B] border border-[#2A3035] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 focus:border-transparent transition-all"
+                className="px-4 py-3 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 focus:border-transparent transition-all"
               >
                 <option value="due_date">Sort by Due Date</option>
                 <option value="title">Sort by Title</option>
@@ -175,22 +174,22 @@ const AssignmentsPage: React.FC = () => {
             filteredAssignments.map((assignment) => (
               <div
                 key={assignment.id}
-                className={`bg-gradient-to-br from-[#181C1F] to-[#22272B] border border-[#2A3035] rounded-xl p-6 hover:border-[#FF0000]/50 transition-all duration-300 ${
+                className={`bg-gradient-to-br from-white dark:from-[#181C1F] to-[#22272B] border border-[#2A3035] rounded-xl p-6 hover:border-[#FF0000]/50 transition-all duration-300 ${
                   isOverdue(assignment.dueDate) && assignment.status === 'pending' ? 'ring-2 ring-red-500/30' : ''
                 }`}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-start gap-4">
-                    <div className={`w-12 h-12 bg-gradient-to-br ${getStatusColor(assignment.status)} rounded-xl flex items-center justify-center text-white font-bold text-lg`}>
+                    <div className={`w-12 h-12 bg-gradient-to-br ${getStatusColor(assignment.status)} rounded-xl flex items-center justify-center text-gray-900 dark:text-white font-bold text-lg`}>
                       {getStatusIcon(assignment.status)}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-bold text-white text-lg group-hover:text-[#FF0000] transition-colors">
+                        <h3 className="font-bold text-gray-900 dark:text-white text-lg group-hover:text-[#FF0000] transition-colors">
                           {assignment.title}
                         </h3>
                         {assignment.status === 'graded' && assignment.grade && (
-                          <span className="px-2 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs rounded-full font-medium">
+                          <span className="px-2 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-gray-900 dark:text-white text-xs rounded-full font-medium">
                             {assignment.grade}/{assignment.maxPoints} points
                           </span>
                         )}
@@ -201,14 +200,14 @@ const AssignmentsPage: React.FC = () => {
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-white/60 mb-2">{assignment.courseTitle}</p>
-                      <p className="text-sm text-white/80 line-clamp-2">{assignment.description}</p>
+                      <p className="text-sm text-gray-500 dark:text-white/60 mb-2">{assignment.courseTitle}</p>
+                      <p className="text-sm text-gray-700 dark:text-white/80 line-clamp-2">{assignment.description}</p>
                     </div>
                   </div>
                   
                   <div className="text-right">
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-xs text-white/60">
+                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-white/60">
                         <Calendar className="w-3 h-3" />
                         <span>{assignment.dueDate.toLocaleDateString()}</span>
                       </div>
@@ -227,29 +226,29 @@ const AssignmentsPage: React.FC = () => {
 
                 {/* Assignment Details */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <div className="bg-[#22272B] border border-[#2A3035] rounded-lg p-3">
-                    <div className="flex items-center gap-2 text-xs text-white/60 mb-1">
+                  <div className="bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg p-3">
+                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-white/60 mb-1">
                       <FileText className="w-3 h-3" />
                       <span>Max Points</span>
                     </div>
-                    <p className="text-lg font-bold text-white">{assignment.maxPoints}</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">{assignment.maxPoints}</p>
                   </div>
                   
-                  <div className="bg-[#22272B] border border-[#2A3035] rounded-lg p-3">
-                    <div className="flex items-center gap-2 text-xs text-white/60 mb-1">
+                  <div className="bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg p-3">
+                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-white/60 mb-1">
                       <Calendar className="w-3 h-3" />
                       <span>Due Date</span>
                     </div>
-                    <p className="text-lg font-bold text-white">{assignment.dueDate.toLocaleDateString()}</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">{assignment.dueDate.toLocaleDateString()}</p>
                   </div>
                   
                   {assignment.status === 'graded' && (
-                    <div className="bg-[#22272B] border border-[#2A3035] rounded-lg p-3">
-                      <div className="flex items-center gap-2 text-xs text-white/60 mb-1">
+                    <div className="bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-white/60 mb-1">
                         <TrendingUp className="w-3 h-3" />
                         <span>Your Grade</span>
                       </div>
-                      <p className="text-lg font-bold text-white">{assignment.grade || 0}/{assignment.maxPoints}</p>
+                      <p className="text-lg font-bold text-gray-900 dark:text-white">{assignment.grade || 0}/{assignment.maxPoints}</p>
                     </div>
                   )}
                 </div>
@@ -257,11 +256,11 @@ const AssignmentsPage: React.FC = () => {
                 {/* Actions */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${getStatusColor(assignment.status)} text-white`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${getStatusColor(assignment.status)} text-gray-900 dark:text-white`}>
                       {assignment.status}
                     </span>
                     {assignment.attachments && assignment.attachments.length > 0 && (
-                      <span className="text-xs text-white/60">
+                      <span className="text-xs text-gray-500 dark:text-white/60">
                         {assignment.attachments.length} attachment(s)
                       </span>
                     )}
@@ -272,14 +271,14 @@ const AssignmentsPage: React.FC = () => {
                       <>
                         <button
                           onClick={() => navigate(`/dashboard/student/assignments/${assignment.id}/submit`)}
-                          className="flex items-center gap-2 bg-gradient-to-r from-[#FF0000] to-[#E40000] text-white px-4 py-2 rounded-lg hover:from-[#E40000] hover:to-[#CC0000] transition-all duration-200"
+                          className="flex items-center gap-2 bg-gradient-to-r from-[#FF0000] to-[#E40000] text-gray-900 dark:text-white px-4 py-2 rounded-lg hover:from-[#E40000] hover:to-[#CC0000] transition-all duration-200"
                         >
                           <Upload className="w-4 h-4" />
                           Submit
                         </button>
                         <button
                           onClick={() => navigate(`/dashboard/student/assignments/${assignment.id}`)}
-                          className="flex items-center gap-2 border border-[#2A3035] text-white px-4 py-2 rounded-lg hover:border-[#FF0000] hover:text-[#FF0000] transition-all duration-200"
+                          className="flex items-center gap-2 border border-[#2A3035] text-gray-900 dark:text-white px-4 py-2 rounded-lg hover:border-[#FF0000] hover:text-[#FF0000] transition-all duration-200"
                         >
                           <Eye className="w-4 h-4" />
                           View Details
@@ -290,14 +289,14 @@ const AssignmentsPage: React.FC = () => {
                       <>
                         <button
                           onClick={() => navigate(`/dashboard/student/assignments/${assignment.id}`)}
-                          className="flex items-center gap-2 border border-[#2A3035] text-white px-4 py-2 rounded-lg hover:border-[#FF0000] hover:text-[#FF0000] transition-all duration-200"
+                          className="flex items-center gap-2 border border-[#2A3035] text-gray-900 dark:text-white px-4 py-2 rounded-lg hover:border-[#FF0000] hover:text-[#FF0000] transition-all duration-200"
                         >
                           <Eye className="w-4 h-4" />
                           View Submission
                         </button>
                         {assignment.attachments && (
                           <button
-                            className="flex items-center gap-2 border border-[#2A3035] text-white px-4 py-2 rounded-lg hover:border-[#FF0000] hover:text-[#FF0000] transition-all duration-200"
+                            className="flex items-center gap-2 border border-[#2A3035] text-gray-900 dark:text-white px-4 py-2 rounded-lg hover:border-[#FF0000] hover:text-[#FF0000] transition-all duration-200"
                           >
                             <Download className="w-4 h-4" />
                             Download
@@ -309,14 +308,14 @@ const AssignmentsPage: React.FC = () => {
                       <>
                         <button
                           onClick={() => navigate(`/dashboard/student/assignments/${assignment.id}`)}
-                          className="flex items-center gap-2 border border-[#2A3035] text-white px-4 py-2 rounded-lg hover:border-[#FF0000] hover:text-[#FF0000] transition-all duration-200"
+                          className="flex items-center gap-2 border border-[#2A3035] text-gray-900 dark:text-white px-4 py-2 rounded-lg hover:border-[#FF0000] hover:text-[#FF0000] transition-all duration-200"
                         >
                           <Eye className="w-4 h-4" />
                           View Feedback
                         </button>
                         {assignment.attachments && (
                           <button
-                            className="flex items-center gap-2 border border-[#2A3035] text-white px-4 py-2 rounded-lg hover:border-[#FF0000] hover:text-[#FF0000] transition-all duration-200"
+                            className="flex items-center gap-2 border border-[#2A3035] text-gray-900 dark:text-white px-4 py-2 rounded-lg hover:border-[#FF0000] hover:text-[#FF0000] transition-all duration-200"
                           >
                             <Download className="w-4 h-4" />
                             Download
@@ -329,12 +328,12 @@ const AssignmentsPage: React.FC = () => {
 
                 {/* Feedback */}
                 {assignment.status === 'graded' && assignment.feedback && (
-                  <div className="mt-4 p-4 bg-[#22272B] border border-[#2A3035] rounded-lg">
-                    <div className="flex items-center gap-2 text-xs text-white/60 mb-2">
+                  <div className="mt-4 p-4 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg">
+                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-white/60 mb-2">
                       <Star className="w-3 h-3" />
                       <span>Feedback</span>
                     </div>
-                    <p className="text-sm text-white/80">{assignment.feedback}</p>
+                    <p className="text-sm text-gray-700 dark:text-white/80">{assignment.feedback}</p>
                   </div>
                 )}
               </div>
@@ -342,10 +341,10 @@ const AssignmentsPage: React.FC = () => {
           ) : (
             <div className="text-center py-12">
               <div className="w-16 h-16 bg-gradient-to-br from-[#FF0000] to-[#E40000] rounded-full flex items-center justify-center mx-auto mb-4">
-                <FileText className="w-8 h-8 text-white" />
+                <FileText className="w-8 h-8 text-gray-900 dark:text-white" />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">No assignments found</h3>
-              <p className="text-white/60 mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No assignments found</h3>
+              <p className="text-gray-500 dark:text-white/60 mb-6">
                 Try adjusting your search criteria or filters to find what you're looking for.
               </p>
               <button
@@ -353,7 +352,7 @@ const AssignmentsPage: React.FC = () => {
                   setSearchQuery('');
                   setFilterStatus('all');
                 }}
-                className="bg-gradient-to-r from-[#FF0000] to-[#E40000] text-white px-6 py-2 rounded-lg hover:from-[#E40000] hover:to-[#CC0000] transition-all duration-200"
+                className="bg-gradient-to-r from-[#FF0000] to-[#E40000] text-gray-900 dark:text-white px-6 py-2 rounded-lg hover:from-[#E40000] hover:to-[#CC0000] transition-all duration-200"
               >
                 Clear Filters
               </button>
@@ -365,10 +364,10 @@ const AssignmentsPage: React.FC = () => {
         {statusParam && filteredAssignments.length === 0 && assignments.filter(a => a.status === statusParam).length === 0 && (
           <div className="text-center py-12">
             <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-6">
-              <FileText className="w-12 h-12 text-white" />
+              <FileText className="w-12 h-12 text-gray-900 dark:text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-2">No {statusParam} assignments yet</h3>
-            <p className="text-white/60 mb-6">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">No {statusParam} assignments yet</h3>
+            <p className="text-gray-500 dark:text-white/60 mb-6">
               {statusParam === 'pending' 
                 ? "You don't have any pending assignments. Great job staying on top of your work!"
                 : statusParam === 'submitted'
@@ -378,13 +377,13 @@ const AssignmentsPage: React.FC = () => {
             <div className="flex flex-wrap justify-center gap-4">
               <button
                 onClick={() => navigate('/dashboard/student/assignments/pending')}
-                className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-200"
+                className="bg-gradient-to-r from-blue-500 to-cyan-500 text-gray-900 dark:text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-200"
               >
                 View Pending Assignments
               </button>
               <button
                 onClick={() => navigate('/dashboard/student/courses/in-progress')}
-                className="border border-[#2A3035] text-white px-6 py-3 rounded-lg hover:border-[#FF0000] hover:text-[#FF0000] transition-all duration-200"
+                className="border border-[#2A3035] text-gray-900 dark:text-white px-6 py-3 rounded-lg hover:border-[#FF0000] hover:text-[#FF0000] transition-all duration-200"
               >
                 Continue Learning
               </button>
@@ -392,7 +391,7 @@ const AssignmentsPage: React.FC = () => {
           </div>
         )}
       </div>
-    </DashboardLayout>
+    </>
   );
 };
 

@@ -29,7 +29,7 @@ from app.models.instructor.instructor_discussion import (
     InstructorForumPost,
     InstructorForumReply,
 )
-from app.models.instructor.instructor_2fa import InstructorTwoFactor, LoginHistory
+from app.models.instructor.instructor_2fa import InstructorTwoFactor, InstructorLoginHistory
 
 __all__ = [
     "InstructorProfile",
@@ -48,5 +48,5 @@ __all__ = [
     "InstructorForumPost",
     "InstructorForumReply",
     "InstructorTwoFactor",
-    "LoginHistory",
+    "InstructorLoginHistory",
 ]

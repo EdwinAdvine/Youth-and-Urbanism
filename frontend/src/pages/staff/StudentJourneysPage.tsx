@@ -12,25 +12,25 @@ const StudentJourneysPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0F1112] p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0F1112] p-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold text-white mb-6">Student Journeys</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Student Journeys</h1>
 
         <div className="flex gap-4 mb-6">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/30" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search students..."
-              className="w-full bg-[#181C1F] border border-[#22272B] rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder-white/30"
+              className="w-full bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg pl-10 pr-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-white/30"
             />
           </div>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as any)}
-            className="bg-[#181C1F] border border-[#22272B] rounded-lg px-4 py-2.5 text-sm text-white"
+            className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg px-4 py-2.5 text-sm text-gray-900 dark:text-white"
           >
             <option value="all">All Students</option>
             <option value="at-risk">At Risk</option>
@@ -43,21 +43,21 @@ const StudentJourneysPage: React.FC = () => {
           {students.map((student) => (
             <div
               key={student.id}
-              className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5 hover:border-[#E40000]/30 transition-colors cursor-pointer"
+              className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5 hover:border-[#E40000]/30 transition-colors cursor-pointer"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-[#22272B] flex items-center justify-center text-white font-medium">
+                  <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-[#22272B] flex items-center justify-center text-gray-900 dark:text-white font-medium">
                     {student.name.split(' ').map(n => n[0]).join('')}
                   </div>
                   <div>
-                    <h3 className="text-base font-semibold text-white">{student.name}</h3>
-                    <p className="text-sm text-white/50">{student.grade}</p>
+                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">{student.name}</h3>
+                    <p className="text-sm text-gray-500 dark:text-white/50">{student.grade}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <p className="text-xs text-white/40">Risk Score</p>
+                    <p className="text-xs text-gray-400 dark:text-white/40">Risk Score</p>
                     <p className={`text-lg font-bold ${
                       student.riskScore >= 70 ? 'text-red-400' :
                       student.riskScore >= 40 ? 'text-yellow-400' : 'text-green-400'

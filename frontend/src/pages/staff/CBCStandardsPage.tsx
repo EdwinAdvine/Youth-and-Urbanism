@@ -212,7 +212,7 @@ const CBCStandardsPage: React.FC = () => {
     if (score >= 60) return 'text-yellow-400';
     if (score >= 30) return 'text-orange-400';
     if (score > 0) return 'text-red-400';
-    return 'text-white/20';
+    return 'text-gray-400 dark:text-gray-300 dark:text-white/20';
   };
 
   const getAlignmentBarColor = (score: number) => {
@@ -220,7 +220,7 @@ const CBCStandardsPage: React.FC = () => {
     if (score >= 60) return 'bg-yellow-500';
     if (score >= 30) return 'bg-orange-500';
     if (score > 0) return 'bg-red-500';
-    return 'bg-white/10';
+    return 'bg-gray-100 dark:bg-white/10';
   };
 
   const getStatusBadge = (status: CBCSubStrand['status']) => {
@@ -228,7 +228,7 @@ const CBCStandardsPage: React.FC = () => {
       fully_aligned: { label: 'Fully Aligned', color: 'bg-green-500/20 text-green-400' },
       partially_aligned: { label: 'Partial', color: 'bg-yellow-500/20 text-yellow-400' },
       gap: { label: 'Gap', color: 'bg-red-500/20 text-red-400' },
-      not_started: { label: 'Not Started', color: 'bg-white/10 text-white/30' },
+      not_started: { label: 'Not Started', color: 'bg-gray-100 dark:bg-white/10 text-gray-400 dark:text-white/30' },
     };
     const { label, color } = config[status];
     return <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${color}`}>{label}</span>;
@@ -249,11 +249,11 @@ const CBCStandardsPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="p-6 space-y-6">
-        <div className="h-7 w-56 bg-[#181C1F] rounded animate-pulse" />
-        <div className="h-10 w-full bg-[#181C1F] rounded-lg animate-pulse" />
+        <div className="h-7 w-56 bg-white dark:bg-[#181C1F] rounded animate-pulse" />
+        <div className="h-10 w-full bg-white dark:bg-[#181C1F] rounded-lg animate-pulse" />
         <div className="space-y-3">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-20 bg-[#181C1F] rounded-xl border border-[#22272B] animate-pulse" />
+            <div key={i} className="h-20 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] animate-pulse" />
           ))}
         </div>
       </div>
@@ -265,23 +265,23 @@ const CBCStandardsPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">CBC & Standards Alignment</h1>
-          <p className="text-sm text-white/50 mt-1">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">CBC & Standards Alignment</h1>
+          <p className="text-sm text-gray-500 dark:text-white/50 mt-1">
             Monitor and manage Competency-Based Curriculum alignment across all learning areas
           </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="text-right">
-            <p className="text-xs text-white/40">Overall Alignment</p>
+            <p className="text-xs text-gray-400 dark:text-white/40">Overall Alignment</p>
             <p className={`text-2xl font-bold ${getAlignmentColor(overallScore)}`}>{overallScore}%</p>
           </div>
         </div>
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="flex flex-wrap items-center gap-3 p-3 bg-[#181C1F] rounded-xl border border-[#22272B]">
+      <div className="flex flex-wrap items-center gap-3 p-3 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B]">
         <div className="relative flex-1 min-w-[200px]">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
@@ -289,13 +289,13 @@ const CBCStandardsPage: React.FC = () => {
             placeholder="Search competencies, strands..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-[#0F1112] border border-[#22272B] rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#E40000]/50"
+            className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-900 dark:text-white placeholder-white/30 focus:outline-none focus:border-[#E40000]/50"
           />
         </div>
         <select
           value={gradeFilter}
           onChange={(e) => setGradeFilter(e.target.value)}
-          className="px-3 py-2 bg-[#0F1112] border border-[#22272B] rounded-lg text-sm text-white/70 focus:outline-none focus:border-[#E40000]/50"
+          className="px-3 py-2 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-600 dark:text-white/70 focus:outline-none focus:border-[#E40000]/50"
         >
           <option value="all">All Grades</option>
           {[...Array(9)].map((_, i) => (
@@ -307,7 +307,7 @@ const CBCStandardsPage: React.FC = () => {
       {/* Learning Areas */}
       <div className="space-y-3">
         {filteredAreas.map((area) => (
-          <div key={area.id} className="bg-[#181C1F] rounded-xl border border-[#22272B] overflow-hidden">
+          <div key={area.id} className="bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] overflow-hidden">
             {/* Area Header */}
             <button
               className="w-full p-4 flex items-center justify-between hover:bg-white/[0.02] transition-colors text-left"
@@ -320,22 +320,22 @@ const CBCStandardsPage: React.FC = () => {
                   {area.code.substring(0, 2)}
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-white">{area.name}</h3>
-                  <p className="text-xs text-white/40">{area.coveredStrands}/{area.totalStrands} strands covered</p>
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{area.name}</h3>
+                  <p className="text-xs text-gray-400 dark:text-white/40">{area.coveredStrands}/{area.totalStrands} strands covered</p>
                 </div>
               </div>
               <div className="flex items-center gap-6">
                 <div className="w-32">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-white/40">Alignment</span>
+                    <span className="text-xs text-gray-400 dark:text-white/40">Alignment</span>
                     <span className={`text-sm font-bold ${getAlignmentColor(area.alignmentScore)}`}>{area.alignmentScore}%</span>
                   </div>
-                  <div className="w-full h-2 bg-[#0F1112] rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-gray-50 dark:bg-[#0F1112] rounded-full overflow-hidden">
                     <div className={`h-full rounded-full transition-all ${getAlignmentBarColor(area.alignmentScore)}`} style={{ width: `${area.alignmentScore}%` }} />
                   </div>
                 </div>
                 <svg
-                  className={`w-5 h-5 text-white/30 transition-transform ${expandedArea === area.id ? 'rotate-180' : ''}`}
+                  className={`w-5 h-5 text-gray-400 dark:text-white/30 transition-transform ${expandedArea === area.id ? 'rotate-180' : ''}`}
                   fill="none" viewBox="0 0 24 24" stroke="currentColor"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -345,21 +345,21 @@ const CBCStandardsPage: React.FC = () => {
 
             {/* Expanded Strands */}
             {expandedArea === area.id && (
-              <div className="border-t border-[#22272B]">
+              <div className="border-t border-gray-200 dark:border-[#22272B]">
                 {area.strands.map((strand) => (
                   <div key={strand.id}>
                     <button
-                      className="w-full px-4 py-3 pl-10 flex items-center justify-between hover:bg-white/[0.02] transition-colors text-left border-b border-[#22272B]/50"
+                      className="w-full px-4 py-3 pl-10 flex items-center justify-between hover:bg-white/[0.02] transition-colors text-left border-b border-gray-200 dark:border-[#22272B]/50"
                       onClick={() => setExpandedStrand(expandedStrand === strand.id ? null : strand.id)}
                     >
                       <div className="flex items-center gap-3">
-                        <svg className={`w-4 h-4 transition-transform ${expandedStrand === strand.id ? 'rotate-90' : ''} text-white/30`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className={`w-4 h-4 transition-transform ${expandedStrand === strand.id ? 'rotate-90' : ''} text-gray-400 dark:text-white/30`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
-                        <span className="text-sm text-white/80">{strand.name}</span>
+                        <span className="text-sm text-gray-700 dark:text-white/80">{strand.name}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-20 h-1.5 bg-[#0F1112] rounded-full overflow-hidden">
+                        <div className="w-20 h-1.5 bg-gray-50 dark:bg-[#0F1112] rounded-full overflow-hidden">
                           <div className={`h-full rounded-full ${getAlignmentBarColor(strand.alignmentScore)}`} style={{ width: `${strand.alignmentScore}%` }} />
                         </div>
                         <span className={`text-xs font-medium w-8 text-right ${getAlignmentColor(strand.alignmentScore)}`}>{strand.alignmentScore}%</span>
@@ -368,17 +368,17 @@ const CBCStandardsPage: React.FC = () => {
 
                     {/* Sub-strands */}
                     {expandedStrand === strand.id && (
-                      <div className="bg-[#0F1112]/50">
+                      <div className="bg-gray-50 dark:bg-[#0F1112]/50">
                         {strand.subStrands.map((sub) => (
-                          <div key={sub.id} className="px-4 py-2.5 pl-20 flex items-center justify-between border-b border-[#22272B]/30">
+                          <div key={sub.id} className="px-4 py-2.5 pl-20 flex items-center justify-between border-b border-gray-200 dark:border-[#22272B]/30">
                             <div className="flex items-center gap-3">
-                              <span className="text-xs text-white/60">{sub.name}</span>
+                              <span className="text-xs text-gray-500 dark:text-white/60">{sub.name}</span>
                               {getStatusBadge(sub.status)}
                             </div>
                             <div className="flex items-center gap-4">
-                              <span className="text-xs text-white/30">{sub.contentCount} content</span>
-                              <span className="text-xs text-white/30">{sub.assessmentCount} assessments</span>
-                              <div className="w-16 h-1.5 bg-[#22272B] rounded-full overflow-hidden">
+                              <span className="text-xs text-gray-400 dark:text-white/30">{sub.contentCount} content</span>
+                              <span className="text-xs text-gray-400 dark:text-white/30">{sub.assessmentCount} assessments</span>
+                              <div className="w-16 h-1.5 bg-gray-100 dark:bg-[#22272B] rounded-full overflow-hidden">
                                 <div className={`h-full rounded-full ${getAlignmentBarColor(sub.alignmentScore)}`} style={{ width: `${sub.alignmentScore}%` }} />
                               </div>
                               <span className={`text-xs font-medium w-8 text-right ${getAlignmentColor(sub.alignmentScore)}`}>{sub.alignmentScore}%</span>

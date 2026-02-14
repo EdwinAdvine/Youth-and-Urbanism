@@ -18,11 +18,11 @@ const AdminEmptyState: React.FC<AdminEmptyStateProps> = ({
 }) => {
   return (
     <div className={`flex flex-col items-center justify-center py-16 px-4 text-center ${className}`}>
-      <div className="p-4 bg-[#22272B] rounded-2xl mb-4 text-white/30">
+      <div className="p-4 bg-gray-100 dark:bg-[#22272B] rounded-2xl mb-4 text-gray-400 dark:text-white/30">
         {icon || <Inbox className="w-10 h-10" />}
       </div>
-      <h3 className="text-lg font-semibold text-white/80 mb-1">{title}</h3>
-      {description && <p className="text-sm text-white/40 max-w-sm mb-4">{description}</p>}
+      <h3 className="text-lg font-semibold text-gray-700 dark:text-white/80 mb-1">{title}</h3>
+      {description && <p className="text-sm text-gray-400 dark:text-white/40 max-w-sm mb-4">{description}</p>}
       {action && <div>{action}</div>}
     </div>
   );

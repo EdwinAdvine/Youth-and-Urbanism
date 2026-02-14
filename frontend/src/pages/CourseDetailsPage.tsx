@@ -116,7 +116,7 @@ export default function CourseDetailsPage() {
   // ========================
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0F1112] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#0F1112] flex items-center justify-center">
         <Loader2 size={40} className="text-[#E40000] animate-spin" />
       </div>
     );
@@ -127,22 +127,22 @@ export default function CourseDetailsPage() {
   // ========================
   if (error || !course) {
     return (
-      <div className="min-h-screen bg-[#0F1112] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#0F1112] flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center px-4"
         >
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-[#181C1F] border border-[#22272B] flex items-center justify-center">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] flex items-center justify-center">
             <BookOpen size={36} className="text-gray-600" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Course Not Found</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Course Not Found</h2>
           <p className="text-gray-400 mb-6 max-w-sm mx-auto">
             {error || 'The course you are looking for does not exist or has been removed.'}
           </p>
           <button
             onClick={() => navigate('/courses')}
-            className="px-5 py-2.5 bg-[#E40000] text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+            className="px-5 py-2.5 bg-[#E40000] text-gray-900 dark:text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
           >
             Back to Courses
           </button>
@@ -165,7 +165,7 @@ export default function CourseDetailsPage() {
   // Render
   // ========================
   return (
-    <div className="min-h-screen bg-[#0F1112]">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0F1112]">
       {/* ============================================================ */}
       {/* HERO SECTION */}
       {/* ============================================================ */}
@@ -179,10 +179,10 @@ export default function CourseDetailsPage() {
                 alt=""
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#0F1112] via-[#0F1112]/95 to-[#0F1112]/80" />
+              <div className="absolute inset-0 bg-gradient-to-r from-gray-50 dark:from-[#0F1112] via-[#0F1112]/95 to-gray-50 dark:to-[#0F1112]/80" />
             </>
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-[#0F1112] via-[#1a0000] to-[#0F1112]" />
+            <div className="w-full h-full bg-gradient-to-br from-gray-50 dark:from-[#0F1112] via-[#1a0000] to-gray-50 dark:to-[#0F1112]" />
           )}
         </div>
 
@@ -190,7 +190,7 @@ export default function CourseDetailsPage() {
           {/* Back Button */}
           <button
             onClick={() => navigate('/courses')}
-            className="flex items-center gap-2 text-gray-400 hover:text-white mb-8 transition-colors"
+            className="flex items-center gap-2 text-gray-400 hover:text-gray-900 dark:hover:text-white mb-8 transition-colors"
           >
             <ArrowLeft size={18} />
             <span className="text-sm">Back to Courses</span>
@@ -206,11 +206,11 @@ export default function CourseDetailsPage() {
             >
               {/* Badges */}
               <div className="flex items-center gap-2 mb-4 flex-wrap">
-                <span className="px-3 py-1 bg-[#22272B] text-gray-300 rounded-full text-xs font-medium">
+                <span className="px-3 py-1 bg-gray-100 dark:bg-[#22272B] text-gray-400 dark:text-gray-300 rounded-full text-xs font-medium">
                   {course.learning_area}
                 </span>
                 {course.grade_levels.length > 0 && (
-                  <span className="px-3 py-1 bg-[#22272B] text-gray-300 rounded-full text-xs font-medium flex items-center gap-1">
+                  <span className="px-3 py-1 bg-gray-100 dark:bg-[#22272B] text-gray-400 dark:text-gray-300 rounded-full text-xs font-medium flex items-center gap-1">
                     <Globe size={12} />
                     {course.grade_levels[0]}
                     {course.grade_levels.length > 1 && ` +${course.grade_levels.length - 1}`}
@@ -225,7 +225,7 @@ export default function CourseDetailsPage() {
               </div>
 
               {/* Title */}
-              <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4 leading-tight">
+              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
                 {course.title}
               </h1>
 
@@ -277,11 +277,11 @@ export default function CourseDetailsPage() {
               transition={{ duration: 0.4, delay: 0.15 }}
               className="lg:col-span-1"
             >
-              <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6 sticky top-6">
+              <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6 sticky top-6">
                 {/* Price */}
                 <div className="mb-5">
                   <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Price</p>
-                  <p className={`text-3xl font-bold ${isFree ? 'text-emerald-400' : 'text-white'}`}>
+                  <p className={`text-3xl font-bold ${isFree ? 'text-emerald-400' : 'text-gray-900 dark:text-white'}`}>
                     {priceText}
                   </p>
                 </div>
@@ -299,7 +299,7 @@ export default function CourseDetailsPage() {
                           <span>Progress</span>
                           <span>{enrollment.progress_percentage}%</span>
                         </div>
-                        <div className="w-full h-1.5 bg-[#22272B] rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-gray-100 dark:bg-[#22272B] rounded-full overflow-hidden">
                           <div
                             className="h-full bg-emerald-500 rounded-full transition-all duration-500"
                             style={{ width: `${enrollment.progress_percentage}%` }}
@@ -309,7 +309,7 @@ export default function CourseDetailsPage() {
                     </div>
                     <button
                       onClick={handleStartLearning}
-                      className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#E40000] text-white rounded-lg hover:bg-red-700 font-medium transition-colors"
+                      className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-red-700 font-medium transition-colors"
                     >
                       <Play size={18} />
                       Continue Learning
@@ -319,7 +319,7 @@ export default function CourseDetailsPage() {
                   <button
                     onClick={handleEnroll}
                     disabled={enrolling}
-                    className="w-full px-6 py-3 bg-[#E40000] text-white rounded-lg hover:bg-red-700 font-medium transition-colors
+                    className="w-full px-6 py-3 bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-red-700 font-medium transition-colors
                                disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {enrolling ? (
@@ -334,8 +334,8 @@ export default function CourseDetailsPage() {
                 )}
 
                 {/* Course Includes */}
-                <div className="mt-6 pt-5 border-t border-[#22272B]">
-                  <h3 className="text-sm font-semibold text-white mb-3">This course includes:</h3>
+                <div className="mt-6 pt-5 border-t border-gray-200 dark:border-[#22272B]">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">This course includes:</h3>
                   <ul className="space-y-2.5 text-sm text-gray-400">
                     <li className="flex items-center gap-2.5">
                       <CheckCircle size={14} className="text-emerald-500 flex-shrink-0" />
@@ -374,7 +374,7 @@ export default function CourseDetailsPage() {
       {/* ============================================================ */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tab Navigation */}
-        <div className="border-b border-[#22272B] mb-8">
+        <div className="border-b border-gray-200 dark:border-[#22272B] mb-8">
           <nav className="flex gap-1 -mb-px">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.key;
@@ -386,7 +386,7 @@ export default function CourseDetailsPage() {
                   className={`flex items-center gap-2 px-4 py-3 border-b-2 font-medium text-sm transition-colors ${
                     isActive
                       ? 'border-[#E40000] text-red-400'
-                      : 'border-transparent text-gray-500 hover:text-gray-300 hover:border-gray-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-400 dark:hover:text-gray-300 hover:border-gray-600'
                   }`}
                 >
                   <Icon size={16} />
@@ -411,29 +411,29 @@ export default function CourseDetailsPage() {
             {/* ======================== */}
             {activeTab === 'overview' && (
               <div className="max-w-3xl">
-                <h2 className="text-2xl font-bold text-white mb-5">About This Course</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-5">About This Course</h2>
                 <p className="text-gray-400 leading-relaxed mb-8">
                   {course.description}
                 </p>
 
                 {course.syllabus?.overview && (
                   <div className="mb-8">
-                    <h3 className="text-lg font-semibold text-white mb-3">Overview</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Overview</h3>
                     <p className="text-gray-400 leading-relaxed">{course.syllabus.overview}</p>
                   </div>
                 )}
 
                 {course.syllabus?.learning_outcomes && course.syllabus.learning_outcomes.length > 0 && (
                   <div className="mb-8">
-                    <h3 className="text-lg font-semibold text-white mb-4">What You Will Learn</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">What You Will Learn</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {course.syllabus.learning_outcomes.map((outcome, idx) => (
                         <div
                           key={idx}
-                          className="flex items-start gap-3 p-3 bg-[#181C1F] border border-[#22272B] rounded-lg"
+                          className="flex items-start gap-3 p-3 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg"
                         >
                           <CheckCircle size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />
-                          <span className="text-sm text-gray-300">{outcome}</span>
+                          <span className="text-sm text-gray-400 dark:text-gray-300">{outcome}</span>
                         </div>
                       ))}
                     </div>
@@ -442,7 +442,7 @@ export default function CourseDetailsPage() {
 
                 {course.syllabus?.prerequisites && course.syllabus.prerequisites.length > 0 && (
                   <div className="mb-8">
-                    <h3 className="text-lg font-semibold text-white mb-3">Prerequisites</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Prerequisites</h3>
                     <ul className="space-y-2">
                       {course.syllabus.prerequisites.map((prereq, idx) => (
                         <li key={idx} className="flex items-start gap-2 text-sm text-gray-400">
@@ -457,12 +457,12 @@ export default function CourseDetailsPage() {
                 {/* Grade Levels */}
                 {course.grade_levels.length > 0 && (
                   <div className="mb-8">
-                    <h3 className="text-lg font-semibold text-white mb-3">Grade Levels</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Grade Levels</h3>
                     <div className="flex flex-wrap gap-2">
                       {course.grade_levels.map((grade) => (
                         <span
                           key={grade}
-                          className="px-3 py-1.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-xs text-gray-300 font-medium"
+                          className="px-3 py-1.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-xs text-gray-400 dark:text-gray-300 font-medium"
                         >
                           {grade}
                         </span>
@@ -479,7 +479,7 @@ export default function CourseDetailsPage() {
             {activeTab === 'syllabus' && (
               <div className="max-w-3xl">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-white">Course Content</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Course Content</h2>
                   {course.lessons && (
                     <span className="text-sm text-gray-500">
                       {course.lessons.length} lessons
@@ -495,9 +495,9 @@ export default function CourseDetailsPage() {
                     {course.syllabus.modules.map((mod, idx) => (
                       <div
                         key={mod.id}
-                        className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5"
+                        className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5"
                       >
-                        <h3 className="text-white font-semibold mb-1">
+                        <h3 className="text-gray-900 dark:text-white font-semibold mb-1">
                           Module {idx + 1}: {mod.title}
                         </h3>
                         <p className="text-sm text-gray-400 mb-3">{mod.description}</p>
@@ -529,7 +529,7 @@ export default function CourseDetailsPage() {
                           className={`flex items-center gap-4 p-4 rounded-xl border transition-colors ${
                             isCompleted
                               ? 'bg-emerald-500/5 border-emerald-500/20'
-                              : 'bg-[#181C1F] border-[#22272B] hover:border-[#333a40]'
+                              : 'bg-white dark:bg-[#181C1F] border-gray-200 dark:border-[#22272B] hover:border-[#333a40]'
                           }`}
                         >
                           {/* Number / Icon */}
@@ -538,7 +538,7 @@ export default function CourseDetailsPage() {
                               isCompleted
                                 ? 'bg-emerald-500/20'
                                 : isLocked
-                                ? 'bg-[#22272B]'
+                                ? 'bg-gray-100 dark:bg-[#22272B]'
                                 : 'bg-[#E40000]/10'
                             }`}
                           >
@@ -557,7 +557,7 @@ export default function CourseDetailsPage() {
                           <div className="flex-1 min-w-0">
                             <h4
                               className={`text-sm font-medium ${
-                                isLocked ? 'text-gray-600' : 'text-white'
+                                isLocked ? 'text-gray-600' : 'text-gray-900 dark:text-white'
                               }`}
                             >
                               {lesson.title}
@@ -572,7 +572,7 @@ export default function CourseDetailsPage() {
                           {/* Meta */}
                           <div className="flex items-center gap-3 flex-shrink-0">
                             {lesson.type && (
-                              <span className="hidden sm:inline text-[10px] uppercase tracking-wider text-gray-600 bg-[#22272B] px-2 py-0.5 rounded">
+                              <span className="hidden sm:inline text-[10px] uppercase tracking-wider text-gray-600 bg-gray-100 dark:bg-[#22272B] px-2 py-0.5 rounded">
                                 {lesson.type}
                               </span>
                             )}
@@ -601,14 +601,14 @@ export default function CourseDetailsPage() {
             {/* ======================== */}
             {activeTab === 'reviews' && (
               <div className="max-w-3xl">
-                <h2 className="text-2xl font-bold text-white mb-6">Student Reviews</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Student Reviews</h2>
 
                 {course.total_reviews > 0 ? (
                   <div>
                     {/* Rating summary */}
-                    <div className="flex items-center gap-6 p-6 bg-[#181C1F] border border-[#22272B] rounded-xl mb-8">
+                    <div className="flex items-center gap-6 p-6 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl mb-8">
                       <div className="text-center">
-                        <div className="text-5xl font-bold text-white">
+                        <div className="text-5xl font-bold text-gray-900 dark:text-white">
                           {Number(course.average_rating).toFixed(1)}
                         </div>
                         <div className="mt-2">
@@ -624,7 +624,7 @@ export default function CourseDetailsPage() {
                         {[5, 4, 3, 2, 1].map((star) => (
                           <div key={star} className="flex items-center gap-2">
                             <span className="text-xs text-gray-500 w-3">{star}</span>
-                            <div className="flex-1 h-2 bg-[#22272B] rounded-full overflow-hidden">
+                            <div className="flex-1 h-2 bg-gray-100 dark:bg-[#22272B] rounded-full overflow-hidden">
                               <div
                                 className="h-full bg-yellow-400/70 rounded-full"
                                 style={{

@@ -39,19 +39,19 @@ const StaffBentoCard: React.FC<StaffBentoCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className={`
-        bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden
-        hover:border-[#333] transition-colors duration-200
+        bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden
+        hover:border-gray-300 dark:hover:border-[#333] transition-colors duration-200
         ${colSpanClasses[span]}
         ${rowSpanClasses[rowSpan]}
         ${className}
       `}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#22272B]">
+      <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-200 dark:border-[#22272B]">
         <div>
-          <h3 className="text-sm font-semibold text-white">{title}</h3>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{title}</h3>
           {subtitle && (
-            <p className="text-xs text-white/40 mt-0.5">{subtitle}</p>
+            <p className="text-xs text-gray-400 dark:text-white/40 mt-0.5">{subtitle}</p>
           )}
         </div>
         {headerAction && <div className="flex-shrink-0">{headerAction}</div>}
@@ -61,7 +61,7 @@ const StaffBentoCard: React.FC<StaffBentoCardProps> = ({
       <div className="p-5">
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 text-white/40 animate-spin" />
+            <Loader2 className="w-6 h-6 text-gray-400 dark:text-white/40 animate-spin" />
           </div>
         ) : (
           children

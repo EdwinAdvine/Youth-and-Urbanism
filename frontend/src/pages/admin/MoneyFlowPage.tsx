@@ -201,13 +201,13 @@ const MoneyFlowPage: React.FC = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-16 bg-[#22272B] rounded-lg animate-pulse" />
+        <div className="h-16 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 bg-[#22272B] rounded-xl animate-pulse" />
+            <div key={i} className="h-28 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
           ))}
         </div>
-        <div className="h-80 bg-[#22272B] rounded-xl animate-pulse" />
+        <div className="h-80 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
       </div>
     );
   }
@@ -229,14 +229,14 @@ const MoneyFlowPage: React.FC = () => {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors">
+            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors">
               <Download className="w-4 h-4" />
               Export
             </button>
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
@@ -274,21 +274,21 @@ const MoneyFlowPage: React.FC = () => {
       </motion.div>
 
       {/* Tabs */}
-      <motion.div variants={itemVariants} className="flex gap-1 bg-[#181C1F] border border-[#22272B] rounded-lg p-1">
+      <motion.div variants={itemVariants} className="flex gap-1 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg p-1">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               activeTab === tab.key
-                ? 'bg-[#E40000] text-white'
-                : 'text-white/50 hover:text-white hover:bg-[#22272B]'
+                ? 'bg-[#E40000] text-gray-900 dark:text-white'
+                : 'text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B]'
             }`}
           >
             {tab.label}
             <span
               className={`px-1.5 py-0.5 rounded-full text-xs ${
-                activeTab === tab.key ? 'bg-white/20' : 'bg-[#22272B] text-white/40'
+                activeTab === tab.key ? 'bg-gray-200 dark:bg-white/20' : 'bg-gray-100 dark:bg-[#22272B] text-gray-400 dark:text-white/40'
               }`}
             >
               {tab.count}
@@ -300,18 +300,18 @@ const MoneyFlowPage: React.FC = () => {
       {/* Search */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
           <input
             type="text"
             placeholder="Search by user, reference, or amount..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
           />
         </div>
         <div className="relative">
-          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-          <select className="pl-10 pr-8 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[140px]">
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
+          <select className="pl-10 pr-8 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[140px]">
             <option value="">All Status</option>
             <option value="completed">Completed</option>
             <option value="pending">Pending</option>
@@ -321,18 +321,18 @@ const MoneyFlowPage: React.FC = () => {
       </motion.div>
 
       {/* Table Content */}
-      <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+      <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           {activeTab === 'transactions' && (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#22272B] text-left">
-                  <th className="px-4 py-3 text-white/60 font-medium">Date</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">User</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Amount</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Type</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Status</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Reference</th>
+                <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Date</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">User</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Amount</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Type</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Status</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Reference</th>
                 </tr>
               </thead>
               <tbody>
@@ -342,18 +342,18 @@ const MoneyFlowPage: React.FC = () => {
                     t.user.toLowerCase().includes(search.toLowerCase()) ||
                     t.reference.toLowerCase().includes(search.toLowerCase())
                 ).map((tx) => (
-                  <tr key={tx.id} className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
-                    <td className="px-4 py-3 text-white/60">{formatDate(tx.date)}</td>
+                  <tr key={tx.id} className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
+                    <td className="px-4 py-3 text-gray-500 dark:text-white/60">{formatDate(tx.date)}</td>
                     <td className="px-4 py-3">
                       <div>
-                        <span className="text-white font-medium">{tx.user}</span>
-                        <span className="block text-xs text-white/40">{tx.email}</span>
+                        <span className="text-gray-900 dark:text-white font-medium">{tx.user}</span>
+                        <span className="block text-xs text-gray-400 dark:text-white/40">{tx.email}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-white font-medium">{formatKES(tx.amount)}</td>
+                    <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">{formatKES(tx.amount)}</td>
                     <td className="px-4 py-3"><TypeBadge type={tx.type} /></td>
                     <td className="px-4 py-3"><StatusBadge status={tx.status} /></td>
-                    <td className="px-4 py-3 text-white/40 font-mono text-xs">{tx.reference}</td>
+                    <td className="px-4 py-3 text-gray-400 dark:text-white/40 font-mono text-xs">{tx.reference}</td>
                   </tr>
                 ))}
               </tbody>
@@ -363,23 +363,23 @@ const MoneyFlowPage: React.FC = () => {
           {activeTab === 'refunds' && (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#22272B] text-left">
-                  <th className="px-4 py-3 text-white/60 font-medium">Date</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">User</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Original</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Refund</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Reason</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Status</th>
+                <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Date</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">User</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Original</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Refund</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Reason</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {MOCK_REFUNDS.map((ref) => (
-                  <tr key={ref.id} className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
-                    <td className="px-4 py-3 text-white/60">{formatDate(ref.date)}</td>
-                    <td className="px-4 py-3 text-white font-medium">{ref.user}</td>
-                    <td className="px-4 py-3 text-white/60">{formatKES(ref.original_amount)}</td>
-                    <td className="px-4 py-3 text-white font-medium">{formatKES(ref.refund_amount)}</td>
-                    <td className="px-4 py-3 text-white/60">{ref.reason}</td>
+                  <tr key={ref.id} className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
+                    <td className="px-4 py-3 text-gray-500 dark:text-white/60">{formatDate(ref.date)}</td>
+                    <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">{ref.user}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-white/60">{formatKES(ref.original_amount)}</td>
+                    <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">{formatKES(ref.refund_amount)}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-white/60">{ref.reason}</td>
                     <td className="px-4 py-3"><StatusBadge status={ref.status} /></td>
                   </tr>
                 ))}
@@ -390,25 +390,25 @@ const MoneyFlowPage: React.FC = () => {
           {activeTab === 'failed' && (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#22272B] text-left">
-                  <th className="px-4 py-3 text-white/60 font-medium">Date</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">User</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Amount</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Method</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Error</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Retries</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Status</th>
+                <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Date</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">User</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Amount</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Method</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Error</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Retries</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {MOCK_FAILED.map((fp) => (
-                  <tr key={fp.id} className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
-                    <td className="px-4 py-3 text-white/60">{formatDate(fp.date)}</td>
-                    <td className="px-4 py-3 text-white font-medium">{fp.user}</td>
-                    <td className="px-4 py-3 text-white font-medium">{formatKES(fp.amount)}</td>
-                    <td className="px-4 py-3 text-white/60">{fp.method}</td>
+                  <tr key={fp.id} className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
+                    <td className="px-4 py-3 text-gray-500 dark:text-white/60">{formatDate(fp.date)}</td>
+                    <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">{fp.user}</td>
+                    <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">{formatKES(fp.amount)}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-white/60">{fp.method}</td>
                     <td className="px-4 py-3 text-red-400 font-mono text-xs">{fp.error_code}</td>
-                    <td className="px-4 py-3 text-white/60">{fp.retries}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-white/60">{fp.retries}</td>
                     <td className="px-4 py-3"><StatusBadge status={fp.status} /></td>
                   </tr>
                 ))}
@@ -419,23 +419,23 @@ const MoneyFlowPage: React.FC = () => {
           {activeTab === 'payouts' && (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#22272B] text-left">
-                  <th className="px-4 py-3 text-white/60 font-medium">Date</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Recipient</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Amount</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Method</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Scheduled</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Status</th>
+                <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Date</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Recipient</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Amount</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Method</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Scheduled</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {MOCK_PAYOUTS.map((po) => (
-                  <tr key={po.id} className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
-                    <td className="px-4 py-3 text-white/60">{formatDate(po.date)}</td>
-                    <td className="px-4 py-3 text-white font-medium">{po.recipient}</td>
-                    <td className="px-4 py-3 text-white font-medium">{formatKES(po.amount)}</td>
-                    <td className="px-4 py-3 text-white/60">{po.method}</td>
-                    <td className="px-4 py-3 text-white/60">{po.scheduled_date}</td>
+                  <tr key={po.id} className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
+                    <td className="px-4 py-3 text-gray-500 dark:text-white/60">{formatDate(po.date)}</td>
+                    <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">{po.recipient}</td>
+                    <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">{formatKES(po.amount)}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-white/60">{po.method}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-white/60">{po.scheduled_date}</td>
                     <td className="px-4 py-3"><StatusBadge status={po.status} /></td>
                   </tr>
                 ))}
@@ -445,14 +445,14 @@ const MoneyFlowPage: React.FC = () => {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-[#22272B]">
-          <p className="text-xs text-white/40">Showing 1-8 of 8 results</p>
+        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-[#22272B]">
+          <p className="text-xs text-gray-400 dark:text-white/40">Showing 1-8 of 8 results</p>
           <div className="flex items-center gap-1">
-            <button className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white disabled:opacity-30 transition-colors" disabled>
+            <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors" disabled>
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <button className="w-8 h-8 rounded-lg text-xs font-medium bg-[#E40000] text-white">1</button>
-            <button className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white disabled:opacity-30 transition-colors" disabled>
+            <button className="w-8 h-8 rounded-lg text-xs font-medium bg-[#E40000] text-gray-900 dark:text-white">1</button>
+            <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors" disabled>
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>

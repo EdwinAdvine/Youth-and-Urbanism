@@ -65,7 +65,7 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, onQuickAction, isTyp
   };
 
   return (
-    <div className="bg-gradient-to-t from-[#0F1112] to-transparent border-t border-[#22272B] p-4 shadow-2xl shadow-black/50 backdrop-blur-sm">
+    <div className="bg-gradient-to-t from-gray-50 dark:from-[#0F1112] to-transparent border-t border-gray-200 dark:border-[#22272B] p-4 shadow-2xl shadow-black/50 backdrop-blur-sm">
       {/* Quick Actions Row */}
       <AnimatePresence>
         {(!inputValue.trim() && !isTyping) && (
@@ -89,7 +89,7 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, onQuickAction, isTyp
                 whileHover={{ scale: 1.05, boxShadow: "0 0 15px #FF0000" }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleQuickAction(action.action)}
-                className={`flex items-center gap-2 bg-gradient-to-r ${action.color} text-white px-3 py-2 rounded-full text-sm font-medium transition-all duration-300 shadow-lg shadow-[#FF0000]/20 border border-[#FF0000]/30`}
+                className={`flex items-center gap-2 bg-gradient-to-r ${action.color} text-gray-900 dark:text-white px-3 py-2 rounded-full text-sm font-medium transition-all duration-300 shadow-lg shadow-[#FF0000]/20 border border-[#FF0000]/30`}
               >
                 <action.icon className="w-4 h-4" />
                 <span>{action.label}</span>
@@ -101,7 +101,7 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, onQuickAction, isTyp
 
       {/* Input Area */}
       <div className="relative">
-        <div className="bg-gradient-to-r from-[#0F1112] to-[#181C1F] rounded-3xl border-2 border-[#22272B] focus-within:border-[#00F5FF] shadow-xl shadow-black/50 overflow-hidden backdrop-blur-sm transition-all duration-300">
+        <div className="bg-gradient-to-r from-gray-50 dark:from-[#0F1112] to-gray-100 dark:to-[#181C1F] rounded-3xl border-2 border-gray-200 dark:border-[#22272B] focus-within:border-[#00F5FF] shadow-xl shadow-black/50 overflow-hidden backdrop-blur-sm transition-all duration-300">
           {/* Input Container */}
           <div className="flex items-end gap-3 p-3">
 
@@ -127,8 +127,8 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, onQuickAction, isTyp
               disabled={!inputValue.trim()}
               className={`p-3 rounded-xl transition-all duration-300 ${
                 inputValue.trim()
-                  ? 'bg-gradient-to-r from-[#FF0000] to-[#E40000] text-white shadow-lg shadow-[#FF0000]/30 border border-[#FF0000]/50'
-                  : 'bg-white/10 text-white/40 cursor-not-allowed border border-white/20'
+                  ? 'bg-gradient-to-r from-[#FF0000] to-[#E40000] text-gray-900 dark:text-white shadow-lg shadow-[#FF0000]/30 border border-[#FF0000]/50'
+                  : 'bg-gray-100 dark:bg-white/10 text-gray-400 dark:text-white/40 cursor-not-allowed border border-gray-300 dark:border-white/20'
               }`}
               aria-label="Send message"
             >
@@ -143,7 +143,7 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, onQuickAction, isTyp
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="border-t border-[#22272B] p-3 bg-[#0F1112]/50"
+                className="border-t border-gray-200 dark:border-[#22272B] p-3 bg-gray-50 dark:bg-[#0F1112]/50"
               >
                 <div className="flex flex-wrap gap-2">
                   {[
@@ -159,7 +159,7 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, onQuickAction, isTyp
                       transition={{ delay: index * 0.1 }}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="flex items-center gap-2 px-3 py-2 bg-white/10 text-white rounded-full text-sm font-medium hover:bg-white/20 transition-all duration-300 border border-white/20"
+                      className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white rounded-full text-sm font-medium hover:bg-gray-200 dark:hover:bg-white/20 transition-all duration-300 border border-gray-300 dark:border-white/20"
                     >
                       <feature.icon className="w-4 h-4" />
                       <span>{feature.label}</span>
@@ -176,7 +176,7 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, onQuickAction, isTyp
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => setIsExpanded(!isExpanded)}
-          className="absolute -top-8 right-0 flex items-center gap-2 text-white/60 hover:text-white transition-all duration-300 text-sm"
+          className="absolute -top-8 right-0 flex items-center gap-2 text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white transition-all duration-300 text-sm"
         >
           <span>{isExpanded ? 'Less' : 'More'}</span>
           <div className={`w-4 h-4 border-2 border-white/60 rounded-sm transition-all duration-300 ${isExpanded ? 'bg-white/60' : ''}`}>
@@ -195,7 +195,7 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, onQuickAction, isTyp
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="flex items-center justify-center gap-2 mt-2 text-white/60"
+            className="flex items-center justify-center gap-2 mt-2 text-gray-500 dark:text-white/60"
           >
             <div className="flex gap-1">
               <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>

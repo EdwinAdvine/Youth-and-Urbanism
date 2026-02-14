@@ -139,15 +139,15 @@ const ApprovalFeedbackPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="p-6 space-y-6">
-        <div className="h-7 w-52 bg-[#181C1F] rounded animate-pulse" />
+        <div className="h-7 w-52 bg-white dark:bg-[#181C1F] rounded animate-pulse" />
         <div className="flex gap-2">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-9 w-36 bg-[#181C1F] rounded-lg animate-pulse" />
+            <div key={i} className="h-9 w-36 bg-white dark:bg-[#181C1F] rounded-lg animate-pulse" />
           ))}
         </div>
         <div className="space-y-4">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-32 bg-[#181C1F] rounded-xl border border-[#22272B] animate-pulse" />
+            <div key={i} className="h-32 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] animate-pulse" />
           ))}
         </div>
       </div>
@@ -159,15 +159,15 @@ const ApprovalFeedbackPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">Approval & Feedback</h1>
-          <p className="text-sm text-white/50 mt-1">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Approval & Feedback</h1>
+          <p className="text-sm text-gray-500 dark:text-white/50 mt-1">
             Review submissions and manage AI-drafted feedback responses
           </p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 p-1 bg-[#181C1F] rounded-lg border border-[#22272B] w-fit">
+      <div className="flex items-center gap-1 p-1 bg-white dark:bg-[#181C1F] rounded-lg border border-gray-200 dark:border-[#22272B] w-fit">
         {([
           { key: 'pending' as TabType, label: 'Pending Reviews' },
           { key: 'completed' as TabType, label: 'Completed' },
@@ -178,13 +178,13 @@ const ApprovalFeedbackPage: React.FC = () => {
             onClick={() => setActiveTab(tab.key)}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               activeTab === tab.key
-                ? 'bg-[#E40000] text-white'
-                : 'text-white/50 hover:text-white hover:bg-white/5'
+                ? 'bg-[#E40000] text-gray-900 dark:text-white'
+                : 'text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'
             }`}
           >
             {tab.label}
             <span className={`ml-2 px-1.5 py-0.5 rounded-full text-xs ${
-              activeTab === tab.key ? 'bg-white/20' : 'bg-white/10'
+              activeTab === tab.key ? 'bg-gray-200 dark:bg-white/20' : 'bg-gray-100 dark:bg-white/10'
             }`}>
               {tabCounts[tab.key]}
             </span>
@@ -195,14 +195,14 @@ const ApprovalFeedbackPage: React.FC = () => {
       {/* Items */}
       <div className="space-y-4">
         {filteredItems.length === 0 ? (
-          <div className="text-center py-12 text-white/40">
+          <div className="text-center py-12 text-gray-400 dark:text-white/40">
             <p className="text-lg">No items in this category</p>
           </div>
         ) : (
           filteredItems.map((item) => (
             <div
               key={item.id}
-              className="bg-[#181C1F] rounded-xl border border-[#22272B] overflow-hidden"
+              className="bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] overflow-hidden"
             >
               {/* Card Header */}
               <div
@@ -217,16 +217,16 @@ const ApprovalFeedbackPage: React.FC = () => {
                       <span className="text-xs text-[#E40000] font-medium">HIGH PRIORITY</span>
                     )}
                   </div>
-                  <h3 className="text-sm font-semibold text-white mt-2">{item.title}</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white mt-2">{item.title}</h3>
                   <div className="flex items-center gap-4 mt-1">
-                    <span className="text-xs text-white/40">By {item.submittedBy}</span>
-                    <span className="text-xs text-white/40">{item.grade}</span>
-                    <span className="text-xs text-white/40">{formatDate(item.submittedAt)}</span>
+                    <span className="text-xs text-gray-400 dark:text-white/40">By {item.submittedBy}</span>
+                    <span className="text-xs text-gray-400 dark:text-white/40">{item.grade}</span>
+                    <span className="text-xs text-gray-400 dark:text-white/40">{formatDate(item.submittedAt)}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 ml-4">
                   <div className="text-right">
-                    <p className="text-xs text-white/40">AI Confidence</p>
+                    <p className="text-xs text-gray-400 dark:text-white/40">AI Confidence</p>
                     <p className={`text-sm font-bold ${
                       item.aiConfidenceScore >= 85 ? 'text-green-400' :
                       item.aiConfidenceScore >= 70 ? 'text-yellow-400' : 'text-red-400'
@@ -235,7 +235,7 @@ const ApprovalFeedbackPage: React.FC = () => {
                     </p>
                   </div>
                   <svg
-                    className={`w-5 h-5 text-white/30 transition-transform ${expandedItem === item.id ? 'rotate-180' : ''}`}
+                    className={`w-5 h-5 text-gray-400 dark:text-white/30 transition-transform ${expandedItem === item.id ? 'rotate-180' : ''}`}
                     fill="none" viewBox="0 0 24 24" stroke="currentColor"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -245,23 +245,23 @@ const ApprovalFeedbackPage: React.FC = () => {
 
               {/* Expanded Content */}
               {expandedItem === item.id && (
-                <div className="border-t border-[#22272B] p-4 space-y-4">
+                <div className="border-t border-gray-200 dark:border-[#22272B] p-4 space-y-4">
                   {/* AI Feedback Draft */}
-                  <div className="bg-[#0F1112] rounded-lg p-4 border border-purple-500/20">
+                  <div className="bg-gray-50 dark:bg-[#0F1112] rounded-lg p-4 border border-purple-500/20">
                     <div className="flex items-center gap-2 mb-2">
                       <svg className="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
                       <span className="text-xs font-medium text-purple-400 uppercase tracking-wider">AI-Drafted Feedback</span>
                     </div>
-                    <p className="text-sm text-white/70 leading-relaxed">{item.aiFeedbackDraft}</p>
+                    <p className="text-sm text-gray-600 dark:text-white/70 leading-relaxed">{item.aiFeedbackDraft}</p>
                   </div>
 
                   {/* Review Notes */}
                   {item.reviewNotes && (
-                    <div className="bg-[#0F1112] rounded-lg p-4 border border-[#22272B]">
-                      <p className="text-xs font-medium text-white/50 mb-1">Staff Review Notes</p>
-                      <p className="text-sm text-white/70">{item.reviewNotes}</p>
+                    <div className="bg-gray-50 dark:bg-[#0F1112] rounded-lg p-4 border border-gray-200 dark:border-[#22272B]">
+                      <p className="text-xs font-medium text-gray-500 dark:text-white/50 mb-1">Staff Review Notes</p>
+                      <p className="text-sm text-gray-600 dark:text-white/70">{item.reviewNotes}</p>
                     </div>
                   )}
 
@@ -270,19 +270,19 @@ const ApprovalFeedbackPage: React.FC = () => {
                     <div className="flex items-center gap-3 pt-2">
                       <button
                         onClick={() => handleAction(item.id, 'approved')}
-                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg transition-colors"
                       >
                         Approve
                       </button>
                       <button
                         onClick={() => handleAction(item.id, 'changes_requested')}
-                        className="px-4 py-2 bg-[#0F1112] border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 text-sm font-medium rounded-lg transition-colors"
+                        className="px-4 py-2 bg-gray-50 dark:bg-[#0F1112] border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 text-sm font-medium rounded-lg transition-colors"
                       >
                         Request Changes
                       </button>
                       <button
                         onClick={() => handleAction(item.id, 'rejected')}
-                        className="px-4 py-2 bg-[#0F1112] border border-red-500/30 text-red-400 hover:bg-red-500/10 text-sm font-medium rounded-lg transition-colors"
+                        className="px-4 py-2 bg-gray-50 dark:bg-[#0F1112] border border-red-500/30 text-red-400 hover:bg-red-500/10 text-sm font-medium rounded-lg transition-colors"
                       >
                         Reject
                       </button>

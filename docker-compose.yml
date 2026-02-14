@@ -3,7 +3,7 @@
 
 services:
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     container_name: tuhs_postgres
     ports:
       - "5432:5432"
@@ -42,6 +42,8 @@ services:
     container_name: tuhs_backend
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend:/app
     env_file:
       - ./backend/.env.development
     environment:
@@ -81,6 +83,18 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: tuhs_livekit
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "7882:7882/udp"
+    volumes:
+      - ./livekit-config.yaml:/etc/livekit.yaml
+    command: ["--config", "/etc/livekit.yaml"]
+    restart: unless-stopped
 
 volumes:
   postgres_data:

@@ -121,13 +121,13 @@ const SessionsPage: React.FC = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-16 bg-[#22272B] rounded-lg animate-pulse" />
+        <div className="h-16 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 bg-[#22272B] rounded-xl animate-pulse" />
+            <div key={i} className="h-28 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
           ))}
         </div>
-        <div className="h-80 bg-[#22272B] rounded-xl animate-pulse" />
+        <div className="h-80 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
       </div>
     );
   }
@@ -142,10 +142,10 @@ const SessionsPage: React.FC = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Sessions & Live Delivery</h1>
-          <p className="text-sm text-white/50 mt-1">Manage live classes, workshops, and recordings</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Sessions & Live Delivery</h1>
+          <p className="text-sm text-gray-500 dark:text-white/50 mt-1">Manage live classes, workshops, and recordings</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-[#E40000] hover:bg-[#C80000] text-white text-sm rounded-lg transition-colors">
+        <button className="flex items-center gap-2 px-4 py-2 bg-[#E40000] hover:bg-[#C80000] text-gray-900 dark:text-white text-sm rounded-lg transition-colors">
           <Plus className="w-4 h-4" />
           Schedule Session
         </button>
@@ -159,27 +159,27 @@ const SessionsPage: React.FC = () => {
           { label: 'Completed', value: completedCount, icon: CheckCircle, color: 'text-gray-400' },
           { label: 'Recordings', value: recordingsCount, icon: Film, color: 'text-purple-400' },
         ].map((stat) => (
-          <div key={stat.label} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-4">
+          <div key={stat.label} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/50 text-xs font-medium">{stat.label}</span>
-              <div className={`p-1.5 bg-[#22272B] rounded-lg ${stat.color}`}>
+              <span className="text-gray-500 dark:text-white/50 text-xs font-medium">{stat.label}</span>
+              <div className={`p-1.5 bg-gray-100 dark:bg-[#22272B] rounded-lg ${stat.color}`}>
                 <stat.icon className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-white">{stat.value}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
           </div>
         ))}
       </motion.div>
 
       {/* Tabs + Search */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center gap-3">
-        <div className="flex gap-1 bg-[#181C1F] border border-[#22272B] rounded-lg p-1">
+        <div className="flex gap-1 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg p-1">
           {(['upcoming', 'past', 'recordings'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-2 text-sm rounded-md transition-colors capitalize ${
-                activeTab === tab ? 'bg-[#22272B] text-white' : 'text-white/50 hover:text-white/70'
+                activeTab === tab ? 'bg-gray-100 dark:bg-[#22272B] text-gray-900 dark:text-white' : 'text-gray-500 dark:text-white/50 hover:text-gray-600 dark:hover:text-white/70'
               }`}
             >
               {tab}
@@ -187,30 +187,30 @@ const SessionsPage: React.FC = () => {
           ))}
         </div>
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
           <input
             type="text"
             placeholder="Search sessions..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
           />
         </div>
       </motion.div>
 
       {/* Table */}
-      <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+      <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#22272B] text-left">
-                <th className="px-4 py-3 text-white/60 font-medium">Title</th>
-                <th className="px-4 py-3 text-white/60 font-medium">Host</th>
-                <th className="px-4 py-3 text-white/60 font-medium">Type</th>
-                <th className="px-4 py-3 text-white/60 font-medium">Scheduled</th>
-                <th className="px-4 py-3 text-white/60 font-medium">Participants</th>
-                <th className="px-4 py-3 text-white/60 font-medium">Status</th>
-                <th className="px-4 py-3 text-white/60 font-medium text-right">Actions</th>
+              <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Title</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Host</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Type</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Scheduled</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Participants</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Status</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -218,38 +218,38 @@ const SessionsPage: React.FC = () => {
                 <tr>
                   <td colSpan={7} className="px-4 py-16 text-center">
                     <Video className="w-12 h-12 text-white/10 mx-auto mb-3" />
-                    <p className="text-white/40 text-sm">No sessions found</p>
+                    <p className="text-gray-400 dark:text-white/40 text-sm">No sessions found</p>
                   </td>
                 </tr>
               ) : (
                 filteredSessions.map((session) => (
                   <tr
                     key={session.id}
-                    className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
+                    className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
                   >
                     <td className="px-4 py-3">
                       <div>
-                        <span className="text-white font-medium">{session.title}</span>
-                        <span className="block text-xs text-white/40">{session.subject} - {session.grade_level}</span>
+                        <span className="text-gray-900 dark:text-white font-medium">{session.title}</span>
+                        <span className="block text-xs text-gray-400 dark:text-white/40">{session.subject} - {session.grade_level}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-white/60">{session.host}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-white/60">{session.host}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border capitalize ${typeColors[session.type]}`}>
                         {session.type.replace('_', ' ')}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-1 text-white/60">
+                      <div className="flex items-center gap-1 text-gray-500 dark:text-white/60">
                         <Clock className="w-3 h-3" />
                         <span className="text-xs">{formatDate(session.scheduled_time)}</span>
                       </div>
-                      <span className="text-[10px] text-white/30">{session.duration_minutes} min</span>
+                      <span className="text-[10px] text-gray-400 dark:text-white/30">{session.duration_minutes} min</span>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
-                        <Users className="w-3 h-3 text-white/40" />
-                        <span className="text-white/60 text-xs">
+                        <Users className="w-3 h-3 text-gray-400 dark:text-white/40" />
+                        <span className="text-gray-500 dark:text-white/60 text-xs">
                           {session.participants}/{session.max_participants}
                         </span>
                       </div>
@@ -262,20 +262,20 @@ const SessionsPage: React.FC = () => {
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1">
                         {session.status === 'in_progress' && (
-                          <button className="flex items-center gap-1 px-2.5 py-1 text-xs bg-[#E40000] hover:bg-[#C80000] text-white rounded-lg transition-colors">
+                          <button className="flex items-center gap-1 px-2.5 py-1 text-xs bg-[#E40000] hover:bg-[#C80000] text-gray-900 dark:text-white rounded-lg transition-colors">
                             <Play className="w-3 h-3" />Join
                           </button>
                         )}
                         {session.recording_url && (
-                          <button className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors" title="View Recording">
+                          <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors" title="View Recording">
                             <Film className="w-4 h-4" />
                           </button>
                         )}
-                        <button className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors" title="View Details">
+                        <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors" title="View Details">
                           <Eye className="w-4 h-4" />
                         </button>
                         {session.status === 'upcoming' && (
-                          <button className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors" title="Edit">
+                          <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors" title="Edit">
                             <Edit3 className="w-4 h-4" />
                           </button>
                         )}
@@ -287,16 +287,16 @@ const SessionsPage: React.FC = () => {
             </tbody>
           </table>
         </div>
-        <div className="flex items-center justify-between px-4 py-3 border-t border-[#22272B]">
-          <p className="text-xs text-white/40">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-[#22272B]">
+          <p className="text-xs text-gray-400 dark:text-white/40">
             Showing {filteredSessions.length} session{filteredSessions.length !== 1 ? 's' : ''}
           </p>
           <div className="flex items-center gap-1">
-            <button className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white disabled:opacity-30 transition-colors" disabled>
+            <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors" disabled>
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <button className="w-8 h-8 rounded-lg text-xs font-medium bg-[#E40000] text-white">1</button>
-            <button className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white disabled:opacity-30 transition-colors" disabled>
+            <button className="w-8 h-8 rounded-lg text-xs font-medium bg-[#E40000] text-gray-900 dark:text-white">1</button>
+            <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors" disabled>
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>

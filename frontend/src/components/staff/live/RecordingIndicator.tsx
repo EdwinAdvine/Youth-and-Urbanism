@@ -52,12 +52,12 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
         <span className="text-xs font-bold text-[#E40000] uppercase tracking-wider">REC</span>
 
         {/* Duration */}
-        <span className="text-sm font-mono tabular-nums text-white/80">{formatDuration(elapsed)}</span>
+        <span className="text-sm font-mono tabular-nums text-gray-700 dark:text-white/80">{formatDuration(elapsed)}</span>
 
         {/* Stop button */}
         <button
           onClick={onToggle}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#E40000] text-white text-xs font-medium hover:bg-[#E40000]/90 transition-colors ml-1"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#E40000] text-gray-900 dark:text-white text-xs font-medium hover:bg-[#E40000]/90 transition-colors ml-1"
         >
           <Square className="w-3 h-3 fill-current" />
           Stop
@@ -69,7 +69,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   return (
     <button
       onClick={onToggle}
-      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#22272B] border border-[#22272B] text-white/60 hover:text-white hover:border-[#333] transition-colors"
+      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#22272B] text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#333] transition-colors"
     >
       <Circle className="w-3.5 h-3.5 text-[#E40000]" />
       <span className="text-sm font-medium">Start Recording</span>

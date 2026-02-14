@@ -11,6 +11,7 @@ from datetime import datetime
 from typing import Optional
 from sqlalchemy import Column, String, Date, DateTime, Boolean, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.orm import relationship
 from app.database import Base
 
 
@@ -79,6 +80,22 @@ class Student(Base):
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Dashboard relationships (student_dashboard.py)
+    mood_entries = relationship("StudentMoodEntry", back_populates="student", cascade="all, delete-orphan")
+    streak = relationship("StudentStreak", back_populates="student", uselist=False, cascade="all, delete-orphan")
+    daily_plans = relationship("StudentDailyPlan", back_populates="student", cascade="all, delete-orphan")
+    journal_entries = relationship("StudentJournalEntry", back_populates="student", cascade="all, delete-orphan")
+    wishlists = relationship("StudentWishlist", back_populates="student", cascade="all, delete-orphan")
+    session_preps = relationship("StudentSessionPrep", back_populates="student", cascade="all, delete-orphan")
+
+    # Gamification relationships (student_gamification.py)
+    xp_events = relationship("StudentXPEvent", back_populates="student", cascade="all, delete-orphan")
+    level = relationship("StudentLevel", back_populates="student", uselist=False, cascade="all, delete-orphan")
+    badges = relationship("StudentBadge", back_populates="student", cascade="all, delete-orphan")
+    goals = relationship("StudentGoal", back_populates="student", cascade="all, delete-orphan")
+    skill_nodes = relationship("StudentSkillNode", back_populates="student", cascade="all, delete-orphan")
+    weekly_reports = relationship("StudentWeeklyReport", back_populates="student", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         """String representation of Student instance."""

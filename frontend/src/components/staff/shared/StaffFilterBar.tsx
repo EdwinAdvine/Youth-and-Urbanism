@@ -45,26 +45,26 @@ const StaffFilterBar: React.FC<StaffFilterBarProps> = ({
               className="
                 appearance-none w-full sm:w-auto min-w-[140px]
                 pl-3 pr-8 py-2 text-sm
-                bg-[#22272B] border border-[#333] rounded-lg
-                text-white/80
+                bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg
+                text-gray-700 dark:text-white/80
                 focus:outline-none focus:border-[#E40000]/50 focus:ring-1 focus:ring-[#E40000]/30
                 transition-colors cursor-pointer
               "
             >
-              <option value="" className="bg-[#22272B]">
+              <option value="" className="bg-gray-100 dark:bg-[#22272B]">
                 {filter.label}
               </option>
               {filter.options.map((opt) => (
                 <option
                   key={opt.value}
                   value={opt.value}
-                  className="bg-[#22272B]"
+                  className="bg-gray-100 dark:bg-[#22272B]"
                 >
                   {opt.label}
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/40 pointer-events-none" />
+            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 dark:text-white/40 pointer-events-none" />
           </div>
         </div>
       ))}
@@ -74,8 +74,8 @@ const StaffFilterBar: React.FC<StaffFilterBarProps> = ({
           onClick={onClearAll}
           className="
             flex items-center gap-1.5 px-3 py-2 text-xs font-medium
-            text-white/50 hover:text-white/80
-            bg-transparent hover:bg-white/5 rounded-lg
+            text-gray-500 dark:text-white/50 hover:text-gray-700 dark:hover:text-white/80
+            bg-transparent hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg
             transition-colors flex-shrink-0
           "
         >

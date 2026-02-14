@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { RefreshCw, Plus, Cpu, AlertCircle, CheckCircle } from 'lucide-react';
-import DashboardLayout from '../../components/layout/DashboardLayout';
 import adminProviderService, {
   AIProvider,
   AIProviderCreate,
@@ -165,14 +164,14 @@ const AIProvidersPage: React.FC = () => {
       onClick={() => setActiveTab(type)}
       className={`px-4 py-2 rounded-lg font-medium transition-colors ${
         activeTab === type
-          ? 'bg-blue-500 text-white'
-          : 'bg-[#22272B] text-white/60 hover:text-white hover:bg-[#2A3035]'
+          ? 'bg-blue-500 text-gray-900 dark:text-white'
+          : 'bg-gray-100 dark:bg-[#22272B] text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-[#2A3035]'
       }`}
     >
       {label}
       {count !== undefined && (
         <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-          activeTab === type ? 'bg-white/20' : 'bg-[#2A3035]'
+          activeTab === type ? 'bg-gray-200 dark:bg-white/20' : 'bg-[#2A3035]'
         }`}>
           {count}
         </span>
@@ -181,15 +180,15 @@ const AIProvidersPage: React.FC = () => {
   );
 
   return (
-    <DashboardLayout role="admin">
+    <>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
               AI Provider Management
             </h1>
-            <p className="text-white/60 text-sm sm:text-base">
+            <p className="text-gray-500 dark:text-white/60 text-sm sm:text-base">
               Manage AI providers for the platform's multi-AI orchestration system
             </p>
           </div>
@@ -197,7 +196,7 @@ const AIProvidersPage: React.FC = () => {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="flex items-center gap-2 px-4 py-2 bg-[#22272B] hover:bg-[#2A3035] text-white rounded-lg transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-[#22272B] hover:bg-[#2A3035] text-gray-900 dark:text-white rounded-lg transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">Refresh</span>
@@ -207,7 +206,7 @@ const AIProvidersPage: React.FC = () => {
                 setSelectedProvider(null);
                 setShowForm(true);
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-gray-900 dark:text-white rounded-lg transition-colors"
             >
               <Plus className="w-4 h-4" />
               <span>Add Provider</span>
@@ -217,17 +216,17 @@ const AIProvidersPage: React.FC = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/60 text-sm">Total Providers</span>
+              <span className="text-gray-500 dark:text-white/60 text-sm">Total Providers</span>
               <Cpu className="w-5 h-5 text-blue-400" />
             </div>
-            <p className="text-2xl font-bold text-white">{providers.length}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{providers.length}</p>
           </div>
 
-          <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/60 text-sm">Active Providers</span>
+              <span className="text-gray-500 dark:text-white/60 text-sm">Active Providers</span>
               <CheckCircle className="w-5 h-5 text-green-400" />
             </div>
             <p className="text-2xl font-bold text-green-400">
@@ -235,9 +234,9 @@ const AIProvidersPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/60 text-sm">Inactive Providers</span>
+              <span className="text-gray-500 dark:text-white/60 text-sm">Inactive Providers</span>
               <AlertCircle className="w-5 h-5 text-orange-400" />
             </div>
             <p className="text-2xl font-bold text-orange-400">
@@ -245,9 +244,9 @@ const AIProvidersPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/60 text-sm">Recommended</span>
+              <span className="text-gray-500 dark:text-white/60 text-sm">Recommended</span>
               <CheckCircle className="w-5 h-5 text-purple-400" />
             </div>
             <p className="text-2xl font-bold text-purple-400">
@@ -285,13 +284,13 @@ const AIProvidersPage: React.FC = () => {
         )}
 
         {/* Content */}
-        <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+        <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
           {loading ? (
             // Loading State
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="animate-pulse">
-                  <div className="h-24 bg-[#22272B] rounded-lg" />
+                  <div className="h-24 bg-gray-100 dark:bg-[#22272B] rounded-lg" />
                 </div>
               ))}
             </div>
@@ -330,11 +329,11 @@ const AIProvidersPage: React.FC = () => {
           {/* Empty State */}
           {!loading && filteredProviders.length === 0 && activeTab !== 'recommended' && (
             <div className="text-center py-12">
-              <Cpu className="w-16 h-16 text-white/20 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-white mb-2">
+              <Cpu className="w-16 h-16 text-gray-400 dark:text-gray-300 dark:text-white/20 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                 No {activeTab === 'active' ? 'Active ' : ''}Providers Found
               </h3>
-              <p className="text-white/60 mb-6">
+              <p className="text-gray-500 dark:text-white/60 mb-6">
                 {activeTab === 'active'
                   ? 'There are currently no active AI providers.'
                   : 'Get started by adding your first AI provider.'}
@@ -344,7 +343,7 @@ const AIProvidersPage: React.FC = () => {
                   setSelectedProvider(null);
                   setShowForm(true);
                 }}
-                className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-gray-900 dark:text-white rounded-lg transition-colors"
               >
                 Add First Provider
               </button>
@@ -370,8 +369,8 @@ const AIProvidersPage: React.FC = () => {
         <div className="fixed bottom-6 right-6 z-50 animate-slide-in-bottom">
           <div className={`flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg ${
             toast.type === 'success'
-              ? 'bg-green-500 text-white'
-              : 'bg-red-500 text-white'
+              ? 'bg-green-500 text-gray-900 dark:text-white'
+              : 'bg-red-500 text-gray-900 dark:text-white'
           }`}>
             {toast.type === 'success' ? (
               <CheckCircle className="w-5 h-5" />
@@ -382,7 +381,7 @@ const AIProvidersPage: React.FC = () => {
           </div>
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 };
 

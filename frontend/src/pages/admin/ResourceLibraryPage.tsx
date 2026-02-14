@@ -18,7 +18,6 @@ import {
   RefreshCw,
   BarChart3,
 } from 'lucide-react';
-import DashboardLayout from '../../components/layout/DashboardLayout';
 import AdminPageHeader from '../../components/admin/shared/AdminPageHeader';
 import AdminStatsCard from '../../components/admin/shared/AdminStatsCard';
 
@@ -166,7 +165,7 @@ const ResourceLibraryPage: React.FC = () => {
   };
 
   return (
-    <DashboardLayout role="admin">
+    <>
       <motion.div
         className="space-y-6"
         variants={containerVariants}
@@ -183,11 +182,11 @@ const ResourceLibraryPage: React.FC = () => {
           ]}
           actions={
             <div className="flex items-center gap-2">
-              <button className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors">
+              <button className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors">
                 <RefreshCw className="w-4 h-4" />
                 Refresh
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 text-sm bg-[#E40000] text-white rounded-lg hover:bg-[#C00] transition-colors">
+              <button className="flex items-center gap-2 px-4 py-2 text-sm bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#C00] transition-colors">
                 <Plus className="w-4 h-4" />
                 Upload Resource
               </button>
@@ -224,20 +223,20 @@ const ResourceLibraryPage: React.FC = () => {
         </motion.div>
 
         {/* Tabs */}
-        <motion.div variants={itemVariants} className="flex items-center gap-1 border-b border-[#22272B]">
+        <motion.div variants={itemVariants} className="flex items-center gap-1 border-b border-gray-200 dark:border-[#22272B]">
           {TAB_CONFIG.map((tab) => (
             <button
               key={tab.key}
               onClick={() => { setActiveTab(tab.key); setSearch(''); setCategoryFilter(''); setTypeFilter(''); }}
               className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
                 activeTab === tab.key
-                  ? 'text-white'
-                  : 'text-white/40 hover:text-white/70'
+                  ? 'text-gray-900 dark:text-white'
+                  : 'text-gray-400 dark:text-white/40 hover:text-gray-600 dark:hover:text-white/70'
               }`}
             >
               {tab.label}
               {tab.key === 'moderation' && pendingReview > 0 && (
-                <span className="ml-2 px-1.5 py-0.5 text-[10px] bg-[#E40000] text-white rounded-full">
+                <span className="ml-2 px-1.5 py-0.5 text-[10px] bg-[#E40000] text-gray-900 dark:text-white rounded-full">
                   {pendingReview}
                 </span>
               )}
@@ -254,21 +253,21 @@ const ResourceLibraryPage: React.FC = () => {
         {/* Filters */}
         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
             <input
               type="text"
               placeholder="Search by title, uploader, or category..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
             />
           </div>
           <div className="relative">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="pl-10 pr-8 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[180px]"
+              className="pl-10 pr-8 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[180px]"
             >
               <option value="">All Categories</option>
               {categories.map((cat) => (
@@ -279,7 +278,7 @@ const ResourceLibraryPage: React.FC = () => {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[140px]"
+            className="px-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[140px]"
           >
             <option value="">All Types</option>
             <option value="pdf">PDF</option>
@@ -293,13 +292,13 @@ const ResourceLibraryPage: React.FC = () => {
         {/* Table */}
         <motion.div
           variants={itemVariants}
-          className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden"
+          className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden"
         >
           {filteredResources.length === 0 ? (
             <div className="text-center py-16">
               <FolderOpen className="w-16 h-16 text-white/10 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-white mb-2">No Resources Found</h3>
-              <p className="text-white/40 text-sm">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Resources Found</h3>
+              <p className="text-gray-400 dark:text-white/40 text-sm">
                 {activeTab === 'moderation'
                   ? 'No resources pending moderation review.'
                   : 'Try adjusting your search or filter criteria.'}
@@ -309,70 +308,70 @@ const ResourceLibraryPage: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#22272B] text-left">
-                    <th className="px-4 py-3 text-white/60 font-medium">Title</th>
-                    <th className="px-4 py-3 text-white/60 font-medium">Type</th>
-                    <th className="px-4 py-3 text-white/60 font-medium">Category</th>
-                    <th className="px-4 py-3 text-white/60 font-medium">Uploaded By</th>
-                    <th className="px-4 py-3 text-white/60 font-medium">Status</th>
-                    <th className="px-4 py-3 text-white/60 font-medium text-center">Usage</th>
-                    <th className="px-4 py-3 text-white/60 font-medium">Size</th>
-                    <th className="px-4 py-3 text-white/60 font-medium text-right">Actions</th>
+                  <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Title</th>
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Type</th>
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Category</th>
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Uploaded By</th>
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Status</th>
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-center">Usage</th>
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Size</th>
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredResources.map((resource) => (
                     <tr
                       key={resource.id}
-                      className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
+                      className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
                     >
                       <td className="px-4 py-3">
                         <div>
-                          <span className="text-white font-medium">{resource.title}</span>
+                          <span className="text-gray-900 dark:text-white font-medium">{resource.title}</span>
                           <p className="text-gray-500 text-xs mt-0.5">{formatDate(resource.created_at)}</p>
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <FileTypeBadge type={resource.file_type} />
                       </td>
-                      <td className="px-4 py-3 text-gray-300">{resource.category}</td>
+                      <td className="px-4 py-3 text-gray-400 dark:text-gray-300">{resource.category}</td>
                       <td className="px-4 py-3 text-gray-400">{resource.uploaded_by}</td>
                       <td className="px-4 py-3">
                         <ModerationBadge status={resource.moderation_status} />
                       </td>
-                      <td className="px-4 py-3 text-center text-gray-300">{resource.usage_count}</td>
+                      <td className="px-4 py-3 text-center text-gray-400 dark:text-gray-300">{resource.usage_count}</td>
                       <td className="px-4 py-3 text-gray-400">{resource.file_size}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-1">
                           <button
                             title="Preview"
-                            className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors"
+                            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
                           <button
                             title="Download"
-                            className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors"
+                            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                           >
                             <Download className="w-4 h-4" />
                           </button>
                           {resource.moderation_status === 'pending' && (
                             <button
                               title="Approve"
-                              className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-white/50 hover:text-emerald-400 transition-colors"
+                              className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-gray-500 dark:text-white/50 hover:text-emerald-400 transition-colors"
                             >
                               <CheckCircle2 className="w-4 h-4" />
                             </button>
                           )}
                           <button
                             title="Delete"
-                            className="p-1.5 rounded-lg hover:bg-red-500/10 text-white/50 hover:text-red-400 transition-colors"
+                            className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 dark:text-white/50 hover:text-red-400 transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
                           <button
                             title="More"
-                            className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors"
+                            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                           >
                             <MoreHorizontal className="w-4 h-4" />
                           </button>
@@ -386,15 +385,15 @@ const ResourceLibraryPage: React.FC = () => {
           )}
 
           {filteredResources.length > 0 && (
-            <div className="flex items-center justify-between px-4 py-3 border-t border-[#22272B]">
-              <p className="text-xs text-white/40">
+            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-[#22272B]">
+              <p className="text-xs text-gray-400 dark:text-white/40">
                 Showing {filteredResources.length} of {MOCK_RESOURCES.length} resources
               </p>
             </div>
           )}
         </motion.div>
       </motion.div>
-    </DashboardLayout>
+    </>
   );
 };
 

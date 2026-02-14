@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useThemeStore } from '../../../store';
 import { useAdminStore } from '../../../store/adminStore';
 import { useAuthStore } from '../../../store/authStore';
 import {
@@ -35,6 +34,8 @@ import {
   LogOut,
   ChevronDown,
   Search,
+  ChevronsLeft,
+  ChevronsRight,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -57,8 +58,8 @@ interface NavItem {
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isDarkMode } = useThemeStore();
-  const { counters, openSidebarSections, toggleSidebarSection, globalSearch, setGlobalSearch } = useAdminStore();
+  const { counters, openSidebarSections, toggleSidebarSection, globalSearch, setGlobalSearch, sidebarCollapsed, setSidebarCollapsed } = useAdminStore();
+  const [hoveredSection, setHoveredSection] = useState<string | null>(null);
 
   const navigationItems: NavItem[] = [
     // 1. TODAY / AT A GLANCE
@@ -349,10 +350,8 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
 
   const handleLogout = () => {
     logout();
-    if (window.innerWidth < 1024) {
-      onClose();
-    }
-    navigate('/');
+    useAuthStore.persist.clearStorage();
+    window.location.href = '/';
   };
 
   const handleNavigation = (path?: string, onClick?: () => void) => {
@@ -388,97 +387,162 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
       {/* Sidebar */}
       <div
         className={`
-          fixed lg:sticky lg:static top-0 left-0 z-40 w-72 h-screen transform transition-transform duration-300 ease-in-out
-          bg-gradient-to-b from-[#0F1112] to-[#181C1F] border-r border-[#22272B]
+          fixed lg:sticky lg:static top-0 left-0 z-40 h-screen transform transition-all duration-300 ease-in-out
+          bg-gradient-to-b from-white to-gray-50 dark:from-[#0F1112] dark:to-[#181C1F] border-r border-gray-200 dark:border-[#22272B]
           shadow-xl lg:shadow-none flex flex-col
+          ${sidebarCollapsed ? 'w-72 lg:w-16' : 'w-72'}
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
-        {/* Search bar */}
-        <div className="p-3 border-b border-[#22272B]">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-            <input
-              type="text"
-              placeholder="Search admin... (Ctrl+K)"
-              value={globalSearch}
-              onChange={(e) => setGlobalSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg
-                text-white placeholder-white/40 focus:outline-none focus:border-[#E40000]/50 focus:ring-1 focus:ring-[#E40000]/30
-                transition-colors"
-            />
+        {/* Search bar - hidden when collapsed */}
+        {!sidebarCollapsed && (
+          <div className="p-3 border-b border-gray-200 dark:border-[#22272B]">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
+              <input
+                type="text"
+                placeholder="Search admin... (Ctrl+K)"
+                value={globalSearch}
+                onChange={(e) => setGlobalSearch(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg
+                  text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-[#E40000]/50 focus:ring-1 focus:ring-[#E40000]/30
+                  transition-colors"
+              />
+            </div>
           </div>
+        )}
+
+        {/* Collapse toggle - desktop only */}
+        <div className="hidden lg:flex items-center justify-end px-3 py-1 border-b border-gray-200 dark:border-[#22272B]">
+          <button
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-white/70 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {sidebarCollapsed ? <ChevronsRight className="w-4 h-4" /> : <ChevronsLeft className="w-4 h-4" />}
+          </button>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-[#333] scrollbar-track-transparent">
+        <nav className={`flex-1 ${sidebarCollapsed ? 'p-1.5' : 'p-3'} space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-[#333] scrollbar-track-transparent`}>
           {navigationItems.map((section) => (
             <div key={section.id} className="space-y-0.5">
-              {/* Section Header */}
-              <button
-                onClick={() => toggleSidebarSection(section.id)}
-                className={`
-                  w-full flex items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-wider rounded-lg
-                  transition-colors duration-200 group
-                  ${isSectionActive(section) ? 'text-[#E40000]' : 'text-white/50 hover:text-white/70'}
-                `}
-              >
-                <div className="flex items-center gap-2">
-                  {section.icon}
-                  <span>{section.title}</span>
-                </div>
-                <ChevronDown
-                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                    openSidebarSections.includes(section.id) ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
+              {sidebarCollapsed ? (
+                /* Collapsed: icon-only with flyout */
+                <div
+                  className="relative"
+                  onMouseEnter={() => setHoveredSection(section.id)}
+                  onMouseLeave={() => setHoveredSection(null)}
+                >
+                  <button
+                    className={`
+                      w-full flex items-center justify-center p-2.5 rounded-lg transition-colors duration-200
+                      ${isSectionActive(section) ? 'text-[#E40000] bg-[#E40000]/10' : 'text-gray-400 dark:text-white/50 hover:text-gray-600 dark:hover:text-white/70 hover:bg-gray-100 dark:hover:bg-white/5'}
+                    `}
+                    title={section.title}
+                  >
+                    {section.icon}
+                  </button>
 
-              {/* Section Children */}
-              {openSidebarSections.includes(section.id) && section.children && (
-                <div className="ml-3 space-y-0.5 border-l border-[#22272B] pl-3">
-                  {section.children.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => handleNavigation(item.path, item.onClick)}
-                      disabled={item.disabled}
-                      className={`
-                        w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium rounded-lg
-                        transition-all duration-200
-                        ${
-                          isActive(item.path)
-                            ? 'bg-[#E40000]/15 text-[#FF4444] border-l-2 border-[#E40000] -ml-[calc(0.75rem+1px)] pl-[calc(0.75rem+0.75rem-1px)]'
-                            : 'text-white/70 hover:text-white hover:bg-white/5'
-                        }
-                        ${item.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                      `}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="flex-shrink-0">{item.icon}</span>
-                        <span className="truncate">{item.title}</span>
+                  {/* Flyout panel */}
+                  {hoveredSection === section.id && section.children && (
+                    <div className="absolute left-full top-0 ml-1 w-56 bg-white dark:bg-[#1A1D20] border border-gray-200 dark:border-[#22272B] rounded-lg shadow-xl z-50 py-2">
+                      <div className="px-3 py-1.5 text-[10px] font-semibold text-gray-400 dark:text-white/40 uppercase tracking-wider">
+                        {section.title}
                       </div>
-                      {item.badge && item.badge > 0 && (
-                        <span className="flex-shrink-0 px-1.5 py-0.5 text-xs font-bold bg-[#E40000]/20 text-[#FF4444] rounded-full min-w-[1.25rem] text-center">
-                          {item.badge > 99 ? '99+' : item.badge}
-                        </span>
-                      )}
-                    </button>
-                  ))}
+                      {section.children.map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => { handleNavigation(item.path, item.onClick); setHoveredSection(null); }}
+                          disabled={item.disabled}
+                          className={`
+                            w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium transition-colors
+                            ${isActive(item.path) ? 'bg-[#E40000]/15 text-[#FF4444]' : 'text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'}
+                            ${item.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                          `}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <span className="flex-shrink-0">{item.icon}</span>
+                            <span className="truncate">{item.title}</span>
+                          </div>
+                          {item.badge && item.badge > 0 && (
+                            <span className="flex-shrink-0 px-1.5 py-0.5 text-xs font-bold bg-[#E40000]/20 text-[#FF4444] rounded-full min-w-[1.25rem] text-center">
+                              {item.badge > 99 ? '99+' : item.badge}
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
+              ) : (
+                /* Expanded: full rendering */
+                <>
+                  {/* Section Header */}
+                  <button
+                    onClick={() => toggleSidebarSection(section.id)}
+                    className={`
+                      w-full flex items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-wider rounded-lg
+                      transition-colors duration-200 group
+                      ${isSectionActive(section) ? 'text-[#E40000]' : 'text-gray-400 dark:text-white/50 hover:text-gray-600 dark:hover:text-white/70'}
+                    `}
+                  >
+                    <div className="flex items-center gap-2">
+                      {section.icon}
+                      <span>{section.title}</span>
+                    </div>
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                        openSidebarSections.includes(section.id) ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </button>
+
+                  {/* Section Children */}
+                  {openSidebarSections.includes(section.id) && section.children && (
+                    <div className="ml-3 space-y-0.5 border-l border-gray-200 dark:border-[#22272B] pl-3">
+                      {section.children.map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => handleNavigation(item.path, item.onClick)}
+                          disabled={item.disabled}
+                          className={`
+                            w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium rounded-lg
+                            transition-all duration-200
+                            ${
+                              isActive(item.path)
+                                ? 'bg-[#E40000]/15 text-[#FF4444] border-l-2 border-[#E40000] -ml-[calc(0.75rem+1px)] pl-[calc(0.75rem+0.75rem-1px)]'
+                                : 'text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5'
+                            }
+                            ${item.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                          `}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <span className="flex-shrink-0">{item.icon}</span>
+                            <span className="truncate">{item.title}</span>
+                          </div>
+                          {item.badge && item.badge > 0 && (
+                            <span className="flex-shrink-0 px-1.5 py-0.5 text-xs font-bold bg-[#E40000]/20 text-[#FF4444] rounded-full min-w-[1.25rem] text-center">
+                              {item.badge > 99 ? '99+' : item.badge}
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           ))}
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-3 border-t border-[#22272B] bg-gradient-to-t from-[#0F1112] to-transparent">
-          <div className="flex items-center justify-between text-xs text-white/40">
-            <span>Admin Dashboard v1.0</span>
-            <div className="flex items-center gap-1.5">
-              <div className={`w-2 h-2 rounded-full ${isDarkMode ? 'bg-green-500' : 'bg-yellow-400'}`} />
-              <span>{isDarkMode ? 'Dark' : 'Light'}</span>
+        <div className="p-3 border-t border-gray-200 dark:border-[#22272B] bg-gradient-to-t from-white dark:from-[#0F1112] to-transparent">
+          {!sidebarCollapsed && (
+            <div className="flex items-center justify-between text-xs text-gray-400 dark:text-white/40">
+              <span>Admin Dashboard v1.0</span>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </>

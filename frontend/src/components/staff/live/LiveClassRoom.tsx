@@ -23,21 +23,21 @@ const MOCK_PARTICIPANTS: ParticipantTile[] = [
 
 const LiveClassRoom: React.FC<LiveClassRoomProps> = ({ sessionId, token: _token }) => {
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#22272B]">
+      <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-200 dark:border-[#22272B]">
         <div className="flex items-center gap-2">
           <Video className="w-4 h-4 text-[#E40000]" />
-          <h3 className="text-sm font-semibold text-white">Live Classroom</h3>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Live Classroom</h3>
           <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#E40000]/20 text-[#E40000] text-[10px] font-medium">
             <span className="w-1.5 h-1.5 rounded-full bg-[#E40000] animate-pulse" />
             LIVE
           </span>
         </div>
-        <div className="flex items-center gap-2 text-xs text-white/40">
+        <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-white/40">
           <Users className="w-3.5 h-3.5" />
           <span>{MOCK_PARTICIPANTS.length} participants</span>
-          <span className="text-white/20">|</span>
+          <span className="text-gray-400 dark:text-gray-300 dark:text-white/20">|</span>
           <span>Session: {sessionId}</span>
         </div>
       </div>
@@ -56,28 +56,28 @@ const LiveClassRoom: React.FC<LiveClassRoomProps> = ({ sessionId, token: _token 
           {MOCK_PARTICIPANTS.map((participant) => (
             <div
               key={participant.id}
-              className="relative aspect-video bg-[#22272B]/60 border border-[#22272B] rounded-lg overflow-hidden flex items-center justify-center group"
+              className="relative aspect-video bg-gray-100 dark:bg-[#22272B]/60 border border-gray-200 dark:border-[#22272B] rounded-lg overflow-hidden flex items-center justify-center group"
             >
               {participant.isVideoOff ? (
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-14 h-14 rounded-full bg-[#333] flex items-center justify-center">
-                    <span className="text-lg font-semibold text-white/60">
+                    <span className="text-lg font-semibold text-gray-500 dark:text-white/60">
                       {participant.initials}
                     </span>
                   </div>
-                  <span className="text-xs text-white/40">{participant.name}</span>
+                  <span className="text-xs text-gray-400 dark:text-white/40">{participant.name}</span>
                 </div>
               ) : (
                 <>
                   {/* Simulated video placeholder */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#22272B] to-[#181C1F]" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#22272B] to-gray-100 dark:to-[#181C1F]" />
                   <div className="relative flex flex-col items-center gap-2">
                     <div className="w-14 h-14 rounded-full bg-[#333] flex items-center justify-center ring-2 ring-[#E40000]/30">
-                      <span className="text-lg font-semibold text-white/70">
+                      <span className="text-lg font-semibold text-gray-600 dark:text-white/70">
                         {participant.initials}
                       </span>
                     </div>
-                    <span className="text-xs text-white/50">{participant.name}</span>
+                    <span className="text-xs text-gray-500 dark:text-white/50">{participant.name}</span>
                   </div>
                 </>
               )}
@@ -100,7 +100,7 @@ const LiveClassRoom: React.FC<LiveClassRoomProps> = ({ sessionId, token: _token 
 
               {/* Name tag */}
               <div className="absolute bottom-2 right-2">
-                <span className="px-1.5 py-0.5 rounded bg-black/50 text-[10px] text-white/70">
+                <span className="px-1.5 py-0.5 rounded bg-black/50 text-[10px] text-gray-600 dark:text-white/70">
                   {participant.name.split(' ')[0]}
                 </span>
               </div>
@@ -110,17 +110,17 @@ const LiveClassRoom: React.FC<LiveClassRoomProps> = ({ sessionId, token: _token 
       </div>
 
       {/* Controls bar */}
-      <div className="flex items-center justify-center gap-3 px-5 py-4 border-t border-[#22272B] bg-[#1a1f23]">
-        <button className="p-3 rounded-full bg-[#22272B] hover:bg-[#333] text-white transition-colors">
+      <div className="flex items-center justify-center gap-3 px-5 py-4 border-t border-gray-200 dark:border-[#22272B] bg-[#1a1f23]">
+        <button className="p-3 rounded-full bg-gray-100 dark:bg-[#22272B] hover:bg-[#333] text-gray-900 dark:text-white transition-colors">
           <Mic className="w-5 h-5" />
         </button>
-        <button className="p-3 rounded-full bg-[#22272B] hover:bg-[#333] text-white transition-colors">
+        <button className="p-3 rounded-full bg-gray-100 dark:bg-[#22272B] hover:bg-[#333] text-gray-900 dark:text-white transition-colors">
           <Video className="w-5 h-5" />
         </button>
-        <button className="p-3 rounded-full bg-[#22272B] hover:bg-[#333] text-white transition-colors">
+        <button className="p-3 rounded-full bg-gray-100 dark:bg-[#22272B] hover:bg-[#333] text-gray-900 dark:text-white transition-colors">
           <Monitor className="w-5 h-5" />
         </button>
-        <button className="p-3 rounded-full bg-[#E40000] hover:bg-[#E40000]/90 text-white transition-colors ml-3">
+        <button className="p-3 rounded-full bg-[#E40000] hover:bg-[#E40000]/90 text-gray-900 dark:text-white transition-colors ml-3">
           <span className="text-xs font-medium px-2">Leave</span>
         </button>
       </div>

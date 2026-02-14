@@ -167,13 +167,13 @@ const AuditLogsPage: React.FC = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-16 bg-[#22272B] rounded-lg animate-pulse" />
+        <div className="h-16 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-28 bg-[#22272B] rounded-xl animate-pulse" />
+            <div key={i} className="h-28 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
           ))}
         </div>
-        <div className="h-80 bg-[#22272B] rounded-xl animate-pulse" />
+        <div className="h-80 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
       </div>
     );
   }
@@ -197,7 +197,7 @@ const AuditLogsPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={handleExportCSV}
-              className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors"
             >
               <Download className="w-4 h-4" />
               Export CSV
@@ -205,7 +205,7 @@ const AuditLogsPage: React.FC = () => {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
@@ -239,21 +239,21 @@ const AuditLogsPage: React.FC = () => {
       {/* Search & Filters */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
           <input
             type="text"
             placeholder="Search by actor, action, or resource..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
           />
         </div>
         <div className="relative">
-          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="pl-10 pr-8 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[140px]"
+            className="pl-10 pr-8 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[140px]"
           >
             <option value="">All Status</option>
             <option value="success">Success</option>
@@ -263,38 +263,38 @@ const AuditLogsPage: React.FC = () => {
         </div>
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
             <input
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
-              className="pl-10 pr-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
+              className="pl-10 pr-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
               placeholder="From"
             />
           </div>
-          <span className="text-white/30">-</span>
+          <span className="text-gray-400 dark:text-white/30">-</span>
           <input
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
-            className="px-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
+            className="px-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
             placeholder="To"
           />
         </div>
       </motion.div>
 
       {/* Table */}
-      <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+      <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#22272B] text-left">
-                <th className="px-4 py-3 text-white/60 font-medium">Timestamp</th>
-                <th className="px-4 py-3 text-white/60 font-medium">Actor</th>
-                <th className="px-4 py-3 text-white/60 font-medium">Action</th>
-                <th className="px-4 py-3 text-white/60 font-medium">Resource</th>
-                <th className="px-4 py-3 text-white/60 font-medium">Status</th>
-                <th className="px-4 py-3 text-white/60 font-medium">IP Address</th>
+              <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Timestamp</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Actor</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Action</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Resource</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Status</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">IP Address</th>
               </tr>
             </thead>
             <tbody>
@@ -302,16 +302,16 @@ const AuditLogsPage: React.FC = () => {
                 <tr>
                   <td colSpan={6} className="px-4 py-16 text-center">
                     <FileText className="w-12 h-12 text-white/10 mx-auto mb-3" />
-                    <p className="text-white/40 text-sm">No audit logs found</p>
+                    <p className="text-gray-400 dark:text-white/40 text-sm">No audit logs found</p>
                   </td>
                 </tr>
               ) : (
                 filteredLogs.map((log) => (
-                  <tr key={log.id} className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
-                    <td className="px-4 py-3 text-white/50 text-xs whitespace-nowrap">{formatDate(log.timestamp)}</td>
+                  <tr key={log.id} className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
+                    <td className="px-4 py-3 text-gray-500 dark:text-white/50 text-xs whitespace-nowrap">{formatDate(log.timestamp)}</td>
                     <td className="px-4 py-3">
                       <div>
-                        <span className="text-white text-xs">{log.actor_email}</span>
+                        <span className="text-gray-900 dark:text-white text-xs">{log.actor_email}</span>
                         <span className={`ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border capitalize ${
                           roleColors[log.actor_role] || 'bg-gray-500/20 text-gray-400 border-gray-500/30'
                         }`}>
@@ -321,18 +321,18 @@ const AuditLogsPage: React.FC = () => {
                     </td>
                     <td className="px-4 py-3">
                       <div>
-                        <span className="text-white font-mono text-xs">{log.action}</span>
-                        <span className="block text-[11px] text-white/40 mt-0.5 max-w-[250px] truncate">{log.details}</span>
+                        <span className="text-gray-900 dark:text-white font-mono text-xs">{log.action}</span>
+                        <span className="block text-[11px] text-gray-400 dark:text-white/40 mt-0.5 max-w-[250px] truncate">{log.details}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3">
                       <div>
-                        <span className="text-white/70 text-xs">{log.resource_type}</span>
-                        <span className="block text-[10px] text-white/30 font-mono">{log.resource_id}</span>
+                        <span className="text-gray-600 dark:text-white/70 text-xs">{log.resource_type}</span>
+                        <span className="block text-[10px] text-gray-400 dark:text-white/30 font-mono">{log.resource_id}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3"><StatusBadge status={log.status} /></td>
-                    <td className="px-4 py-3 text-white/40 font-mono text-xs">{log.ip_address}</td>
+                    <td className="px-4 py-3 text-gray-400 dark:text-white/40 font-mono text-xs">{log.ip_address}</td>
                   </tr>
                 ))
               )}
@@ -341,16 +341,16 @@ const AuditLogsPage: React.FC = () => {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-[#22272B]">
-          <p className="text-xs text-white/40">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-[#22272B]">
+          <p className="text-xs text-gray-400 dark:text-white/40">
             Showing 1-{filteredLogs.length} of {filteredLogs.length} logs
           </p>
           <div className="flex items-center gap-1">
-            <button className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white disabled:opacity-30 transition-colors" disabled>
+            <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors" disabled>
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <button className="w-8 h-8 rounded-lg text-xs font-medium bg-[#E40000] text-white">1</button>
-            <button className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white disabled:opacity-30 transition-colors" disabled>
+            <button className="w-8 h-8 rounded-lg text-xs font-medium bg-[#E40000] text-gray-900 dark:text-white">1</button>
+            <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors" disabled>
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>

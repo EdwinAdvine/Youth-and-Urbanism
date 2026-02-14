@@ -58,7 +58,7 @@ const DifficultySlider: React.FC<DifficultySliderProps> = ({
     <div className={`${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
       {/* Label row */}
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-medium text-white/60">Difficulty</span>
+        <span className="text-xs font-medium text-gray-500 dark:text-white/60">Difficulty</span>
         <div className="flex items-center gap-2">
           <span
             className={`text-lg font-bold tabular-nums ${currentLevel.color}`}
@@ -100,7 +100,7 @@ const DifficultySlider: React.FC<DifficultySliderProps> = ({
               className={`w-2 h-2 rounded-full transition-all ${
                 tick <= value
                   ? `opacity-100`
-                  : 'bg-[#22272B] opacity-60'
+                  : 'bg-gray-100 dark:bg-[#22272B] opacity-60'
               }`}
               style={{
                 backgroundColor: tick <= value ? currentLevel.trackColor : undefined,
@@ -115,7 +115,7 @@ const DifficultySlider: React.FC<DifficultySliderProps> = ({
             <span
               key={tick}
               className={`text-[9px] text-center ${
-                tick === value ? currentLevel.color : 'text-white/30'
+                tick === value ? currentLevel.color : 'text-gray-400 dark:text-white/30'
               }`}
               style={{ width: '20%' }}
             >

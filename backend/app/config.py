@@ -201,6 +201,18 @@ class Settings(BaseSettings):
         description="M-Pesa timeout URL"
     )
 
+    # Flutterwave Payment Configuration
+    flutterwave_secret_key: Optional[str] = Field(
+        default=None,
+        description="Flutterwave secret API key for bank transfers"
+    )
+
+    # Paystack Payment Configuration
+    paystack_secret_key: Optional[str] = Field(
+        default=None,
+        description="Paystack secret API key for bank transfers"
+    )
+
     # Stripe Payment Configuration
     stripe_secret_key: Optional[str] = Field(
         default=None,
@@ -285,6 +297,20 @@ class Settings(BaseSettings):
     azure_storage_container: Optional[str] = Field(
         default=None,
         description="Azure blob storage container name"
+    )
+
+    # Africa's Talking SMS Configuration
+    africas_talking_username: str = Field(
+        default="sandbox",
+        description="Africa's Talking username (use 'sandbox' for testing)"
+    )
+    africas_talking_api_key: Optional[str] = Field(
+        default=None,
+        description="Africa's Talking API key"
+    )
+    africas_talking_sender_id: Optional[str] = Field(
+        default=None,
+        description="Africa's Talking sender ID (shortcode or alphanumeric)"
     )
 
     # Email Configuration
@@ -530,6 +556,57 @@ class Settings(BaseSettings):
             url = url.replace("postgresql://", "postgresql+asyncpg://")
 
         return url
+
+
+    # ─── WebRTC Configuration ────────────────────────────────────────────
+    webrtc_stun_urls: list = Field(
+        default=["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"],
+        description="STUN server URLs for WebRTC ICE"
+    )
+    webrtc_turn_url: str = Field(
+        default="",
+        description="TURN server URL (optional, for NAT traversal)"
+    )
+    webrtc_turn_username: str = Field(
+        default="",
+        description="TURN server username"
+    )
+    webrtc_turn_credential: str = Field(
+        default="",
+        description="TURN server credential"
+    )
+    webrtc_max_participants: int = Field(
+        default=6,
+        description="Max participants per WebRTC room (mesh topology)"
+    )
+
+    # LiveKit Configuration (for staff live sessions)
+    livekit_url: str = Field(
+        default="http://localhost:7880",
+        description="LiveKit server URL"
+    )
+    livekit_api_key: str = Field(
+        default="devkey",
+        description="LiveKit API key"
+    )
+    livekit_api_secret: str = Field(
+        default="secret",
+        description="LiveKit API secret"
+    )
+
+    # VAPID Configuration (for push notifications)
+    vapid_public_key: Optional[str] = Field(
+        default=None,
+        description="VAPID public key for web push notifications"
+    )
+    vapid_private_key: Optional[str] = Field(
+        default=None,
+        description="VAPID private key for web push notifications"
+    )
+    vapid_claims_email: str = Field(
+        default="admin@urbanhomeschool.co.ke",
+        description="VAPID claims email"
+    )
 
 
 # Create global settings instance

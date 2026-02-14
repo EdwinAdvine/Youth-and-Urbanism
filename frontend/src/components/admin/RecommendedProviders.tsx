@@ -270,7 +270,7 @@ export default function RecommendedProviders({ onSelectTemplate, loading = false
               {/* Recommended Badge */}
               {template.is_recommended && (
                 <div className="absolute top-4 right-4">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-sm">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 dark:text-white shadow-sm">
                     <Sparkles className="w-3 h-3 mr-1" />
                     Recommended
                   </span>
@@ -323,7 +323,7 @@ export default function RecommendedProviders({ onSelectTemplate, loading = false
               <button
                 onClick={() => onSelectTemplate(template)}
                 className={`
-                  w-full py-2.5 px-4 rounded-lg font-medium text-white
+                  w-full py-2.5 px-4 rounded-lg font-medium text-gray-900 dark:text-white
                   transition-all duration-200
                   bg-gradient-to-r ${
                     providerConfig.color === 'blue' ? 'from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700' :

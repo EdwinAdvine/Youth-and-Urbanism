@@ -23,7 +23,6 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-import DashboardLayout from '../components/layout/DashboardLayout';
 import { Transaction } from '../types/index';
 import { getWallet, getTransactionHistory, getPaymentMethods as fetchPaymentMethods } from '../services/paymentService';
 
@@ -448,50 +447,50 @@ const WalletPage: React.FC = () => {
   };
 
   return (
-    <DashboardLayout>
+    <>
       <div className="space-y-6">
         {/* Wallet Overview Section */}
-        <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
+        <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl p-8 text-gray-900 dark:text-white">
           <div className="flex items-start justify-between mb-6">
             <div>
-              <p className="text-white/80 text-sm mb-1">Total Balance</p>
+              <p className="text-gray-700 dark:text-white/80 text-sm mb-1">Total Balance</p>
               <div className="flex items-center gap-3">
                 <h2 className="text-4xl font-bold">
                   {showBalance ? formatCurrency(walletStats.availableBalance) : '••••••'}
                 </h2>
                 <button
                   onClick={() => setShowBalance(!showBalance)}
-                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
                 >
                   {showBalance ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              <p className="text-white/60 text-sm mt-2">
+              <p className="text-gray-500 dark:text-white/60 text-sm mt-2">
                 Last updated: {formatDate(new Date())} at {formatTime(new Date())}
               </p>
             </div>
-            <Wallet className="w-12 h-12 text-white/40" />
+            <Wallet className="w-12 h-12 text-gray-400 dark:text-white/40" />
           </div>
 
           {/* Quick Actions */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <button
               onClick={() => setIsAddFundsModalOpen(true)}
-              className="flex items-center justify-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl px-4 py-3 transition-all"
+              className="flex items-center justify-center gap-2 bg-gray-200 dark:bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl px-4 py-3 transition-all"
             >
               <Plus className="w-5 h-5" />
               <span className="font-medium">Add Funds</span>
             </button>
             <button
               onClick={() => setIsWithdrawModalOpen(true)}
-              className="flex items-center justify-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl px-4 py-3 transition-all"
+              className="flex items-center justify-center gap-2 bg-gray-200 dark:bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl px-4 py-3 transition-all"
             >
               <ArrowDownLeft className="w-5 h-5" />
               <span className="font-medium">Withdraw</span>
             </button>
             <button
               onClick={() => setIsTransferModalOpen(true)}
-              className="flex items-center justify-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl px-4 py-3 transition-all"
+              className="flex items-center justify-center gap-2 bg-gray-200 dark:bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl px-4 py-3 transition-all"
             >
               <ArrowUpRight className="w-5 h-5" />
               <span className="font-medium">Transfer</span>
@@ -501,7 +500,7 @@ const WalletPage: React.FC = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-[#1a1f26] rounded-xl p-6 border border-white/5">
+          <div className="bg-[#1a1f26] rounded-xl p-6 border border-gray-100 dark:border-white/5">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-green-500/10 rounded-lg">
                 <TrendingUp className="w-6 h-6 text-green-400" />
@@ -510,11 +509,11 @@ const WalletPage: React.FC = () => {
                 +12.5%
               </span>
             </div>
-            <p className="text-white/60 text-sm mb-1">Total Deposits</p>
-            <p className="text-2xl font-bold text-white">{formatCurrency(walletStats.totalDeposits)}</p>
+            <p className="text-gray-500 dark:text-white/60 text-sm mb-1">Total Deposits</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(walletStats.totalDeposits)}</p>
           </div>
 
-          <div className="bg-[#1a1f26] rounded-xl p-6 border border-white/5">
+          <div className="bg-[#1a1f26] rounded-xl p-6 border border-gray-100 dark:border-white/5">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-red-500/10 rounded-lg">
                 <TrendingDown className="w-6 h-6 text-red-400" />
@@ -523,56 +522,56 @@ const WalletPage: React.FC = () => {
                 -8.3%
               </span>
             </div>
-            <p className="text-white/60 text-sm mb-1">Total Withdrawals</p>
-            <p className="text-2xl font-bold text-white">{formatCurrency(walletStats.totalWithdrawals)}</p>
+            <p className="text-gray-500 dark:text-white/60 text-sm mb-1">Total Withdrawals</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(walletStats.totalWithdrawals)}</p>
           </div>
 
-          <div className="bg-[#1a1f26] rounded-xl p-6 border border-white/5">
+          <div className="bg-[#1a1f26] rounded-xl p-6 border border-gray-100 dark:border-white/5">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-blue-500/10 rounded-lg">
                 <Wallet className="w-6 h-6 text-blue-400" />
               </div>
             </div>
-            <p className="text-white/60 text-sm mb-1">Available Balance</p>
-            <p className="text-2xl font-bold text-white">{formatCurrency(walletStats.availableBalance)}</p>
+            <p className="text-gray-500 dark:text-white/60 text-sm mb-1">Available Balance</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(walletStats.availableBalance)}</p>
           </div>
 
-          <div className="bg-[#1a1f26] rounded-xl p-6 border border-white/5">
+          <div className="bg-[#1a1f26] rounded-xl p-6 border border-gray-100 dark:border-white/5">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-yellow-500/10 rounded-lg">
                 <Clock className="w-6 h-6 text-yellow-400" />
               </div>
             </div>
-            <p className="text-white/60 text-sm mb-1">Pending Transactions</p>
-            <p className="text-2xl font-bold text-white">{walletStats.pendingTransactions}</p>
+            <p className="text-gray-500 dark:text-white/60 text-sm mb-1">Pending Transactions</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{walletStats.pendingTransactions}</p>
           </div>
         </div>
 
         {/* Transaction Timeline */}
-        <div className="bg-[#1a1f26] rounded-xl border border-white/5 p-6">
+        <div className="bg-[#1a1f26] rounded-xl border border-gray-100 dark:border-white/5 p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-            <h3 className="text-xl font-bold text-white">Transaction History</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Transaction History</h3>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
               {/* Search */}
               <div className="relative flex-1 sm:flex-initial">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
                 <input
                   type="text"
                   placeholder="Search transactions..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full sm:w-64 bg-[#181C1F] border border-white/10 rounded-lg pl-10 pr-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full sm:w-64 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-white/10 rounded-lg pl-10 pr-4 py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500 transition-colors"
                 />
               </div>
 
               {/* Filter */}
               <div className="relative">
-                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
                 <select
                   value={filterType}
                   onChange={(e) => setFilterType(e.target.value as 'all' | 'credit' | 'debit')}
-                  className="w-full sm:w-auto bg-[#181C1F] border border-white/10 rounded-lg pl-10 pr-8 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors appearance-none cursor-pointer"
+                  className="w-full sm:w-auto bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-white/10 rounded-lg pl-10 pr-8 py-2 text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors appearance-none cursor-pointer"
                 >
                   <option value="all">All Transactions</option>
                   <option value="credit">Deposits Only</option>
@@ -596,7 +595,7 @@ const WalletPage: React.FC = () => {
 
               return (
                 <div key={period}>
-                  <h4 className="text-sm font-semibold text-white/60 mb-3 flex items-center gap-2">
+                  <h4 className="text-sm font-semibold text-gray-500 dark:text-white/60 mb-3 flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
                     {periodLabels[period]}
                   </h4>
@@ -604,25 +603,25 @@ const WalletPage: React.FC = () => {
                     {txs.map((transaction) => (
                       <div
                         key={transaction.id}
-                        className="bg-[#181C1F] rounded-lg p-4 border border-white/5 hover:border-white/10 transition-all group"
+                        className="bg-white dark:bg-[#181C1F] rounded-lg p-4 border border-gray-100 dark:border-white/5 hover:border-gray-200 dark:hover:border-white/10 transition-all group"
                       >
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex items-start gap-3 flex-1 min-w-0">
                             {/* Gateway Icon */}
-                            <div className="p-2 bg-white/5 rounded-lg shrink-0">
+                            <div className="p-2 bg-gray-50 dark:bg-white/5 rounded-lg shrink-0">
                               {transaction.gateway ? getGatewayIcon(transaction.gateway) : <Wallet className="w-5 h-5 text-gray-500" />}
                             </div>
 
                             {/* Transaction Details */}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2 mb-1">
-                                <p className="font-medium text-white truncate">{transaction.description}</p>
+                                <p className="font-medium text-gray-900 dark:text-white truncate">{transaction.description}</p>
                                 <p className={`font-bold text-lg shrink-0 ${transaction.type === 'credit' ? 'text-green-400' : 'text-red-400'}`}>
                                   {transaction.type === 'credit' ? '+' : '-'}{formatCurrency(transaction.amount)}
                                 </p>
                               </div>
 
-                              <div className="flex flex-wrap items-center gap-2 text-xs text-white/60">
+                              <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-white/60">
                                 <span>{transaction.id}</span>
                                 <span>•</span>
                                 <span>{formatDate(transaction.createdAt)} at {formatTime(transaction.createdAt)}</span>
@@ -636,7 +635,7 @@ const WalletPage: React.FC = () => {
 
                               <div className="flex items-center gap-2 mt-2">
                                 {getStatusBadge(transaction.status)}
-                                <span className="text-xs text-white/40">
+                                <span className="text-xs text-gray-400 dark:text-white/40">
                                   Ref: {transaction.referenceId}
                                 </span>
                               </div>
@@ -644,8 +643,8 @@ const WalletPage: React.FC = () => {
                           </div>
 
                           {/* Actions */}
-                          <button className="p-2 hover:bg-white/5 rounded-lg transition-colors opacity-0 group-hover:opacity-100 shrink-0">
-                            <Download className="w-4 h-4 text-white/60" />
+                          <button className="p-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg transition-colors opacity-0 group-hover:opacity-100 shrink-0">
+                            <Download className="w-4 h-4 text-gray-500 dark:text-white/60" />
                           </button>
                         </div>
                       </div>
@@ -658,11 +657,11 @@ const WalletPage: React.FC = () => {
             {/* Empty State */}
             {filteredTransactions.length === 0 && (
               <div className="text-center py-12">
-                <div className="inline-flex p-4 bg-white/5 rounded-full mb-4">
-                  <Wallet className="w-8 h-8 text-white/40" />
+                <div className="inline-flex p-4 bg-gray-50 dark:bg-white/5 rounded-full mb-4">
+                  <Wallet className="w-8 h-8 text-gray-400 dark:text-white/40" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">No transactions found</h3>
-                <p className="text-white/60 text-sm">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No transactions found</h3>
+                <p className="text-gray-500 dark:text-white/60 text-sm">
                   {searchQuery ? 'Try adjusting your search or filters' : 'Your transaction history will appear here'}
                 </p>
               </div>
@@ -671,12 +670,12 @@ const WalletPage: React.FC = () => {
         </div>
 
         {/* Payment Methods Section */}
-        <div className="bg-[#1a1f26] rounded-xl border border-white/5 p-6">
+        <div className="bg-[#1a1f26] rounded-xl border border-gray-100 dark:border-white/5 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-white">Payment Methods</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Payment Methods</h3>
             <button
               onClick={() => setIsAddPaymentMethodOpen(true)}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-gray-900 dark:text-white px-4 py-2 rounded-lg transition-colors"
             >
               <Plus className="w-4 h-4" />
               <span className="text-sm font-medium">Add Method</span>
@@ -687,7 +686,7 @@ const WalletPage: React.FC = () => {
             {paymentMethods.map((method) => (
               <div
                 key={method.id}
-                className="bg-[#181C1F] rounded-lg p-4 border border-white/5 hover:border-white/10 transition-all group relative"
+                className="bg-white dark:bg-[#181C1F] rounded-lg p-4 border border-gray-100 dark:border-white/5 hover:border-gray-200 dark:hover:border-white/10 transition-all group relative"
               >
                 {method.isDefault && (
                   <div className="absolute top-3 right-3">
@@ -699,20 +698,20 @@ const WalletPage: React.FC = () => {
                 )}
 
                 <div className="flex items-start gap-3 mb-4">
-                  <div className="p-3 bg-white/5 rounded-lg">
+                  <div className="p-3 bg-gray-50 dark:bg-white/5 rounded-lg">
                     {getGatewayIcon(method.type)}
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-white mb-1">{method.name}</p>
-                    <p className="text-sm text-white/60">{method.details}</p>
+                    <p className="font-medium text-gray-900 dark:text-white mb-1">{method.name}</p>
+                    <p className="text-sm text-gray-500 dark:text-white/60">{method.details}</p>
                     {method.expiryDate && (
-                      <p className="text-xs text-white/40 mt-1">Expires: {method.expiryDate}</p>
+                      <p className="text-xs text-gray-400 dark:text-white/40 mt-1">Expires: {method.expiryDate}</p>
                     )}
                   </div>
                 </div>
 
                 {method.lastUsed && (
-                  <p className="text-xs text-white/40 mb-3">
+                  <p className="text-xs text-gray-400 dark:text-white/40 mb-3">
                     Last used: {formatDate(method.lastUsed)}
                   </p>
                 )}
@@ -721,7 +720,7 @@ const WalletPage: React.FC = () => {
                   {!method.isDefault && (
                     <button
                       onClick={() => handleSetDefault(method.id)}
-                      className="flex-1 bg-white/5 hover:bg-white/10 text-white text-sm py-2 rounded-lg transition-colors"
+                      className="flex-1 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-900 dark:text-white text-sm py-2 rounded-lg transition-colors"
                     >
                       Set as Default
                     </button>
@@ -739,11 +738,11 @@ const WalletPage: React.FC = () => {
             {/* Empty State */}
             {paymentMethods.length === 0 && (
               <div className="col-span-full text-center py-12">
-                <div className="inline-flex p-4 bg-white/5 rounded-full mb-4">
-                  <CreditCard className="w-8 h-8 text-white/40" />
+                <div className="inline-flex p-4 bg-gray-50 dark:bg-white/5 rounded-full mb-4">
+                  <CreditCard className="w-8 h-8 text-gray-400 dark:text-white/40" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">No payment methods</h3>
-                <p className="text-white/60 text-sm">Add a payment method to get started</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No payment methods</h3>
+                <p className="text-gray-500 dark:text-white/60 text-sm">Add a payment method to get started</p>
               </div>
             )}
           </div>
@@ -752,21 +751,21 @@ const WalletPage: React.FC = () => {
         {/* Add Funds Modal */}
         {isAddFundsModalOpen && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-[#1a1f26] rounded-2xl max-w-md w-full border border-white/10">
-              <div className="flex items-center justify-between p-6 border-b border-white/10">
-                <h3 className="text-xl font-bold text-white">Add Funds</h3>
+            <div className="bg-[#1a1f26] rounded-2xl max-w-md w-full border border-gray-200 dark:border-white/10">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-white/10">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Add Funds</h3>
                 <button
                   onClick={() => setIsAddFundsModalOpen(false)}
-                  className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg transition-colors"
                 >
-                  <X className="w-5 h-5 text-white/60" />
+                  <X className="w-5 h-5 text-gray-500 dark:text-white/60" />
                 </button>
               </div>
 
               <div className="p-6 space-y-6">
                 {/* Gateway Selection */}
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-3">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-3">
                     Select Payment Method
                   </label>
                   <div className="grid grid-cols-3 gap-3">
@@ -775,40 +774,40 @@ const WalletPage: React.FC = () => {
                       className={`p-4 rounded-lg border-2 transition-all ${
                         selectedGateway === 'mpesa'
                           ? 'border-green-500 bg-green-500/10'
-                          : 'border-white/10 bg-[#181C1F] hover:border-white/20'
+                          : 'border-gray-200 dark:border-white/10 bg-white dark:bg-[#181C1F] hover:border-gray-300 dark:hover:border-white/20'
                       }`}
                     >
                       <Smartphone className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                      <p className="text-xs font-medium text-white">M-Pesa</p>
+                      <p className="text-xs font-medium text-gray-900 dark:text-white">M-Pesa</p>
                     </button>
                     <button
                       onClick={() => setSelectedGateway('card')}
                       className={`p-4 rounded-lg border-2 transition-all ${
                         selectedGateway === 'card'
                           ? 'border-purple-500 bg-purple-500/10'
-                          : 'border-white/10 bg-[#181C1F] hover:border-white/20'
+                          : 'border-gray-200 dark:border-white/10 bg-white dark:bg-[#181C1F] hover:border-gray-300 dark:hover:border-white/20'
                       }`}
                     >
                       <CreditCard className="w-6 h-6 text-purple-500 mx-auto mb-2" />
-                      <p className="text-xs font-medium text-white">Card</p>
+                      <p className="text-xs font-medium text-gray-900 dark:text-white">Card</p>
                     </button>
                     <button
                       onClick={() => setSelectedGateway('paypal')}
                       className={`p-4 rounded-lg border-2 transition-all ${
                         selectedGateway === 'paypal'
                           ? 'border-blue-500 bg-blue-500/10'
-                          : 'border-white/10 bg-[#181C1F] hover:border-white/20'
+                          : 'border-gray-200 dark:border-white/10 bg-white dark:bg-[#181C1F] hover:border-gray-300 dark:hover:border-white/20'
                       }`}
                     >
                       <CreditCard className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-                      <p className="text-xs font-medium text-white">PayPal</p>
+                      <p className="text-xs font-medium text-gray-900 dark:text-white">PayPal</p>
                     </button>
                   </div>
                 </div>
 
                 {/* Amount Input */}
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                     Amount (KES)
                   </label>
                   <input
@@ -816,13 +815,13 @@ const WalletPage: React.FC = () => {
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="Enter amount"
-                    className="w-full bg-[#181C1F] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-full bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500 transition-colors"
                   />
                 </div>
 
                 {/* Quick Amount Buttons */}
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                     Quick Select
                   </label>
                   <div className="grid grid-cols-4 gap-2">
@@ -830,7 +829,7 @@ const WalletPage: React.FC = () => {
                       <button
                         key={quickAmount}
                         onClick={() => setAmount(quickAmount.toString())}
-                        className="bg-[#181C1F] hover:bg-white/5 border border-white/10 rounded-lg py-2 text-sm text-white transition-colors"
+                        className="bg-white dark:bg-[#181C1F] hover:bg-gray-50 dark:hover:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg py-2 text-sm text-gray-900 dark:text-white transition-colors"
                       >
                         {quickAmount}
                       </button>
@@ -842,14 +841,14 @@ const WalletPage: React.FC = () => {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setIsAddFundsModalOpen(false)}
-                    className="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-lg transition-colors"
+                    className="flex-1 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-900 dark:text-white py-3 rounded-lg transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleAddFunds}
                     disabled={isLoading}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-gray-900 dark:text-white py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isLoading ? (
                       <>
@@ -869,14 +868,14 @@ const WalletPage: React.FC = () => {
         {/* Withdraw Modal */}
         {isWithdrawModalOpen && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-[#1a1f26] rounded-2xl max-w-md w-full border border-white/10">
-              <div className="flex items-center justify-between p-6 border-b border-white/10">
-                <h3 className="text-xl font-bold text-white">Withdraw Funds</h3>
+            <div className="bg-[#1a1f26] rounded-2xl max-w-md w-full border border-gray-200 dark:border-white/10">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-white/10">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Withdraw Funds</h3>
                 <button
                   onClick={() => setIsWithdrawModalOpen(false)}
-                  className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg transition-colors"
                 >
-                  <X className="w-5 h-5 text-white/60" />
+                  <X className="w-5 h-5 text-gray-500 dark:text-white/60" />
                 </button>
               </div>
 
@@ -889,7 +888,7 @@ const WalletPage: React.FC = () => {
 
                 {/* Amount Input */}
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                     Amount (KES)
                   </label>
                   <input
@@ -897,13 +896,13 @@ const WalletPage: React.FC = () => {
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="Enter amount"
-                    className="w-full bg-[#181C1F] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-full bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500 transition-colors"
                   />
                 </div>
 
                 {/* Gateway Selection */}
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-3">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-3">
                     Withdrawal Method
                   </label>
                   <div className="grid grid-cols-2 gap-3">
@@ -912,22 +911,22 @@ const WalletPage: React.FC = () => {
                       className={`p-4 rounded-lg border-2 transition-all ${
                         selectedGateway === 'mpesa'
                           ? 'border-green-500 bg-green-500/10'
-                          : 'border-white/10 bg-[#181C1F] hover:border-white/20'
+                          : 'border-gray-200 dark:border-white/10 bg-white dark:bg-[#181C1F] hover:border-gray-300 dark:hover:border-white/20'
                       }`}
                     >
                       <Smartphone className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                      <p className="text-xs font-medium text-white">M-Pesa</p>
+                      <p className="text-xs font-medium text-gray-900 dark:text-white">M-Pesa</p>
                     </button>
                     <button
                       onClick={() => setSelectedGateway('card')}
                       className={`p-4 rounded-lg border-2 transition-all ${
                         selectedGateway === 'card'
                           ? 'border-purple-500 bg-purple-500/10'
-                          : 'border-white/10 bg-[#181C1F] hover:border-white/20'
+                          : 'border-gray-200 dark:border-white/10 bg-white dark:bg-[#181C1F] hover:border-gray-300 dark:hover:border-white/20'
                       }`}
                     >
                       <CreditCard className="w-6 h-6 text-purple-500 mx-auto mb-2" />
-                      <p className="text-xs font-medium text-white">Bank</p>
+                      <p className="text-xs font-medium text-gray-900 dark:text-white">Bank</p>
                     </button>
                   </div>
                 </div>
@@ -936,14 +935,14 @@ const WalletPage: React.FC = () => {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setIsWithdrawModalOpen(false)}
-                    className="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-lg transition-colors"
+                    className="flex-1 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-900 dark:text-white py-3 rounded-lg transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleWithdraw}
                     disabled={isLoading}
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-gray-900 dark:text-white py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isLoading ? (
                       <>
@@ -963,14 +962,14 @@ const WalletPage: React.FC = () => {
         {/* Transfer Modal */}
         {isTransferModalOpen && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-[#1a1f26] rounded-2xl max-w-md w-full border border-white/10">
-              <div className="flex items-center justify-between p-6 border-b border-white/10">
-                <h3 className="text-xl font-bold text-white">Transfer Funds</h3>
+            <div className="bg-[#1a1f26] rounded-2xl max-w-md w-full border border-gray-200 dark:border-white/10">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-white/10">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Transfer Funds</h3>
                 <button
                   onClick={() => setIsTransferModalOpen(false)}
-                  className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg transition-colors"
                 >
-                  <X className="w-5 h-5 text-white/60" />
+                  <X className="w-5 h-5 text-gray-500 dark:text-white/60" />
                 </button>
               </div>
 
@@ -983,19 +982,19 @@ const WalletPage: React.FC = () => {
 
                 {/* Recipient Input */}
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                     Recipient Email or Phone
                   </label>
                   <input
                     type="text"
                     placeholder="email@example.com or +254 7XX XXX XXX"
-                    className="w-full bg-[#181C1F] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-full bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500 transition-colors"
                   />
                 </div>
 
                 {/* Amount Input */}
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                     Amount (KES)
                   </label>
                   <input
@@ -1003,19 +1002,19 @@ const WalletPage: React.FC = () => {
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="Enter amount"
-                    className="w-full bg-[#181C1F] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-full bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500 transition-colors"
                   />
                 </div>
 
                 {/* Note Input */}
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                     Note (Optional)
                   </label>
                   <textarea
                     placeholder="Add a note..."
                     rows={3}
-                    className="w-full bg-[#181C1F] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-blue-500 transition-colors resize-none"
+                    className="w-full bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500 transition-colors resize-none"
                   />
                 </div>
 
@@ -1023,14 +1022,14 @@ const WalletPage: React.FC = () => {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setIsTransferModalOpen(false)}
-                    className="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-lg transition-colors"
+                    className="flex-1 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-900 dark:text-white py-3 rounded-lg transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleTransfer}
                     disabled={isLoading}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-gray-900 dark:text-white py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isLoading ? (
                       <>
@@ -1050,21 +1049,21 @@ const WalletPage: React.FC = () => {
         {/* Add Payment Method Modal */}
         {isAddPaymentMethodOpen && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-[#1a1f26] rounded-2xl max-w-md w-full border border-white/10">
-              <div className="flex items-center justify-between p-6 border-b border-white/10">
-                <h3 className="text-xl font-bold text-white">Add Payment Method</h3>
+            <div className="bg-[#1a1f26] rounded-2xl max-w-md w-full border border-gray-200 dark:border-white/10">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-white/10">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Add Payment Method</h3>
                 <button
                   onClick={() => setIsAddPaymentMethodOpen(false)}
-                  className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg transition-colors"
                 >
-                  <X className="w-5 h-5 text-white/60" />
+                  <X className="w-5 h-5 text-gray-500 dark:text-white/60" />
                 </button>
               </div>
 
               <div className="p-6 space-y-6">
                 {/* Method Type Selection */}
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-3">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-3">
                     Payment Method Type
                   </label>
                   <div className="grid grid-cols-3 gap-3">
@@ -1073,33 +1072,33 @@ const WalletPage: React.FC = () => {
                       className={`p-4 rounded-lg border-2 transition-all ${
                         selectedGateway === 'mpesa'
                           ? 'border-green-500 bg-green-500/10'
-                          : 'border-white/10 bg-[#181C1F] hover:border-white/20'
+                          : 'border-gray-200 dark:border-white/10 bg-white dark:bg-[#181C1F] hover:border-gray-300 dark:hover:border-white/20'
                       }`}
                     >
                       <Smartphone className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                      <p className="text-xs font-medium text-white">M-Pesa</p>
+                      <p className="text-xs font-medium text-gray-900 dark:text-white">M-Pesa</p>
                     </button>
                     <button
                       onClick={() => setSelectedGateway('card')}
                       className={`p-4 rounded-lg border-2 transition-all ${
                         selectedGateway === 'card'
                           ? 'border-purple-500 bg-purple-500/10'
-                          : 'border-white/10 bg-[#181C1F] hover:border-white/20'
+                          : 'border-gray-200 dark:border-white/10 bg-white dark:bg-[#181C1F] hover:border-gray-300 dark:hover:border-white/20'
                       }`}
                     >
                       <CreditCard className="w-6 h-6 text-purple-500 mx-auto mb-2" />
-                      <p className="text-xs font-medium text-white">Card</p>
+                      <p className="text-xs font-medium text-gray-900 dark:text-white">Card</p>
                     </button>
                     <button
                       onClick={() => setSelectedGateway('paypal')}
                       className={`p-4 rounded-lg border-2 transition-all ${
                         selectedGateway === 'paypal'
                           ? 'border-blue-500 bg-blue-500/10'
-                          : 'border-white/10 bg-[#181C1F] hover:border-white/20'
+                          : 'border-gray-200 dark:border-white/10 bg-white dark:bg-[#181C1F] hover:border-gray-300 dark:hover:border-white/20'
                       }`}
                     >
                       <CreditCard className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-                      <p className="text-xs font-medium text-white">PayPal</p>
+                      <p className="text-xs font-medium text-gray-900 dark:text-white">PayPal</p>
                     </button>
                   </div>
                 </div>
@@ -1107,13 +1106,13 @@ const WalletPage: React.FC = () => {
                 {/* Dynamic Form Based on Selected Method */}
                 {selectedGateway === 'mpesa' && (
                   <div>
-                    <label className="block text-sm font-medium text-white/80 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                       M-Pesa Phone Number
                     </label>
                     <input
                       type="tel"
                       placeholder="+254 7XX XXX XXX"
-                      className="w-full bg-[#181C1F] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-green-500 transition-colors"
+                      className="w-full bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-green-500 transition-colors"
                     />
                   </div>
                 )}
@@ -1121,34 +1120,34 @@ const WalletPage: React.FC = () => {
                 {selectedGateway === 'card' && (
                   <>
                     <div>
-                      <label className="block text-sm font-medium text-white/80 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                         Card Number
                       </label>
                       <input
                         type="text"
                         placeholder="1234 5678 9012 3456"
-                        className="w-full bg-[#181C1F] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-purple-500 transition-colors"
+                        className="w-full bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-purple-500 transition-colors"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-white/80 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                           Expiry Date
                         </label>
                         <input
                           type="text"
                           placeholder="MM/YY"
-                          className="w-full bg-[#181C1F] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-purple-500 transition-colors"
+                          className="w-full bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-purple-500 transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-white/80 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                           CVV
                         </label>
                         <input
                           type="text"
                           placeholder="123"
-                          className="w-full bg-[#181C1F] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-purple-500 transition-colors"
+                          className="w-full bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-purple-500 transition-colors"
                         />
                       </div>
                     </div>
@@ -1157,13 +1156,13 @@ const WalletPage: React.FC = () => {
 
                 {selectedGateway === 'paypal' && (
                   <div>
-                    <label className="block text-sm font-medium text-white/80 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
                       PayPal Email
                     </label>
                     <input
                       type="email"
                       placeholder="user@example.com"
-                      className="w-full bg-[#181C1F] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-blue-500 transition-colors"
+                      className="w-full bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500 transition-colors"
                     />
                   </div>
                 )}
@@ -1173,9 +1172,9 @@ const WalletPage: React.FC = () => {
                   <input
                     type="checkbox"
                     id="setDefault"
-                    className="w-4 h-4 rounded border-white/10 bg-[#181C1F] text-blue-600 focus:ring-blue-500"
+                    className="w-4 h-4 rounded border-gray-200 dark:border-white/10 bg-white dark:bg-[#181C1F] text-blue-600 focus:ring-blue-500"
                   />
-                  <label htmlFor="setDefault" className="text-sm text-white/80">
+                  <label htmlFor="setDefault" className="text-sm text-gray-700 dark:text-white/80">
                     Set as default payment method
                   </label>
                 </div>
@@ -1184,7 +1183,7 @@ const WalletPage: React.FC = () => {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setIsAddPaymentMethodOpen(false)}
-                    className="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-lg transition-colors"
+                    className="flex-1 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-900 dark:text-white py-3 rounded-lg transition-colors"
                   >
                     Cancel
                   </button>
@@ -1193,7 +1192,7 @@ const WalletPage: React.FC = () => {
                       setIsAddPaymentMethodOpen(false);
                       showToastMessage('Payment method added successfully', 'success');
                     }}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-gray-900 dark:text-white py-3 rounded-lg transition-colors"
                   >
                     Add Method
                   </button>
@@ -1206,25 +1205,25 @@ const WalletPage: React.FC = () => {
         {/* Delete Confirmation Modal */}
         {methodToDelete && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-[#1a1f26] rounded-2xl max-w-md w-full border border-white/10">
+            <div className="bg-[#1a1f26] rounded-2xl max-w-md w-full border border-gray-200 dark:border-white/10">
               <div className="p-6">
                 <div className="flex items-center justify-center w-12 h-12 bg-red-500/10 rounded-full mx-auto mb-4">
                   <AlertCircle className="w-6 h-6 text-red-400" />
                 </div>
-                <h3 className="text-xl font-bold text-white text-center mb-2">Delete Payment Method</h3>
-                <p className="text-white/60 text-center mb-6">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">Delete Payment Method</h3>
+                <p className="text-gray-500 dark:text-white/60 text-center mb-6">
                   Are you sure you want to remove this payment method? This action cannot be undone.
                 </p>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setMethodToDelete(null)}
-                    className="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-lg transition-colors"
+                    className="flex-1 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-900 dark:text-white py-3 rounded-lg transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={() => handleDeleteMethod(methodToDelete)}
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg transition-colors"
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-gray-900 dark:text-white py-3 rounded-lg transition-colors"
                   >
                     Delete
                   </button>
@@ -1239,8 +1238,8 @@ const WalletPage: React.FC = () => {
           <div className="fixed bottom-6 right-6 z-50 animate-slide-up">
             <div className={`flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg ${
               toastType === 'success'
-                ? 'bg-green-500/90 text-white'
-                : 'bg-red-500/90 text-white'
+                ? 'bg-green-500/90 text-gray-900 dark:text-white'
+                : 'bg-red-500/90 text-gray-900 dark:text-white'
             }`}>
               {toastType === 'success' ? (
                 <CheckCircle className="w-5 h-5" />
@@ -1252,7 +1251,7 @@ const WalletPage: React.FC = () => {
           </div>
         )}
       </div>
-    </DashboardLayout>
+    </>
   );
 };
 

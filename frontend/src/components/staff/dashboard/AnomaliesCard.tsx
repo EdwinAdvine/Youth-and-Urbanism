@@ -19,11 +19,11 @@ interface AnomaliesCardProps {
 const AnomaliesCard: React.FC<AnomaliesCardProps> = ({ anomalies, isLoading }) => {
   if (isLoading) {
     return (
-      <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5 animate-pulse">
-        <div className="h-5 w-40 bg-[#22272B] rounded mb-4" />
+      <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5 animate-pulse">
+        <div className="h-5 w-40 bg-gray-100 dark:bg-[#22272B] rounded mb-4" />
         <div className="space-y-3">
           {[1, 2].map((i) => (
-            <div key={i} className="h-14 bg-[#22272B] rounded-lg" />
+            <div key={i} className="h-14 bg-gray-100 dark:bg-[#22272B] rounded-lg" />
           ))}
         </div>
       </div>
@@ -43,9 +43,9 @@ const AnomaliesCard: React.FC<AnomaliesCardProps> = ({ anomalies, isLoading }) =
   };
 
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
           <Zap className="w-4 h-4 text-yellow-400" />
           AI Anomalies
         </h3>
@@ -55,26 +55,26 @@ const AnomaliesCard: React.FC<AnomaliesCardProps> = ({ anomalies, isLoading }) =
       </div>
       <div className="space-y-2">
         {anomalies.length === 0 ? (
-          <p className="text-sm text-white/40 text-center py-4">No anomalies detected</p>
+          <p className="text-sm text-gray-400 dark:text-white/40 text-center py-4">No anomalies detected</p>
         ) : (
           anomalies.slice(0, 3).map((anomaly) => {
             const config = severityConfig[anomaly.severity] || severityConfig.low;
             return (
               <div
                 key={anomaly.id}
-                className={`p-3 rounded-lg bg-[#22272B]/50 border ${config.bg}`}
+                className={`p-3 rounded-lg bg-gray-100 dark:bg-[#22272B]/50 border ${config.bg}`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
                     <div className={`w-2 h-2 rounded-full flex-shrink-0 ${config.dot}`} />
-                    <p className="text-sm text-white font-medium">{anomaly.title}</p>
+                    <p className="text-sm text-gray-900 dark:text-white font-medium">{anomaly.title}</p>
                   </div>
                   <TrendIcon trend={anomaly.trend} />
                 </div>
-                <p className="text-xs text-white/40 mt-1 ml-4">{anomaly.description}</p>
+                <p className="text-xs text-gray-400 dark:text-white/40 mt-1 ml-4">{anomaly.description}</p>
                 <div className="flex items-center gap-3 mt-1.5 ml-4">
-                  <span className="text-[10px] text-white/30">{anomaly.metric}</span>
-                  <span className="text-[10px] text-white/30">{anomaly.detectedAt}</span>
+                  <span className="text-[10px] text-gray-400 dark:text-white/30">{anomaly.metric}</span>
+                  <span className="text-[10px] text-gray-400 dark:text-white/30">{anomaly.detectedAt}</span>
                 </div>
               </div>
             );

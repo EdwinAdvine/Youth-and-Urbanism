@@ -91,7 +91,7 @@ const LiveSupportPage: React.FC = () => {
     const colors: Record<string, string> = {
       active: 'bg-green-400',
       waiting: 'bg-yellow-400 animate-pulse',
-      idle: 'bg-white/20',
+      idle: 'bg-gray-200 dark:bg-white/20',
     };
     return <div className={`w-2 h-2 rounded-full ${colors[status]}`} />;
   };
@@ -120,16 +120,16 @@ const LiveSupportPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="p-6 space-y-6">
-        <div className="h-7 w-40 bg-[#181C1F] rounded animate-pulse" />
+        <div className="h-7 w-40 bg-white dark:bg-[#181C1F] rounded animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-16 bg-[#181C1F] rounded-xl border border-[#22272B] animate-pulse" />
+            <div key={i} className="h-16 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] animate-pulse" />
           ))}
         </div>
         <div className="grid grid-cols-12 gap-4 h-[600px]">
-          <div className="col-span-3 bg-[#181C1F] rounded-xl border border-[#22272B] animate-pulse" />
-          <div className="col-span-6 bg-[#181C1F] rounded-xl border border-[#22272B] animate-pulse" />
-          <div className="col-span-3 bg-[#181C1F] rounded-xl border border-[#22272B] animate-pulse" />
+          <div className="col-span-3 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] animate-pulse" />
+          <div className="col-span-6 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] animate-pulse" />
+          <div className="col-span-3 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] animate-pulse" />
         </div>
       </div>
     );
@@ -142,8 +142,8 @@ const LiveSupportPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">Live Support</h1>
-          <p className="text-sm text-white/50 mt-1">Real-time chat support with AI-powered suggestions</p>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Live Support</h1>
+          <p className="text-sm text-gray-500 dark:text-white/50 mt-1">Real-time chat support with AI-powered suggestions</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 border border-green-500/20 rounded-lg">
@@ -155,33 +155,33 @@ const LiveSupportPage: React.FC = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#181C1F] rounded-xl border border-[#22272B] p-3">
-          <p className="text-xs text-white/50">Active Chats</p>
+        <div className="bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] p-3">
+          <p className="text-xs text-gray-500 dark:text-white/50">Active Chats</p>
           <p className="text-xl font-bold text-green-400">{stats.activeChats}</p>
         </div>
-        <div className="bg-[#181C1F] rounded-xl border border-[#22272B] p-3">
-          <p className="text-xs text-white/50">Waiting Queue</p>
+        <div className="bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] p-3">
+          <p className="text-xs text-gray-500 dark:text-white/50">Waiting Queue</p>
           <p className="text-xl font-bold text-yellow-400">{stats.waitingQueue}</p>
         </div>
-        <div className="bg-[#181C1F] rounded-xl border border-[#22272B] p-3">
-          <p className="text-xs text-white/50">Avg Wait Time</p>
-          <p className="text-xl font-bold text-white">{stats.avgWaitTime}</p>
+        <div className="bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] p-3">
+          <p className="text-xs text-gray-500 dark:text-white/50">Avg Wait Time</p>
+          <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.avgWaitTime}</p>
         </div>
-        <div className="bg-[#181C1F] rounded-xl border border-[#22272B] p-3">
-          <p className="text-xs text-white/50">Resolved Today</p>
-          <p className="text-xl font-bold text-white">{stats.resolvedToday}</p>
+        <div className="bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] p-3">
+          <p className="text-xs text-gray-500 dark:text-white/50">Resolved Today</p>
+          <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.resolvedToday}</p>
         </div>
       </div>
 
       {/* Chat Interface */}
       <div className="grid grid-cols-12 gap-4" style={{ height: 'calc(100vh - 320px)', minHeight: '500px' }}>
         {/* Chat List */}
-        <div className="col-span-3 bg-[#181C1F] rounded-xl border border-[#22272B] flex flex-col overflow-hidden">
-          <div className="p-3 border-b border-[#22272B]">
+        <div className="col-span-3 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] flex flex-col overflow-hidden">
+          <div className="p-3 border-b border-gray-200 dark:border-[#22272B]">
             <input
               type="text"
               placeholder="Search chats..."
-              className="w-full px-3 py-1.5 bg-[#0F1112] border border-[#22272B] rounded-lg text-xs text-white placeholder-white/30 focus:outline-none focus:border-[#E40000]/50"
+              className="w-full px-3 py-1.5 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-xs text-gray-900 dark:text-white placeholder-white/30 focus:outline-none focus:border-[#E40000]/50"
             />
           </div>
           <div className="flex-1 overflow-y-auto">
@@ -189,12 +189,12 @@ const LiveSupportPage: React.FC = () => {
               <button
                 key={session.id}
                 onClick={() => setSelectedChat(session.id)}
-                className={`w-full p-3 flex items-start gap-3 hover:bg-white/[0.02] transition-colors border-b border-[#22272B]/50 text-left ${
+                className={`w-full p-3 flex items-start gap-3 hover:bg-white/[0.02] transition-colors border-b border-gray-200 dark:border-[#22272B]/50 text-left ${
                   selectedChat === session.id ? 'bg-white/[0.04]' : ''
                 }`}
               >
                 <div className="relative flex-shrink-0">
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white ${getAvatarColor(session.userName)}`}>
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-gray-900 dark:text-white ${getAvatarColor(session.userName)}`}>
                     {session.userAvatar}
                   </div>
                   <div className="absolute -bottom-0.5 -right-0.5">
@@ -203,14 +203,14 @@ const LiveSupportPage: React.FC = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-0.5">
-                    <span className="text-xs font-semibold text-white truncate">{session.userName}</span>
-                    <span className="text-[10px] text-white/30 flex-shrink-0">{session.lastMessageTime}</span>
+                    <span className="text-xs font-semibold text-gray-900 dark:text-white truncate">{session.userName}</span>
+                    <span className="text-[10px] text-gray-400 dark:text-white/30 flex-shrink-0">{session.lastMessageTime}</span>
                   </div>
-                  <p className="text-[11px] text-white/40 truncate">{session.lastMessage}</p>
+                  <p className="text-[11px] text-gray-400 dark:text-white/40 truncate">{session.lastMessage}</p>
                   <div className="flex items-center gap-1.5 mt-1">
-                    <span className="text-[10px] text-white/30 bg-[#0F1112] px-1.5 py-0.5 rounded">{session.topic}</span>
+                    <span className="text-[10px] text-gray-400 dark:text-white/30 bg-gray-50 dark:bg-[#0F1112] px-1.5 py-0.5 rounded">{session.topic}</span>
                     {session.unreadCount > 0 && (
-                      <span className="w-4 h-4 rounded-full bg-[#E40000] text-white text-[10px] flex items-center justify-center font-bold">
+                      <span className="w-4 h-4 rounded-full bg-[#E40000] text-gray-900 dark:text-white text-[10px] flex items-center justify-center font-bold">
                         {session.unreadCount}
                       </span>
                     )}
@@ -222,25 +222,25 @@ const LiveSupportPage: React.FC = () => {
         </div>
 
         {/* Active Chat */}
-        <div className="col-span-6 bg-[#181C1F] rounded-xl border border-[#22272B] flex flex-col overflow-hidden">
+        <div className="col-span-6 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] flex flex-col overflow-hidden">
           {selectedSession ? (
             <>
               {/* Chat Header */}
-              <div className="p-3 border-b border-[#22272B] flex items-center justify-between">
+              <div className="p-3 border-b border-gray-200 dark:border-[#22272B] flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${getAvatarColor(selectedSession.userName)}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-gray-900 dark:text-white ${getAvatarColor(selectedSession.userName)}`}>
                     {selectedSession.userAvatar}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-white">{selectedSession.userName}</p>
-                    <p className="text-xs text-white/40">{selectedSession.userRole} &middot; {selectedSession.topic}</p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{selectedSession.userName}</p>
+                    <p className="text-xs text-gray-400 dark:text-white/40">{selectedSession.userRole} &middot; {selectedSession.topic}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <button className="px-3 py-1 bg-green-600/10 border border-green-500/30 rounded text-xs text-green-400 hover:bg-green-600/20 transition-colors">
                     Resolve
                   </button>
-                  <button className="px-3 py-1 bg-[#0F1112] border border-[#22272B] rounded text-xs text-white/40 hover:text-white/60 transition-colors">
+                  <button className="px-3 py-1 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded text-xs text-gray-400 dark:text-white/40 hover:text-gray-500 dark:hover:text-white/60 transition-colors">
                     Transfer
                   </button>
                 </div>
@@ -252,19 +252,19 @@ const LiveSupportPage: React.FC = () => {
                   <div key={msg.id} className={`flex ${msg.isStaff ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[80%] px-3 py-2 rounded-xl ${
                       msg.isStaff
-                        ? 'bg-[#E40000]/10 border border-[#E40000]/20 text-white/80'
-                        : 'bg-[#0F1112] border border-[#22272B] text-white/70'
+                        ? 'bg-[#E40000]/10 border border-[#E40000]/20 text-gray-700 dark:text-white/80'
+                        : 'bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] text-gray-600 dark:text-white/70'
                     }`}>
-                      <p className="text-xs text-white/40 mb-1">{msg.senderName}</p>
+                      <p className="text-xs text-gray-400 dark:text-white/40 mb-1">{msg.senderName}</p>
                       <p className="text-sm leading-relaxed">{msg.content}</p>
-                      <p className="text-[10px] text-white/20 mt-1 text-right">{msg.timestamp}</p>
+                      <p className="text-[10px] text-gray-400 dark:text-gray-300 dark:text-white/20 mt-1 text-right">{msg.timestamp}</p>
                     </div>
                   </div>
                 ))}
               </div>
 
               {/* Input */}
-              <div className="p-3 border-t border-[#22272B]">
+              <div className="p-3 border-t border-gray-200 dark:border-[#22272B]">
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
@@ -272,12 +272,12 @@ const LiveSupportPage: React.FC = () => {
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                     placeholder="Type a message..."
-                    className="flex-1 px-4 py-2 bg-[#0F1112] border border-[#22272B] rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#E40000]/50"
+                    className="flex-1 px-4 py-2 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-900 dark:text-white placeholder-white/30 focus:outline-none focus:border-[#E40000]/50"
                   />
                   <button
                     onClick={handleSendMessage}
                     disabled={!newMessage.trim()}
-                    className="px-4 py-2 bg-[#E40000] hover:bg-[#E40000]/90 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-40"
+                    className="px-4 py-2 bg-[#E40000] hover:bg-[#E40000]/90 text-gray-900 dark:text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-40"
                   >
                     Send
                   </button>
@@ -286,14 +286,14 @@ const LiveSupportPage: React.FC = () => {
             </>
           ) : (
             <div className="flex-1 flex items-center justify-center">
-              <p className="text-sm text-white/30">Select a chat to begin</p>
+              <p className="text-sm text-gray-400 dark:text-white/30">Select a chat to begin</p>
             </div>
           )}
         </div>
 
         {/* AI Suggestions Panel */}
-        <div className="col-span-3 bg-[#181C1F] rounded-xl border border-[#22272B] flex flex-col overflow-hidden">
-          <div className="p-3 border-b border-[#22272B]">
+        <div className="col-span-3 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] flex flex-col overflow-hidden">
+          <div className="p-3 border-b border-gray-200 dark:border-[#22272B]">
             <div className="flex items-center gap-2">
               <svg className="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -302,15 +302,15 @@ const LiveSupportPage: React.FC = () => {
             </div>
           </div>
           <div className="flex-1 overflow-y-auto p-3 space-y-3">
-            <p className="text-xs text-white/40">Suggested responses based on context:</p>
+            <p className="text-xs text-gray-400 dark:text-white/40">Suggested responses based on context:</p>
             {suggestions.map((suggestion) => (
-              <div key={suggestion.id} className="bg-[#0F1112] rounded-lg border border-purple-500/10 p-3">
-                <p className="text-xs text-white/70 leading-relaxed mb-2">{suggestion.text}</p>
+              <div key={suggestion.id} className="bg-gray-50 dark:bg-[#0F1112] rounded-lg border border-purple-500/10 p-3">
+                <p className="text-xs text-gray-600 dark:text-white/70 leading-relaxed mb-2">{suggestion.text}</p>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-white/30">{suggestion.source}</span>
+                    <span className="text-[10px] text-gray-400 dark:text-white/30">{suggestion.source}</span>
                     <span className={`text-[10px] font-medium ${
-                      suggestion.confidence >= 90 ? 'text-green-400' : suggestion.confidence >= 80 ? 'text-yellow-400' : 'text-white/40'
+                      suggestion.confidence >= 90 ? 'text-green-400' : suggestion.confidence >= 80 ? 'text-yellow-400' : 'text-gray-400 dark:text-white/40'
                     }`}>
                       {suggestion.confidence}%
                     </span>
@@ -325,11 +325,11 @@ const LiveSupportPage: React.FC = () => {
               </div>
             ))}
 
-            <div className="mt-4 pt-3 border-t border-[#22272B]">
-              <p className="text-xs text-white/40 mb-2">Quick Actions</p>
+            <div className="mt-4 pt-3 border-t border-gray-200 dark:border-[#22272B]">
+              <p className="text-xs text-gray-400 dark:text-white/40 mb-2">Quick Actions</p>
               <div className="space-y-1.5">
                 {['Send password reset link', 'Check account status', 'View user history', 'Create follow-up ticket'].map((action) => (
-                  <button key={action} className="w-full text-left px-3 py-1.5 bg-[#0F1112] border border-[#22272B] rounded text-xs text-white/50 hover:text-white/70 hover:border-[#E40000]/30 transition-colors">
+                  <button key={action} className="w-full text-left px-3 py-1.5 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded text-xs text-gray-500 dark:text-white/50 hover:text-gray-600 dark:hover:text-white/70 hover:border-[#E40000]/30 transition-colors">
                     {action}
                   </button>
                 ))}

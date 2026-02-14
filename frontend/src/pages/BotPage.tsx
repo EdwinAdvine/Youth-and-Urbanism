@@ -137,8 +137,8 @@ const ChatBubble: React.FC<{ message: Message }> = ({ message }) => {
         <div
           className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
             isUser
-              ? 'bg-[#2A2F35] text-white rounded-tr-sm'
-              : 'bg-[#1E2327] text-white/90 rounded-tl-sm'
+              ? 'bg-[#2A2F35] text-gray-900 dark:text-white rounded-tr-sm'
+              : 'bg-[#1E2327] text-gray-800 dark:text-white/90 rounded-tl-sm'
           }`}
         >
           {message.content}
@@ -157,17 +157,17 @@ const ChatBubble: React.FC<{ message: Message }> = ({ message }) => {
             >
               <BookOpen size={18} className="text-[#FF0000] flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-white/50">Want to learn more?</p>
-                <p className="text-sm text-white font-medium truncate group-hover:text-[#FF0000] transition-colors">
+                <p className="text-xs text-gray-500 dark:text-white/50">Want to learn more?</p>
+                <p className="text-sm text-gray-900 dark:text-white font-medium truncate group-hover:text-[#FF0000] transition-colors">
                   {message.suggestedCourse.name}
                 </p>
               </div>
-              <ChevronRight size={16} className="text-white/30 group-hover:text-[#FF0000] transition-colors" />
+              <ChevronRight size={16} className="text-gray-400 dark:text-white/30 group-hover:text-[#FF0000] transition-colors" />
             </Link>
           </motion.div>
         )}
 
-        <span className="text-[10px] text-white/30 px-1">
+        <span className="text-[10px] text-gray-400 dark:text-white/30 px-1">
           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </span>
       </div>
@@ -257,7 +257,7 @@ const BotPage: React.FC = () => {
   // ---------------------------------------------------------------
 
   return (
-    <div className="h-screen flex bg-[#0F1112] text-white overflow-hidden select-none">
+    <div className="h-screen flex bg-gray-50 dark:bg-[#0F1112] text-gray-900 dark:text-white overflow-hidden select-none">
       {/* ============================================================
           SIDEBAR
          ============================================================ */}
@@ -279,13 +279,13 @@ const BotPage: React.FC = () => {
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: 'spring', damping: 26, stiffness: 260 }}
-              className="fixed md:relative z-40 w-[280px] h-full bg-[#141719] border-r border-[#22272B] flex flex-col"
+              className="fixed md:relative z-40 w-[280px] h-full bg-[#141719] border-r border-gray-200 dark:border-[#22272B] flex flex-col"
             >
               {/* Sidebar header */}
-              <div className="p-4 border-b border-[#22272B]">
+              <div className="p-4 border-b border-gray-200 dark:border-[#22272B]">
                 <button
                   onClick={handleNewChat}
-                  className="w-full flex items-center gap-2 justify-center bg-[#FF0000] hover:bg-[#CC0000] text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
+                  className="w-full flex items-center gap-2 justify-center bg-[#FF0000] hover:bg-[#CC0000] text-gray-900 dark:text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
                 >
                   <Plus size={16} />
                   New Chat
@@ -294,24 +294,24 @@ const BotPage: React.FC = () => {
 
               {/* Conversation list */}
               <div className="flex-1 overflow-y-auto p-3 space-y-1">
-                <p className="text-[10px] uppercase tracking-wider text-white/30 px-3 py-2">
+                <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-white/30 px-3 py-2">
                   Recent
                 </p>
                 {MOCK_CONVERSATIONS.map((convo) => (
                   <button
                     key={convo.id}
-                    className="w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors"
+                    className="w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-lg text-sm text-gray-600 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white transition-colors"
                   >
-                    <MessageSquare size={14} className="flex-shrink-0 text-white/40" />
+                    <MessageSquare size={14} className="flex-shrink-0 text-gray-400 dark:text-white/40" />
                     <span className="truncate">{convo.title}</span>
                   </button>
                 ))}
               </div>
 
               {/* Login prompt */}
-              <div className="p-4 border-t border-[#22272B]">
-                <div className="bg-white/5 rounded-xl p-3 text-center">
-                  <p className="text-xs text-white/50 mb-2">
+              <div className="p-4 border-t border-gray-200 dark:border-[#22272B]">
+                <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-3 text-center">
+                  <p className="text-xs text-gray-500 dark:text-white/50 mb-2">
                     Sign in to save your conversations
                   </p>
                   <Link
@@ -326,7 +326,7 @@ const BotPage: React.FC = () => {
               {/* Collapse button */}
               <button
                 onClick={() => setSidebarOpen(false)}
-                className="absolute top-3 right-3 p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors md:hidden"
+                className="absolute top-3 right-3 p-1.5 rounded-lg text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors md:hidden"
               >
                 <ChevronLeft size={18} />
               </button>
@@ -342,12 +342,12 @@ const BotPage: React.FC = () => {
         {/* ----------------------------------------------------------
             TOP BAR
            ---------------------------------------------------------- */}
-        <header className="flex items-center justify-between px-4 py-3 border-b border-[#22272B] bg-[#0F1112]/80 backdrop-blur-md z-20">
+        <header className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-[#22272B] bg-gray-50 dark:bg-[#0F1112]/80 backdrop-blur-md z-20">
           <div className="flex items-center gap-3">
             {/* Sidebar toggle */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+              className="p-2 rounded-lg text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
               aria-label="Toggle sidebar"
             >
               {sidebarOpen ? <ChevronLeft size={20} /> : <Menu size={20} />}
@@ -356,7 +356,7 @@ const BotPage: React.FC = () => {
             {/* Logo */}
             <Link to="/bot" className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-[#FF0000] flex items-center justify-center">
-                <Sparkles size={16} className="text-white" />
+                <Sparkles size={16} className="text-gray-900 dark:text-white" />
               </div>
               <span className="text-base font-semibold tracking-tight hidden sm:inline">
                 The Bird AI
@@ -367,7 +367,7 @@ const BotPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={handleNewChat}
-              className="flex items-center gap-1.5 text-xs font-medium text-white/70 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-2 rounded-lg transition-colors"
+              className="flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 px-3 py-2 rounded-lg transition-colors"
             >
               <Plus size={14} />
               <span className="hidden sm:inline">New Chat</span>
@@ -375,7 +375,7 @@ const BotPage: React.FC = () => {
 
             <Link
               to="/"
-              className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white px-2 py-2 rounded-lg hover:bg-white/10 transition-colors"
+              className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white px-2 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
             >
               <Home size={14} />
               <span className="hidden sm:inline">Home</span>
@@ -412,7 +412,7 @@ const BotPage: React.FC = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="text-white/50 text-sm md:text-base mb-8 text-center max-w-md"
+                className="text-gray-500 dark:text-white/50 text-sm md:text-base mb-8 text-center max-w-md"
               >
                 Your personal AI tutor for Kenyan students
               </motion.p>
@@ -428,7 +428,7 @@ const BotPage: React.FC = () => {
                   <button
                     key={suggestion}
                     onClick={() => sendMessage(suggestion)}
-                    className="px-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-xl text-sm text-white/70 hover:text-white hover:border-[#FF0000]/40 hover:bg-[#FF0000]/5 transition-all"
+                    className="px-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl text-sm text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-[#FF0000]/40 hover:bg-[#FF0000]/5 transition-all"
                   >
                     {suggestion}
                   </button>
@@ -452,7 +452,7 @@ const BotPage: React.FC = () => {
         {/* ----------------------------------------------------------
             INPUT BAR
            ---------------------------------------------------------- */}
-        <div className="border-t border-[#22272B] bg-[#0F1112]/80 backdrop-blur-md px-4 pb-4 pt-3">
+        <div className="border-t border-gray-200 dark:border-[#22272B] bg-gray-50 dark:bg-[#0F1112]/80 backdrop-blur-md px-4 pb-4 pt-3">
           {/* Response mode toggles */}
           <div className="flex items-center justify-center gap-1 mb-3">
             {(
@@ -468,7 +468,7 @@ const BotPage: React.FC = () => {
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   responseMode === mode
                     ? 'bg-[#FF0000]/15 text-[#FF0000]'
-                    : 'text-white/40 hover:text-white/70 hover:bg-white/5'
+                    : 'text-gray-400 dark:text-white/40 hover:text-gray-600 dark:hover:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5'
                 }`}
                 aria-label={`${label} mode`}
               >
@@ -481,7 +481,7 @@ const BotPage: React.FC = () => {
           {/* Input row */}
           <form
             onSubmit={handleSubmit}
-            className="max-w-3xl mx-auto flex items-center gap-2 bg-[#181C1F] border border-[#22272B] rounded-2xl px-4 py-2 focus-within:border-[#FF0000]/40 transition-colors"
+            className="max-w-3xl mx-auto flex items-center gap-2 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-2xl px-4 py-2 focus-within:border-[#FF0000]/40 transition-colors"
           >
             <input
               ref={inputRef}
@@ -489,14 +489,14 @@ const BotPage: React.FC = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask The Bird AI anything..."
-              className="flex-1 bg-transparent text-sm text-white placeholder-white/30 outline-none py-1.5"
+              className="flex-1 bg-transparent text-sm text-gray-900 dark:text-white placeholder-white/30 outline-none py-1.5"
               disabled={isTyping}
             />
 
             {/* Mic button */}
             <button
               type="button"
-              className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+              className="p-2 rounded-lg text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
               aria-label="Voice input"
             >
               <Mic size={18} />
@@ -508,8 +508,8 @@ const BotPage: React.FC = () => {
               disabled={!input.trim() || isTyping}
               className={`p-2 rounded-lg transition-colors ${
                 input.trim()
-                  ? 'bg-[#FF0000] text-white hover:bg-[#CC0000]'
-                  : 'text-white/20 cursor-not-allowed'
+                  ? 'bg-[#FF0000] text-gray-900 dark:text-white hover:bg-[#CC0000]'
+                  : 'text-gray-400 dark:text-gray-300 dark:text-white/20 cursor-not-allowed'
               }`}
               aria-label="Send message"
             >
@@ -517,7 +517,7 @@ const BotPage: React.FC = () => {
             </button>
           </form>
 
-          <p className="text-[10px] text-white/20 text-center mt-2">
+          <p className="text-[10px] text-gray-400 dark:text-gray-300 dark:text-white/20 text-center mt-2">
             The Bird AI can make mistakes. Check important info.
           </p>
         </div>

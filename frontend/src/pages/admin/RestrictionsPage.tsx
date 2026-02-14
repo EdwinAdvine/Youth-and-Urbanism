@@ -14,7 +14,6 @@ import {
   Filter,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import DashboardLayout from '../../components/layout/DashboardLayout';
 import AdminPageHeader from '../../components/admin/shared/AdminPageHeader';
 
 // ------------------------------------------------------------------
@@ -297,14 +296,14 @@ const TabButton: React.FC<{
     onClick={() => onClick(tab)}
     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
       activeTab === tab
-        ? 'bg-[#E40000] text-white'
-        : 'bg-[#22272B] text-white/60 hover:text-white hover:bg-[#2A3035]'
+        ? 'bg-[#E40000] text-gray-900 dark:text-white'
+        : 'bg-gray-100 dark:bg-[#22272B] text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-[#2A3035]'
     }`}
   >
     {icon}
     {label}
     <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${
-      activeTab === tab ? 'bg-white/20' : 'bg-[#2A3035]'
+      activeTab === tab ? 'bg-gray-200 dark:bg-white/20' : 'bg-[#2A3035]'
     }`}>
       {count}
     </span>
@@ -367,7 +366,7 @@ const RestrictionsPage: React.FC = () => {
   });
 
   return (
-    <DashboardLayout role="admin">
+    <>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -382,44 +381,44 @@ const RestrictionsPage: React.FC = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/60 text-sm">Active Restrictions</span>
+              <span className="text-gray-500 dark:text-white/60 text-sm">Active Restrictions</span>
               <ShieldBan className="w-5 h-5 text-red-400" />
             </div>
-            <p className="text-2xl font-bold text-white">{activeRestrictions.length}</p>
-            <p className="text-xs text-white/40 mt-1">
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{activeRestrictions.length}</p>
+            <p className="text-xs text-gray-400 dark:text-white/40 mt-1">
               {activeRestrictions.filter((r) => r.type === 'ban').length} bans,{' '}
               {activeRestrictions.filter((r) => r.type === 'suspension').length} suspensions
             </p>
           </div>
-          <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/60 text-sm">Pending Appeals</span>
+              <span className="text-gray-500 dark:text-white/60 text-sm">Pending Appeals</span>
               <AlertTriangle className="w-5 h-5 text-orange-400" />
             </div>
-            <p className="text-2xl font-bold text-white">{pendingAppeals.length}</p>
-            <p className="text-xs text-white/40 mt-1">Awaiting admin review</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{pendingAppeals.length}</p>
+            <p className="text-xs text-gray-400 dark:text-white/40 mt-1">Awaiting admin review</p>
           </div>
-          <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/60 text-sm">Watch List</span>
+              <span className="text-gray-500 dark:text-white/60 text-sm">Watch List</span>
               <Eye className="w-5 h-5 text-yellow-400" />
             </div>
-            <p className="text-2xl font-bold text-white">{mockWatchList.length}</p>
-            <p className="text-xs text-white/40 mt-1">
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{mockWatchList.length}</p>
+            <p className="text-xs text-gray-400 dark:text-white/40 mt-1">
               {mockWatchList.filter((w) => w.risk_level === 'high').length} high risk
             </p>
           </div>
-          <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/60 text-sm">Warnings Issued</span>
+              <span className="text-gray-500 dark:text-white/60 text-sm">Warnings Issued</span>
               <MessageSquareWarning className="w-5 h-5 text-yellow-400" />
             </div>
-            <p className="text-2xl font-bold text-white">
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
               {activeRestrictions.filter((r) => r.type === 'warning').length}
             </p>
-            <p className="text-xs text-white/40 mt-1">Active warnings</p>
+            <p className="text-xs text-gray-400 dark:text-white/40 mt-1">Active warnings</p>
           </div>
         </div>
 
@@ -443,21 +442,21 @@ const RestrictionsPage: React.FC = () => {
               {/* Filters */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
                   <input
                     type="text"
                     placeholder="Search by name or email..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
+                    className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
                   />
                 </div>
                 <div className="relative">
-                  <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                  <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
                   <select
                     value={typeFilter}
                     onChange={(e) => setTypeFilter(e.target.value as RestrictionType | '')}
-                    className="pl-10 pr-8 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[160px]"
+                    className="pl-10 pr-8 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[160px]"
                   >
                     <option value="">All Types</option>
                     <option value="ban">Bans</option>
@@ -468,24 +467,24 @@ const RestrictionsPage: React.FC = () => {
               </div>
 
               {/* Restrictions Table */}
-              <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+              <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
                 {filteredRestrictions.length === 0 ? (
                   <div className="text-center py-16">
                     <ShieldBan className="w-16 h-16 text-white/10 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-white mb-2">No Active Restrictions</h3>
-                    <p className="text-white/40 text-sm">No matching restrictions found.</p>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Active Restrictions</h3>
+                    <p className="text-gray-400 dark:text-white/40 text-sm">No matching restrictions found.</p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="border-b border-[#22272B] text-left">
-                          <th className="px-6 py-3 text-white/60 font-medium">Type</th>
-                          <th className="px-6 py-3 text-white/60 font-medium">User</th>
-                          <th className="px-6 py-3 text-white/60 font-medium">Reason</th>
-                          <th className="px-6 py-3 text-white/60 font-medium">Issued</th>
-                          <th className="px-6 py-3 text-white/60 font-medium">Expires</th>
-                          <th className="px-6 py-3 text-white/60 font-medium text-right">Actions</th>
+                        <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
+                          <th className="px-6 py-3 text-gray-500 dark:text-white/60 font-medium">Type</th>
+                          <th className="px-6 py-3 text-gray-500 dark:text-white/60 font-medium">User</th>
+                          <th className="px-6 py-3 text-gray-500 dark:text-white/60 font-medium">Reason</th>
+                          <th className="px-6 py-3 text-gray-500 dark:text-white/60 font-medium">Issued</th>
+                          <th className="px-6 py-3 text-gray-500 dark:text-white/60 font-medium">Expires</th>
+                          <th className="px-6 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -494,7 +493,7 @@ const RestrictionsPage: React.FC = () => {
                           return (
                             <tr
                               key={restriction.id}
-                              className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
+                              className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
                             >
                               <td className="px-6 py-3">
                                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${config.bgColor} ${config.color} border ${config.borderColor}`}>
@@ -504,22 +503,22 @@ const RestrictionsPage: React.FC = () => {
                               </td>
                               <td className="px-6 py-3">
                                 <div>
-                                  <span className="text-white font-medium">{restriction.user_name}</span>
-                                  <p className="text-[11px] text-white/30">{restriction.user_email}</p>
+                                  <span className="text-gray-900 dark:text-white font-medium">{restriction.user_name}</span>
+                                  <p className="text-[11px] text-gray-400 dark:text-white/30">{restriction.user_email}</p>
                                 </div>
                               </td>
                               <td className="px-6 py-3">
-                                <p className="text-white/60 max-w-[250px] truncate">{restriction.reason}</p>
+                                <p className="text-gray-500 dark:text-white/60 max-w-[250px] truncate">{restriction.reason}</p>
                               </td>
                               <td className="px-6 py-3">
                                 <div>
-                                  <span className="text-white/40 text-xs">{timeAgo(restriction.issued_at)}</span>
-                                  <p className="text-[10px] text-white/20">{restriction.issued_by}</p>
+                                  <span className="text-gray-400 dark:text-white/40 text-xs">{timeAgo(restriction.issued_at)}</span>
+                                  <p className="text-[10px] text-gray-400 dark:text-gray-300 dark:text-white/20">{restriction.issued_by}</p>
                                 </div>
                               </td>
                               <td className="px-6 py-3">
                                 {restriction.expires_at ? (
-                                  <span className="text-white/40 text-xs">
+                                  <span className="text-gray-400 dark:text-white/40 text-xs">
                                     {formatDate(restriction.expires_at)}
                                   </span>
                                 ) : (
@@ -551,10 +550,10 @@ const RestrictionsPage: React.FC = () => {
           {activeTab === 'appeals' && (
             <div className="space-y-3">
               {pendingAppeals.length === 0 ? (
-                <div className="bg-[#181C1F] border border-[#22272B] rounded-xl text-center py-16">
+                <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl text-center py-16">
                   <AlertTriangle className="w-16 h-16 text-white/10 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-white mb-2">No Pending Appeals</h3>
-                  <p className="text-white/40 text-sm">All appeals have been reviewed.</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Pending Appeals</h3>
+                  <p className="text-gray-400 dark:text-white/40 text-sm">All appeals have been reviewed.</p>
                 </div>
               ) : (
                 appeals.map((appeal) => {
@@ -564,9 +563,9 @@ const RestrictionsPage: React.FC = () => {
                       key={appeal.id}
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className={`bg-[#181C1F] border rounded-xl p-5 ${
+                      className={`bg-white dark:bg-[#181C1F] border rounded-xl p-5 ${
                         appeal.status === 'pending'
-                          ? 'border-[#22272B]'
+                          ? 'border-gray-200 dark:border-[#22272B]'
                           : appeal.status === 'approved'
                           ? 'border-emerald-500/20 opacity-60'
                           : 'border-red-500/20 opacity-60'
@@ -578,7 +577,7 @@ const RestrictionsPage: React.FC = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <h4 className="text-sm font-semibold text-white">{appeal.user_name}</h4>
+                            <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{appeal.user_name}</h4>
                             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${config.bgColor} ${config.color} border ${config.borderColor}`}>
                               {config.label}
                             </span>
@@ -598,12 +597,12 @@ const RestrictionsPage: React.FC = () => {
                           </div>
 
                           {/* Appeal reason */}
-                          <div className="bg-[#0F1112] border border-[#22272B] rounded-lg p-3 mt-2">
-                            <p className="text-xs text-white/30 mb-1 font-medium">Appeal Statement:</p>
-                            <p className="text-sm text-white/60 leading-relaxed">{appeal.appeal_reason}</p>
+                          <div className="bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg p-3 mt-2">
+                            <p className="text-xs text-gray-400 dark:text-white/30 mb-1 font-medium">Appeal Statement:</p>
+                            <p className="text-sm text-gray-500 dark:text-white/60 leading-relaxed">{appeal.appeal_reason}</p>
                           </div>
 
-                          <div className="flex items-center gap-3 mt-2 text-xs text-white/30">
+                          <div className="flex items-center gap-3 mt-2 text-xs text-gray-400 dark:text-white/30">
                             <span>{appeal.user_email}</span>
                             <span>Submitted {timeAgo(appeal.submitted_at)}</span>
                           </div>
@@ -639,10 +638,10 @@ const RestrictionsPage: React.FC = () => {
           {activeTab === 'watchlist' && (
             <div className="space-y-3">
               {mockWatchList.length === 0 ? (
-                <div className="bg-[#181C1F] border border-[#22272B] rounded-xl text-center py-16">
+                <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl text-center py-16">
                   <Eye className="w-16 h-16 text-white/10 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-white mb-2">Watch List Empty</h3>
-                  <p className="text-white/40 text-sm">No users are currently being monitored.</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Watch List Empty</h3>
+                  <p className="text-gray-400 dark:text-white/40 text-sm">No users are currently being monitored.</p>
                 </div>
               ) : (
                 mockWatchList.map((entry) => {
@@ -652,41 +651,41 @@ const RestrictionsPage: React.FC = () => {
                       key={entry.id}
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className={`bg-[#181C1F] border rounded-xl p-5 ${
+                      className={`bg-white dark:bg-[#181C1F] border rounded-xl p-5 ${
                         entry.risk_level === 'high'
                           ? 'border-red-500/20'
-                          : 'border-[#22272B]'
+                          : 'border-gray-200 dark:border-[#22272B]'
                       }`}
                     >
                       <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 rounded-full bg-[#22272B] flex items-center justify-center text-white/60 text-sm font-bold uppercase flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-[#22272B] flex items-center justify-center text-gray-500 dark:text-white/60 text-sm font-bold uppercase flex-shrink-0">
                           {entry.user_name.slice(0, 2)}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <h4 className="text-sm font-semibold text-white">{entry.user_name}</h4>
+                            <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{entry.user_name}</h4>
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${risk.className}`}>
                               {risk.label} Risk
                             </span>
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#22272B] text-white/40 capitalize">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-100 dark:bg-[#22272B] text-gray-400 dark:text-white/40 capitalize">
                               {entry.user_role}
                             </span>
                           </div>
-                          <p className="text-sm text-white/50">{entry.reason}</p>
+                          <p className="text-sm text-gray-500 dark:text-white/50">{entry.reason}</p>
 
                           {/* Flags */}
                           <div className="flex flex-wrap gap-1.5 mt-2">
                             {entry.flags.map((flag) => (
                               <span
                                 key={flag}
-                                className="px-2 py-0.5 text-[10px] rounded bg-[#22272B] text-white/40 border border-[#333]"
+                                className="px-2 py-0.5 text-[10px] rounded bg-gray-100 dark:bg-[#22272B] text-gray-400 dark:text-white/40 border border-gray-300 dark:border-[#333]"
                               >
                                 {flag}
                               </span>
                             ))}
                           </div>
 
-                          <div className="flex items-center gap-3 mt-2 text-xs text-white/30">
+                          <div className="flex items-center gap-3 mt-2 text-xs text-gray-400 dark:text-white/30">
                             <span>{entry.user_email}</span>
                             <span>Added {timeAgo(entry.added_at)}</span>
                             <span>by {entry.added_by}</span>
@@ -702,7 +701,7 @@ const RestrictionsPage: React.FC = () => {
                           </button>
                           <button
                             onClick={() => showToast('Removed from watch list', 'success')}
-                            className="px-3 py-1.5 rounded-lg text-xs bg-[#22272B] text-white/50 border border-[#333] hover:text-white hover:border-[#444] transition-colors"
+                            className="px-3 py-1.5 rounded-lg text-xs bg-gray-100 dark:bg-[#22272B] text-gray-500 dark:text-white/50 border border-gray-300 dark:border-[#333] hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors"
                           >
                             Remove
                           </button>
@@ -722,8 +721,8 @@ const RestrictionsPage: React.FC = () => {
             <div
               className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
                 toast.type === 'success'
-                  ? 'bg-emerald-500 text-white'
-                  : 'bg-red-500 text-white'
+                  ? 'bg-emerald-500 text-gray-900 dark:text-white'
+                  : 'bg-red-500 text-gray-900 dark:text-white'
               }`}
             >
               {toast.type === 'success' ? (
@@ -736,7 +735,7 @@ const RestrictionsPage: React.FC = () => {
           </div>
         )}
       </motion.div>
-    </DashboardLayout>
+    </>
   );
 };
 

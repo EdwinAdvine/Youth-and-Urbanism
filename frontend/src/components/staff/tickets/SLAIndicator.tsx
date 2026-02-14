@@ -131,7 +131,7 @@ const SLAIndicator: React.FC<SLAIndicatorProps> = ({
     <div className={`rounded-lg border overflow-hidden ${
       timeRemaining.isBreached
         ? 'bg-red-500/5 border-red-500/20'
-        : 'bg-[#181C1F] border-[#22272B]'
+        : 'bg-white dark:bg-[#181C1F] border-gray-200 dark:border-[#22272B]'
     }`}>
       <div className="px-4 py-3">
         {/* Header */}
@@ -142,7 +142,7 @@ const SLAIndicator: React.FC<SLAIndicatorProps> = ({
             ) : (
               <Clock className={`w-3.5 h-3.5 ${colors.text}`} />
             )}
-            <span className="text-xs font-medium text-white/60">SLA Timer</span>
+            <span className="text-xs font-medium text-gray-500 dark:text-white/60">SLA Timer</span>
           </div>
           {timeRemaining.isBreached && (
             <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider animate-pulse">
@@ -158,7 +158,7 @@ const SLAIndicator: React.FC<SLAIndicatorProps> = ({
         </div>
 
         {/* Progress bar */}
-        <div className="h-1.5 bg-[#22272B] rounded-full overflow-hidden">
+        <div className="h-1.5 bg-gray-100 dark:bg-[#22272B] rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-1000 ${colors.bar} ${
               timeRemaining.isBreached ? 'animate-pulse' : ''
@@ -169,8 +169,8 @@ const SLAIndicator: React.FC<SLAIndicatorProps> = ({
 
         {/* Labels */}
         <div className="flex items-center justify-between mt-1.5">
-          <span className="text-[10px] text-white/30">0m</span>
-          <span className="text-[10px] text-white/30">{totalMinutes}m total</span>
+          <span className="text-[10px] text-gray-400 dark:text-white/30">0m</span>
+          <span className="text-[10px] text-gray-400 dark:text-white/30">{totalMinutes}m total</span>
         </div>
       </div>
     </div>

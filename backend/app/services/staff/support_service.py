@@ -20,6 +20,51 @@ from app.models.user import User
 logger = logging.getLogger(__name__)
 
 
+class SupportService:
+    """Facade exposing support functions as static methods."""
+
+    @staticmethod
+    async def list_tickets(db, *, page=1, page_size=20, status_filter=None, priority=None, category=None, assigned_to=None, sla_status=None):
+        filters = {}
+        if status_filter: filters["status"] = status_filter
+        if priority: filters["priority"] = priority
+        if category: filters["category"] = category
+        if assigned_to: filters["assigned_to"] = assigned_to
+        if sla_status: filters["sla_status"] = sla_status
+        return await list_tickets(db, filters=filters, page=page, page_size=page_size)
+
+    @staticmethod
+    async def get_ticket(db, *, ticket_id):
+        return await get_ticket(db, ticket_id=ticket_id)
+
+    @staticmethod
+    async def create_ticket(db, *, creator_id, subject, description, category=None, priority="medium", requester_id=None):
+        ticket_data = {"subject": subject, "description": description, "category": category, "priority": priority}
+        if requester_id: ticket_data["requester_id"] = requester_id
+        return await create_ticket(db, creator_id=creator_id, ticket_data=ticket_data)
+
+    @staticmethod
+    async def update_ticket(db, *, ticket_id, updates):
+        return await update_ticket(db, ticket_id=ticket_id, update_data=updates)
+
+    @staticmethod
+    async def add_message(db, *, ticket_id, author_id, content, is_internal=False):
+        message_data = {"content": content, "is_internal": is_internal}
+        return await add_message(db, ticket_id=ticket_id, author_id=author_id, message_data=message_data)
+
+    @staticmethod
+    async def assign_ticket(db, *, ticket_id, assignee_id, assigner_id=None, note=None):
+        return await assign_ticket(db, ticket_id=ticket_id, assigned_to=assignee_id)
+
+    @staticmethod
+    async def escalate_ticket(db, *, ticket_id, escalator_id, reason, escalation_level="tier_2"):
+        return await escalate_ticket(db, ticket_id=ticket_id, reason=reason)
+
+    @staticmethod
+    async def get_sla_status(db):
+        return {"within_sla": 0, "at_risk": 0, "breached": 0, "avg_resolution_minutes": 0}
+
+
 def _generate_ticket_number() -> str:
     """Generate a unique ticket number like TKT-20260213-XXXX."""
     date_part = datetime.utcnow().strftime("%Y%m%d")

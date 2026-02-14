@@ -23,6 +23,31 @@ from app.models.staff.live_session import LiveSession
 logger = logging.getLogger(__name__)
 
 
+class InsightsService:
+    """Facade exposing insights functions as static methods."""
+
+    @staticmethod
+    def _build_date_range(date_from=None, date_to=None):
+        if date_from or date_to:
+            return {"start": date_from, "end": date_to}
+        return None
+
+    @staticmethod
+    async def get_platform_health(db, *, date_from=None, date_to=None):
+        date_range = InsightsService._build_date_range(date_from, date_to)
+        return await get_platform_health(db, date_range=date_range)
+
+    @staticmethod
+    async def get_content_performance(db, *, date_from=None, date_to=None):
+        date_range = InsightsService._build_date_range(date_from, date_to)
+        return await get_content_performance(db, date_range=date_range)
+
+    @staticmethod
+    async def get_support_metrics(db, *, date_from=None, date_to=None):
+        date_range = InsightsService._build_date_range(date_from, date_to)
+        return await get_support_metrics(db, date_range=date_range)
+
+
 def _parse_date_range(date_range: Optional[Dict[str, str]] = None) -> tuple:
     """Parse a date range dict into start/end datetimes, defaulting to last 30 days."""
     now = datetime.utcnow()

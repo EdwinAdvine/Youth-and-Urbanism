@@ -20,11 +20,11 @@ const UrgentTicketsCard: React.FC<UrgentTicketsCardProps> = ({ tickets, isLoadin
 
   if (isLoading) {
     return (
-      <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5 animate-pulse">
-        <div className="h-5 w-32 bg-[#22272B] rounded mb-4" />
+      <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5 animate-pulse">
+        <div className="h-5 w-32 bg-gray-100 dark:bg-[#22272B] rounded mb-4" />
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-12 bg-[#22272B] rounded-lg" />
+            <div key={i} className="h-12 bg-gray-100 dark:bg-[#22272B] rounded-lg" />
           ))}
         </div>
       </div>
@@ -32,39 +32,39 @@ const UrgentTicketsCard: React.FC<UrgentTicketsCardProps> = ({ tickets, isLoadin
   }
 
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 text-[#FF4444]" />
           Urgent Tickets
         </h3>
-        <span className="text-xs text-white/40">{tickets.length} items</span>
+        <span className="text-xs text-gray-400 dark:text-white/40">{tickets.length} items</span>
       </div>
       <div className="space-y-2">
         {tickets.length === 0 ? (
-          <p className="text-sm text-white/40 text-center py-4">No urgent tickets</p>
+          <p className="text-sm text-gray-400 dark:text-white/40 text-center py-4">No urgent tickets</p>
         ) : (
           tickets.slice(0, 5).map((ticket) => (
             <button
               key={ticket.id}
               onClick={() => navigate(`/dashboard/staff/support/tickets/${ticket.id}`)}
-              className="w-full flex items-center justify-between p-3 rounded-lg bg-[#22272B]/50 hover:bg-[#22272B] transition-colors text-left"
+              className="w-full flex items-center justify-between p-3 rounded-lg bg-gray-100 dark:bg-[#22272B]/50 hover:bg-gray-100 dark:hover:bg-[#22272B] transition-colors text-left"
             >
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-white truncate">{ticket.subject}</p>
+                <p className="text-sm text-gray-900 dark:text-white truncate">{ticket.subject}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
                     ticket.priority === 'critical' ? 'bg-red-500/20 text-red-400' : 'bg-orange-500/20 text-orange-400'
                   }`}>
                     {ticket.priority}
                   </span>
-                  <span className={`text-xs flex items-center gap-1 ${ticket.isBreached ? 'text-red-400' : 'text-white/50'}`}>
+                  <span className={`text-xs flex items-center gap-1 ${ticket.isBreached ? 'text-red-400' : 'text-gray-500 dark:text-white/50'}`}>
                     <Clock className="w-3 h-3" />
                     {ticket.isBreached ? 'BREACHED' : ticket.slaRemaining}
                   </span>
                 </div>
               </div>
-              <ArrowRight className="w-4 h-4 text-white/30 flex-shrink-0 ml-2" />
+              <ArrowRight className="w-4 h-4 text-gray-400 dark:text-white/30 flex-shrink-0 ml-2" />
             </button>
           ))
         )}

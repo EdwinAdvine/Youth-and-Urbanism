@@ -18,7 +18,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import DashboardLayout from '../../components/layout/DashboardLayout';
+
 import AdminPageHeader from '../../components/admin/shared/AdminPageHeader';
 import AdminStatsCard from '../../components/admin/shared/AdminStatsCard';
 
@@ -158,7 +158,6 @@ const CBCAlignmentPage: React.FC = () => {
   };
 
   return (
-    <DashboardLayout role="admin">
       <motion.div
         className="space-y-6"
         variants={containerVariants}
@@ -174,7 +173,7 @@ const CBCAlignmentPage: React.FC = () => {
             { label: 'CBC Alignment' },
           ]}
           actions={
-            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors">
+            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors">
               <RefreshCw className="w-4 h-4" />
               Refresh
             </button>
@@ -212,12 +211,12 @@ const CBCAlignmentPage: React.FC = () => {
         {/* Coverage Bar Chart */}
         <motion.div
           variants={itemVariants}
-          className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6"
+          className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
             <div>
-              <h2 className="text-lg font-semibold text-white">CBC Coverage by Grade Level</h2>
-              <p className="text-sm text-white/50 mt-1">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">CBC Coverage by Grade Level</h2>
+              <p className="text-sm text-gray-500 dark:text-white/50 mt-1">
                 Percentage of CBC strand competencies covered per grade
               </p>
             </div>
@@ -242,7 +241,7 @@ const CBCAlignmentPage: React.FC = () => {
               />
               <Tooltip
                 contentStyle={tooltipStyle}
-                formatter={(value: number) => [`${value}%`, '']}
+                formatter={((value: number) => [`${value}%`, '']) as any}
               />
               <Legend
                 wrapperStyle={{ fontSize: '11px', color: '#999' }}
@@ -266,19 +265,19 @@ const CBCAlignmentPage: React.FC = () => {
         {/* Search & Filter */}
         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
             <input
               type="text"
               placeholder="Search competency tags..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
             />
           </div>
           <select
             value={strandFilter}
             onChange={(e) => setStrandFilter(e.target.value)}
-            className="px-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[200px]"
+            className="px-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[200px]"
           >
             <option value="">All Strands</option>
             {uniqueStrands.map((strand) => (
@@ -290,48 +289,48 @@ const CBCAlignmentPage: React.FC = () => {
         {/* Competency Tags Table */}
         <motion.div
           variants={itemVariants}
-          className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden"
+          className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden"
         >
-          <div className="px-6 py-4 border-b border-[#22272B]">
-            <h2 className="text-lg font-semibold text-white">Competency Tag Mapping</h2>
-            <p className="text-sm text-white/50 mt-1">CBC competency tags and their course coverage</p>
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-[#22272B]">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Competency Tag Mapping</h2>
+            <p className="text-sm text-gray-500 dark:text-white/50 mt-1">CBC competency tags and their course coverage</p>
           </div>
 
           {filteredCompetencies.length === 0 ? (
             <div className="text-center py-16">
               <Target className="w-16 h-16 text-white/10 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-white mb-2">No Competencies Found</h3>
-              <p className="text-white/40 text-sm">Try adjusting your search or filter criteria.</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Competencies Found</h3>
+              <p className="text-gray-400 dark:text-white/40 text-sm">Try adjusting your search or filter criteria.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#22272B] text-left">
-                    <th className="px-4 py-3 text-white/60 font-medium">Competency Tag</th>
-                    <th className="px-4 py-3 text-white/60 font-medium">CBC Strand</th>
-                    <th className="px-4 py-3 text-white/60 font-medium">Sub-Strand</th>
-                    <th className="px-4 py-3 text-white/60 font-medium">Grade Level</th>
-                    <th className="px-4 py-3 text-white/60 font-medium text-center">Mapped Courses</th>
-                    <th className="px-4 py-3 text-white/60 font-medium text-center">Coverage</th>
+                  <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Competency Tag</th>
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">CBC Strand</th>
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Sub-Strand</th>
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Grade Level</th>
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-center">Mapped Courses</th>
+                    <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-center">Coverage</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredCompetencies.map((comp) => (
                     <tr
                       key={comp.id}
-                      className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
+                      className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
                     >
                       <td className="px-4 py-3">
-                        <span className="text-white font-medium">{comp.tag_name}</span>
+                        <span className="text-gray-900 dark:text-white font-medium">{comp.tag_name}</span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="text-gray-300">{comp.cbc_strand}</span>
+                        <span className="text-gray-400 dark:text-gray-300">{comp.cbc_strand}</span>
                       </td>
                       <td className="px-4 py-3 text-gray-400">{comp.sub_strand}</td>
                       <td className="px-4 py-3 text-gray-400">{comp.grade_level}</td>
                       <td className="px-4 py-3 text-center">
-                        <span className="text-white font-medium">{comp.mapped_courses}</span>
+                        <span className="text-gray-900 dark:text-white font-medium">{comp.mapped_courses}</span>
                       </td>
                       <td className="px-4 py-3 text-center">
                         <CoverageBadge percent={comp.coverage_percent} />
@@ -344,15 +343,14 @@ const CBCAlignmentPage: React.FC = () => {
           )}
 
           {filteredCompetencies.length > 0 && (
-            <div className="flex items-center justify-between px-4 py-3 border-t border-[#22272B]">
-              <p className="text-xs text-white/40">
+            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-[#22272B]">
+              <p className="text-xs text-gray-400 dark:text-white/40">
                 Showing {filteredCompetencies.length} of {MOCK_COMPETENCIES.length} competency tags
               </p>
             </div>
           )}
         </motion.div>
       </motion.div>
-    </DashboardLayout>
   );
 };
 

@@ -589,6 +589,14 @@ async def get_current_user(
         if user_id is None:
             raise credentials_exception
 
+        # Check if token has been blacklisted (user logged out)
+        try:
+            from app.api.v1.auth import is_token_blacklisted
+            if await is_token_blacklisted(token):
+                raise credentials_exception
+        except ImportError:
+            pass  # auth module not yet loaded
+
         result = await db.execute(
             select(User).where(User.id == UUID(user_id))
         )

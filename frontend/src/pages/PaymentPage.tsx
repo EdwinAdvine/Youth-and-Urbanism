@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import DashboardLayout from '../components/layout/DashboardLayout';
 import {
   CreditCard,
   Smartphone,
@@ -320,8 +319,8 @@ const PaymentPage: React.FC = () => {
   };
 
   return (
-    <DashboardLayout>
-      <div className="min-h-screen bg-[#181C1F] text-white p-4 md:p-8">
+    <>
+      <div className="min-h-screen bg-white dark:bg-[#181C1F] text-gray-900 dark:text-white p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
@@ -456,7 +455,7 @@ const PaymentPage: React.FC = () => {
                     <select
                       value={formData.purpose}
                       onChange={(e) => handleInputChange('purpose', e.target.value)}
-                      className="w-full px-4 py-3 bg-[#181C1F] border border-gray-700 rounded-lg focus:outline-none focus:border-copilot-blue transition-colors"
+                      className="w-full px-4 py-3 bg-white dark:bg-[#181C1F] border border-gray-700 rounded-lg focus:outline-none focus:border-copilot-blue transition-colors"
                     >
                       <option value="tuition">Tuition Fee</option>
                       <option value="course">Course Purchase</option>
@@ -479,7 +478,7 @@ const PaymentPage: React.FC = () => {
                         value={formData.amount}
                         onChange={(e) => handleInputChange('amount', e.target.value)}
                         placeholder="Enter amount"
-                        className={`w-full pl-10 pr-4 py-3 bg-[#181C1F] border ${
+                        className={`w-full pl-10 pr-4 py-3 bg-white dark:bg-[#181C1F] border ${
                           errors.amount ? 'border-red-500' : 'border-gray-700'
                         } rounded-lg focus:outline-none focus:border-copilot-blue transition-colors`}
                       />
@@ -514,7 +513,7 @@ const PaymentPage: React.FC = () => {
                               )
                             }
                             placeholder="+254712345678"
-                            className={`w-full pl-10 pr-4 py-3 bg-[#181C1F] border ${
+                            className={`w-full pl-10 pr-4 py-3 bg-white dark:bg-[#181C1F] border ${
                               errors.phoneNumber ? 'border-red-500' : 'border-gray-700'
                             } rounded-lg focus:outline-none focus:border-copilot-blue transition-colors`}
                           />
@@ -545,7 +544,7 @@ const PaymentPage: React.FC = () => {
                       <button
                         onClick={handlePayment}
                         disabled={isProcessing}
-                        className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+                        className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-gray-900 dark:text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
                       >
                         {isProcessing ? (
                           <>
@@ -587,7 +586,7 @@ const PaymentPage: React.FC = () => {
                       <button
                         onClick={handlePayment}
                         disabled={isProcessing}
-                        className="w-full bg-[#0070ba] hover:bg-[#005ea6] disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+                        className="w-full bg-[#0070ba] hover:bg-[#005ea6] disabled:bg-gray-700 disabled:cursor-not-allowed text-gray-900 dark:text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
                       >
                         {isProcessing ? (
                           <>
@@ -626,7 +625,7 @@ const PaymentPage: React.FC = () => {
                             }}
                             placeholder="1234 5678 9012 3456"
                             maxLength={19}
-                            className={`w-full pl-10 pr-4 py-3 bg-[#181C1F] border ${
+                            className={`w-full pl-10 pr-4 py-3 bg-white dark:bg-[#181C1F] border ${
                               errors.cardNumber ? 'border-red-500' : 'border-gray-700'
                             } rounded-lg focus:outline-none focus:border-copilot-blue transition-colors`}
                           />
@@ -659,7 +658,7 @@ const PaymentPage: React.FC = () => {
                               }}
                               placeholder="MM/YY"
                               maxLength={5}
-                              className={`w-full pl-10 pr-4 py-3 bg-[#181C1F] border ${
+                              className={`w-full pl-10 pr-4 py-3 bg-white dark:bg-[#181C1F] border ${
                                 errors.cardExpiry ? 'border-red-500' : 'border-gray-700'
                               } rounded-lg focus:outline-none focus:border-copilot-blue transition-colors`}
                             />
@@ -685,7 +684,7 @@ const PaymentPage: React.FC = () => {
                               }}
                               placeholder="123"
                               maxLength={4}
-                              className={`w-full pl-10 pr-4 py-3 bg-[#181C1F] border ${
+                              className={`w-full pl-10 pr-4 py-3 bg-white dark:bg-[#181C1F] border ${
                                 errors.cardCVC ? 'border-red-500' : 'border-gray-700'
                               } rounded-lg focus:outline-none focus:border-copilot-blue transition-colors`}
                             />
@@ -703,13 +702,13 @@ const PaymentPage: React.FC = () => {
                       <div className="flex items-center gap-3 text-xs text-gray-400 pt-2">
                         <span>Accepted cards:</span>
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-6 bg-blue-600 rounded flex items-center justify-center text-white font-bold text-xs">
+                          <div className="w-8 h-6 bg-blue-600 rounded flex items-center justify-center text-gray-900 dark:text-white font-bold text-xs">
                             VISA
                           </div>
-                          <div className="w-8 h-6 bg-red-600 rounded flex items-center justify-center text-white font-bold text-xs">
+                          <div className="w-8 h-6 bg-red-600 rounded flex items-center justify-center text-gray-900 dark:text-white font-bold text-xs">
                             MC
                           </div>
-                          <div className="w-8 h-6 bg-blue-400 rounded flex items-center justify-center text-white font-bold text-xs">
+                          <div className="w-8 h-6 bg-blue-400 rounded flex items-center justify-center text-gray-900 dark:text-white font-bold text-xs">
                             AE
                           </div>
                         </div>
@@ -718,7 +717,7 @@ const PaymentPage: React.FC = () => {
                       <button
                         onClick={handlePayment}
                         disabled={isProcessing}
-                        className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+                        className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-gray-900 dark:text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
                       >
                         {isProcessing ? (
                           <>
@@ -743,7 +742,7 @@ const PaymentPage: React.FC = () => {
                 <div className="bg-green-500/10 border-2 border-green-500 rounded-xl p-6">
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="w-6 h-6 text-white" />
+                      <CheckCircle className="w-6 h-6 text-gray-900 dark:text-white" />
                     </div>
                     <div className="flex-1">
                       <h3 className="text-xl font-semibold text-green-400 mb-2">
@@ -824,7 +823,7 @@ const PaymentPage: React.FC = () => {
                     transactions.map((transaction) => (
                       <div
                         key={transaction.id}
-                        className="p-3 bg-[#181C1F] rounded-lg border border-gray-700 hover:border-gray-600 transition-colors"
+                        className="p-3 bg-white dark:bg-[#181C1F] rounded-lg border border-gray-700 hover:border-gray-600 transition-colors"
                       >
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex items-center gap-2">
@@ -887,7 +886,7 @@ const PaymentPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </>
   );
 };
 

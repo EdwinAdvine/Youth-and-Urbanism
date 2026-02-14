@@ -38,21 +38,21 @@ const StaffStatsCard: React.FC<StaffStatsCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className={`
-        bg-[#181C1F] border border-[#22272B] rounded-xl p-5
-        hover:border-[#333] transition-all duration-200
+        bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5
+        hover:border-gray-300 dark:hover:border-[#333] transition-all duration-200
         ${onClick ? 'cursor-pointer hover:bg-[#1E2225]' : ''}
         ${className}
       `}
       onClick={onClick}
     >
       <div className="flex items-start justify-between mb-3">
-        <span className="text-white/50 text-sm font-medium">{title}</span>
-        <div className="p-2 bg-[#22272B] rounded-lg text-white/70">{icon}</div>
+        <span className="text-gray-500 dark:text-white/50 text-sm font-medium">{title}</span>
+        <div className="p-2 bg-gray-100 dark:bg-[#22272B] rounded-lg text-gray-600 dark:text-white/70">{icon}</div>
       </div>
 
       <div className="space-y-1">
-        <div className="text-2xl font-bold text-white">{value}</div>
-        {subtitle && <p className="text-xs text-white/40">{subtitle}</p>}
+        <div className="text-2xl font-bold text-gray-900 dark:text-white">{value}</div>
+        {subtitle && <p className="text-xs text-gray-400 dark:text-white/40">{subtitle}</p>}
       </div>
 
       {trend && TrendIcon && (
@@ -62,7 +62,7 @@ const StaffStatsCard: React.FC<StaffStatsCardProps> = ({
             {trend.isPositive ? '+' : ''}
             {trend.value}%
           </span>
-          <span className="text-white/40">vs last period</span>
+          <span className="text-gray-400 dark:text-white/40">vs last period</span>
         </div>
       )}
     </motion.div>

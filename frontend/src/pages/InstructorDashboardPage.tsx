@@ -137,7 +137,7 @@ export default function InstructorDashboardPage() {
             </div>
             <button
               onClick={handleCreateCourse}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-gray-900 dark:text-white rounded-lg hover:bg-blue-700"
             >
               <PlusIcon className="h-5 w-5" />
               Create Course
@@ -188,7 +188,7 @@ export default function InstructorDashboardPage() {
               onClick={() => setFilter('all')}
               className={`px-4 py-2 rounded-lg font-medium ${
                 filter === 'all'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-blue-600 text-gray-900 dark:text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -198,7 +198,7 @@ export default function InstructorDashboardPage() {
               onClick={() => setFilter('published')}
               className={`px-4 py-2 rounded-lg font-medium ${
                 filter === 'published'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-blue-600 text-gray-900 dark:text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -208,7 +208,7 @@ export default function InstructorDashboardPage() {
               onClick={() => setFilter('draft')}
               className={`px-4 py-2 rounded-lg font-medium ${
                 filter === 'draft'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-blue-600 text-gray-900 dark:text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -233,7 +233,7 @@ export default function InstructorDashboardPage() {
             </p>
             <button
               onClick={handleCreateCourse}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="px-6 py-2 bg-blue-600 text-gray-900 dark:text-white rounded-lg hover:bg-blue-700"
             >
               Create Course
             </button>
@@ -319,7 +319,7 @@ function CourseCard({ course, onEdit, onView, onTogglePublish, onDelete }: Cours
                 className="w-full h-full object-cover rounded-lg"
               />
             ) : (
-              <AcademicCapIcon className="h-12 w-12 text-white opacity-50" />
+              <AcademicCapIcon className="h-12 w-12 text-gray-900 dark:text-white opacity-50" />
             )}
           </div>
         </div>
@@ -374,7 +374,7 @@ function CourseCard({ course, onEdit, onView, onTogglePublish, onDelete }: Cours
           <div className="flex items-center gap-3">
             <button
               onClick={onEdit}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-gray-900 dark:text-white rounded-lg hover:bg-blue-700"
             >
               <PencilIcon className="h-4 w-4" />
               Edit

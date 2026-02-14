@@ -25,6 +25,51 @@ EMBEDDING_DIMENSION = 1536
 CHUNK_SIZE = 500
 
 
+class KnowledgeBaseService:
+    """Facade exposing KB functions as static methods."""
+
+    @staticmethod
+    async def list_articles(db, *, page=1, page_size=20, category_id=None, search=None, is_published=None):
+        filters = {}
+        if category_id: filters["category_id"] = category_id
+        if search: filters["search"] = search
+        if is_published is not None: filters["is_internal"] = not is_published
+        return await list_articles(db, filters=filters, page=page, page_size=page_size)
+
+    @staticmethod
+    async def get_article(db, *, article_id):
+        return await get_article(db, article_id=article_id)
+
+    @staticmethod
+    async def create_article(db, *, author_id, title, content, category_id=None, tags=None, is_published=False):
+        article_data = {"title": title, "slug": title.lower().replace(" ", "-"), "body": content, "category_id": category_id, "tags": tags or []}
+        return await create_article(db, author_id=author_id, article_data=article_data)
+
+    @staticmethod
+    async def update_article(db, *, article_id, updates):
+        return await update_article(db, article_id=article_id, update_data=updates)
+
+    @staticmethod
+    async def delete_article(db, *, article_id):
+        return await delete_article(db, article_id=article_id)
+
+    @staticmethod
+    async def list_categories(db):
+        return {"categories": []}
+
+    @staticmethod
+    async def create_category(db, *, name, description=None, parent_id=None):
+        return {"id": str(uuid.uuid4()), "name": name, "description": description}
+
+    @staticmethod
+    async def vector_search(db, *, query, top_k=10, category_id=None):
+        return await vector_search(db, query_text=query, limit=top_k)
+
+    @staticmethod
+    async def get_suggestions(db, *, ticket_id, additional_context=None):
+        return await get_ai_suggestions(db, ticket_text=additional_context or ticket_id, limit=5)
+
+
 async def list_articles(
     db: AsyncSession,
     filters: Optional[Dict[str, Any]] = None,

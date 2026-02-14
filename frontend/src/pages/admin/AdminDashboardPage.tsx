@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Users, BookOpen, Activity, Brain,
-  RefreshCw, Wifi, WifiOff,
+  RefreshCw, Wifi,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import AdminStatsCard from '../../components/admin/shared/AdminStatsCard';
@@ -76,25 +76,25 @@ const AdminDashboardPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Command Center</h1>
-          <p className="text-white/50 text-sm mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Command Center</h1>
+          <p className="text-gray-500 dark:text-white/50 text-sm mt-1">
             Real-time overview of your platform
             {lastUpdated && (
-              <span className="ml-2 text-white/30">
+              <span className="ml-2 text-gray-400 dark:text-white/30">
                 Updated {lastUpdated.toLocaleTimeString()}
               </span>
             )}
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-xs text-white/40">
+          <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-white/40">
             <Wifi className="w-3.5 h-3.5 text-emerald-400" />
             <span>Live</span>
           </div>
           <button
             onClick={() => fetchDashboardData(true)}
             disabled={refreshing}
-            className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh

@@ -21,11 +21,11 @@ const ModerationQueueCard: React.FC<ModerationQueueCardProps> = ({ items, totalP
 
   if (isLoading) {
     return (
-      <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5 animate-pulse">
-        <div className="h-5 w-40 bg-[#22272B] rounded mb-4" />
+      <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5 animate-pulse">
+        <div className="h-5 w-40 bg-gray-100 dark:bg-[#22272B] rounded mb-4" />
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-10 bg-[#22272B] rounded-lg" />
+            <div key={i} className="h-10 bg-gray-100 dark:bg-[#22272B] rounded-lg" />
           ))}
         </div>
       </div>
@@ -40,9 +40,9 @@ const ModerationQueueCard: React.FC<ModerationQueueCardProps> = ({ items, totalP
   };
 
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
           <Shield className="w-4 h-4 text-amber-400" />
           Moderation Queue
         </h3>
@@ -52,25 +52,25 @@ const ModerationQueueCard: React.FC<ModerationQueueCardProps> = ({ items, totalP
       </div>
       <div className="space-y-2">
         {items.length === 0 ? (
-          <p className="text-sm text-white/40 text-center py-4">Queue is clear</p>
+          <p className="text-sm text-gray-400 dark:text-white/40 text-center py-4">Queue is clear</p>
         ) : (
           items.slice(0, 4).map((item) => (
             <button
               key={item.id}
               onClick={() => navigate(`/dashboard/staff/moderation/review`)}
-              className="w-full flex items-center justify-between p-2.5 rounded-lg bg-[#22272B]/50 hover:bg-[#22272B] transition-colors text-left"
+              className="w-full flex items-center justify-between p-2.5 rounded-lg bg-gray-100 dark:bg-[#22272B]/50 hover:bg-gray-100 dark:hover:bg-[#22272B] transition-colors text-left"
             >
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-white truncate">{item.contentTitle}</p>
+                <p className="text-sm text-gray-900 dark:text-white truncate">{item.contentTitle}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${priorityColor[item.priority]}`}>
                     {item.priority}
                   </span>
-                  <span className="text-[10px] text-white/40">{item.contentType}</span>
-                  <span className="text-[10px] text-white/40">Risk: {Math.round(item.aiRiskScore * 100)}%</span>
+                  <span className="text-[10px] text-gray-400 dark:text-white/40">{item.contentType}</span>
+                  <span className="text-[10px] text-gray-400 dark:text-white/40">Risk: {Math.round(item.aiRiskScore * 100)}%</span>
                 </div>
               </div>
-              <Eye className="w-3.5 h-3.5 text-white/30 flex-shrink-0 ml-2" />
+              <Eye className="w-3.5 h-3.5 text-gray-400 dark:text-white/30 flex-shrink-0 ml-2" />
             </button>
           ))
         )}

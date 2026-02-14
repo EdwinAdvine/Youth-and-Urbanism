@@ -138,15 +138,15 @@ const SupportMetricsPage: React.FC = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-16 bg-[#22272B] rounded-lg animate-pulse" />
+        <div className="h-16 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 bg-[#22272B] rounded-xl animate-pulse" />
+            <div key={i} className="h-28 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-72 bg-[#22272B] rounded-xl animate-pulse" />
+            <div key={i} className="h-72 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
           ))}
         </div>
       </div>
@@ -163,15 +163,15 @@ const SupportMetricsPage: React.FC = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Support Metrics</h1>
-          <p className="text-sm text-white/50 mt-1">Resolution times, SLA compliance, and satisfaction scores</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Support Metrics</h1>
+          <p className="text-sm text-gray-500 dark:text-white/50 mt-1">Resolution times, SLA compliance, and satisfaction scores</p>
         </div>
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-white/40" />
+          <Calendar className="w-4 h-4 text-gray-400 dark:text-white/40" />
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="px-3 py-2 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm focus:outline-none focus:border-[#E40000]/50 appearance-none cursor-pointer"
+            className="px-3 py-2 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#E40000]/50 appearance-none cursor-pointer"
           >
             <option value="7d">Last 7 days</option>
             <option value="14d">Last 14 days</option>
@@ -189,14 +189,14 @@ const SupportMetricsPage: React.FC = () => {
           { label: 'CSAT Score', value: '4.6/5', change: '+0.2 pts', icon: SmilePlus, color: 'text-yellow-400' },
           { label: 'Open Tickets', value: '23', change: '-5 from yesterday', icon: Ticket, color: 'text-[#E40000]' },
         ].map((stat) => (
-          <div key={stat.label} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-4">
+          <div key={stat.label} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/50 text-xs font-medium">{stat.label}</span>
-              <div className={`p-1.5 bg-[#22272B] rounded-lg ${stat.color}`}>
+              <span className="text-gray-500 dark:text-white/50 text-xs font-medium">{stat.label}</span>
+              <div className={`p-1.5 bg-gray-100 dark:bg-[#22272B] rounded-lg ${stat.color}`}>
                 <stat.icon className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-white">{stat.value}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
             <p className="text-xs text-emerald-400 mt-1">{stat.change}</p>
           </div>
         ))}
@@ -205,9 +205,9 @@ const SupportMetricsPage: React.FC = () => {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Ticket Volume */}
-        <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-1">Ticket Volume Over Time</h3>
-          <p className="text-xs text-white/40 mb-4">Daily new ticket count</p>
+        <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Ticket Volume Over Time</h3>
+          <p className="text-xs text-gray-400 dark:text-white/40 mb-4">Daily new ticket count</p>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={TICKET_VOLUME}>
@@ -228,9 +228,9 @@ const SupportMetricsPage: React.FC = () => {
         </motion.div>
 
         {/* Resolution Time */}
-        <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-1">Resolution Time Trend</h3>
-          <p className="text-xs text-white/40 mb-4">Average hours to resolution</p>
+        <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Resolution Time Trend</h3>
+          <p className="text-xs text-gray-400 dark:text-white/40 mb-4">Average hours to resolution</p>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={RESOLUTION_TREND}>
@@ -245,9 +245,9 @@ const SupportMetricsPage: React.FC = () => {
         </motion.div>
 
         {/* CSAT Trend */}
-        <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-1">CSAT Score Trend</h3>
-          <p className="text-xs text-white/40 mb-4">Customer satisfaction over time</p>
+        <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">CSAT Score Trend</h3>
+          <p className="text-xs text-gray-400 dark:text-white/40 mb-4">Customer satisfaction over time</p>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={CSAT_TREND}>
@@ -262,9 +262,9 @@ const SupportMetricsPage: React.FC = () => {
         </motion.div>
 
         {/* Tickets by Category */}
-        <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-1">Tickets by Category</h3>
-          <p className="text-xs text-white/40 mb-4">Distribution of support categories</p>
+        <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Tickets by Category</h3>
+          <p className="text-xs text-gray-400 dark:text-white/40 mb-4">Distribution of support categories</p>
           <div className="h-56 flex items-center">
             <div className="w-1/2 h-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -282,8 +282,8 @@ const SupportMetricsPage: React.FC = () => {
               {TICKETS_BY_CATEGORY.map((cat) => (
                 <div key={cat.name} className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
-                  <span className="text-xs text-white/60 flex-1">{cat.name}</span>
-                  <span className="text-xs font-medium text-white">{cat.value}%</span>
+                  <span className="text-xs text-gray-500 dark:text-white/60 flex-1">{cat.name}</span>
+                  <span className="text-xs font-medium text-gray-900 dark:text-white">{cat.value}%</span>
                 </div>
               ))}
             </div>
@@ -292,26 +292,26 @@ const SupportMetricsPage: React.FC = () => {
       </div>
 
       {/* SLA Compliance Table */}
-      <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-[#22272B]">
-          <h3 className="text-sm font-semibold text-white">SLA Compliance Breakdown</h3>
-          <p className="text-xs text-white/40 mt-1">Performance against service level agreements by priority</p>
+      <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-200 dark:border-[#22272B]">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">SLA Compliance Breakdown</h3>
+          <p className="text-xs text-gray-400 dark:text-white/40 mt-1">Performance against service level agreements by priority</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#22272B] text-left">
-                <th className="px-4 py-3 text-white/60 font-medium">Priority</th>
-                <th className="px-4 py-3 text-white/60 font-medium text-right">Target</th>
-                <th className="px-4 py-3 text-white/60 font-medium text-right">Actual Avg</th>
-                <th className="px-4 py-3 text-white/60 font-medium text-right">Compliance</th>
-                <th className="px-4 py-3 text-white/60 font-medium text-right">Total</th>
-                <th className="px-4 py-3 text-white/60 font-medium text-right">Breached</th>
+              <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Priority</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Target</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Actual Avg</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Compliance</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Total</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Breached</th>
               </tr>
             </thead>
             <tbody>
               {SLA_DATA.map((row) => (
-                <tr key={row.priority} className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
+                <tr key={row.priority} className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
                   <td className="px-4 py-3">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                       row.priority === 'Critical' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
@@ -322,7 +322,7 @@ const SupportMetricsPage: React.FC = () => {
                       {row.priority}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right text-white/60">{row.target_hours}h</td>
+                  <td className="px-4 py-3 text-right text-gray-500 dark:text-white/60">{row.target_hours}h</td>
                   <td className="px-4 py-3 text-right">
                     <span className={row.actual_hours <= row.target_hours ? 'text-emerald-400' : 'text-red-400'}>
                       {row.actual_hours}h
@@ -330,16 +330,16 @@ const SupportMetricsPage: React.FC = () => {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <div className="w-16 h-1.5 bg-[#22272B] rounded-full overflow-hidden">
+                      <div className="w-16 h-1.5 bg-gray-100 dark:bg-[#22272B] rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full ${row.compliance >= 95 ? 'bg-emerald-400' : row.compliance >= 90 ? 'bg-yellow-400' : 'bg-red-400'}`}
                           style={{ width: `${row.compliance}%` }}
                         />
                       </div>
-                      <span className="text-white/70 text-xs w-12 text-right">{row.compliance}%</span>
+                      <span className="text-gray-600 dark:text-white/70 text-xs w-12 text-right">{row.compliance}%</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-right text-white/70">{row.total_tickets}</td>
+                  <td className="px-4 py-3 text-right text-gray-600 dark:text-white/70">{row.total_tickets}</td>
                   <td className="px-4 py-3 text-right">
                     <span className={row.breached > 0 ? 'text-red-400' : 'text-emerald-400'}>
                       {row.breached}

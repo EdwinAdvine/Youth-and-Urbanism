@@ -132,13 +132,13 @@ const PartnersAdminPage: React.FC = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-16 bg-[#22272B] rounded-lg animate-pulse" />
+        <div className="h-16 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-28 bg-[#22272B] rounded-xl animate-pulse" />
+            <div key={i} className="h-28 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
           ))}
         </div>
-        <div className="h-80 bg-[#22272B] rounded-xl animate-pulse" />
+        <div className="h-80 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
       </div>
     );
   }
@@ -160,14 +160,14 @@ const PartnersAdminPage: React.FC = () => {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-[#E40000] rounded-lg text-white hover:bg-[#C00] transition-colors">
+            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-[#E40000] rounded-lg text-gray-900 dark:text-white hover:bg-[#C00] transition-colors">
               <Plus className="w-4 h-4" />
               Add Partner
             </button>
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
@@ -199,21 +199,21 @@ const PartnersAdminPage: React.FC = () => {
       </motion.div>
 
       {/* Tabs */}
-      <motion.div variants={itemVariants} className="flex gap-1 bg-[#181C1F] border border-[#22272B] rounded-lg p-1">
+      <motion.div variants={itemVariants} className="flex gap-1 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg p-1">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               activeTab === tab.key
-                ? 'bg-[#E40000] text-white'
-                : 'text-white/50 hover:text-white hover:bg-[#22272B]'
+                ? 'bg-[#E40000] text-gray-900 dark:text-white'
+                : 'text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B]'
             }`}
           >
             {tab.label}
             <span
               className={`px-1.5 py-0.5 rounded-full text-xs ${
-                activeTab === tab.key ? 'bg-white/20' : 'bg-[#22272B] text-white/40'
+                activeTab === tab.key ? 'bg-gray-200 dark:bg-white/20' : 'bg-gray-100 dark:bg-[#22272B] text-gray-400 dark:text-white/40'
               }`}
             >
               {tab.count}
@@ -225,18 +225,18 @@ const PartnersAdminPage: React.FC = () => {
       {/* Search */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
           <input
             type="text"
             placeholder="Search partners..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
           />
         </div>
         <div className="relative">
-          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-          <select className="pl-10 pr-8 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[140px]">
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
+          <select className="pl-10 pr-8 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[140px]">
             <option value="">All Status</option>
             <option value="active">Active</option>
             <option value="pending">Pending</option>
@@ -246,20 +246,20 @@ const PartnersAdminPage: React.FC = () => {
       </motion.div>
 
       {/* Table */}
-      <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+      <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#22272B] text-left">
-                <th className="px-4 py-3 text-white/60 font-medium">Partner</th>
-                <th className="px-4 py-3 text-white/60 font-medium">Type</th>
-                <th className="px-4 py-3 text-white/60 font-medium">Status</th>
-                <th className="px-4 py-3 text-white/60 font-medium">Revenue Share</th>
-                <th className="px-4 py-3 text-white/60 font-medium">
+              <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Partner</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Type</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Status</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Revenue Share</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">
                   {activeTab === 'content' ? 'Courses' : 'Contract End'}
                 </th>
-                <th className="px-4 py-3 text-white/60 font-medium">Joined</th>
-                <th className="px-4 py-3 text-white/60 font-medium text-right">Actions</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Joined</th>
+                <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -267,16 +267,16 @@ const PartnersAdminPage: React.FC = () => {
                 <tr>
                   <td colSpan={7} className="px-4 py-16 text-center">
                     <Users className="w-12 h-12 text-white/10 mx-auto mb-3" />
-                    <p className="text-white/40 text-sm">No partners found</p>
+                    <p className="text-gray-400 dark:text-white/40 text-sm">No partners found</p>
                   </td>
                 </tr>
               ) : (
                 filteredPartners.map((partner) => (
-                  <tr key={partner.id} className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
+                  <tr key={partner.id} className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
                     <td className="px-4 py-3">
                       <div>
-                        <span className="text-white font-medium">{partner.name}</span>
-                        <span className="block text-xs text-white/40">{partner.contact_email}</span>
+                        <span className="text-gray-900 dark:text-white font-medium">{partner.name}</span>
+                        <span className="block text-xs text-gray-400 dark:text-white/40">{partner.contact_email}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3">
@@ -285,10 +285,10 @@ const PartnersAdminPage: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-4 py-3"><StatusBadge status={partner.status} /></td>
-                    <td className="px-4 py-3 text-white/80">
+                    <td className="px-4 py-3 text-gray-700 dark:text-white/80">
                       {partner.revenue_share > 0 ? `${partner.revenue_share}%` : '--'}
                     </td>
-                    <td className="px-4 py-3 text-white/60">
+                    <td className="px-4 py-3 text-gray-500 dark:text-white/60">
                       {activeTab === 'content'
                         ? `${partner.courses_count ?? 0} courses`
                         : partner.contract_end
@@ -296,18 +296,18 @@ const PartnersAdminPage: React.FC = () => {
                           : '--'
                       }
                     </td>
-                    <td className="px-4 py-3 text-white/40">{formatDate(partner.joined_at)}</td>
+                    <td className="px-4 py-3 text-gray-400 dark:text-white/40">{formatDate(partner.joined_at)}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1">
                         <button
                           title="View"
-                          className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors"
+                          className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
                           title="Edit"
-                          className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors"
+                          className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                         >
                           <Edit3 className="w-4 h-4" />
                         </button>

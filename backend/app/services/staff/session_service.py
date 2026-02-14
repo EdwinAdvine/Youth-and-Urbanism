@@ -29,6 +29,64 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+
+class SessionService:
+    """Facade exposing session functions as static methods."""
+
+    @staticmethod
+    async def list_sessions(db, *, page=1, page_size=20, status_filter=None, host_id=None, session_type=None):
+        filters = {}
+        if status_filter: filters["status"] = status_filter
+        if host_id: filters["host_id"] = host_id
+        if session_type: filters["session_type"] = session_type
+        return await list_sessions(db, filters=filters, page=page, page_size=page_size)
+
+    @staticmethod
+    async def get_session(db, *, session_id):
+        return await get_session(db, session_id=session_id)
+
+    @staticmethod
+    async def create_session(db, *, host_id, title, description=None, session_type, scheduled_start, scheduled_end=None, max_participants=None, metadata=None):
+        session_data = {
+            "title": title,
+            "description": description,
+            "session_type": session_type,
+            "scheduled_at": scheduled_start,
+            "max_participants": max_participants or 30,
+        }
+        if metadata:
+            session_data["metadata"] = metadata
+        return await create_session(db, host_id=host_id, session_data=session_data)
+
+    @staticmethod
+    async def update_session(db, *, session_id, updates):
+        return await update_session(db, session_id=session_id, data=updates)
+
+    @staticmethod
+    async def generate_token(db, *, session_id, user_id, user_name):
+        session = await get_session(db, session_id=session_id)
+        if session is None:
+            return None
+        return await generate_livekit_token(session=session, user_id=user_id, user_name=user_name)
+
+    @staticmethod
+    async def start_recording(db, *, session_id):
+        return await start_recording(session_id=session_id)
+
+    @staticmethod
+    async def stop_recording(db, *, session_id):
+        return await stop_recording(session_id=session_id)
+
+    @staticmethod
+    async def list_recordings(db, *, session_id):
+        return {"recordings": []}
+
+    @staticmethod
+    async def manage_breakout_rooms(db, *, session_id, action="create", rooms=None, room_id=None):
+        rooms_config = rooms or []
+        return await manage_breakout_rooms(db, session_id=session_id, rooms_config=rooms_config)
+
+
 # LiveKit configuration placeholders (loaded from settings in production)
 LIVEKIT_API_URL = getattr(settings, "livekit_api_url", "wss://livekit.example.com")
 LIVEKIT_API_KEY = getattr(settings, "livekit_api_key", "")

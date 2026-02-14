@@ -104,12 +104,12 @@ const CBCTagPicker: React.FC<CBCTagPickerProps> = ({ selectedTags, onChange }) =
     CBC_COMPETENCIES.find((c) => c.code === code);
 
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden" ref={dropdownRef}>
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden" ref={dropdownRef}>
       {/* Header */}
-      <div className="flex items-center gap-2 px-5 py-3.5 border-b border-[#22272B]">
-        <Tag className="w-4 h-4 text-white/60" />
-        <h3 className="text-sm font-semibold text-white">CBC Competency Tags</h3>
-        <span className="ml-auto text-xs text-white/40">{selectedTags.length} selected</span>
+      <div className="flex items-center gap-2 px-5 py-3.5 border-b border-gray-200 dark:border-[#22272B]">
+        <Tag className="w-4 h-4 text-gray-500 dark:text-white/60" />
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">CBC Competency Tags</h3>
+        <span className="ml-auto text-xs text-gray-400 dark:text-white/40">{selectedTags.length} selected</span>
       </div>
 
       {/* Selected Tags */}
@@ -119,7 +119,7 @@ const CBCTagPicker: React.FC<CBCTagPickerProps> = ({ selectedTags, onChange }) =
             {selectedTags.map((code) => {
               const comp = getCompetency(code);
               if (!comp) return null;
-              const colorClass = AREA_COLORS[comp.learningArea] || 'bg-white/10 text-white/60 border-white/20';
+              const colorClass = AREA_COLORS[comp.learningArea] || 'bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/60 border-gray-300 dark:border-white/20';
               return (
                 <span
                   key={code}
@@ -138,17 +138,17 @@ const CBCTagPicker: React.FC<CBCTagPickerProps> = ({ selectedTags, onChange }) =
             })}
           </div>
         ) : (
-          <p className="text-xs text-white/30 mb-3">No competencies selected</p>
+          <p className="text-xs text-gray-400 dark:text-white/30 mb-3">No competencies selected</p>
         )}
       </div>
 
       {/* Search & Dropdown Trigger */}
       <div className="px-4 pb-3">
         <div
-          className="flex items-center gap-2 px-3 py-2 bg-[#22272B]/50 rounded-lg border border-[#22272B] cursor-text"
+          className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-[#22272B]/50 rounded-lg border border-gray-200 dark:border-[#22272B] cursor-text"
           onClick={() => setIsOpen(true)}
         >
-          <Search className="w-3.5 h-3.5 text-white/40 flex-shrink-0" />
+          <Search className="w-3.5 h-3.5 text-gray-400 dark:text-white/40 flex-shrink-0" />
           <input
             type="text"
             value={searchQuery}
@@ -158,20 +158,20 @@ const CBCTagPicker: React.FC<CBCTagPickerProps> = ({ selectedTags, onChange }) =
             }}
             onFocus={() => setIsOpen(true)}
             placeholder="Search competency codes or names..."
-            className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/30"
+            className="flex-1 bg-transparent text-sm text-gray-900 dark:text-white outline-none placeholder:text-gray-400 dark:placeholder:text-white/30"
           />
-          <ChevronDown className={`w-3.5 h-3.5 text-white/40 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`w-3.5 h-3.5 text-gray-400 dark:text-white/40 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </div>
 
         {/* Dropdown */}
         {isOpen && (
-          <div className="mt-2 max-h-64 overflow-y-auto rounded-lg border border-[#22272B] bg-[#1a1f23]">
+          <div className="mt-2 max-h-64 overflow-y-auto rounded-lg border border-gray-200 dark:border-[#22272B] bg-[#1a1f23]">
             {Object.keys(groupedCompetencies).length === 0 ? (
-              <p className="px-3 py-4 text-xs text-white/40 text-center">No competencies match your search</p>
+              <p className="px-3 py-4 text-xs text-gray-400 dark:text-white/40 text-center">No competencies match your search</p>
             ) : (
               Object.entries(groupedCompetencies).map(([area, competencies]) => (
                 <div key={area}>
-                  <div className="px-3 py-1.5 text-[10px] font-semibold text-white/40 uppercase tracking-wider bg-[#181C1F] sticky top-0">
+                  <div className="px-3 py-1.5 text-[10px] font-semibold text-gray-400 dark:text-white/40 uppercase tracking-wider bg-white dark:bg-[#181C1F] sticky top-0">
                     {area}
                   </div>
                   {competencies.map((comp) => {
@@ -182,24 +182,24 @@ const CBCTagPicker: React.FC<CBCTagPickerProps> = ({ selectedTags, onChange }) =
                         onClick={() => toggleTag(comp.code)}
                         className={`w-full flex items-center gap-2 px-3 py-2 text-left transition-colors ${
                           isSelected
-                            ? 'bg-[#E40000]/10 text-white'
-                            : 'hover:bg-[#22272B]/50 text-white/70'
+                            ? 'bg-[#E40000]/10 text-gray-900 dark:text-white'
+                            : 'hover:bg-gray-100 dark:hover:bg-[#22272B]/50 text-gray-600 dark:text-white/70'
                         }`}
                       >
                         <div
                           className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${
                             isSelected
                               ? 'bg-[#E40000] border-[#E40000]'
-                              : 'border-[#333] bg-transparent'
+                              : 'border-gray-300 dark:border-[#333] bg-transparent'
                           }`}
                         >
                           {isSelected && (
-                            <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
+                            <svg className="w-3 h-3 text-gray-900 dark:text-white" viewBox="0 0 12 12" fill="none">
                               <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                           )}
                         </div>
-                        <span className="text-xs text-white/40 w-12 flex-shrink-0">{comp.code}</span>
+                        <span className="text-xs text-gray-400 dark:text-white/40 w-12 flex-shrink-0">{comp.code}</span>
                         <span className="text-xs">{comp.name}</span>
                       </button>
                     );

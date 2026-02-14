@@ -288,6 +288,33 @@ def verify_team_lead():
     return team_lead_checker
 
 
+def verify_partner_or_admin_access():
+    """
+    FastAPI dependency to verify partner or admin role access.
+    Allows both partner and admin roles.
+
+    Usage:
+        @router.get("/partner/something")
+        async def partner_endpoint(
+            current_user: dict = Depends(verify_partner_or_admin_access())
+        ):
+            ...
+    """
+
+    async def checker(
+        current_user: dict = Depends(get_current_active_user),
+    ) -> dict:
+        role = current_user.get("role", "")
+        if role not in ("admin", "partner"):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied. Partner or admin role required.",
+            )
+        return current_user
+
+    return checker
+
+
 def verify_admin_access():
     """
     FastAPI dependency to verify admin role access.

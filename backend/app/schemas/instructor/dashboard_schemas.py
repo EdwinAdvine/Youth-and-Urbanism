@@ -3,9 +3,8 @@ Instructor Dashboard Schemas
 
 Pydantic v2 schemas for instructor dashboard overview and statistics.
 """
-
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from decimal import Decimal
 
 
@@ -34,7 +33,7 @@ class UpcomingSessionSummary(BaseModel):
     scheduled_at: str
     duration_minutes: int
     participants_count: int
-    course_id: str | None = None
+    course_id: Optional[str] = None
 
 
 class PendingSubmissionSummary(BaseModel):
@@ -50,7 +49,7 @@ class AIFlaggedStudentSummary(BaseModel):
     """Summary of AI-flagged student"""
     student_id: str
     student_name: str
-    student_avatar: str | None = None
+    student_avatar: Optional[str] = None
     flag_reason: str
     flag_severity: str  # low, medium, high
     flagged_at: str

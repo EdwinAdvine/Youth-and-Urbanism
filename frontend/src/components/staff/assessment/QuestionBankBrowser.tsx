@@ -93,14 +93,14 @@ const QuestionBankBrowser: React.FC<QuestionBankBrowserProps> = ({
   const hasActiveFilters = filterDifficulty !== null || filterType !== null || filterTopic !== null;
 
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#22272B]">
+      <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-200 dark:border-[#22272B]">
         <div className="flex items-center gap-2">
-          <BookOpen className="w-4 h-4 text-white/60" />
-          <h3 className="text-sm font-semibold text-white">Question Bank</h3>
+          <BookOpen className="w-4 h-4 text-gray-500 dark:text-white/60" />
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Question Bank</h3>
         </div>
-        <span className="text-xs text-white/40">
+        <span className="text-xs text-gray-400 dark:text-white/40">
           {selectedIds.length} selected / {MOCK_QUESTIONS.length} total
         </span>
       </div>
@@ -108,14 +108,14 @@ const QuestionBankBrowser: React.FC<QuestionBankBrowserProps> = ({
       {/* Search */}
       <div className="px-4 pt-3">
         <div className="flex items-center gap-2">
-          <div className="flex-1 flex items-center gap-2 px-3 py-2 bg-[#22272B]/50 border border-[#22272B] rounded-lg">
-            <Search className="w-3.5 h-3.5 text-white/40 flex-shrink-0" />
+          <div className="flex-1 flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-[#22272B]/50 border border-gray-200 dark:border-[#22272B] rounded-lg">
+            <Search className="w-3.5 h-3.5 text-gray-400 dark:text-white/40 flex-shrink-0" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search questions..."
-              className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/30"
+              className="flex-1 bg-transparent text-sm text-gray-900 dark:text-white outline-none placeholder:text-gray-400 dark:placeholder:text-white/30"
             />
           </div>
           <button
@@ -123,7 +123,7 @@ const QuestionBankBrowser: React.FC<QuestionBankBrowserProps> = ({
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-xs font-medium transition-colors ${
               showFilters || hasActiveFilters
                 ? 'bg-[#E40000]/10 border-[#E40000]/30 text-[#E40000]'
-                : 'bg-[#22272B]/50 border-[#22272B] text-white/60 hover:text-white'
+                : 'bg-gray-100 dark:bg-[#22272B]/50 border-gray-200 dark:border-[#22272B] text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
             <Filter className="w-3.5 h-3.5" />
@@ -134,10 +134,10 @@ const QuestionBankBrowser: React.FC<QuestionBankBrowserProps> = ({
 
         {/* Filter panel */}
         {showFilters && (
-          <div className="mt-2 p-3 rounded-lg bg-[#22272B]/30 border border-[#22272B] space-y-3">
+          <div className="mt-2 p-3 rounded-lg bg-gray-100 dark:bg-[#22272B]/30 border border-gray-200 dark:border-[#22272B] space-y-3">
             {/* Difficulty filter */}
             <div>
-              <label className="block text-[10px] uppercase tracking-wider text-white/40 mb-1.5">
+              <label className="block text-[10px] uppercase tracking-wider text-gray-400 dark:text-white/40 mb-1.5">
                 Difficulty
               </label>
               <div className="flex gap-1.5">
@@ -147,8 +147,8 @@ const QuestionBankBrowser: React.FC<QuestionBankBrowserProps> = ({
                     onClick={() => setFilterDifficulty(filterDifficulty === d ? null : d)}
                     className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] border transition-colors ${
                       filterDifficulty === d
-                        ? 'bg-white/10 border-white/30 text-white'
-                        : 'border-[#22272B] text-white/40 hover:text-white/60'
+                        ? 'bg-gray-100 dark:bg-white/10 border-white/30 text-gray-900 dark:text-white'
+                        : 'border-gray-200 dark:border-[#22272B] text-gray-400 dark:text-white/40 hover:text-gray-500 dark:hover:text-white/60'
                     }`}
                   >
                     <span className={`w-1.5 h-1.5 rounded-full ${DIFFICULTY_DOTS[d].color}`} />
@@ -160,7 +160,7 @@ const QuestionBankBrowser: React.FC<QuestionBankBrowserProps> = ({
 
             {/* Type filter */}
             <div>
-              <label className="block text-[10px] uppercase tracking-wider text-white/40 mb-1.5">
+              <label className="block text-[10px] uppercase tracking-wider text-gray-400 dark:text-white/40 mb-1.5">
                 Type
               </label>
               <div className="flex flex-wrap gap-1.5">
@@ -170,8 +170,8 @@ const QuestionBankBrowser: React.FC<QuestionBankBrowserProps> = ({
                     onClick={() => setFilterType(filterType === t ? null : t)}
                     className={`px-2 py-1 rounded text-[10px] border transition-colors ${
                       filterType === t
-                        ? 'bg-white/10 border-white/30 text-white'
-                        : 'border-[#22272B] text-white/40 hover:text-white/60'
+                        ? 'bg-gray-100 dark:bg-white/10 border-white/30 text-gray-900 dark:text-white'
+                        : 'border-gray-200 dark:border-[#22272B] text-gray-400 dark:text-white/40 hover:text-gray-500 dark:hover:text-white/60'
                     }`}
                   >
                     {TYPE_LABELS[t]}
@@ -182,7 +182,7 @@ const QuestionBankBrowser: React.FC<QuestionBankBrowserProps> = ({
 
             {/* Topic filter */}
             <div>
-              <label className="block text-[10px] uppercase tracking-wider text-white/40 mb-1.5">
+              <label className="block text-[10px] uppercase tracking-wider text-gray-400 dark:text-white/40 mb-1.5">
                 Topic
               </label>
               <div className="flex flex-wrap gap-1.5">
@@ -192,8 +192,8 @@ const QuestionBankBrowser: React.FC<QuestionBankBrowserProps> = ({
                     onClick={() => setFilterTopic(filterTopic === topic ? null : topic)}
                     className={`px-2 py-1 rounded text-[10px] border transition-colors ${
                       filterTopic === topic
-                        ? 'bg-white/10 border-white/30 text-white'
-                        : 'border-[#22272B] text-white/40 hover:text-white/60'
+                        ? 'bg-gray-100 dark:bg-white/10 border-white/30 text-gray-900 dark:text-white'
+                        : 'border-gray-200 dark:border-[#22272B] text-gray-400 dark:text-white/40 hover:text-gray-500 dark:hover:text-white/60'
                     }`}
                   >
                     {topic}
@@ -217,7 +217,7 @@ const QuestionBankBrowser: React.FC<QuestionBankBrowserProps> = ({
       {/* Question list */}
       <div className="p-4 max-h-[400px] overflow-y-auto">
         {filteredQuestions.length === 0 ? (
-          <p className="text-sm text-white/40 text-center py-8">No questions match your filters</p>
+          <p className="text-sm text-gray-400 dark:text-white/40 text-center py-8">No questions match your filters</p>
         ) : (
           <div className="space-y-2">
             {filteredQuestions.map((q) => {
@@ -229,7 +229,7 @@ const QuestionBankBrowser: React.FC<QuestionBankBrowserProps> = ({
                   className={`w-full text-left p-3 rounded-lg border transition-colors ${
                     isSelected
                       ? 'bg-[#E40000]/10 border-[#E40000]/30'
-                      : 'bg-[#22272B]/30 border-[#22272B] hover:bg-[#22272B]/50'
+                      : 'bg-gray-100 dark:bg-[#22272B]/30 border-gray-200 dark:border-[#22272B] hover:bg-gray-100 dark:hover:bg-[#22272B]/50'
                   }`}
                 >
                   <div className="flex items-start gap-2.5">
@@ -238,15 +238,15 @@ const QuestionBankBrowser: React.FC<QuestionBankBrowserProps> = ({
                       className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${
                         isSelected
                           ? 'bg-[#E40000] border-[#E40000]'
-                          : 'border-[#333] bg-transparent'
+                          : 'border-gray-300 dark:border-[#333] bg-transparent'
                       }`}
                     >
-                      {isSelected && <Check className="w-3 h-3 text-white" />}
+                      {isSelected && <Check className="w-3 h-3 text-gray-900 dark:text-white" />}
                     </div>
 
                     <div className="min-w-0 flex-1">
                       {/* Question text */}
-                      <p className="text-sm text-white/80 line-clamp-2">{q.text}</p>
+                      <p className="text-sm text-gray-700 dark:text-white/80 line-clamp-2">{q.text}</p>
 
                       {/* Meta */}
                       <div className="flex items-center gap-2 mt-2 flex-wrap">
@@ -260,13 +260,13 @@ const QuestionBankBrowser: React.FC<QuestionBankBrowserProps> = ({
                               className={`w-1.5 h-1.5 rounded-full ${
                                 d <= q.difficulty
                                   ? DIFFICULTY_DOTS[q.difficulty].color
-                                  : 'bg-[#22272B]'
+                                  : 'bg-gray-100 dark:bg-[#22272B]'
                               }`}
                             />
                           ))}
                         </div>
-                        <span className="text-[10px] text-white/30">{q.topic}</span>
-                        <span className="text-[10px] text-white/30 ml-auto">
+                        <span className="text-[10px] text-gray-400 dark:text-white/30">{q.topic}</span>
+                        <span className="text-[10px] text-gray-400 dark:text-white/30 ml-auto">
                           Used {q.usageCount}x
                         </span>
                       </div>
@@ -280,8 +280,8 @@ const QuestionBankBrowser: React.FC<QuestionBankBrowserProps> = ({
       </div>
 
       {/* Footer */}
-      <div className="px-5 py-3 border-t border-[#22272B]">
-        <p className="text-xs text-white/40">
+      <div className="px-5 py-3 border-t border-gray-200 dark:border-[#22272B]">
+        <p className="text-xs text-gray-400 dark:text-white/40">
           Showing {filteredQuestions.length} of {MOCK_QUESTIONS.length} questions
         </p>
       </div>

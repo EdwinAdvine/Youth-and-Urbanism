@@ -66,6 +66,123 @@ from app.models.contact import ContactMessage
 from app.models.certificate import Certificate
 from app.models.instructor_application import InstructorApplication
 
+# Partner models
+from app.models.partner import (
+    PartnerProfile,
+    SponsorshipProgram,
+    SponsoredChild,
+    SponsorshipConsent,
+    PartnerSubscription,
+    PartnerPayment,
+    PartnerImpactReport,
+    PartnerMessage,
+    PartnerMeeting,
+    PartnerResource,
+    PartnerTicket,
+)
+
+# Parent dashboard models
+from app.models.parent import (
+    MoodEntry,
+    FamilyGoal,
+    ConsentRecord,
+    ConsentAuditLog,
+    ParentMessage,
+    AIAlert,
+    NotificationPreference,
+    ParentReport,
+)
+
+# Student dashboard models
+from app.models.student_dashboard import (
+    StudentMoodEntry,
+    StudentStreak,
+    StudentDailyPlan,
+    StudentJournalEntry,
+    StudentWishlist,
+    StudentSessionPrep,
+)
+
+# Student gamification models
+from app.models.student_gamification import (
+    StudentXPEvent,
+    StudentLevel,
+    StudentBadge,
+    StudentGoal,
+    StudentSkillNode,
+    StudentWeeklyReport,
+)
+
+# Student community models
+from app.models.student_community import (
+    StudentFriendship,
+    StudentStudyGroup,
+    StudentShoutout,
+    StudentTeacherQA,
+)
+
+# Student account models
+from app.models.student_account import StudentConsentRecord, StudentTeacherAccess
+
+# Student wallet models
+from app.models.student_wallet import PaystackTransaction, StudentSavedPaymentMethod
+
+# Staff models (must be imported before instructor models due to LiveSession relationship)
+from app.models.staff import (
+    StaffProfile,
+    StaffTeam,
+    StaffTicket,
+    StaffTicketMessage,
+    SLAPolicy,
+    SLAEscalation,
+    StaffContentItem,
+    StaffContentVersion,
+    StaffCollabSession,
+    AdaptiveAssessment,
+    AssessmentQuestion,
+    CBCCompetency,
+    KBCategory,
+    KBArticle,
+    KBEmbedding,
+    LiveSession,
+    LiveSessionRecording,
+    BreakoutRoom,
+    ReportDefinition,
+    ReportSchedule,
+    PushSubscription,
+    StaffNotificationPref,
+    StaffModerationItem,
+    ReviewDecision,
+    StudentJourney,
+    FamilyCase,
+    CaseNote,
+)
+
+# Instructor models
+from app.models.instructor import (
+    InstructorProfile,
+    InstructorEarning,
+    InstructorPayout,
+    InstructorRevenueSplit,
+    InstructorBadge,
+    InstructorBadgeAward,
+    InstructorPoints,
+    InstructorPointsLog,
+    PeerKudo,
+    InstructorSessionAttendance,
+    InstructorSessionFollowUp,
+    InstructorDailyInsight,
+    InstructorCBCAnalysis,
+    InstructorForumPost,
+    InstructorForumReply,
+    InstructorTwoFactor,
+    InstructorLoginHistory,
+)
+
+# Cross-cutting security models
+from app.models.two_factor_auth import TwoFactorAuth
+from app.models.login_history import LoginHistory
+
 __all__ = [
     # Core user models
     "User",
@@ -133,4 +250,109 @@ __all__ = [
     "ContactMessage",
     "Certificate",
     "InstructorApplication",
+
+    # Partner models
+    "PartnerProfile",
+    "SponsorshipProgram",
+    "SponsoredChild",
+    "SponsorshipConsent",
+    "PartnerSubscription",
+    "PartnerPayment",
+    "PartnerImpactReport",
+    "PartnerMessage",
+    "PartnerMeeting",
+    "PartnerResource",
+    "PartnerTicket",
+
+    # Parent dashboard models
+    "MoodEntry",
+    "FamilyGoal",
+    "ConsentRecord",
+    "ConsentAuditLog",
+    "ParentMessage",
+    "AIAlert",
+    "NotificationPreference",
+    "ParentReport",
+
+    # Student dashboard models
+    "StudentMoodEntry",
+    "StudentStreak",
+    "StudentDailyPlan",
+    "StudentJournalEntry",
+    "StudentWishlist",
+    "StudentSessionPrep",
+
+    # Student gamification models
+    "StudentXPEvent",
+    "StudentLevel",
+    "StudentBadge",
+    "StudentGoal",
+    "StudentSkillNode",
+    "StudentWeeklyReport",
+
+    # Student community models
+    "StudentFriendship",
+    "StudentStudyGroup",
+    "StudentShoutout",
+    "StudentTeacherQA",
+
+    # Student account models
+    "StudentConsentRecord",
+    "StudentTeacherAccess",
+
+    # Student wallet models
+    "PaystackTransaction",
+    "StudentSavedPaymentMethod",
+
+    # Staff models
+    "StaffProfile",
+    "StaffTeam",
+    "StaffTicket",
+    "StaffTicketMessage",
+    "SLAPolicy",
+    "SLAEscalation",
+    "StaffContentItem",
+    "StaffContentVersion",
+    "StaffCollabSession",
+    "AdaptiveAssessment",
+    "AssessmentQuestion",
+    "CBCCompetency",
+    "KBCategory",
+    "KBArticle",
+    "KBEmbedding",
+    "LiveSession",
+    "LiveSessionRecording",
+    "BreakoutRoom",
+    "ReportDefinition",
+    "ReportSchedule",
+    "PushSubscription",
+    "StaffNotificationPref",
+    "StaffModerationItem",
+    "ReviewDecision",
+    "StudentJourney",
+    "FamilyCase",
+    "CaseNote",
+
+    # Instructor models
+    "InstructorProfile",
+    "InstructorEarning",
+    "InstructorPayout",
+    "InstructorRevenueSplit",
+    "InstructorBadge",
+    "InstructorBadgeAward",
+    "InstructorPoints",
+    "InstructorPointsLog",
+    "PeerKudo",
+    "InstructorSessionAttendance",
+    "InstructorSessionFollowUp",
+    "InstructorDailyInsight",
+    "InstructorCBCAnalysis",
+    "InstructorForumPost",
+    "InstructorForumReply",
+    "InstructorTwoFactor",
+    "InstructorLoginHistory",
+
+    # Cross-cutting security models
+    "TwoFactorAuth",
+    "LoginHistory",
 ]

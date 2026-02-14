@@ -11,7 +11,7 @@ from datetime import datetime
 
 from app.database import get_db
 from app.models.user import User
-from app.api.dependencies import require_role
+from app.utils.security import require_role
 from app.schemas.instructor.earnings_schemas import (
     InstructorEarningResponse,
     PayoutRequest,
@@ -28,7 +28,7 @@ from app.services.instructor.earnings_service import (
 router = APIRouter(prefix="/earnings", tags=["Instructor Earnings"])
 
 
-@router.get("/", response_model=List[InstructorEarningResponse])
+@router.get("/", response_model=dict)
 async def list_earnings(
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
@@ -37,12 +37,14 @@ async def list_earnings(
     current_user: User = Depends(require_role(["instructor"])),
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    List instructor earnings with filters.
-    """
+    """List instructor earnings with filters."""
     try:
-        # TODO: Implement pagination and filtering
-        return []
+        from app.services.instructor.earnings_service import list_earnings as svc_list
+        return await svc_list(
+            db, str(current_user.id),
+            earning_type=earning_type, status=status,
+            page=page, limit=limit,
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -91,7 +93,7 @@ async def create_payout_request(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/payouts/history", response_model=List[InstructorPayoutResponse])
+@router.get("/payouts/history", response_model=dict)
 async def list_payouts(
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
@@ -100,11 +102,27 @@ async def list_payouts(
     current_user: User = Depends(require_role(["instructor"])),
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    Get payout history.
-    """
+    """Get payout history."""
     try:
-        # TODO: Implement pagination and filtering
-        return []
+        from app.services.instructor.earnings_service import list_payouts as svc_payouts
+        return await svc_payouts(
+            db, str(current_user.id),
+            status=status, payout_method=payout_method,
+            page=page, limit=limit,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/balance", response_model=dict)
+async def get_balance(
+    current_user: User = Depends(require_role(["instructor"])),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get available balance for withdrawal."""
+    try:
+        from app.services.instructor.earnings_service import get_available_balance
+        balance = await get_available_balance(db, str(current_user.id))
+        return {"available_balance": float(balance), "currency": "KES"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

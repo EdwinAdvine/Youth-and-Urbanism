@@ -7,7 +7,7 @@ interface AdminLoadingSkeletonProps {
 }
 
 const Shimmer: React.FC<{ className?: string; style?: React.CSSProperties }> = ({ className = '', style }) => (
-  <div className={`animate-pulse bg-[#22272B] rounded ${className}`} style={style} />
+  <div className={`animate-pulse bg-gray-100 dark:bg-[#22272B] rounded ${className}`} style={style} />
 );
 
 const AdminLoadingSkeleton: React.FC<AdminLoadingSkeletonProps> = ({
@@ -21,7 +21,7 @@ const AdminLoadingSkeleton: React.FC<AdminLoadingSkeletonProps> = ({
     return (
       <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 ${className}`}>
         {items.map((i) => (
-          <div key={i} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5 space-y-3">
+          <div key={i} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5 space-y-3">
             <div className="flex items-center justify-between">
               <Shimmer className="h-4 w-24" />
               <Shimmer className="h-8 w-8 rounded-lg" />
@@ -36,16 +36,16 @@ const AdminLoadingSkeleton: React.FC<AdminLoadingSkeletonProps> = ({
 
   if (variant === 'table') {
     return (
-      <div className={`bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden ${className}`}>
+      <div className={`bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden ${className}`}>
         {/* Table header */}
-        <div className="flex items-center gap-4 px-5 py-3 border-b border-[#22272B]">
+        <div className="flex items-center gap-4 px-5 py-3 border-b border-gray-200 dark:border-[#22272B]">
           {[80, 120, 100, 140, 80].map((w, i) => (
             <Shimmer key={i} className="h-4" style={{ width: w }} />
           ))}
         </div>
         {/* Table rows */}
         {items.map((i) => (
-          <div key={i} className="flex items-center gap-4 px-5 py-4 border-b border-[#22272B] last:border-0">
+          <div key={i} className="flex items-center gap-4 px-5 py-4 border-b border-gray-200 dark:border-[#22272B] last:border-0">
             {[80, 120, 100, 140, 80].map((w, j) => (
               <Shimmer key={j} className="h-4" style={{ width: w }} />
             ))}
@@ -57,7 +57,7 @@ const AdminLoadingSkeleton: React.FC<AdminLoadingSkeletonProps> = ({
 
   if (variant === 'chart') {
     return (
-      <div className={`bg-[#181C1F] border border-[#22272B] rounded-xl p-5 space-y-4 ${className}`}>
+      <div className={`bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5 space-y-4 ${className}`}>
         <div className="flex items-center justify-between">
           <Shimmer className="h-5 w-32" />
           <Shimmer className="h-8 w-24 rounded-lg" />
@@ -81,7 +81,7 @@ const AdminLoadingSkeleton: React.FC<AdminLoadingSkeletonProps> = ({
   return (
     <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${className}`}>
       {items.map((i) => (
-        <div key={i} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5 space-y-4">
+        <div key={i} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5 space-y-4">
           <div className="flex items-center justify-between">
             <Shimmer className="h-5 w-28" />
             <Shimmer className="h-6 w-16 rounded-full" />

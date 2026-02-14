@@ -130,19 +130,19 @@ const StaffDashboardPage: React.FC = () => {
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <div className="h-7 w-48 bg-[#181C1F] rounded animate-pulse" />
-            <div className="h-4 w-72 bg-[#181C1F] rounded animate-pulse mt-2" />
+            <div className="h-7 w-48 bg-white dark:bg-[#181C1F] rounded animate-pulse" />
+            <div className="h-4 w-72 bg-white dark:bg-[#181C1F] rounded animate-pulse mt-2" />
           </div>
-          <div className="h-9 w-32 bg-[#181C1F] rounded animate-pulse" />
+          <div className="h-9 w-32 bg-white dark:bg-[#181C1F] rounded animate-pulse" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-24 bg-[#181C1F] rounded-xl border border-[#22272B] animate-pulse" />
+            <div key={i} className="h-24 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] animate-pulse" />
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className={`h-64 bg-[#181C1F] rounded-xl border border-[#22272B] animate-pulse ${i === 2 ? 'lg:col-span-2' : ''}`} />
+            <div key={i} className={`h-64 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] animate-pulse ${i === 2 ? 'lg:col-span-2' : ''}`} />
           ))}
         </div>
       </div>
@@ -185,8 +185,8 @@ const StaffDashboardPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">My Focus</h1>
-          <p className="text-sm text-white/50 mt-1">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">My Focus</h1>
+          <p className="text-sm text-gray-500 dark:text-white/50 mt-1">
             Welcome back. Here is what needs your attention today.
           </p>
         </div>
@@ -198,15 +198,15 @@ const StaffDashboardPage: React.FC = () => {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="bg-[#181C1F] rounded-xl border border-[#22272B] p-4 flex items-center gap-4"
+            className="bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] p-4 flex items-center gap-4"
           >
             <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[#E40000]/10 text-[#E40000] flex items-center justify-center">
               {getStatIcon(stat.icon)}
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">{stat.value}</p>
-              <p className="text-xs text-white/50">{stat.label}</p>
-              <p className={`text-xs mt-0.5 ${stat.change > 0 ? 'text-yellow-400' : stat.change < 0 ? 'text-green-400' : 'text-white/30'}`}>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+              <p className="text-xs text-gray-500 dark:text-white/50">{stat.label}</p>
+              <p className={`text-xs mt-0.5 ${stat.change > 0 ? 'text-yellow-400' : stat.change < 0 ? 'text-green-400' : 'text-gray-400 dark:text-white/30'}`}>
                 {stat.change > 0 ? '+' : ''}{stat.change} {stat.changeLabel}
               </p>
             </div>

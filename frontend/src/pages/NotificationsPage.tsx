@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DashboardLayout from '../components/layout/DashboardLayout';
 import { useUserStore } from '../store';
 import {
   Bell,
@@ -412,12 +411,12 @@ export default function NotificationsPage() {
   };
 
   return (
-    <DashboardLayout role={user?.role || 'student'}>
+    <>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Notifications</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Notifications</h1>
             <p className="text-gray-400">
               {unreadCount > 0 ? (
                 <>
@@ -449,8 +448,8 @@ export default function NotificationsPage() {
                 onClick={() => setFilter(filterType)}
                 className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
                   filter === filterType
-                    ? 'bg-copilot-blue-500 text-white shadow-lg shadow-copilot-blue-500/20'
-                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+                    ? 'bg-copilot-blue-500 text-gray-900 dark:text-white shadow-lg shadow-copilot-blue-500/20'
+                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
                 {filterType.charAt(0).toUpperCase() + filterType.slice(1)}
@@ -530,7 +529,7 @@ export default function NotificationsPage() {
                               {/* Content */}
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-start justify-between gap-2 mb-1">
-                                  <h3 className={`font-semibold ${notification.read ? 'text-gray-300' : 'text-white'}`}>
+                                  <h3 className={`font-semibold ${notification.read ? 'text-gray-400 dark:text-gray-300' : 'text-gray-900 dark:text-white'}`}>
                                     {notification.title}
                                   </h3>
                                   <span className="text-xs text-gray-500 whitespace-nowrap">
@@ -547,7 +546,7 @@ export default function NotificationsPage() {
                                         e.stopPropagation();
                                         handleNotificationClick(notification);
                                       }}
-                                      className="text-xs px-3 py-1.5 bg-copilot-blue-500 hover:bg-copilot-blue-600 text-white rounded-md font-medium transition-colors duration-200"
+                                      className="text-xs px-3 py-1.5 bg-copilot-blue-500 hover:bg-copilot-blue-600 text-gray-900 dark:text-white rounded-md font-medium transition-colors duration-200"
                                     >
                                       {notification.actionLabel}
                                     </button>
@@ -599,12 +598,12 @@ export default function NotificationsPage() {
         {/* Load More (for pagination) */}
         {!loading && filteredNotifications.length >= 25 && (
           <div className="text-center mt-8">
-            <button className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors duration-200">
+            <button className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-900 dark:text-white rounded-lg font-medium transition-colors duration-200">
               Load More Notifications
             </button>
           </div>
         )}
       </div>
-    </DashboardLayout>
+    </>
   );
 }

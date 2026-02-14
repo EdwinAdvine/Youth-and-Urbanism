@@ -21,6 +21,49 @@ from app.models.staff.content_item import (
 logger = logging.getLogger(__name__)
 
 
+class ContentStudioService:
+    """Facade exposing content studio functions as static methods."""
+
+    @staticmethod
+    async def list_items(db, *, page=1, page_size=20, status_filter=None, content_type=None, author=None):
+        filters = {}
+        if status_filter: filters["status"] = status_filter
+        if content_type: filters["content_type"] = content_type
+        if author: filters["author_id"] = author
+        return await list_content(db, filters=filters, page=page, page_size=page_size)
+
+    @staticmethod
+    async def get_item(db, *, content_id):
+        return await get_content(db, content_id=content_id)
+
+    @staticmethod
+    async def create_item(db, *, author_id, title, body, content_type, grade_level=None, subject=None, tags=None, metadata=None):
+        content_data = {"title": title, "content_type": content_type, "body": body, "grade_levels": [grade_level] if grade_level else [], "learning_area": subject, "cbc_tags": tags or []}
+        return await create_content(db, author_id=author_id, content_data=content_data)
+
+    @staticmethod
+    async def update_item(db, *, content_id, editor_id, updates):
+        updates["updated_by"] = editor_id
+        return await update_content(db, content_id=content_id, update_data=updates)
+
+    @staticmethod
+    async def publish_item(db, *, content_id, publisher_id):
+        return await publish_content(db, content_id=content_id, publisher_id=publisher_id)
+
+    @staticmethod
+    async def get_versions(db, *, content_id):
+        return await get_version_history(db, content_id=content_id)
+
+    @staticmethod
+    async def rollback_to_version(db, *, content_id, version_number, editor_id=None):
+        return await rollback_version(db, content_id=content_id, version_number=version_number)
+
+    @staticmethod
+    async def start_collab_session(db, *, content_id, user_id):
+        import uuid as _uuid
+        return {"session_id": str(_uuid.uuid4()), "content_id": content_id, "user_id": user_id, "ws_url": f"/ws/collab/{content_id}"}
+
+
 async def list_content(
     db: AsyncSession,
     filters: Optional[Dict[str, Any]] = None,

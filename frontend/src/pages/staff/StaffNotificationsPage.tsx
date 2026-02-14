@@ -24,21 +24,21 @@ const StaffNotificationsPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0F1112] p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0F1112] p-6">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-white">Notifications</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Notifications</h1>
           <div className="flex items-center gap-2">
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value as any)}
-              className="bg-[#181C1F] border border-[#22272B] rounded-lg px-3 py-2 text-sm text-white"
+              className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white"
             >
               <option value="all">All</option>
               <option value="unread">Unread</option>
               <option value="mentions">Mentions</option>
             </select>
-            <button className="p-2 text-white/60 hover:text-white rounded-lg hover:bg-white/5">
+            <button className="p-2 text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-gray-50 dark:hover:bg-white/5">
               <Check className="w-4 h-4" />
             </button>
           </div>
@@ -50,19 +50,19 @@ const StaffNotificationsPage: React.FC = () => {
               key={notif.id}
               className={`flex items-start gap-4 p-4 rounded-xl border transition-colors ${
                 notif.isRead
-                  ? 'bg-[#181C1F] border-[#22272B]'
-                  : 'bg-[#181C1F] border-[#E40000]/30'
+                  ? 'bg-white dark:bg-[#181C1F] border-gray-200 dark:border-[#22272B]'
+                  : 'bg-white dark:bg-[#181C1F] border-[#E40000]/30'
               }`}
             >
-              <div className={`p-2 rounded-lg ${notif.isRead ? 'bg-[#22272B]' : 'bg-[#E40000]/20'}`}>
-                <Bell className={`w-4 h-4 ${notif.isRead ? 'text-white/40' : 'text-[#FF4444]'}`} />
+              <div className={`p-2 rounded-lg ${notif.isRead ? 'bg-gray-100 dark:bg-[#22272B]' : 'bg-[#E40000]/20'}`}>
+                <Bell className={`w-4 h-4 ${notif.isRead ? 'text-gray-400 dark:text-white/40' : 'text-[#FF4444]'}`} />
               </div>
               <div className="flex-1">
-                <h3 className="text-sm font-semibold text-white">{notif.title}</h3>
-                <p className="text-sm text-white/50 mt-0.5">{notif.message}</p>
-                <p className="text-xs text-white/30 mt-1">{notif.time}</p>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{notif.title}</h3>
+                <p className="text-sm text-gray-500 dark:text-white/50 mt-0.5">{notif.message}</p>
+                <p className="text-xs text-gray-400 dark:text-white/30 mt-1">{notif.time}</p>
               </div>
-              <button className="p-1.5 text-white/30 hover:text-red-400">
+              <button className="p-1.5 text-gray-400 dark:text-white/30 hover:text-red-400">
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>

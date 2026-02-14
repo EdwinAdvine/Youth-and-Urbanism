@@ -11,7 +11,7 @@ interface StaffLoadingSkeletonProps {
 const Shimmer: React.FC<{ className?: string; style?: React.CSSProperties }> = ({
   className = '',
   style,
-}) => <div className={`animate-pulse bg-[#22272B] rounded ${className}`} style={style} />;
+}) => <div className={`animate-pulse bg-gray-100 dark:bg-[#22272B] rounded ${className}`} style={style} />;
 
 const StaffLoadingSkeleton: React.FC<StaffLoadingSkeletonProps> = ({
   variant,
@@ -27,7 +27,7 @@ const StaffLoadingSkeleton: React.FC<StaffLoadingSkeletonProps> = ({
         {Array.from({ length: 4 }, (_, i) => (
           <div
             key={i}
-            className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5 space-y-3"
+            className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5 space-y-3"
           >
             <div className="flex items-center justify-between">
               <Shimmer className="h-4 w-24" />
@@ -45,10 +45,10 @@ const StaffLoadingSkeleton: React.FC<StaffLoadingSkeletonProps> = ({
   if (variant === 'table') {
     return (
       <div
-        className={`bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden ${className}`}
+        className={`bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden ${className}`}
       >
         {/* Table header */}
-        <div className="flex items-center gap-4 px-5 py-3 bg-[#22272B]">
+        <div className="flex items-center gap-4 px-5 py-3 bg-gray-100 dark:bg-[#22272B]">
           {[80, 120, 100, 140, 80].map((w, i) => (
             <Shimmer key={i} className="h-4" style={{ width: w }} />
           ))}
@@ -57,7 +57,7 @@ const StaffLoadingSkeleton: React.FC<StaffLoadingSkeletonProps> = ({
         {items.map((i) => (
           <div
             key={i}
-            className="flex items-center gap-4 px-5 py-4 border-b border-[#22272B] last:border-0"
+            className="flex items-center gap-4 px-5 py-4 border-b border-gray-200 dark:border-[#22272B] last:border-0"
           >
             {[80, 120, 100, 140, 80].map((w, j) => (
               <Shimmer key={j} className="h-4" style={{ width: w }} />
@@ -75,7 +75,7 @@ const StaffLoadingSkeleton: React.FC<StaffLoadingSkeletonProps> = ({
         {items.map((i) => (
           <div
             key={i}
-            className="flex items-center gap-3 bg-[#181C1F] border border-[#22272B] rounded-xl p-4"
+            className="flex items-center gap-3 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4"
           >
             <Shimmer className="h-10 w-10 rounded-full flex-shrink-0" />
             <div className="flex-1 space-y-2">
@@ -93,7 +93,7 @@ const StaffLoadingSkeleton: React.FC<StaffLoadingSkeletonProps> = ({
     return (
       <div className={`space-y-6 ${className}`}>
         {/* Header area */}
-        <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6 space-y-4">
+        <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6 space-y-4">
           <div className="flex items-center gap-4">
             <Shimmer className="h-16 w-16 rounded-xl flex-shrink-0" />
             <div className="flex-1 space-y-2">
@@ -101,7 +101,7 @@ const StaffLoadingSkeleton: React.FC<StaffLoadingSkeletonProps> = ({
               <Shimmer className="h-4 w-32" />
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-[#22272B]">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200 dark:border-[#22272B]">
             {Array.from({ length: 4 }, (_, i) => (
               <div key={i} className="space-y-2">
                 <Shimmer className="h-3 w-16" />
@@ -111,7 +111,7 @@ const StaffLoadingSkeleton: React.FC<StaffLoadingSkeletonProps> = ({
           </div>
         </div>
         {/* Content block */}
-        <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6 space-y-3">
+        <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6 space-y-3">
           <Shimmer className="h-5 w-40" />
           <Shimmer className="h-4 w-full" />
           <Shimmer className="h-4 w-full" />
@@ -127,7 +127,7 @@ const StaffLoadingSkeleton: React.FC<StaffLoadingSkeletonProps> = ({
       {items.map((i) => (
         <div
           key={i}
-          className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5 space-y-4"
+          className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5 space-y-4"
         >
           <div className="flex items-center justify-between">
             <Shimmer className="h-5 w-28" />

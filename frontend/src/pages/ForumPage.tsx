@@ -17,7 +17,6 @@ import {
   MessageCircle,
   User
 } from 'lucide-react';
-import DashboardLayout from '../components/layout/DashboardLayout';
 import { useAuthStore } from '../store/authStore';
 
 // Types
@@ -610,7 +609,7 @@ const ForumPage: React.FC = () => {
 
   // Category colors
   const categoryColors: Record<string, string> = {
-    general: 'bg-gray-500/20 text-gray-300 border-gray-500/30',
+    general: 'bg-gray-500/20 text-gray-400 dark:text-gray-300 border-gray-500/30',
     mathematics: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
     science: 'bg-green-500/20 text-green-300 border-green-500/30',
     languages: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
@@ -626,7 +625,7 @@ const ForumPage: React.FC = () => {
     instructor: 'bg-green-500/20 text-green-300',
     admin: 'bg-red-500/20 text-red-300',
     partner: 'bg-yellow-500/20 text-yellow-300',
-    staff: 'bg-gray-500/20 text-gray-300'
+    staff: 'bg-gray-500/20 text-gray-400 dark:text-gray-300'
   };
 
   // Filter and sort posts
@@ -779,23 +778,23 @@ const ForumPage: React.FC = () => {
   };
 
   return (
-    <DashboardLayout role={user?.role}>
+    <>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                 <MessageSquare className="w-8 h-8 text-blue-400" />
                 Community Forum
               </h1>
-              <p className="text-white/60 mt-2">
+              <p className="text-gray-500 dark:text-white/60 mt-2">
                 Connect with students, parents, and instructors. Ask questions, share knowledge, and grow together.
               </p>
             </div>
             <button
               onClick={() => setShowNewPostModal(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-gray-900 dark:text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               <Plus className="w-5 h-5" />
               New Discussion
@@ -806,13 +805,13 @@ const ForumPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             {/* Search */}
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-white/40" />
               <input
                 type="text"
                 placeholder="Search discussions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20"
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
 
@@ -820,7 +819,7 @@ const ForumPage: React.FC = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortType)}
-              className="px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20"
+              className="px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20"
             >
               <option value="latest">Latest Activity</option>
               <option value="popular">Most Popular</option>
@@ -838,7 +837,7 @@ const ForumPage: React.FC = () => {
                 className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
                   selectedCategory === category.id
                     ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                    : 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white/80'
+                    : 'bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-white/60 border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-white/80'
                 }`}
               >
                 {category.icon && <category.icon className="w-4 h-4" />}
@@ -851,16 +850,16 @@ const ForumPage: React.FC = () => {
         {/* Posts List */}
         <div className="space-y-4">
           {filteredAndSortedPosts.length === 0 ? (
-            <div className="text-center py-16 bg-white/5 rounded-lg border border-white/10">
-              <MessageSquare className="w-16 h-16 text-white/20 mx-auto mb-4" />
-              <p className="text-white/60 text-lg">No discussions found</p>
-              <p className="text-white/40 text-sm mt-2">Try adjusting your filters or start a new discussion</p>
+            <div className="text-center py-16 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/10">
+              <MessageSquare className="w-16 h-16 text-gray-400 dark:text-gray-300 dark:text-white/20 mx-auto mb-4" />
+              <p className="text-gray-500 dark:text-white/60 text-lg">No discussions found</p>
+              <p className="text-gray-400 dark:text-white/40 text-sm mt-2">Try adjusting your filters or start a new discussion</p>
             </div>
           ) : (
             filteredAndSortedPosts.map(post => (
               <div
                 key={post.id}
-                className="bg-white/5 border border-white/10 rounded-lg p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-200 cursor-pointer group"
+                className="bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-all duration-200 cursor-pointer group"
                 onClick={() => {
                   setSelectedPost(post);
                   setShowPostDetail(true);
@@ -868,7 +867,7 @@ const ForumPage: React.FC = () => {
               >
                 <div className="flex items-start gap-4">
                   {/* Author Avatar */}
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-gray-900 dark:text-white font-semibold flex-shrink-0">
                     {post.author.avatar ? (
                       <img src={post.author.avatar} alt={post.author.name} className="w-full h-full rounded-full object-cover" />
                     ) : (
@@ -882,7 +881,7 @@ const ForumPage: React.FC = () => {
                     <div className="flex items-start justify-between gap-4 mb-2">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <h3 className="text-lg font-semibold text-white group-hover:text-blue-300 transition-colors">
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-300 transition-colors">
                             {post.title}
                           </h3>
                           {post.pinned && (
@@ -899,8 +898,8 @@ const ForumPage: React.FC = () => {
                           )}
                         </div>
 
-                        <div className="flex items-center gap-2 flex-wrap text-sm text-white/60">
-                          <span className="font-medium text-white/80">{post.author.name}</span>
+                        <div className="flex items-center gap-2 flex-wrap text-sm text-gray-500 dark:text-white/60">
+                          <span className="font-medium text-gray-700 dark:text-white/80">{post.author.name}</span>
                           <span className={`px-2 py-0.5 rounded text-xs ${roleColors[post.author.role]}`}>
                             {post.author.role}
                           </span>
@@ -914,7 +913,7 @@ const ForumPage: React.FC = () => {
                     </div>
 
                     {/* Post Excerpt */}
-                    <p className="text-white/70 mb-3 line-clamp-2">
+                    <p className="text-gray-600 dark:text-white/70 mb-3 line-clamp-2">
                       {post.excerpt}
                     </p>
 
@@ -924,14 +923,14 @@ const ForumPage: React.FC = () => {
                         {categories.find(c => c.id === post.category)?.label}
                       </span>
                       {post.tags.map(tag => (
-                        <span key={tag} className="px-2 py-1 bg-white/5 text-white/60 text-xs rounded border border-white/10">
+                        <span key={tag} className="px-2 py-1 bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-white/60 text-xs rounded border border-gray-200 dark:border-white/10">
                           {tag}
                         </span>
                       ))}
                     </div>
 
                     {/* Post Stats */}
-                    <div className="flex items-center gap-6 text-sm text-white/60">
+                    <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-white/60">
                       <span className="flex items-center gap-1.5">
                         <Eye className="w-4 h-4" />
                         {post.stats.views}
@@ -956,18 +955,18 @@ const ForumPage: React.FC = () => {
       {/* New Post Modal */}
       {showNewPostModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#1a1f26] border border-white/10 rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#1a1f26] border border-gray-200 dark:border-white/10 rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/10">
-              <h2 className="text-2xl font-bold text-white">New Discussion</h2>
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-white/10">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">New Discussion</h2>
               <button
                 onClick={() => {
                   setShowNewPostModal(false);
                   setShowPreview(false);
                 }}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5 text-white/60" />
+                <X className="w-5 h-5 text-gray-500 dark:text-white/60" />
               </button>
             </div>
 
@@ -977,7 +976,7 @@ const ForumPage: React.FC = () => {
                 <>
                   {/* Title */}
                   <div>
-                    <label className="block text-white/80 font-medium mb-2">
+                    <label className="block text-gray-700 dark:text-white/80 font-medium mb-2">
                       Title <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -985,19 +984,19 @@ const ForumPage: React.FC = () => {
                       value={newPostTitle}
                       onChange={(e) => setNewPostTitle(e.target.value)}
                       placeholder="What's your question or discussion topic?"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20"
                     />
                   </div>
 
                   {/* Category */}
                   <div>
-                    <label className="block text-white/80 font-medium mb-2">
+                    <label className="block text-gray-700 dark:text-white/80 font-medium mb-2">
                       Category <span className="text-red-400">*</span>
                     </label>
                     <select
                       value={newPostCategory}
                       onChange={(e) => setNewPostCategory(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20"
                     >
                       {categories.filter(c => c.id !== 'all').map(category => (
                         <option key={category.id} value={category.id}>
@@ -1009,7 +1008,7 @@ const ForumPage: React.FC = () => {
 
                   {/* Tags */}
                   <div>
-                    <label className="block text-white/80 font-medium mb-2">
+                    <label className="block text-gray-700 dark:text-white/80 font-medium mb-2">
                       Tags
                     </label>
                     <div className="flex gap-2 mb-2">
@@ -1019,7 +1018,7 @@ const ForumPage: React.FC = () => {
                         onChange={(e) => setCurrentTag(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
                         placeholder="Add tags (e.g., Grade 7, Algebra)"
-                        className="flex-1 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20"
+                        className="flex-1 px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20"
                       />
                       <button
                         onClick={handleAddTag}
@@ -1032,7 +1031,7 @@ const ForumPage: React.FC = () => {
                       {newPostTags.map(tag => (
                         <span
                           key={tag}
-                          className="flex items-center gap-1 px-3 py-1 bg-white/5 text-white/80 rounded-full text-sm border border-white/10"
+                          className="flex items-center gap-1 px-3 py-1 bg-gray-50 dark:bg-white/5 text-gray-700 dark:text-white/80 rounded-full text-sm border border-gray-200 dark:border-white/10"
                         >
                           {tag}
                           <button
@@ -1048,7 +1047,7 @@ const ForumPage: React.FC = () => {
 
                   {/* Content */}
                   <div>
-                    <label className="block text-white/80 font-medium mb-2">
+                    <label className="block text-gray-700 dark:text-white/80 font-medium mb-2">
                       Content <span className="text-red-400">*</span>
                     </label>
                     <textarea
@@ -1056,9 +1055,9 @@ const ForumPage: React.FC = () => {
                       onChange={(e) => setNewPostContent(e.target.value)}
                       placeholder="Describe your question or discussion in detail..."
                       rows={8}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 resize-none"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 resize-none"
                     />
-                    <p className="text-white/40 text-sm mt-2">
+                    <p className="text-gray-400 dark:text-white/40 text-sm mt-2">
                       You can use Markdown formatting in your post
                     </p>
                   </div>
@@ -1066,29 +1065,29 @@ const ForumPage: React.FC = () => {
               ) : (
                 <>
                   {/* Preview Mode */}
-                  <div className="bg-white/5 border border-white/10 rounded-lg p-6">
-                    <h3 className="text-2xl font-bold text-white mb-2">{newPostTitle}</h3>
+                  <div className="bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-6">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{newPostTitle}</h3>
                     <div className="flex items-center gap-2 mb-4">
                       <span className={`px-3 py-1 rounded-full text-xs border ${categoryColors[newPostCategory]}`}>
                         {categories.find(c => c.id === newPostCategory)?.label}
                       </span>
                       {newPostTags.map(tag => (
-                        <span key={tag} className="px-2 py-1 bg-white/5 text-white/60 text-xs rounded border border-white/10">
+                        <span key={tag} className="px-2 py-1 bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-white/60 text-xs rounded border border-gray-200 dark:border-white/10">
                           {tag}
                         </span>
                       ))}
                     </div>
-                    <div className="text-white/70 whitespace-pre-wrap">{newPostContent}</div>
+                    <div className="text-gray-600 dark:text-white/70 whitespace-pre-wrap">{newPostContent}</div>
                   </div>
                 </>
               )}
             </div>
 
             {/* Modal Footer */}
-            <div className="flex items-center justify-between p-6 border-t border-white/10">
+            <div className="flex items-center justify-between p-6 border-t border-gray-200 dark:border-white/10">
               <button
                 onClick={() => setShowPreview(!showPreview)}
-                className="px-4 py-2 bg-white/5 text-white/80 rounded-lg hover:bg-white/10 transition-colors"
+                className="px-4 py-2 bg-gray-50 dark:bg-white/5 text-gray-700 dark:text-white/80 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
               >
                 {showPreview ? 'Edit' : 'Preview'}
               </button>
@@ -1098,13 +1097,13 @@ const ForumPage: React.FC = () => {
                     setShowNewPostModal(false);
                     setShowPreview(false);
                   }}
-                  className="px-6 py-2 bg-white/5 text-white/80 rounded-lg hover:bg-white/10 transition-colors"
+                  className="px-6 py-2 bg-gray-50 dark:bg-white/5 text-gray-700 dark:text-white/80 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleCreatePost}
-                  className="px-6 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-200"
+                  className="px-6 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-gray-900 dark:text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-200"
                 >
                   Post Discussion
                 </button>
@@ -1117,9 +1116,9 @@ const ForumPage: React.FC = () => {
       {/* Post Detail Modal */}
       {showPostDetail && selectedPost && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#1a1f26] border border-white/10 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#1a1f26] border border-gray-200 dark:border-white/10 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/10 sticky top-0 bg-[#1a1f26] z-10">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-white/10 sticky top-0 bg-[#1a1f26] z-10">
               <div className="flex items-center gap-2">
                 {selectedPost.pinned && (
                   <Pin className="w-5 h-5 text-yellow-400" />
@@ -1133,9 +1132,9 @@ const ForumPage: React.FC = () => {
                   setShowPostDetail(false);
                   setSelectedPost(null);
                 }}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5 text-white/60" />
+                <X className="w-5 h-5 text-gray-500 dark:text-white/60" />
               </button>
             </div>
 
@@ -1143,7 +1142,7 @@ const ForumPage: React.FC = () => {
             <div className="p-6">
               {/* Post Header */}
               <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-gray-900 dark:text-white font-semibold flex-shrink-0">
                   {selectedPost.author.avatar ? (
                     <img src={selectedPost.author.avatar} alt={selectedPost.author.name} className="w-full h-full rounded-full object-cover" />
                   ) : (
@@ -1151,9 +1150,9 @@ const ForumPage: React.FC = () => {
                   )}
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-white mb-2">{selectedPost.title}</h2>
-                  <div className="flex items-center gap-2 flex-wrap text-sm text-white/60">
-                    <span className="font-medium text-white/80">{selectedPost.author.name}</span>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{selectedPost.title}</h2>
+                  <div className="flex items-center gap-2 flex-wrap text-sm text-gray-500 dark:text-white/60">
+                    <span className="font-medium text-gray-700 dark:text-white/80">{selectedPost.author.name}</span>
                     <span className={`px-2 py-0.5 rounded text-xs ${roleColors[selectedPost.author.role]}`}>
                       {selectedPost.author.role}
                     </span>
@@ -1174,22 +1173,22 @@ const ForumPage: React.FC = () => {
                   {categories.find(c => c.id === selectedPost.category)?.label}
                 </span>
                 {selectedPost.tags.map(tag => (
-                  <span key={tag} className="px-2 py-1 bg-white/5 text-white/60 text-xs rounded border border-white/10">
+                  <span key={tag} className="px-2 py-1 bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-white/60 text-xs rounded border border-gray-200 dark:border-white/10">
                     {tag}
                   </span>
                 ))}
               </div>
 
               {/* Post Content */}
-              <div className="text-white/80 mb-6 whitespace-pre-wrap leading-relaxed">
+              <div className="text-gray-700 dark:text-white/80 mb-6 whitespace-pre-wrap leading-relaxed">
                 {selectedPost.content}
               </div>
 
               {/* Post Actions */}
-              <div className="flex items-center gap-4 pb-6 border-b border-white/10">
+              <div className="flex items-center gap-4 pb-6 border-b border-gray-200 dark:border-white/10">
                 <button
                   onClick={() => handleLikePost(selectedPost.id)}
-                  className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white/80 rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-white/80 rounded-lg transition-colors"
                 >
                   <ThumbsUp className="w-4 h-4" />
                   <span>{selectedPost.stats.likes}</span>
@@ -1202,16 +1201,16 @@ const ForumPage: React.FC = () => {
 
               {/* Replies Section */}
               <div className="mt-6">
-                <h3 className="text-xl font-semibold text-white mb-4">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                   {selectedPost.stats.replies} Replies
                 </h3>
 
                 {/* Replies List */}
                 <div className="space-y-4 mb-6">
                   {getPostReplies(selectedPost.id).map(reply => (
-                    <div key={reply.id} className="bg-white/5 border border-white/10 rounded-lg p-4">
+                    <div key={reply.id} className="bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4">
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-gray-900 dark:text-white font-semibold flex-shrink-0">
                           {reply.author.avatar ? (
                             <img src={reply.author.avatar} alt={reply.author.name} className="w-full h-full rounded-full object-cover" />
                           ) : (
@@ -1220,7 +1219,7 @@ const ForumPage: React.FC = () => {
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="font-medium text-white/90">{reply.author.name}</span>
+                            <span className="font-medium text-gray-800 dark:text-white/90">{reply.author.name}</span>
                             <span className={`px-2 py-0.5 rounded text-xs ${roleColors[reply.author.role]}`}>
                               {reply.author.role}
                             </span>
@@ -1230,11 +1229,11 @@ const ForumPage: React.FC = () => {
                                 Solution
                               </span>
                             )}
-                            <span className="text-white/40 text-sm">{formatTimeAgo(reply.timestamp)}</span>
+                            <span className="text-gray-400 dark:text-white/40 text-sm">{formatTimeAgo(reply.timestamp)}</span>
                           </div>
-                          <p className="text-white/70 mb-2">{reply.content}</p>
+                          <p className="text-gray-600 dark:text-white/70 mb-2">{reply.content}</p>
                           <div className="flex items-center gap-4 text-sm">
-                            <button className="flex items-center gap-1 text-white/60 hover:text-white/80 transition-colors">
+                            <button className="flex items-center gap-1 text-gray-500 dark:text-white/60 hover:text-gray-700 dark:hover:text-white/80 transition-colors">
                               <ThumbsUp className="w-3 h-3" />
                               {reply.likes}
                             </button>
@@ -1251,18 +1250,18 @@ const ForumPage: React.FC = () => {
                 </div>
 
                 {/* Reply Form */}
-                <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+                <div className="bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4">
                   <textarea
                     value={replyContent}
                     onChange={(e) => setReplyContent(e.target.value)}
                     placeholder="Write your reply..."
                     rows={4}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 resize-none mb-3"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 resize-none mb-3"
                   />
                   <div className="flex justify-end">
                     <button
                       onClick={handleReplySubmit}
-                      className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-200"
+                      className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-gray-900 dark:text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-200"
                     >
                       <Send className="w-4 h-4" />
                       Post Reply
@@ -1274,7 +1273,7 @@ const ForumPage: React.FC = () => {
           </div>
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 };
 

@@ -182,7 +182,7 @@ export default function CreateCoursePage() {
                     onClick={() => setCurrentStep(step.id)}
                     className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
                       index <= currentStepIndex
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-blue-600 text-gray-900 dark:text-white'
                         : 'bg-gray-200 text-gray-600'
                     }`}
                   >
@@ -245,7 +245,7 @@ export default function CreateCoursePage() {
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2 bg-green-600 text-gray-900 dark:text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Saving...' : isEditing ? 'Update Course' : 'Create Course'}
               </button>
@@ -253,7 +253,7 @@ export default function CreateCoursePage() {
               <button
                 onClick={goNext}
                 disabled={!canGoNext}
-                className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-gray-900 dark:text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
                 <ArrowRightIcon className="h-5 w-5" />
@@ -533,7 +533,7 @@ function LessonsStep({ formData, setFormData }: StepProps) {
         <h2 className="text-2xl font-bold text-gray-900">Course Lessons</h2>
         <button
           onClick={addLesson}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-gray-900 dark:text-white rounded-lg hover:bg-blue-700"
         >
           <PlusIcon className="h-5 w-5" />
           Add Lesson

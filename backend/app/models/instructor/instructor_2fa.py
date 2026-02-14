@@ -50,7 +50,7 @@ class InstructorTwoFactor(Base):
     user = relationship("User", foreign_keys=[user_id])
 
 
-class LoginHistory(Base):
+class InstructorLoginHistory(Base):
     """Login attempt history for all users (security audit trail)"""
 
     __tablename__ = "login_history"

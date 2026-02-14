@@ -111,7 +111,7 @@ const HowItWorksPage: React.FC = () => {
   return (
     <div>
       {/* Hero Section */}
-      <section className="py-20 sm:py-28 bg-[#0F1112]">
+      <section className="py-20 sm:py-28 bg-gray-50 dark:bg-[#0F1112]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial="hidden"
@@ -123,10 +123,10 @@ const HowItWorksPage: React.FC = () => {
             <span className="inline-block bg-[#FF0000]/10 text-[#FF0000] text-sm font-semibold px-4 py-2 rounded-full mb-6 border border-[#FF0000]/20">
               Getting Started
             </span>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
               How Urban Home School <span className="text-[#FF0000]">Works</span>
             </h1>
-            <p className="text-lg sm:text-xl text-white/80 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl text-gray-700 dark:text-white/80 max-w-2xl mx-auto leading-relaxed">
               From sign-up to success in five simple steps. Getting your child started
               with AI-powered, CBC-aligned education has never been easier.
             </p>
@@ -135,7 +135,7 @@ const HowItWorksPage: React.FC = () => {
       </section>
 
       {/* Steps Section */}
-      <section className="py-16 sm:py-24 bg-[#181C1F]">
+      <section className="py-16 sm:py-24 bg-white dark:bg-[#181C1F]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-16 sm:space-y-24">
             {steps.map((step, index) => (
@@ -153,30 +153,30 @@ const HowItWorksPage: React.FC = () => {
                 {/* Content Side */}
                 <div className="flex-1 w-full">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="w-14 h-14 bg-[#FF0000] rounded-2xl flex items-center justify-center text-white font-bold text-2xl shrink-0">
+                    <div className="w-14 h-14 bg-[#FF0000] rounded-2xl flex items-center justify-center text-gray-900 dark:text-white font-bold text-2xl shrink-0">
                       {step.number}
                     </div>
                     <div className="w-10 h-10 bg-[#FF0000]/10 rounded-xl flex items-center justify-center text-[#FF0000]">
                       {step.icon}
                     </div>
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
                     {step.title}
                   </h3>
-                  <p className="text-lg text-white/70 mb-4">{step.description}</p>
-                  <p className="text-base text-white/60 leading-relaxed">
+                  <p className="text-lg text-gray-600 dark:text-white/70 mb-4">{step.description}</p>
+                  <p className="text-base text-gray-500 dark:text-white/60 leading-relaxed">
                     {step.detail}
                   </p>
                 </div>
 
                 {/* Illustration Placeholder */}
                 <div className="flex-1 w-full">
-                  <div className="bg-[#0F1112] border border-[#22272B] rounded-2xl sm:rounded-3xl aspect-[4/3] flex items-center justify-center">
+                  <div className="bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-2xl sm:rounded-3xl aspect-[4/3] flex items-center justify-center">
                     <div className="text-center">
                       <div className="w-20 h-20 bg-[#FF0000]/10 rounded-2xl flex items-center justify-center text-[#FF0000] mx-auto mb-4">
                         {step.icon}
                       </div>
-                      <p className="text-white/40 text-sm">Step {step.number} Illustration</p>
+                      <p className="text-gray-400 dark:text-white/40 text-sm">Step {step.number} Illustration</p>
                     </div>
                   </div>
                 </div>
@@ -187,7 +187,7 @@ const HowItWorksPage: React.FC = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 sm:py-24 bg-[#0F1112]">
+      <section className="py-16 sm:py-24 bg-gray-50 dark:bg-[#0F1112]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="hidden"
@@ -197,10 +197,10 @@ const HowItWorksPage: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Frequently Asked Questions
             </h2>
-            <p className="text-lg text-white/70">
+            <p className="text-lg text-gray-600 dark:text-white/70">
               Everything you need to know about getting started.
             </p>
           </motion.div>
@@ -214,24 +214,24 @@ const HowItWorksPage: React.FC = () => {
                 viewport={{ once: true, amount: 0.2 }}
                 variants={fadeInUp}
                 transition={{ duration: 0.4, delay: index * 0.05 }}
-                className="bg-[#181C1F] border border-[#22272B] rounded-2xl overflow-hidden"
+                className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-2xl overflow-hidden"
               >
                 <button
                   onClick={() => toggleFAQ(index)}
-                  className="w-full flex items-center justify-between p-5 sm:p-6 text-left hover:bg-white/5 transition-colors"
+                  className="w-full flex items-center justify-between p-5 sm:p-6 text-left hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
                 >
-                  <span className="text-base sm:text-lg font-semibold text-white pr-4">
+                  <span className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white pr-4">
                     {faq.question}
                   </span>
                   {openFAQ === index ? (
                     <ChevronUp className="w-5 h-5 text-[#FF0000] shrink-0" />
                   ) : (
-                    <ChevronDown className="w-5 h-5 text-white/50 shrink-0" />
+                    <ChevronDown className="w-5 h-5 text-gray-500 dark:text-white/50 shrink-0" />
                   )}
                 </button>
                 {openFAQ === index && (
                   <div className="px-5 sm:px-6 pb-5 sm:pb-6">
-                    <p className="text-base text-white/70 leading-relaxed">
+                    <p className="text-base text-gray-600 dark:text-white/70 leading-relaxed">
                       {faq.answer}
                     </p>
                   </div>
@@ -243,7 +243,7 @@ const HowItWorksPage: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 sm:py-24 bg-[#181C1F]">
+      <section className="py-16 sm:py-24 bg-white dark:bg-[#181C1F]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial="hidden"
@@ -252,16 +252,16 @@ const HowItWorksPage: React.FC = () => {
             variants={fadeInUp}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
               Ready to Get Started?
             </h2>
-            <p className="text-lg sm:text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
+            <p className="text-lg sm:text-xl text-gray-600 dark:text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
               Give your child the gift of personalized, AI-powered education today.
               Sign up is free and takes less than two minutes.
             </p>
             <Link
               to="/"
-              className="inline-flex items-center gap-3 bg-[#FF0000] hover:bg-[#E40000] text-white px-8 py-4 sm:px-10 sm:py-4 rounded-2xl sm:rounded-3xl font-semibold text-lg transition-all duration-200 hover:scale-[1.02]"
+              className="inline-flex items-center gap-3 bg-[#FF0000] hover:bg-[#E40000] text-gray-900 dark:text-white px-8 py-4 sm:px-10 sm:py-4 rounded-2xl sm:rounded-3xl font-semibold text-lg transition-all duration-200 hover:scale-[1.02]"
             >
               Get Started Free
               <ArrowRight className="w-5 h-5" />

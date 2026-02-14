@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Plus, Search, Filter } from 'lucide-react';
-import KBSearchBar from '../components/staff/knowledge/KBSearchBar';
-import KBArticleCard from '../components/staff/knowledge/KBArticleCard';
-import KBSuggestions from '../components/staff/knowledge/KBSuggestions';
+import KBSearchBar from '../../components/staff/knowledge/KBSearchBar';
+import KBArticleCard from '../../components/staff/knowledge/KBArticleCard';
+import KBSuggestions from '../../components/staff/knowledge/KBSuggestions';
 
 const KnowledgeBasePage: React.FC = () => {
   const [search, setSearch] = useState('');
@@ -34,10 +34,10 @@ const KnowledgeBasePage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0F1112] p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0F1112] p-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-white">Knowledge Base</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Knowledge Base</h1>
           <button className="flex items-center gap-2 px-4 py-2 bg-[#E40000]/20 text-[#FF4444] rounded-lg hover:bg-[#E40000]/30">
             <Plus className="w-4 h-4" />
             New Article

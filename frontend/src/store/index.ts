@@ -16,6 +16,10 @@ import { useAuthStore } from './authStore';
 import { useInstructorStore } from './instructorStore';
 
 export { useCoPilotStore, useCoPilotInit, useAuthStore, useInstructorStore };
+export { useStaffStore } from './staffStore';
+export { useAdminStore } from './adminStore';
+export { useParentStore } from './parentStore';
+export { usePartnerStore } from './partnerStore';
 
 interface UserState {
   preferences: UserPreferences;
@@ -213,8 +217,8 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
     localStorage.setItem('theme', theme);
   },
   toggleTheme: () => {
-    const currentTheme = get().theme;
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    const { isDarkMode } = get();
+    const newTheme = isDarkMode ? 'light' : 'dark';
     get().setTheme(newTheme);
   }
 }));

@@ -121,18 +121,18 @@ const StaffModal: React.FC<StaffModalProps> = ({
             transition={{ duration: 0.2 }}
             className={`
               relative w-full ${sizeClasses[size]}
-              bg-[#181C1F] border border-[#22272B] rounded-xl shadow-2xl
+              bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl shadow-2xl
               max-h-[90vh] flex flex-col
               ${className}
             `}
           >
             {/* Header */}
             {title && (
-              <div className="flex items-center justify-between px-6 py-4 border-b border-[#22272B] flex-shrink-0">
-                <h2 className="text-lg font-semibold text-white">{title}</h2>
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-[#22272B] flex-shrink-0">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h2>
                 <button
                   onClick={onClose}
-                  className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+                  className="p-1.5 rounded-lg text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                   aria-label="Close modal"
                 >
                   <X className="w-5 h-5" />
@@ -145,7 +145,7 @@ const StaffModal: React.FC<StaffModalProps> = ({
               <div className="flex justify-end px-4 pt-4 flex-shrink-0">
                 <button
                   onClick={onClose}
-                  className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+                  className="p-1.5 rounded-lg text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                   aria-label="Close modal"
                 >
                   <X className="w-5 h-5" />
@@ -158,7 +158,7 @@ const StaffModal: React.FC<StaffModalProps> = ({
 
             {/* Footer */}
             {footer && (
-              <div className="px-6 py-4 border-t border-[#22272B] flex-shrink-0">
+              <div className="px-6 py-4 border-t border-gray-200 dark:border-[#22272B] flex-shrink-0">
                 {footer}
               </div>
             )}

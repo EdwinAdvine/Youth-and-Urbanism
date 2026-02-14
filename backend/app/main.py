@@ -13,6 +13,7 @@ The application provides:
 - Real-time chat and collaboration features
 """
 
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
@@ -83,6 +84,31 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
         logger.info("Application startup complete")
         logger.info("=" * 70)
 
+        # Start SLA background monitor
+        async def sla_monitor_loop():
+            """Periodically check for SLA breaches every 60 seconds."""
+            from app.database import AsyncSessionLocal
+            from app.services.staff.sla_engine import check_sla_breaches
+            while True:
+                try:
+                    await asyncio.sleep(60)
+                    if AsyncSessionLocal is not None:
+                        async with AsyncSessionLocal() as db:
+                            result = await check_sla_breaches(db)
+                            if result.get("breaches_detected", 0) > 0:
+                                logger.info(
+                                    f"SLA monitor: {result['breaches_detected']} breaches detected, "
+                                    f"{result.get('escalations_triggered', 0)} escalations triggered"
+                                )
+                except asyncio.CancelledError:
+                    break
+                except Exception as e:
+                    logger.error(f"SLA monitor error: {str(e)}")
+                    await asyncio.sleep(10)
+
+        sla_task = asyncio.create_task(sla_monitor_loop())
+        logger.info("SLA background monitor started (60s interval)")
+
     except Exception as e:
         logger.error(f"Failed to start application: {str(e)}")
         raise
@@ -90,6 +116,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     yield
 
     # Shutdown
+    sla_task.cancel()
+    try:
+        await sla_task
+    except asyncio.CancelledError:
+        pass
+    logger.info("SLA background monitor stopped")
     logger.info("=" * 70)
     logger.info("Shutting down application...")
     logger.info("-" * 70)
@@ -162,6 +194,10 @@ app.add_middleware(
     allow_headers=settings.cors_allow_headers,
     expose_headers=["Content-Range", "X-Total-Count"],
 )
+
+# Audit logging middleware — auto-logs all POST/PUT/PATCH/DELETE to admin/staff endpoints
+from app.middleware.audit_middleware import AuditMiddleware
+app.add_middleware(AuditMiddleware)
 
 
 # Root endpoint
@@ -302,6 +338,8 @@ async def general_exception_handler(request: Request, exc: Exception):
 # API Router inclusion (Phase 2 - AI Orchestration Layer)
 from app.api.v1 import auth, ai_tutor, courses, payments, assessments, users, parents, notifications, forum, categories, store
 from app.api.v1 import contact, certificates, instructor_applications
+from app.api.v1 import search as global_search
+from app.api.v1 import ai_agent_profile
 from app.api.v1.admin import ai_providers, analytics as admin_analytics
 from app.api.v1.admin import dashboard as admin_dashboard
 from app.api.v1.admin import permissions_api as admin_permissions
@@ -314,6 +352,7 @@ from app.api.v1.admin import finance as admin_finance
 from app.api.v1.admin import operations as admin_operations
 from app.api.v1.admin import account as admin_account
 from app.api.v1.admin import families as admin_families
+from app.api.v1.admin import restrictions as admin_restrictions
 
 # Staff Dashboard routes
 from app.api.v1.staff import dashboard as staff_dashboard
@@ -336,6 +375,34 @@ from app.api.v1.staff import notifications as staff_notifications
 from app.api.v1.instructor import dashboard_router as instructor_dashboard
 from app.api.v1.instructor import account_router as instructor_account
 from app.api.v1.instructor import earnings_router as instructor_earnings
+from app.api.v1.instructor import courses_router as instructor_courses
+from app.api.v1.instructor import assessments_router as instructor_assessments
+from app.api.v1.instructor import sessions_router as instructor_sessions
+from app.api.v1.instructor import interactions_router as instructor_interactions
+from app.api.v1.instructor import impact_router as instructor_impact
+from app.api.v1.instructor import hub_router as instructor_hub
+from app.api.v1.instructor import resources_router as instructor_resources
+from app.api.v1.instructor import insights_router as instructor_insights
+
+# Student Dashboard routes
+from app.api.v1.student import dashboard as student_dashboard
+from app.api.v1.student import ai_tutor as student_ai_tutor
+from app.api.v1.student import progress as student_progress
+from app.api.v1.student import learning as student_learning
+from app.api.v1.student import community as student_community
+from app.api.v1.student import wallet as student_wallet
+from app.api.v1.student import support as student_support
+from app.api.v1.student import account as student_account
+
+# Partner Dashboard routes
+from app.api.v1.partner import dashboard as partner_dashboard
+from app.api.v1.partner import sponsorships as partner_sponsorships
+from app.api.v1.partner import finance as partner_finance
+from app.api.v1.partner import analytics as partner_analytics
+from app.api.v1.partner import content as partner_content
+from app.api.v1.partner import support as partner_support
+from app.api.v1.partner import account as partner_account
+from app.api.v1.partner import collaboration as partner_collaboration
 
 # Authentication endpoints (with auto-create AI tutor for students)
 app.include_router(
@@ -384,6 +451,120 @@ app.include_router(
     parents.router,
     prefix=settings.api_v1_prefix,
     tags=["Parents"]
+)
+
+# Parent Dashboard endpoints
+from app.api.v1.parent import dashboard_router as parent_dashboard
+from app.api.v1.parent import children_router as parent_children
+from app.api.v1.parent import ai_insights_router as parent_ai_insights
+from app.api.v1.parent import communications_router as parent_communications
+from app.api.v1.parent import finance_router as parent_finance
+from app.api.v1.parent import mpesa_router as parent_mpesa
+from app.api.v1.parent import reports_router as parent_reports
+from app.api.v1.parent import settings_router as parent_settings
+
+app.include_router(
+    parent_dashboard,
+    prefix=settings.api_v1_prefix,
+    tags=["Parent - Dashboard"]
+)
+
+app.include_router(
+    parent_children,
+    prefix=settings.api_v1_prefix,
+    tags=["Parent - Children"]
+)
+
+app.include_router(
+    parent_ai_insights,
+    prefix=settings.api_v1_prefix,
+    tags=["Parent - AI Insights"]
+)
+
+app.include_router(
+    parent_communications,
+    prefix=settings.api_v1_prefix,
+    tags=["Parent - Communications"]
+)
+
+app.include_router(
+    parent_finance,
+    prefix=settings.api_v1_prefix,
+    tags=["Parent - Finance"]
+)
+
+app.include_router(
+    parent_mpesa,
+    prefix=settings.api_v1_prefix,
+    tags=["Parent - M-Pesa"]
+)
+
+app.include_router(
+    parent_reports,
+    prefix=settings.api_v1_prefix,
+    tags=["Parent - Reports"]
+)
+
+app.include_router(
+    parent_settings,
+    prefix=settings.api_v1_prefix,
+    tags=["Parent - Settings"]
+)
+
+# Student Dashboard endpoints
+app.include_router(
+    student_dashboard.router,
+    prefix=settings.api_v1_prefix,
+    tags=["Student - Dashboard"]
+)
+
+# Student AI Tutor endpoints
+app.include_router(
+    student_ai_tutor.router,
+    prefix=settings.api_v1_prefix,
+    tags=["Student - AI Tutor"]
+)
+
+# Student Progress & Gamification endpoints
+app.include_router(
+    student_progress.router,
+    prefix=settings.api_v1_prefix,
+    tags=["Student - Progress"]
+)
+
+# Student Learning endpoints (courses, enrollments, live sessions)
+app.include_router(
+    student_learning.router,
+    prefix=settings.api_v1_prefix,
+    tags=["Student - Learning"]
+)
+
+# Student Community endpoints (friends, study groups, shoutouts)
+app.include_router(
+    student_community.router,
+    prefix=settings.api_v1_prefix,
+    tags=["Student - Community"]
+)
+
+# Student Wallet & Payments endpoints (Paystack integration)
+app.include_router(
+    student_wallet.router,
+    prefix=settings.api_v1_prefix,
+    tags=["Student - Wallet"]
+)
+
+# Student Support endpoints (help, guides, tickets)
+app.include_router(
+    student_support.router,
+    prefix=settings.api_v1_prefix,
+    tags=["Student - Support"]
+)
+
+# Student Account endpoints (notifications, profile, preferences, privacy)
+app.include_router(
+    student_account.router,
+    prefix=settings.api_v1_prefix,
+    tags=["Student - Account"]
 )
 
 # Notification endpoints
@@ -503,6 +684,13 @@ app.include_router(
     admin_families.router,
     prefix=f"{settings.api_v1_prefix}/admin",
     tags=["Admin - Families"]
+)
+
+# Admin Restrictions endpoints (user restrictions & appeals)
+app.include_router(
+    admin_restrictions.router,
+    prefix=f"{settings.api_v1_prefix}/admin",
+    tags=["Admin - Restrictions"]
 )
 
 # ── Staff Dashboard Routes ──────────────────────────────────────────
@@ -631,6 +819,112 @@ app.include_router(
     tags=["Instructor - Earnings"]
 )
 
+app.include_router(
+    instructor_courses,
+    prefix=f"{settings.api_v1_prefix}/instructor",
+    tags=["Instructor - Courses"]
+)
+
+app.include_router(
+    instructor_assessments,
+    prefix=f"{settings.api_v1_prefix}/instructor",
+    tags=["Instructor - Assessments"]
+)
+
+app.include_router(
+    instructor_sessions,
+    prefix=f"{settings.api_v1_prefix}/instructor",
+    tags=["Instructor - Sessions"]
+)
+
+app.include_router(
+    instructor_interactions,
+    prefix=f"{settings.api_v1_prefix}/instructor",
+    tags=["Instructor - Interactions"]
+)
+
+app.include_router(
+    instructor_impact,
+    prefix=f"{settings.api_v1_prefix}/instructor",
+    tags=["Instructor - Impact & Recognition"]
+)
+
+app.include_router(
+    instructor_hub,
+    prefix=f"{settings.api_v1_prefix}/instructor",
+    tags=["Instructor - Hub & Community"]
+)
+
+app.include_router(
+    instructor_resources,
+    prefix=f"{settings.api_v1_prefix}/instructor",
+    tags=["Instructor - Resources"]
+)
+
+app.include_router(
+    instructor_insights,
+    prefix=f"{settings.api_v1_prefix}/instructor",
+    tags=["Instructor - AI Insights"]
+)
+
+# ── Partner Dashboard Routes ──────────────────────────────────────────
+
+# Partner Dashboard
+app.include_router(
+    partner_dashboard.router,
+    prefix=f"{settings.api_v1_prefix}/partner/dashboard",
+    tags=["Partner - Dashboard"]
+)
+
+# Partner Sponsorships
+app.include_router(
+    partner_sponsorships.router,
+    prefix=f"{settings.api_v1_prefix}/partner/sponsorships",
+    tags=["Partner - Sponsorships"]
+)
+
+# Partner Finance
+app.include_router(
+    partner_finance.router,
+    prefix=f"{settings.api_v1_prefix}/partner/finance",
+    tags=["Partner - Finance"]
+)
+
+# Partner Analytics
+app.include_router(
+    partner_analytics.router,
+    prefix=f"{settings.api_v1_prefix}/partner/analytics",
+    tags=["Partner - Analytics"]
+)
+
+# Partner Content
+app.include_router(
+    partner_content.router,
+    prefix=f"{settings.api_v1_prefix}/partner/content",
+    tags=["Partner - Content"]
+)
+
+# Partner Support
+app.include_router(
+    partner_support.router,
+    prefix=f"{settings.api_v1_prefix}/partner/support",
+    tags=["Partner - Support"]
+)
+
+# Partner Account
+app.include_router(
+    partner_account.router,
+    prefix=f"{settings.api_v1_prefix}/partner/account",
+    tags=["Partner - Account"]
+)
+
+# Partner Collaboration
+app.include_router(
+    partner_collaboration.router,
+    prefix=f"{settings.api_v1_prefix}/partner/collaboration",
+    tags=["Partner - Collaboration"]
+)
+
 # Phase 8 - Supporting APIs
 
 # Contact form endpoints (public + admin management)
@@ -652,6 +946,20 @@ app.include_router(
     instructor_applications.router,
     prefix=settings.api_v1_prefix,
     tags=["Instructor Applications"]
+)
+
+# Global Search endpoint
+app.include_router(
+    global_search.router,
+    prefix=settings.api_v1_prefix,
+    tags=["Search"]
+)
+
+# AI Agent Profile endpoints (per-user AI customization)
+app.include_router(
+    ai_agent_profile.router,
+    prefix=settings.api_v1_prefix,
+    tags=["AI Agent Profile"]
 )
 
 # WebSocket endpoint for admin real-time updates
@@ -777,6 +1085,121 @@ async def instructor_websocket(websocket: WebSocket, token: str):
         instructor_ws_manager.disconnect(user_id)
 
 
+# Parent real-time updates WebSocket
+@app.websocket("/ws/parent/{token}")
+async def parent_websocket(websocket: WebSocket, token: str):
+    """WebSocket endpoint for parent real-time updates (messages, alerts, achievements, counters)."""
+    import json as _json
+    from app.websocket.parent_connection_manager import parent_ws_manager
+
+    try:
+        payload = verify_token(token)
+    except Exception:
+        await websocket.accept()
+        await websocket.close(code=4001, reason="Invalid token")
+        return
+
+    user_id = payload.get("sub") or payload.get("user_id")
+    user_role = payload.get("role", "")
+
+    if user_role != "parent":
+        await websocket.accept()
+        await websocket.close(code=4003, reason="Parent access required")
+        return
+
+    await parent_ws_manager.connect(websocket, user_id)
+
+    try:
+        while True:
+            data = await websocket.receive_text()
+            try:
+                msg = _json.loads(data)
+                if msg.get("type") == "ping":
+                    await websocket.send_json({"type": "pong"})
+            except _json.JSONDecodeError:
+                pass
+    except WebSocketDisconnect:
+        parent_ws_manager.disconnect(websocket, user_id)
+    except Exception:
+        parent_ws_manager.disconnect(websocket, user_id)
+
+
+# Student real-time updates WebSocket
+@app.websocket("/ws/student/{token}")
+async def student_websocket(websocket: WebSocket, token: str):
+    """WebSocket endpoint for student real-time updates (notifications, progress, achievements)."""
+    import json as _json
+
+    try:
+        payload = verify_token(token)
+    except Exception:
+        await websocket.accept()
+        await websocket.close(code=4001, reason="Invalid token")
+        return
+
+    user_id = payload.get("sub") or payload.get("user_id")
+    user_role = payload.get("role", "")
+
+    if user_role != "student":
+        await websocket.accept()
+        await websocket.close(code=4003, reason="Student access required")
+        return
+
+    await ws_manager.connect(websocket, user_id, user_role)
+
+    try:
+        while True:
+            data = await websocket.receive_text()
+            try:
+                msg = _json.loads(data)
+                if msg.get("type") == "ping":
+                    await websocket.send_json({"type": "pong"})
+            except _json.JSONDecodeError:
+                pass
+    except WebSocketDisconnect:
+        ws_manager.disconnect(websocket, user_id, user_role)
+    except Exception:
+        ws_manager.disconnect(websocket, user_id, user_role)
+
+
+# Partner real-time updates WebSocket
+@app.websocket("/ws/partner/{token}")
+async def partner_websocket(websocket: WebSocket, token: str):
+    """WebSocket endpoint for partner real-time updates (notifications, analytics)."""
+    import json as _json
+
+    try:
+        payload = verify_token(token)
+    except Exception:
+        await websocket.accept()
+        await websocket.close(code=4001, reason="Invalid token")
+        return
+
+    user_id = payload.get("sub") or payload.get("user_id")
+    user_role = payload.get("role", "")
+
+    if user_role != "partner":
+        await websocket.accept()
+        await websocket.close(code=4003, reason="Partner access required")
+        return
+
+    await ws_manager.connect(websocket, user_id, user_role)
+
+    try:
+        while True:
+            data = await websocket.receive_text()
+            try:
+                msg = _json.loads(data)
+                if msg.get("type") == "ping":
+                    await websocket.send_json({"type": "pong"})
+            except _json.JSONDecodeError:
+                pass
+    except WebSocketDisconnect:
+        ws_manager.disconnect(websocket, user_id, user_role)
+    except Exception:
+        ws_manager.disconnect(websocket, user_id, user_role)
+
+
 # Yjs collaborative editing WebSocket
 @app.websocket("/ws/yjs/{doc_id}/{token}")
 async def yjs_websocket(websocket: WebSocket, doc_id: str, token: str):
@@ -791,9 +1214,9 @@ async def yjs_websocket(websocket: WebSocket, doc_id: str, token: str):
     user_id = payload.get("sub") or payload.get("user_id")
     user_role = payload.get("role", "")
 
-    if user_role not in ("staff", "admin"):
+    if user_role not in ("staff", "admin", "instructor"):
         await websocket.accept()
-        await websocket.close(code=4003, reason="Staff access required")
+        await websocket.close(code=4003, reason="Staff or instructor access required")
         return
 
     try:
@@ -851,11 +1274,84 @@ async def support_chat_websocket(websocket: WebSocket, ticket_id: str, token: st
         await websocket.close(code=4500, reason="Live chat handler not configured")
 
 
+# WebRTC signaling WebSocket for live video sessions
+@app.websocket("/ws/webrtc/{room_id}/{token}")
+async def webrtc_signaling_websocket(websocket: WebSocket, room_id: str, token: str):
+    """WebSocket endpoint for WebRTC signaling (offer/answer/ICE candidates)."""
+    try:
+        payload = verify_token(token)
+    except Exception:
+        await websocket.accept()
+        await websocket.close(code=4001, reason="Invalid token")
+        return
+
+    user_id = payload.get("sub") or payload.get("user_id")
+    user_role = payload.get("role", "")
+    user_name = payload.get("name", payload.get("email", "Unknown"))
+
+    if user_role not in ("instructor", "student", "staff", "admin"):
+        await websocket.accept()
+        await websocket.close(code=4003, reason="Access denied")
+        return
+
+    try:
+        from app.websocket.webrtc_signaling import webrtc_signaling_manager
+
+        await websocket.accept()
+
+        joined = await webrtc_signaling_manager.join_room(
+            room_id,
+            user_id,
+            websocket,
+            {"name": user_name, "role": user_role},
+        )
+
+        if not joined:
+            await websocket.send_json({"type": "error", "message": "Room is full"})
+            await websocket.close(code=4004, reason="Room full")
+            return
+
+        try:
+            while True:
+                data = await websocket.receive_text()
+                await webrtc_signaling_manager.handle_message(room_id, user_id, data)
+        except WebSocketDisconnect:
+            await webrtc_signaling_manager.leave_room(room_id, user_id)
+        except Exception:
+            await webrtc_signaling_manager.leave_room(room_id, user_id)
+    except ImportError:
+        await websocket.accept()
+        await websocket.send_json({"error": "WebRTC signaling not available"})
+        await websocket.close(code=4500, reason="WebRTC signaling not configured")
+
+
+# ICE configuration endpoint
+@app.get("/api/v1/instructor/sessions/{session_id}/ice-config")
+async def get_ice_config(session_id: str):
+    """Return STUN/TURN server configuration for WebRTC."""
+    from app.config import settings
+
+    ice_servers = [{"urls": settings.webrtc_stun_urls}]
+
+    if settings.webrtc_turn_url:
+        ice_servers.append({
+            "urls": settings.webrtc_turn_url,
+            "username": settings.webrtc_turn_username,
+            "credential": settings.webrtc_turn_credential,
+        })
+
+    return {
+        "ice_servers": ice_servers,
+        "max_participants": settings.webrtc_max_participants,
+    }
+
+
 logger.info("FastAPI application configured successfully")
 logger.info(
     "Routers registered: auth, ai-tutor, courses, payments, parents, notifications, forum, "
     "categories, store, admin/*, staff/dashboard, staff/moderation, staff/support, "
     "staff/live-support, staff/students, staff/kb, staff/content, staff/assessments, "
     "staff/sessions, staff/insights, staff/reports, staff/progress, staff/team, "
-    "staff/account, staff/notifications, contact, certificates, instructor-applications"
+    "staff/account, staff/notifications, contact, certificates, instructor-applications, "
+    "webrtc-signaling"
 )

@@ -107,15 +107,15 @@ const PlatformHealthPage: React.FC = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-16 bg-[#22272B] rounded-lg animate-pulse" />
+        <div className="h-16 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 bg-[#22272B] rounded-xl animate-pulse" />
+            <div key={i} className="h-28 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-72 bg-[#22272B] rounded-xl animate-pulse" />
+            <div key={i} className="h-72 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
           ))}
         </div>
       </div>
@@ -132,15 +132,15 @@ const PlatformHealthPage: React.FC = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Platform Health</h1>
-          <p className="text-sm text-white/50 mt-1">User engagement and platform usage analytics</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Platform Health</h1>
+          <p className="text-sm text-gray-500 dark:text-white/50 mt-1">User engagement and platform usage analytics</p>
         </div>
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-white/40" />
+          <Calendar className="w-4 h-4 text-gray-400 dark:text-white/40" />
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="px-3 py-2 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm focus:outline-none focus:border-[#E40000]/50 appearance-none cursor-pointer"
+            className="px-3 py-2 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#E40000]/50 appearance-none cursor-pointer"
           >
             <option value="7d">Last 7 days</option>
             <option value="14d">Last 14 days</option>
@@ -158,14 +158,14 @@ const PlatformHealthPage: React.FC = () => {
           { label: 'MAU', value: '8,945', change: '+12.3%', icon: Users, color: 'text-purple-400' },
           { label: 'Engagement Rate', value: '72.4%', change: '+3.1%', icon: Clock, color: 'text-orange-400' },
         ].map((stat) => (
-          <div key={stat.label} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-4">
+          <div key={stat.label} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/50 text-xs font-medium">{stat.label}</span>
-              <div className={`p-1.5 bg-[#22272B] rounded-lg ${stat.color}`}>
+              <span className="text-gray-500 dark:text-white/50 text-xs font-medium">{stat.label}</span>
+              <div className={`p-1.5 bg-gray-100 dark:bg-[#22272B] rounded-lg ${stat.color}`}>
                 <stat.icon className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-white">{stat.value}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
             <p className="text-xs text-emerald-400 mt-1">{stat.change} vs previous period</p>
           </div>
         ))}
@@ -174,9 +174,9 @@ const PlatformHealthPage: React.FC = () => {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Daily Active Users */}
-        <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-1">Daily Active Users</h3>
-          <p className="text-xs text-white/40 mb-4">Unique users per day</p>
+        <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Daily Active Users</h3>
+          <p className="text-xs text-gray-400 dark:text-white/40 mb-4">Unique users per day</p>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={DAU_DATA}>
@@ -197,9 +197,9 @@ const PlatformHealthPage: React.FC = () => {
         </motion.div>
 
         {/* Session Duration */}
-        <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-1">Session Duration Distribution</h3>
-          <p className="text-xs text-white/40 mb-4">How long users stay per session</p>
+        <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Session Duration Distribution</h3>
+          <p className="text-xs text-gray-400 dark:text-white/40 mb-4">How long users stay per session</p>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={SESSION_DURATION_DATA}>
@@ -214,9 +214,9 @@ const PlatformHealthPage: React.FC = () => {
         </motion.div>
 
         {/* AI Usage */}
-        <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-1">AI Usage by Provider</h3>
-          <p className="text-xs text-white/40 mb-4">Weekly AI conversation count by model</p>
+        <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">AI Usage by Provider</h3>
+          <p className="text-xs text-gray-400 dark:text-white/40 mb-4">Weekly AI conversation count by model</p>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={AI_USAGE_DATA}>
@@ -235,9 +235,9 @@ const PlatformHealthPage: React.FC = () => {
         </motion.div>
 
         {/* Feature Adoption */}
-        <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-white mb-1">Feature Adoption</h3>
-          <p className="text-xs text-white/40 mb-4">Percentage of active users using each feature</p>
+        <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Feature Adoption</h3>
+          <p className="text-xs text-gray-400 dark:text-white/40 mb-4">Percentage of active users using each feature</p>
           <div className="h-56 flex items-center">
             <div className="w-1/2 h-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -263,8 +263,8 @@ const PlatformHealthPage: React.FC = () => {
               {FEATURE_ADOPTION.map((feature) => (
                 <div key={feature.name} className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: feature.color }} />
-                  <span className="text-xs text-white/60 flex-1">{feature.name}</span>
-                  <span className="text-xs font-medium text-white">{feature.value}%</span>
+                  <span className="text-xs text-gray-500 dark:text-white/60 flex-1">{feature.name}</span>
+                  <span className="text-xs font-medium text-gray-900 dark:text-white">{feature.value}%</span>
                 </div>
               ))}
             </div>

@@ -70,18 +70,18 @@ const TicketConversation: React.FC<TicketConversationProps> = ({ messages, onSen
   });
 
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden flex flex-col h-[500px]">
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden flex flex-col h-[500px]">
       {/* Header */}
-      <div className="flex items-center gap-2 px-5 py-3.5 border-b border-[#22272B] flex-shrink-0">
-        <MessageSquare className="w-4 h-4 text-white/60" />
-        <h3 className="text-sm font-semibold text-white">Conversation</h3>
-        <span className="ml-auto text-xs text-white/40">{messages.length} messages</span>
+      <div className="flex items-center gap-2 px-5 py-3.5 border-b border-gray-200 dark:border-[#22272B] flex-shrink-0">
+        <MessageSquare className="w-4 h-4 text-gray-500 dark:text-white/60" />
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Conversation</h3>
+        <span className="ml-auto text-xs text-gray-400 dark:text-white/40">{messages.length} messages</span>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
         {groupedMessages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-white/30">
+          <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-white/30">
             <MessageSquare className="w-8 h-8 mb-2 opacity-50" />
             <p className="text-sm">No messages yet</p>
           </div>
@@ -90,9 +90,9 @@ const TicketConversation: React.FC<TicketConversationProps> = ({ messages, onSen
             <div key={group.date}>
               {/* Date separator */}
               <div className="flex items-center gap-3 my-3">
-                <div className="flex-1 h-px bg-[#22272B]" />
-                <span className="text-[10px] text-white/30 font-medium">{group.date}</span>
-                <div className="flex-1 h-px bg-[#22272B]" />
+                <div className="flex-1 h-px bg-gray-100 dark:bg-[#22272B]" />
+                <span className="text-[10px] text-gray-400 dark:text-white/30 font-medium">{group.date}</span>
+                <div className="flex-1 h-px bg-gray-100 dark:bg-[#22272B]" />
               </div>
 
               <div className="space-y-2">
@@ -130,22 +130,22 @@ const TicketConversation: React.FC<TicketConversationProps> = ({ messages, onSen
                         className={`max-w-[75%] px-3.5 py-2.5 rounded-xl ${
                           isStaff
                             ? 'bg-blue-600/20 border border-blue-500/20 rounded-br-md'
-                            : 'bg-[#22272B]/70 border border-[#22272B] rounded-bl-md'
+                            : 'bg-gray-100 dark:bg-[#22272B]/70 border border-gray-200 dark:border-[#22272B] rounded-bl-md'
                         }`}
                       >
                         <div className="flex items-center gap-2 mb-1">
                           <span
                             className={`text-[10px] font-medium ${
-                              isStaff ? 'text-blue-400' : 'text-white/50'
+                              isStaff ? 'text-blue-400' : 'text-gray-500 dark:text-white/50'
                             }`}
                           >
                             {msg.sender}
                           </span>
-                          <span className="text-[10px] text-white/30">
+                          <span className="text-[10px] text-gray-400 dark:text-white/30">
                             {formatTime(msg.createdAt)}
                           </span>
                         </div>
-                        <p className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap">
+                        <p className="text-sm text-gray-700 dark:text-white/80 leading-relaxed whitespace-pre-wrap">
                           {msg.content}
                         </p>
                       </div>
@@ -160,7 +160,7 @@ const TicketConversation: React.FC<TicketConversationProps> = ({ messages, onSen
       </div>
 
       {/* Input area */}
-      <div className="border-t border-[#22272B] p-3 flex-shrink-0">
+      <div className="border-t border-gray-200 dark:border-[#22272B] p-3 flex-shrink-0">
         {/* Internal note toggle */}
         <div className="flex items-center gap-2 mb-2">
           <button
@@ -169,7 +169,7 @@ const TicketConversation: React.FC<TicketConversationProps> = ({ messages, onSen
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium border transition-colors ${
               isInternal
                 ? 'bg-amber-500/20 border-amber-500/30 text-amber-400'
-                : 'bg-[#22272B]/50 border-[#22272B] text-white/40 hover:text-white/60'
+                : 'bg-gray-100 dark:bg-[#22272B]/50 border-gray-200 dark:border-[#22272B] text-gray-400 dark:text-white/40 hover:text-gray-500 dark:hover:text-white/60'
             }`}
           >
             <Lock className="w-3 h-3" />
@@ -184,16 +184,16 @@ const TicketConversation: React.FC<TicketConversationProps> = ({ messages, onSen
             onKeyDown={handleKeyDown}
             placeholder={isInternal ? 'Write an internal note...' : 'Type your reply...'}
             rows={2}
-            className={`flex-1 px-3 py-2 rounded-lg text-sm text-white placeholder:text-white/30 outline-none resize-none transition-colors ${
+            className={`flex-1 px-3 py-2 rounded-lg text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 outline-none resize-none transition-colors ${
               isInternal
                 ? 'bg-amber-500/5 border border-amber-500/20 focus:border-amber-500/40'
-                : 'bg-[#22272B]/50 border border-[#22272B] focus:border-[#E40000]/50'
+                : 'bg-gray-100 dark:bg-[#22272B]/50 border border-gray-200 dark:border-[#22272B] focus:border-[#E40000]/50'
             }`}
           />
           <button
             onClick={handleSend}
             disabled={!newMessage.trim()}
-            className="p-2.5 rounded-lg bg-[#E40000] text-white hover:bg-[#E40000]/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+            className="p-2.5 rounded-lg bg-[#E40000] text-gray-900 dark:text-white hover:bg-[#E40000]/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
           >
             <Send className="w-4 h-4" />
           </button>

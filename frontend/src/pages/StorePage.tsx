@@ -165,18 +165,18 @@ export default function StorePage() {
   // ==========================================================================
 
   return (
-    <div className="min-h-screen bg-[#0F1112]">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0F1112]">
       {/* ------------------------------------------------------------------ */}
       {/* Hero / Header                                                      */}
       {/* ------------------------------------------------------------------ */}
-      <section className="border-b border-[#22272B]">
+      <section className="border-b border-gray-200 dark:border-[#22272B]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white">
               The Bird Store
             </h1>
             <p className="mt-3 text-gray-400 text-lg max-w-2xl">
@@ -197,7 +197,7 @@ export default function StorePage() {
                   setSearch(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full pl-10 pr-4 py-3 bg-[#1E2327] border border-[#22272B] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E40000]/50 focus:border-[#E40000] transition"
+                className="w-full pl-10 pr-4 py-3 bg-[#1E2327] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E40000]/50 focus:border-[#E40000] transition"
               />
             </div>
 
@@ -206,8 +206,8 @@ export default function StorePage() {
               onClick={() => setShowFilters((v) => !v)}
               className={`flex items-center gap-2 px-5 py-3 rounded-lg border font-medium transition-colors ${
                 showFilters
-                  ? 'bg-[#E40000] border-[#E40000] text-white'
-                  : 'bg-[#181C1F] border-[#22272B] text-gray-300 hover:border-[#E40000]/40'
+                  ? 'bg-[#E40000] border-[#E40000] text-gray-900 dark:text-white'
+                  : 'bg-white dark:bg-[#181C1F] border-gray-200 dark:border-[#22272B] text-gray-400 dark:text-gray-300 hover:border-[#E40000]/40'
               }`}
             >
               <SlidersHorizontal className="w-4 h-4" />
@@ -221,7 +221,7 @@ export default function StorePage() {
             <div className="relative">
               <button
                 onClick={() => setShowSortDropdown((v) => !v)}
-                className="flex items-center gap-2 px-5 py-3 rounded-lg bg-[#181C1F] border border-[#22272B] text-gray-300 hover:border-[#E40000]/40 font-medium transition-colors w-full sm:w-auto"
+                className="flex items-center gap-2 px-5 py-3 rounded-lg bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] text-gray-400 dark:text-gray-300 hover:border-[#E40000]/40 font-medium transition-colors w-full sm:w-auto"
               >
                 {currentSortLabel}
                 <ChevronDown className={`w-4 h-4 transition-transform ${showSortDropdown ? 'rotate-180' : ''}`} />
@@ -234,7 +234,7 @@ export default function StorePage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 mt-2 w-56 bg-[#181C1F] border border-[#22272B] rounded-lg shadow-xl z-30 overflow-hidden"
+                    className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg shadow-xl z-30 overflow-hidden"
                   >
                     {SORT_OPTIONS.map((opt) => (
                       <li key={opt.value}>
@@ -247,7 +247,7 @@ export default function StorePage() {
                           className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                             sortBy === opt.value
                               ? 'bg-[#E40000]/10 text-[#FF0000]'
-                              : 'text-gray-300 hover:bg-[#1E2327]'
+                              : 'text-gray-400 dark:text-gray-300 hover:bg-[#1E2327]'
                           }`}
                         >
                           {opt.label}
@@ -262,7 +262,7 @@ export default function StorePage() {
             {/* Cart icon */}
             <button
               onClick={openCart}
-              className="flex items-center gap-2 px-5 py-3 rounded-lg bg-[#181C1F] border border-[#22272B] text-gray-300 hover:border-[#E40000]/40 transition-colors relative"
+              className="flex items-center gap-2 px-5 py-3 rounded-lg bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] text-gray-400 dark:text-gray-300 hover:border-[#E40000]/40 transition-colors relative"
             >
               <ShoppingCart className="w-5 h-5" />
               <CartBadge />
@@ -279,7 +279,7 @@ export default function StorePage() {
                 exit="exit"
                 className="overflow-hidden"
               >
-                <div className="mt-4 p-5 bg-[#181C1F] border border-[#22272B] rounded-lg">
+                <div className="mt-4 p-5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {/* Category */}
                     <div>
@@ -292,7 +292,7 @@ export default function StorePage() {
                           setSelectedCategory(e.target.value);
                           setCurrentPage(1);
                         }}
-                        className="w-full px-3 py-2.5 bg-[#1E2327] border border-[#22272B] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#E40000]/50"
+                        className="w-full px-3 py-2.5 bg-[#1E2327] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#E40000]/50"
                       >
                         <option value="">All Categories</option>
                         {categories.map((cat) => (
@@ -317,7 +317,7 @@ export default function StorePage() {
                           setMinPrice(e.target.value);
                           setCurrentPage(1);
                         }}
-                        className="w-full px-3 py-2.5 bg-[#1E2327] border border-[#22272B] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E40000]/50"
+                        className="w-full px-3 py-2.5 bg-[#1E2327] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E40000]/50"
                       />
                     </div>
 
@@ -335,7 +335,7 @@ export default function StorePage() {
                           setMaxPrice(e.target.value);
                           setCurrentPage(1);
                         }}
-                        className="w-full px-3 py-2.5 bg-[#1E2327] border border-[#22272B] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E40000]/50"
+                        className="w-full px-3 py-2.5 bg-[#1E2327] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E40000]/50"
                       />
                     </div>
 
@@ -375,7 +375,7 @@ export default function StorePage() {
             <p className="text-red-400 text-lg">{error}</p>
             <button
               onClick={loadProducts}
-              className="mt-4 px-5 py-2 bg-[#E40000] text-white rounded-lg hover:bg-[#FF0000] transition-colors"
+              className="mt-4 px-5 py-2 bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#FF0000] transition-colors"
             >
               Retry
             </button>
@@ -383,7 +383,7 @@ export default function StorePage() {
         ) : products.length === 0 ? (
           <div className="text-center py-20">
             <Package className="mx-auto w-16 h-16 text-gray-600 mb-4" />
-            <h3 className="text-xl font-semibold text-white">No products found</h3>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">No products found</h3>
             <p className="mt-2 text-gray-400">Try adjusting your search or filters.</p>
           </div>
         ) : (
@@ -410,7 +410,7 @@ export default function StorePage() {
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 border border-[#22272B] rounded-lg text-gray-300 hover:bg-[#181C1F] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-400 dark:text-gray-300 hover:bg-white dark:hover:bg-[#181C1F] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Previous
             </button>
@@ -420,7 +420,7 @@ export default function StorePage() {
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 border border-[#22272B] rounded-lg text-gray-300 hover:bg-[#181C1F] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-400 dark:text-gray-300 hover:bg-white dark:hover:bg-[#181C1F] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Next
             </button>
@@ -449,7 +449,7 @@ function ProductCard({ product, onAddToCart, cartLoading }: ProductCardProps) {
     <motion.div
       variants={cardVariants}
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      className="group flex flex-col rounded-2xl bg-[#181C1F] border border-[#22272B] overflow-hidden hover:border-[#E40000]/30 hover:shadow-lg hover:shadow-[#E40000]/5 transition-all duration-300"
+      className="group flex flex-col rounded-2xl bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] overflow-hidden hover:border-[#E40000]/30 hover:shadow-lg hover:shadow-[#E40000]/5 transition-all duration-300"
     >
       {/* Image */}
       <Link to={`/store/products/${product.slug}`} className="block relative aspect-square overflow-hidden">
@@ -460,7 +460,7 @@ function ProductCard({ product, onAddToCart, cartLoading }: ProductCardProps) {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-[#E40000]/20 via-[#1E2327] to-[#181C1F] flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br from-[#E40000]/20 via-[#1E2327] to-gray-100 dark:to-[#181C1F] flex items-center justify-center">
             <Package className="w-14 h-14 text-gray-600" />
           </div>
         )}
@@ -468,7 +468,7 @@ function ProductCard({ product, onAddToCart, cartLoading }: ProductCardProps) {
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5">
           {product.is_featured && (
-            <span className="px-2.5 py-1 text-xs font-bold bg-[#E40000] text-white rounded-full">
+            <span className="px-2.5 py-1 text-xs font-bold bg-[#E40000] text-gray-900 dark:text-white rounded-full">
               Featured
             </span>
           )}
@@ -481,7 +481,7 @@ function ProductCard({ product, onAddToCart, cartLoading }: ProductCardProps) {
 
         {product.inventory_count <= 0 && (
           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-            <span className="text-white font-bold text-sm tracking-wider uppercase">
+            <span className="text-gray-900 dark:text-white font-bold text-sm tracking-wider uppercase">
               Out of Stock
             </span>
           </div>
@@ -502,7 +502,7 @@ function ProductCard({ product, onAddToCart, cartLoading }: ProductCardProps) {
 
         <Link
           to={`/store/products/${product.slug}`}
-          className="text-white font-semibold line-clamp-2 hover:text-[#FF0000] transition-colors"
+          className="text-gray-900 dark:text-white font-semibold line-clamp-2 hover:text-[#FF0000] transition-colors"
         >
           {product.name}
         </Link>
@@ -513,7 +513,7 @@ function ProductCard({ product, onAddToCart, cartLoading }: ProductCardProps) {
 
         {/* Price */}
         <div className="mt-3 flex items-baseline gap-2">
-          <span className="text-lg font-bold text-white">{formatKES(product.price)}</span>
+          <span className="text-lg font-bold text-gray-900 dark:text-white">{formatKES(product.price)}</span>
           {hasDiscount && (
             <span className="text-sm text-gray-500 line-through">
               {formatKES(product.compare_at_price!)}
@@ -526,7 +526,7 @@ function ProductCard({ product, onAddToCart, cartLoading }: ProductCardProps) {
           whileTap={{ scale: 0.96 }}
           disabled={product.inventory_count <= 0 || cartLoading}
           onClick={() => onAddToCart(product.id)}
-          className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-[#E40000] text-white font-medium text-sm hover:bg-[#FF0000] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-[#E40000] text-gray-900 dark:text-white font-medium text-sm hover:bg-[#FF0000] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           <ShoppingCart className="w-4 h-4" />
           {product.inventory_count <= 0 ? 'Out of Stock' : 'Add to Cart'}
@@ -544,7 +544,7 @@ function CartBadge() {
   const itemCount = useCartStore((s) => s.itemCount);
   if (itemCount <= 0) return null;
   return (
-    <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 flex items-center justify-center bg-[#E40000] text-white text-xs font-bold rounded-full px-1">
+    <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 flex items-center justify-center bg-[#E40000] text-gray-900 dark:text-white text-xs font-bold rounded-full px-1">
       {itemCount}
     </span>
   );
@@ -560,7 +560,7 @@ function SkeletonGrid() {
       {Array.from({ length: 8 }).map((_, i) => (
         <div
           key={i}
-          className="rounded-2xl bg-[#181C1F] border border-[#22272B] overflow-hidden animate-pulse"
+          className="rounded-2xl bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] overflow-hidden animate-pulse"
         >
           <div className="aspect-square bg-[#1E2327]" />
           <div className="p-4 space-y-3">

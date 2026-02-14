@@ -123,7 +123,7 @@ export const useCoPilotStore = create<CoPilotState>()(
       },
 
       switchSession: (sessionId: string) => {
-        set((state) => ({
+        set(() => ({
           currentSessionId: sessionId,
           hasUnreadMessages: false,
           isExpanded: true, // Ensure sidebar is open when switching
@@ -175,20 +175,63 @@ export const useCoPilotStore = create<CoPilotState>()(
           isChatMode: true
         }));
 
-        // Simulate AI response
-        setTimeout(() => {
-          const aiMessage: ChatMessage = {
-            id: (Date.now() + 1).toString(),
-            content: "I'm processing your request. How can I help you with your learning journey today?",
-            sender: 'ai',
-            timestamp: new Date(),
-            status: 'sent'
-          };
+        // Call real AI backend
+        const apiUrl = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) || 'http://localhost:8000';
+        let token = '';
+        try {
+          const stored = localStorage.getItem('auth-storage');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            token = parsed?.state?.token || '';
+          }
+        } catch { /* ignore */ }
 
-          set((state) => ({
-            chatMessages: [...state.chatMessages, aiMessage]
-          }));
-        }, 1000);
+        const { activeRole, chatMessages } = get();
+        const conversationHistory = chatMessages.slice(-10).map(m => ({
+          role: m.sender === 'user' ? 'user' : 'assistant',
+          content: m.content,
+        }));
+
+        const roleContext = `You are an AI assistant for the ${activeRole} dashboard of Urban Home School, a Kenyan educational platform. Respond helpfully and concisely.`;
+
+        fetch(`${apiUrl}/api/v1/ai-tutor/chat`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({
+            message: message,
+            context: roleContext,
+            conversation_history: conversationHistory,
+            response_mode: 'text',
+          }),
+        })
+          .then(res => res.json())
+          .then(data => {
+            const aiMessage: ChatMessage = {
+              id: (Date.now() + 1).toString(),
+              content: data.response || data.message || data.detail || "I've received your message. How can I help you today?",
+              sender: 'ai',
+              timestamp: new Date(),
+              status: 'sent'
+            };
+            set((state) => ({
+              chatMessages: [...state.chatMessages, aiMessage]
+            }));
+          })
+          .catch(() => {
+            const aiMessage: ChatMessage = {
+              id: (Date.now() + 1).toString(),
+              content: "I'm having trouble connecting to the AI service. Please check that the backend is running and try again.",
+              sender: 'ai',
+              timestamp: new Date(),
+              status: 'sent'
+            };
+            set((state) => ({
+              chatMessages: [...state.chatMessages, aiMessage]
+            }));
+          });
       },
 
       detectDashboardType: (pathname: string) => {

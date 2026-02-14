@@ -28,6 +28,18 @@ from app.models import (
     Transaction,
     Wallet,
     PaymentMethod,
+    # Parent dashboard models
+    MoodEntry,
+    FamilyGoal,
+    ConsentRecord,
+    ConsentAuditLog,
+    ParentMessage,
+    AIAlert,
+    NotificationPreference,
+    ParentReport,
+    # Cross-cutting security models
+    TwoFactorAuth,
+    LoginHistory,
 )
 
 # Admin models
@@ -36,6 +48,28 @@ from app.models.admin import (
     Permission,
     RolePermission,
     UserPermissionOverride,
+    SystemHealthSnapshot,
+    UserRestriction,
+    APIToken,
+    ContentVersion,
+    CompetencyTag,
+    CourseCompetencyMapping,
+    GradeOverride,
+    CertificateTemplate,
+    ResourceItem,
+    AIConversationFlag,
+    AIContentReview,
+    AIPerformanceMetric,
+    ComplianceIncident,
+    ScheduledReport,
+    PartnerContract,
+    Invoice,
+    PayoutQueueItem,
+    SupportTicket,
+    ModerationItem,
+    SystemConfig,
+    SystemConfigChangeRequest,
+    KeywordFilter,
 )
 
 # Staff models
@@ -88,6 +122,61 @@ from app.models.instructor import (
     InstructorForumReply,
     InstructorTwoFactor,
     LoginHistory,
+)
+
+# Partner models
+from app.models.partner import (
+    PartnerProfile,
+    SponsorshipProgram,
+    SponsoredChild,
+    SponsorshipConsent,
+    PartnerSubscription,
+    PartnerPayment,
+    PartnerImpactReport,
+    PartnerMessage,
+    PartnerMeeting,
+    PartnerResource,
+    PartnerTicket,
+)
+
+# Student dashboard models
+from app.models.student_dashboard import (
+    StudentMoodEntry,
+    StudentStreak,
+    StudentDailyPlan,
+    StudentJournalEntry,
+    StudentWishlist,
+    StudentSessionPrep,
+)
+
+# Student gamification models
+from app.models.student_gamification import (
+    StudentXPEvent,
+    StudentLevel,
+    StudentBadge,
+    StudentGoal,
+    StudentSkillNode,
+    StudentWeeklyReport,
+)
+
+# Student community models
+from app.models.student_community import (
+    StudentFriendship,
+    StudentStudyGroup,
+    StudentShoutout,
+    StudentTeacherQA,
+)
+
+# Student wallet models
+from app.models.student_wallet import (
+    PaystackTransaction,
+    StudentSavedPaymentMethod,
+)
+
+# Student account models
+from app.models.student_account import (
+    StudentConsentRecord,
+    StudentTeacherAccess,
 )
 
 # this is the Alembic Config object, which provides

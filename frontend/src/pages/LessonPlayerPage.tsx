@@ -116,11 +116,11 @@ export default function LessonPlayerPage() {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-white mb-2">Unable to Load Course</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Unable to Load Course</h2>
           <p className="text-gray-400 mb-4">{error || 'Course not found or not enrolled'}</p>
           <button
             onClick={() => navigate('/courses')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-gray-900 dark:text-white rounded-lg hover:bg-blue-700"
           >
             Back to Courses
           </button>
@@ -147,10 +147,10 @@ export default function LessonPlayerPage() {
         {/* Sidebar Header */}
         <div className="p-4 border-b border-gray-700">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="font-semibold text-white truncate">{course.title}</h2>
+            <h2 className="font-semibold text-gray-900 dark:text-white truncate">{course.title}</h2>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="text-gray-400 hover:text-white"
+              className="text-gray-400 hover:text-gray-900 dark:hover:text-white"
             >
               <XMarkIcon className="h-5 w-5" />
             </button>
@@ -192,7 +192,7 @@ export default function LessonPlayerPage() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium ${isCurrent ? 'text-white' : 'text-gray-300'}`}>
+                    <p className={`text-sm font-medium ${isCurrent ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-300'}`}>
                       {index + 1}. {lesson.title}
                     </p>
                     {lesson.duration_minutes && (
@@ -211,7 +211,7 @@ export default function LessonPlayerPage() {
         <div className="p-4 border-t border-gray-700">
           <button
             onClick={() => navigate(`/courses/${courseId}`)}
-            className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
+            className="w-full px-4 py-2 bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-600"
           >
             Exit Course
           </button>
@@ -227,13 +227,13 @@ export default function LessonPlayerPage() {
               {!sidebarOpen && (
                 <button
                   onClick={() => setSidebarOpen(true)}
-                  className="text-gray-400 hover:text-white"
+                  className="text-gray-400 hover:text-gray-900 dark:hover:text-white"
                 >
                   <Bars3Icon className="h-6 w-6" />
                 </button>
               )}
               <div>
-                <h1 className="text-xl font-semibold text-white">{currentLesson?.title}</h1>
+                <h1 className="text-xl font-semibold text-gray-900 dark:text-white">{currentLesson?.title}</h1>
                 <p className="text-sm text-gray-400 mt-1">
                   Lesson {currentLessonIndex + 1} of {course.lessons.length}
                 </p>
@@ -249,7 +249,7 @@ export default function LessonPlayerPage() {
               <button
                 onClick={handleMarkComplete}
                 disabled={markingComplete}
-                className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                className="flex items-center gap-2 px-6 py-2 bg-green-600 text-gray-900 dark:text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
               >
                 <CheckCircleIcon className="h-5 w-5" />
                 {markingComplete ? 'Marking...' : 'Mark Complete'}
@@ -282,7 +282,7 @@ export default function LessonPlayerPage() {
             <button
               onClick={() => setCurrentLessonIndex(currentLessonIndex - 1)}
               disabled={!canGoPrevious}
-              className="flex items-center gap-2 px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-2 bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <ChevronLeftIcon className="h-5 w-5" />
               Previous
@@ -295,7 +295,7 @@ export default function LessonPlayerPage() {
             <button
               onClick={() => setCurrentLessonIndex(currentLessonIndex + 1)}
               disabled={!canGoNext}
-              className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-gray-900 dark:text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
               <ChevronRightIcon className="h-5 w-5" />
@@ -335,14 +335,14 @@ function VideoPlayer({ lesson }: { lesson: Lesson }) {
 
       {/* Lesson Description */}
       <div className="bg-gray-800 rounded-lg p-6">
-        <h2 className="text-lg font-semibold text-white mb-3">About this lesson</h2>
-        <p className="text-gray-300">{lesson.description}</p>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">About this lesson</h2>
+        <p className="text-gray-400 dark:text-gray-300">{lesson.description}</p>
       </div>
 
       {/* Resources */}
       {lesson.resources && lesson.resources.length > 0 && (
         <div className="bg-gray-800 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-white mb-3">Resources</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Resources</h2>
           <div className="space-y-2">
             {lesson.resources.map((resource) => (
               <a
@@ -354,7 +354,7 @@ function VideoPlayer({ lesson }: { lesson: Lesson }) {
               >
                 <DocumentTextIcon className="h-5 w-5 text-blue-400" />
                 <div>
-                  <p className="text-sm font-medium text-white">{resource.title}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">{resource.title}</p>
                   <p className="text-xs text-gray-400">{resource.type}</p>
                 </div>
               </a>
@@ -371,17 +371,17 @@ function ReadingContent({ lesson }: { lesson: Lesson }) {
     <div className="bg-gray-800 rounded-lg p-8">
       <div className="flex items-center gap-3 mb-6">
         <BookOpenIcon className="h-8 w-8 text-blue-400" />
-        <h2 className="text-2xl font-bold text-white">Reading Material</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Reading Material</h2>
       </div>
       <div className="prose prose-invert max-w-none">
-        <p className="text-gray-300 leading-relaxed">{lesson.description}</p>
+        <p className="text-gray-400 dark:text-gray-300 leading-relaxed">{lesson.description}</p>
         {lesson.content_url && (
           <div className="mt-6">
             <a
               href={lesson.content_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-gray-900 dark:text-white rounded-lg hover:bg-blue-700"
             >
               <DocumentTextIcon className="h-5 w-5" />
               Open Reading Material
@@ -398,9 +398,9 @@ function QuizContent({ lesson }: { lesson: Lesson }) {
     <div className="bg-gray-800 rounded-lg p-8">
       <div className="text-center">
         <CheckCircleIcon className="mx-auto h-16 w-16 text-yellow-400 mb-4" />
-        <h2 className="text-2xl font-bold text-white mb-2">Quiz</h2>
-        <p className="text-gray-300 mb-6">{lesson.description}</p>
-        <button className="px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Quiz</h2>
+        <p className="text-gray-400 dark:text-gray-300 mb-6">{lesson.description}</p>
+        <button className="px-6 py-3 bg-yellow-600 text-gray-900 dark:text-white rounded-lg hover:bg-yellow-700">
           Start Quiz
         </button>
         <p className="text-sm text-gray-500 mt-4">
@@ -414,15 +414,15 @@ function QuizContent({ lesson }: { lesson: Lesson }) {
 function DefaultContent({ lesson }: { lesson: Lesson }) {
   return (
     <div className="bg-gray-800 rounded-lg p-8">
-      <h2 className="text-2xl font-bold text-white mb-4">{lesson.title}</h2>
-      <p className="text-gray-300 leading-relaxed">{lesson.description}</p>
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{lesson.title}</h2>
+      <p className="text-gray-400 dark:text-gray-300 leading-relaxed">{lesson.description}</p>
       {lesson.content_url && (
         <div className="mt-6">
           <a
             href={lesson.content_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-gray-900 dark:text-white rounded-lg hover:bg-blue-700"
           >
             View Content
           </a>

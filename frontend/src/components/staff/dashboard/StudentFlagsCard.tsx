@@ -20,11 +20,11 @@ const StudentFlagsCard: React.FC<StudentFlagsCardProps> = ({ flags, isLoading })
 
   if (isLoading) {
     return (
-      <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5 animate-pulse">
-        <div className="h-5 w-36 bg-[#22272B] rounded mb-4" />
+      <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5 animate-pulse">
+        <div className="h-5 w-36 bg-gray-100 dark:bg-[#22272B] rounded mb-4" />
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-12 bg-[#22272B] rounded-lg" />
+            <div key={i} className="h-12 bg-gray-100 dark:bg-[#22272B] rounded-lg" />
           ))}
         </div>
       </div>
@@ -39,17 +39,17 @@ const StudentFlagsCard: React.FC<StudentFlagsCardProps> = ({ flags, isLoading })
   };
 
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
           <Users className="w-4 h-4 text-orange-400" />
           Student Flags
         </h3>
-        <span className="text-xs text-white/40">{flags.length} active</span>
+        <span className="text-xs text-gray-400 dark:text-white/40">{flags.length} active</span>
       </div>
       <div className="space-y-2">
         {flags.length === 0 ? (
-          <p className="text-sm text-white/40 text-center py-4">No active flags</p>
+          <p className="text-sm text-gray-400 dark:text-white/40 text-center py-4">No active flags</p>
         ) : (
           flags.slice(0, 4).map((flag) => {
             const config = flagTypeConfig[flag.flagType] || flagTypeConfig.at_risk;
@@ -57,20 +57,20 @@ const StudentFlagsCard: React.FC<StudentFlagsCardProps> = ({ flags, isLoading })
               <button
                 key={flag.id}
                 onClick={() => navigate(`/dashboard/staff/support/journeys/${flag.id}`)}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg bg-[#22272B]/50 hover:bg-[#22272B] transition-colors text-left"
+                className="w-full flex items-center justify-between p-2.5 rounded-lg bg-gray-100 dark:bg-[#22272B]/50 hover:bg-gray-100 dark:hover:bg-[#22272B] transition-colors text-left"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm text-white">{flag.studentName}</p>
+                  <p className="text-sm text-gray-900 dark:text-white">{flag.studentName}</p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${config.color}`}>
                       {config.label}
                     </span>
-                    <span className="text-[10px] text-white/40 truncate">{flag.description}</span>
+                    <span className="text-[10px] text-gray-400 dark:text-white/40 truncate">{flag.description}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0 ml-2">
                   <AlertTriangle className={`w-3 h-3 ${flag.riskScore > 0.7 ? 'text-red-400' : 'text-yellow-400'}`} />
-                  <span className="text-[10px] text-white/40">{Math.round(flag.riskScore * 100)}%</span>
+                  <span className="text-[10px] text-gray-400 dark:text-white/40">{Math.round(flag.riskScore * 100)}%</span>
                 </div>
               </button>
             );

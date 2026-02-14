@@ -8,9 +8,11 @@ This module defines FastAPI routes for user authentication including:
 - Current user retrieval
 """
 
+import logging
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -23,6 +25,40 @@ from app.services import auth_service
 from app.services.email_service import send_verification_email, send_password_reset_email
 from app.utils.security import get_current_user, decode_token, verify_token
 from app.models.user import User
+from app.config import settings
+
+logger = logging.getLogger(__name__)
+security = HTTPBearer()
+
+# ---------------------------------------------------------------------------
+# Redis client for token blacklist
+# ---------------------------------------------------------------------------
+_redis_client = None
+
+
+async def _get_redis():
+    """Lazily initialise and return an async Redis client."""
+    global _redis_client
+    if _redis_client is None:
+        try:
+            import redis.asyncio as aioredis
+            _redis_client = aioredis.from_url(
+                settings.redis_url, decode_responses=True
+            )
+        except Exception as e:
+            logger.warning(f"Redis unavailable for token blacklist: {e}")
+    return _redis_client
+
+
+async def is_token_blacklisted(token: str) -> bool:
+    """Check whether a JWT has been blacklisted (logged out)."""
+    r = await _get_redis()
+    if r is None:
+        return False  # fail-open when Redis is down
+    try:
+        return await r.exists(f"blacklist:{token}") == 1
+    except Exception:
+        return False
 
 
 # Create router with authentication prefix and tags
@@ -374,3 +410,45 @@ async def reset_password(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail="Failed to reset password",
     )
+
+
+# ============================================================================
+# Logout (Token Blacklist)
+# ============================================================================
+
+@router.post(
+    "/logout",
+    status_code=status.HTTP_200_OK,
+    summary="Logout user",
+    description="Invalidate the current access token by adding it to the Redis blacklist.",
+)
+async def logout(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> dict:
+    """
+    Logout the current user by blacklisting their access token.
+
+    The token is stored in Redis with a TTL equal to its remaining lifetime
+    so that it cannot be reused after logout.
+    """
+    token = credentials.credentials
+
+    try:
+        payload = verify_token(token, token_type="access")
+    except HTTPException:
+        # Token is already invalid/expired - treat as successful logout
+        return {"message": "Logged out successfully"}
+
+    # Calculate remaining TTL so the blacklist entry auto-expires
+    import time
+    exp = payload.get("exp", 0)
+    ttl = max(int(exp - time.time()), 1)
+
+    r = await _get_redis()
+    if r is not None:
+        try:
+            await r.setex(f"blacklist:{token}", ttl, "1")
+        except Exception as e:
+            logger.warning(f"Failed to blacklist token in Redis: {e}")
+
+    return {"message": "Logged out successfully"}

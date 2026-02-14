@@ -12,11 +12,11 @@ interface RevenueCardProps {
 const RevenueCard: React.FC<RevenueCardProps> = ({ data, isLoading }) => {
   if (isLoading) {
     return (
-      <div className="col-span-1 sm:col-span-2 bg-[#181C1F] border border-[#22272B] rounded-xl p-5">
+      <div className="col-span-1 sm:col-span-2 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5">
         <div className="animate-pulse space-y-3">
-          <div className="h-5 w-32 bg-[#22272B] rounded" />
-          <div className="h-10 w-40 bg-[#22272B] rounded" />
-          <div className="h-24 bg-[#22272B] rounded-lg" />
+          <div className="h-5 w-32 bg-gray-100 dark:bg-[#22272B] rounded" />
+          <div className="h-10 w-40 bg-gray-100 dark:bg-[#22272B] rounded" />
+          <div className="h-24 bg-gray-100 dark:bg-[#22272B] rounded-lg" />
         </div>
       </div>
     );
@@ -47,10 +47,10 @@ const RevenueCard: React.FC<RevenueCardProps> = ({ data, isLoading }) => {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.15 }}
-      className="col-span-1 sm:col-span-2 bg-[#181C1F] border border-[#22272B] rounded-xl p-5"
+      className="col-span-1 sm:col-span-2 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5"
     >
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-gray-900 dark:text-white font-semibold flex items-center gap-2">
           <Wallet className="w-5 h-5 text-emerald-400" />
           Revenue
         </h3>
@@ -60,9 +60,9 @@ const RevenueCard: React.FC<RevenueCardProps> = ({ data, isLoading }) => {
         </div>
       </div>
 
-      <div className="text-3xl font-bold text-white mb-4">
+      <div className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
         {formatCurrency(data?.total_today ?? 0)}
-        <span className="text-sm font-normal text-white/40 ml-2">today</span>
+        <span className="text-sm font-normal text-gray-400 dark:text-white/40 ml-2">today</span>
       </div>
 
       {/* Sparkline */}
@@ -83,7 +83,7 @@ const RevenueCard: React.FC<RevenueCardProps> = ({ data, isLoading }) => {
                 color: '#fff',
                 fontSize: '12px',
               }}
-              formatter={(value: number) => [formatCurrency(value), 'Amount']}
+              formatter={((value: number) => [formatCurrency(value), 'Amount']) as any}
             />
             <Area
               type="monotone"
@@ -97,18 +97,18 @@ const RevenueCard: React.FC<RevenueCardProps> = ({ data, isLoading }) => {
       </div>
 
       {/* Period breakdowns */}
-      <div className="grid grid-cols-3 gap-3 border-t border-[#22272B] pt-3">
+      <div className="grid grid-cols-3 gap-3 border-t border-gray-200 dark:border-[#22272B] pt-3">
         <div>
-          <p className="text-xs text-white/40">Yesterday</p>
-          <p className="text-sm font-semibold text-white">{formatCurrency(data?.total_yesterday ?? 0)}</p>
+          <p className="text-xs text-gray-400 dark:text-white/40">Yesterday</p>
+          <p className="text-sm font-semibold text-gray-900 dark:text-white">{formatCurrency(data?.total_yesterday ?? 0)}</p>
         </div>
         <div>
-          <p className="text-xs text-white/40">This Week</p>
-          <p className="text-sm font-semibold text-white">{formatCurrency(data?.total_week ?? 0)}</p>
+          <p className="text-xs text-gray-400 dark:text-white/40">This Week</p>
+          <p className="text-sm font-semibold text-gray-900 dark:text-white">{formatCurrency(data?.total_week ?? 0)}</p>
         </div>
         <div>
-          <p className="text-xs text-white/40">This Month</p>
-          <p className="text-sm font-semibold text-white">{formatCurrency(data?.total_month ?? 0)}</p>
+          <p className="text-xs text-gray-400 dark:text-white/40">This Month</p>
+          <p className="text-sm font-semibold text-gray-900 dark:text-white">{formatCurrency(data?.total_month ?? 0)}</p>
         </div>
       </div>
     </motion.div>

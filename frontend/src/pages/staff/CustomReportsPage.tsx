@@ -66,7 +66,7 @@ const WIDGET_TYPES = [
   { name: 'Bar Chart', icon: BarChart3, color: 'text-yellow-400' },
   { name: 'Pie Chart', icon: PieChartIcon, color: 'text-purple-400' },
   { name: 'Data Table', icon: Table, color: 'text-cyan-400' },
-  { name: 'Text Block', icon: Type, color: 'text-white/60' },
+  { name: 'Text Block', icon: Type, color: 'text-gray-500 dark:text-white/60' },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -135,10 +135,10 @@ const CustomReportsPage: React.FC = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-16 bg-[#22272B] rounded-lg animate-pulse" />
+        <div className="h-16 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="h-40 bg-[#22272B] rounded-xl animate-pulse" />
+            <div key={i} className="h-40 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
           ))}
         </div>
       </div>
@@ -155,17 +155,17 @@ const CustomReportsPage: React.FC = () => {
         {/* Builder Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">New Report</h1>
-            <p className="text-sm text-white/50 mt-1">Drag widgets onto the canvas to build your report</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">New Report</h1>
+            <p className="text-sm text-gray-500 dark:text-white/50 mt-1">Drag widgets onto the canvas to build your report</p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowBuilder(false)}
-              className="px-4 py-2 text-sm text-white/60 hover:text-white transition-colors"
+              className="px-4 py-2 text-sm text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white transition-colors"
             >
               Cancel
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-[#E40000] hover:bg-[#C80000] text-white text-sm rounded-lg transition-colors">
+            <button className="flex items-center gap-2 px-4 py-2 bg-[#E40000] hover:bg-[#C80000] text-gray-900 dark:text-white text-sm rounded-lg transition-colors">
               Save Report
             </button>
           </div>
@@ -174,16 +174,16 @@ const CustomReportsPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Widget Palette */}
           <div className="lg:col-span-1">
-            <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-4">
-              <h3 className="text-sm font-medium text-white mb-3">Widgets</h3>
+            <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4">
+              <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Widgets</h3>
               <div className="space-y-2">
                 {WIDGET_TYPES.map((widget) => (
                   <div
                     key={widget.name}
-                    className="flex items-center gap-3 px-3 py-2.5 bg-[#22272B] border border-[#333] rounded-lg cursor-grab hover:border-[#E40000]/40 transition-colors"
+                    className="flex items-center gap-3 px-3 py-2.5 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg cursor-grab hover:border-[#E40000]/40 transition-colors"
                   >
                     <widget.icon className={`w-4 h-4 ${widget.color}`} />
-                    <span className="text-xs text-white/70">{widget.name}</span>
+                    <span className="text-xs text-gray-600 dark:text-white/70">{widget.name}</span>
                   </div>
                 ))}
               </div>
@@ -192,11 +192,11 @@ const CustomReportsPage: React.FC = () => {
 
           {/* Canvas */}
           <div className="lg:col-span-4">
-            <div className="bg-[#181C1F] border-2 border-dashed border-[#333] rounded-xl min-h-[500px] flex items-center justify-center">
+            <div className="bg-white dark:bg-[#181C1F] border-2 border-dashed border-gray-300 dark:border-[#333] rounded-xl min-h-[500px] flex items-center justify-center">
               <div className="text-center">
                 <LayoutGrid className="w-16 h-16 text-white/10 mx-auto mb-4" />
-                <p className="text-white/30 text-sm mb-1">Drag widgets here</p>
-                <p className="text-white/20 text-xs">Drop chart widgets, tables, and metrics to build your report</p>
+                <p className="text-gray-400 dark:text-white/30 text-sm mb-1">Drag widgets here</p>
+                <p className="text-gray-400 dark:text-gray-300 dark:text-white/20 text-xs">Drop chart widgets, tables, and metrics to build your report</p>
               </div>
             </div>
           </div>
@@ -215,12 +215,12 @@ const CustomReportsPage: React.FC = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Custom Reports</h1>
-          <p className="text-sm text-white/50 mt-1">Build, schedule, and share custom analytics reports</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Custom Reports</h1>
+          <p className="text-sm text-gray-500 dark:text-white/50 mt-1">Build, schedule, and share custom analytics reports</p>
         </div>
         <button
           onClick={() => setShowBuilder(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#E40000] hover:bg-[#C80000] text-white text-sm rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[#E40000] hover:bg-[#C80000] text-gray-900 dark:text-white text-sm rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
           New Report
@@ -229,7 +229,7 @@ const CustomReportsPage: React.FC = () => {
 
       {/* Tabs + Search */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center gap-3">
-        <div className="flex gap-1 bg-[#181C1F] border border-[#22272B] rounded-lg p-1">
+        <div className="flex gap-1 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg p-1">
           {([
             { key: 'my' as const, label: 'My Reports' },
             { key: 'shared' as const, label: 'Shared' },
@@ -240,7 +240,7 @@ const CustomReportsPage: React.FC = () => {
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={`px-4 py-2 text-sm rounded-md transition-colors ${
-                activeTab === tab.key ? 'bg-[#22272B] text-white' : 'text-white/50 hover:text-white/70'
+                activeTab === tab.key ? 'bg-gray-100 dark:bg-[#22272B] text-gray-900 dark:text-white' : 'text-gray-500 dark:text-white/50 hover:text-gray-600 dark:hover:text-white/70'
               }`}
             >
               {tab.label}
@@ -248,13 +248,13 @@ const CustomReportsPage: React.FC = () => {
           ))}
         </div>
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
           <input
             type="text"
             placeholder="Search reports..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
           />
         </div>
       </motion.div>
@@ -263,7 +263,7 @@ const CustomReportsPage: React.FC = () => {
       {filteredReports.length === 0 ? (
         <motion.div variants={itemVariants} className="text-center py-16">
           <FileText className="w-12 h-12 text-white/10 mx-auto mb-3" />
-          <p className="text-white/40 text-sm">No reports found</p>
+          <p className="text-gray-400 dark:text-white/40 text-sm">No reports found</p>
         </motion.div>
       ) : (
         <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -272,12 +272,12 @@ const CustomReportsPage: React.FC = () => {
             return (
               <div
                 key={report.id}
-                className="bg-[#181C1F] border border-[#22272B] rounded-xl p-4 hover:border-[#333] transition-colors group"
+                className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4 hover:border-gray-300 dark:hover:border-[#333] transition-colors group"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <div className="p-2 bg-[#22272B] rounded-lg">
-                      <TypeIcon className="w-4 h-4 text-white/50" />
+                    <div className="p-2 bg-gray-100 dark:bg-[#22272B] rounded-lg">
+                      <TypeIcon className="w-4 h-4 text-gray-500 dark:text-white/50" />
                     </div>
                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border capitalize ${typeColors[report.type]}`}>
                       {report.type}
@@ -286,25 +286,25 @@ const CustomReportsPage: React.FC = () => {
                   <div className="relative">
                     <button
                       onClick={() => setActiveMenu(activeMenu === report.id ? null : report.id)}
-                      className="p-1 rounded hover:bg-[#22272B] text-white/30 hover:text-white/60 transition-colors"
+                      className="p-1 rounded hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-400 dark:text-white/30 hover:text-gray-500 dark:hover:text-white/60 transition-colors"
                     >
                       <MoreVertical className="w-4 h-4" />
                     </button>
                     {activeMenu === report.id && (
-                      <div className="absolute right-0 top-8 w-40 bg-[#22272B] border border-[#333] rounded-lg shadow-xl z-10 py-1">
-                        <button className="flex items-center gap-2 w-full px-3 py-2 text-xs text-white/70 hover:bg-[#333] transition-colors">
+                      <div className="absolute right-0 top-8 w-40 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg shadow-xl z-10 py-1">
+                        <button className="flex items-center gap-2 w-full px-3 py-2 text-xs text-gray-600 dark:text-white/70 hover:bg-[#333] transition-colors">
                           <Edit3 className="w-3 h-3" /> Edit
                         </button>
-                        <button className="flex items-center gap-2 w-full px-3 py-2 text-xs text-white/70 hover:bg-[#333] transition-colors">
+                        <button className="flex items-center gap-2 w-full px-3 py-2 text-xs text-gray-600 dark:text-white/70 hover:bg-[#333] transition-colors">
                           <Download className="w-3 h-3" /> Export
                         </button>
-                        <button className="flex items-center gap-2 w-full px-3 py-2 text-xs text-white/70 hover:bg-[#333] transition-colors">
+                        <button className="flex items-center gap-2 w-full px-3 py-2 text-xs text-gray-600 dark:text-white/70 hover:bg-[#333] transition-colors">
                           <Calendar className="w-3 h-3" /> Schedule
                         </button>
-                        <button className="flex items-center gap-2 w-full px-3 py-2 text-xs text-white/70 hover:bg-[#333] transition-colors">
+                        <button className="flex items-center gap-2 w-full px-3 py-2 text-xs text-gray-600 dark:text-white/70 hover:bg-[#333] transition-colors">
                           <Copy className="w-3 h-3" /> Duplicate
                         </button>
-                        <div className="border-t border-[#444] my-1" />
+                        <div className="border-t border-gray-300 dark:border-[#444] my-1" />
                         <button className="flex items-center gap-2 w-full px-3 py-2 text-xs text-red-400 hover:bg-[#333] transition-colors">
                           <Trash2 className="w-3 h-3" /> Delete
                         </button>
@@ -312,8 +312,8 @@ const CustomReportsPage: React.FC = () => {
                     )}
                   </div>
                 </div>
-                <h4 className="text-sm font-medium text-white mb-2 line-clamp-2">{report.name}</h4>
-                <div className="flex items-center gap-3 text-[10px] text-white/40">
+                <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2 line-clamp-2">{report.name}</h4>
+                <div className="flex items-center gap-3 text-[10px] text-gray-400 dark:text-white/40">
                   <span className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {formatDate(report.last_modified)}
@@ -331,7 +331,7 @@ const CustomReportsPage: React.FC = () => {
                     {report.schedule_frequency}
                   </div>
                 )}
-                <p className="text-[10px] text-white/30 mt-2">by {report.author}</p>
+                <p className="text-[10px] text-gray-400 dark:text-white/30 mt-2">by {report.author}</p>
               </div>
             );
           })}

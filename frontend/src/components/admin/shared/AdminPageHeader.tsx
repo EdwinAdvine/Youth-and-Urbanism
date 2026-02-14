@@ -26,19 +26,19 @@ const AdminPageHeader: React.FC<AdminPageHeaderProps> = ({
     <div className="mb-6">
       {/* Breadcrumbs */}
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <nav className="flex items-center gap-1.5 text-xs text-white/40 mb-2" aria-label="Breadcrumb">
-          <button onClick={() => navigate('/dashboard/admin')} className="hover:text-white/60 transition-colors">
+        <nav className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-white/40 mb-2" aria-label="Breadcrumb">
+          <button onClick={() => navigate('/dashboard/admin')} className="hover:text-gray-500 dark:hover:text-white/60 transition-colors">
             Admin
           </button>
           {breadcrumbs.map((crumb, idx) => (
             <React.Fragment key={idx}>
               <ChevronRight className="w-3 h-3" />
               {crumb.path ? (
-                <button onClick={() => navigate(crumb.path!)} className="hover:text-white/60 transition-colors">
+                <button onClick={() => navigate(crumb.path!)} className="hover:text-gray-500 dark:hover:text-white/60 transition-colors">
                   {crumb.label}
                 </button>
               ) : (
-                <span className="text-white/70 font-medium">{crumb.label}</span>
+                <span className="text-gray-600 dark:text-white/70 font-medium">{crumb.label}</span>
               )}
             </React.Fragment>
           ))}
@@ -48,8 +48,8 @@ const AdminPageHeader: React.FC<AdminPageHeaderProps> = ({
       {/* Title + Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white">{title}</h1>
-          {subtitle && <p className="text-sm text-white/50 mt-0.5">{subtitle}</p>}
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{title}</h1>
+          {subtitle && <p className="text-sm text-gray-500 dark:text-white/50 mt-0.5">{subtitle}</p>}
         </div>
         {actions && <div className="flex items-center gap-2 flex-shrink-0">{actions}</div>}
       </div>

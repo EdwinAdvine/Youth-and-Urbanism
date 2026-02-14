@@ -49,13 +49,13 @@ const BreakoutRoomManager: React.FC<BreakoutRoomManagerProps> = ({
   const availableParticipants = UNASSIGNED_PARTICIPANTS.filter((p) => !assignedIds.has(p.id));
 
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#22272B]">
+      <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-200 dark:border-[#22272B]">
         <div className="flex items-center gap-2">
-          <DoorOpen className="w-4 h-4 text-white/60" />
-          <h3 className="text-sm font-semibold text-white">Breakout Rooms</h3>
-          <span className="text-xs text-white/40">{rooms.length} rooms</span>
+          <DoorOpen className="w-4 h-4 text-gray-500 dark:text-white/60" />
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Breakout Rooms</h3>
+          <span className="text-xs text-gray-400 dark:text-white/40">{rooms.length} rooms</span>
         </div>
         <button
           onClick={() => setShowCreateInput(true)}
@@ -76,13 +76,13 @@ const BreakoutRoomManager: React.FC<BreakoutRoomManagerProps> = ({
               onChange={(e) => setNewRoomName(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Room name..."
-              className="flex-1 px-2 py-1.5 bg-[#22272B]/50 border border-[#22272B] rounded text-sm text-white placeholder:text-white/30 outline-none focus:border-[#E40000]/50"
+              className="flex-1 px-2 py-1.5 bg-gray-100 dark:bg-[#22272B]/50 border border-gray-200 dark:border-[#22272B] rounded text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 outline-none focus:border-[#E40000]/50"
               autoFocus
             />
             <button
               onClick={handleCreateRoom}
               disabled={!newRoomName.trim()}
-              className="px-3 py-1.5 text-xs font-medium text-white bg-[#E40000] rounded hover:bg-[#E40000]/90 transition-colors disabled:opacity-40"
+              className="px-3 py-1.5 text-xs font-medium text-gray-900 dark:text-white bg-[#E40000] rounded hover:bg-[#E40000]/90 transition-colors disabled:opacity-40"
             >
               Create
             </button>
@@ -91,7 +91,7 @@ const BreakoutRoomManager: React.FC<BreakoutRoomManagerProps> = ({
                 setShowCreateInput(false);
                 setNewRoomName('');
               }}
-              className="text-white/40 hover:text-white transition-colors"
+              className="text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -102,8 +102,8 @@ const BreakoutRoomManager: React.FC<BreakoutRoomManagerProps> = ({
         {rooms.length === 0 && !showCreateInput ? (
           <div className="text-center py-8">
             <DoorOpen className="w-8 h-8 text-white/10 mx-auto mb-2" />
-            <p className="text-sm text-white/40">No breakout rooms</p>
-            <p className="text-xs text-white/30 mt-1">Create rooms to split participants</p>
+            <p className="text-sm text-gray-400 dark:text-white/40">No breakout rooms</p>
+            <p className="text-xs text-gray-400 dark:text-white/30 mt-1">Create rooms to split participants</p>
           </div>
         ) : (
           rooms.map((room) => (
@@ -124,17 +124,17 @@ const BreakoutRoomManager: React.FC<BreakoutRoomManagerProps> = ({
                   setDraggedParticipant(null);
                 }
               }}
-              className="p-3 rounded-lg border border-[#22272B] bg-[#22272B]/30 transition-colors"
+              className="p-3 rounded-lg border border-gray-200 dark:border-[#22272B] bg-gray-100 dark:bg-[#22272B]/30 transition-colors"
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-white">{room.name}</span>
-                <span className="flex items-center gap-1 text-xs text-white/40">
+                <span className="text-sm font-medium text-gray-900 dark:text-white">{room.name}</span>
+                <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-white/40">
                   <Users className="w-3 h-3" />
                   {room.participants.length}
                 </span>
               </div>
               {room.participants.length === 0 ? (
-                <p className="text-xs text-white/30 italic py-2 text-center border border-dashed border-[#22272B] rounded">
+                <p className="text-xs text-gray-400 dark:text-white/30 italic py-2 text-center border border-dashed border-gray-200 dark:border-[#22272B] rounded">
                   Drag participants here
                 </p>
               ) : (
@@ -142,7 +142,7 @@ const BreakoutRoomManager: React.FC<BreakoutRoomManagerProps> = ({
                   {room.participants.map((p) => (
                     <span
                       key={p.id}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] bg-[#181C1F] border border-[#22272B] text-white/60"
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] text-gray-500 dark:text-white/60"
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
                       {p.name}
@@ -156,8 +156,8 @@ const BreakoutRoomManager: React.FC<BreakoutRoomManagerProps> = ({
 
         {/* Unassigned Participants */}
         {availableParticipants.length > 0 && (
-          <div className="pt-3 border-t border-[#22272B]">
-            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-2">
+          <div className="pt-3 border-t border-gray-200 dark:border-[#22272B]">
+            <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-white/40 mb-2">
               Unassigned ({availableParticipants.length})
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -167,9 +167,9 @@ const BreakoutRoomManager: React.FC<BreakoutRoomManagerProps> = ({
                   draggable
                   onDragStart={() => setDraggedParticipant(p.id)}
                   onDragEnd={() => setDraggedParticipant(null)}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs bg-[#22272B]/50 border border-[#22272B] text-white/60 cursor-grab active:cursor-grabbing hover:border-[#333] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs bg-gray-100 dark:bg-[#22272B]/50 border border-gray-200 dark:border-[#22272B] text-gray-500 dark:text-white/60 cursor-grab active:cursor-grabbing hover:border-gray-300 dark:hover:border-[#333] transition-colors"
                 >
-                  <GripVertical className="w-3 h-3 text-white/20" />
+                  <GripVertical className="w-3 h-3 text-gray-400 dark:text-gray-300 dark:text-white/20" />
                   {p.name}
                 </span>
               ))}

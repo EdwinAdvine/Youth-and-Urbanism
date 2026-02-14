@@ -9,7 +9,6 @@ import {
   MapPin
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import DashboardLayout from '../components/layout/DashboardLayout';
 
 const stagger = {
   hidden: {},
@@ -41,15 +40,15 @@ const DashboardPartner: React.FC = () => {
   ];
 
   return (
-    <DashboardLayout role="partner">
+    <>
       <div className="space-y-8">
         {/* Welcome Section */}
         <motion.div variants={fadeUp} initial="hidden" animate="visible">
-          <div className="bg-gradient-to-r from-[#E40000]/20 to-transparent border border-[#22272B] rounded-2xl p-6 mb-8">
+          <div className="bg-gradient-to-r from-[#E40000]/20 to-transparent border border-gray-200 dark:border-[#22272B] rounded-2xl p-6 mb-8">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome, Partner!</h2>
-                <p className="text-white/80 text-sm sm:text-base">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome, Partner!</h2>
+                <p className="text-gray-600 dark:text-white/80 text-sm sm:text-base">
                   Track your partnerships, community impact, and upcoming events all in one place.
                 </p>
               </div>
@@ -66,11 +65,11 @@ const DashboardPartner: React.FC = () => {
         <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {stats.map((stat, index) => (
             <motion.div key={index} variants={fadeUp} whileHover={{ scale: 1.02 }}>
-              <div className="bg-[#181C1F] border border-[#2A3035] rounded-lg p-6">
+              <div className="bg-gray-50 dark:bg-[#181C1F] border border-gray-200 dark:border-[#2A3035] rounded-lg p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-white/60">{stat.title}</p>
-                    <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
+                    <p className="text-sm text-gray-500 dark:text-white/60">{stat.title}</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stat.value}</p>
                   </div>
                   <div className={`p-3 rounded-lg ${stat.bg}`}>
                     <stat.icon className={`w-8 h-8 ${stat.color}`} />
@@ -83,9 +82,9 @@ const DashboardPartner: React.FC = () => {
 
         {/* Our Latest Updates */}
         <motion.div variants={fadeUp} initial="hidden" animate="visible">
-          <div className="bg-[#181C1F] border border-[#2A3035] rounded-lg p-6">
+          <div className="bg-gray-50 dark:bg-[#181C1F] border border-gray-200 dark:border-[#2A3035] rounded-lg p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-white">Our Latest Updates</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Our Latest Updates</h2>
               <button className="text-[#E40000] hover:text-[#FF0000] text-sm font-medium flex items-center gap-2">
                 View All
                 <ChevronRight className="w-4 h-4" />
@@ -93,15 +92,15 @@ const DashboardPartner: React.FC = () => {
             </div>
             <div className="space-y-4">
               {recentUpdates.map((update) => (
-                <div key={update.id} className="border border-[#2A3035] rounded-lg p-4 hover:bg-[#22272B] transition-colors">
+                <div key={update.id} className="border border-gray-200 dark:border-[#2A3035] rounded-lg p-4 hover:bg-gray-100 dark:bg-[#22272B] transition-colors">
                   <div className="flex items-center justify-between mb-2">
                     <span className="px-2 py-1 bg-[#E40000]/20 text-[#E40000] text-xs rounded-full font-medium">
                       {update.category}
                     </span>
-                    <span className="text-xs text-white/60">{update.date}</span>
+                    <span className="text-xs text-gray-500 dark:text-white/60">{update.date}</span>
                   </div>
-                  <h3 className="font-medium text-white mb-2">{update.title}</h3>
-                  <p className="text-sm text-white/80 mb-3">{update.excerpt}</p>
+                  <h3 className="font-medium text-gray-900 dark:text-white mb-2">{update.title}</h3>
+                  <p className="text-sm text-gray-600 dark:text-white/80 mb-3">{update.excerpt}</p>
                   <button className="text-[#E40000] hover:text-[#FF0000] text-sm font-medium flex items-center gap-1">
                     Read More
                     <ChevronRight className="w-3 h-3" />
@@ -114,9 +113,9 @@ const DashboardPartner: React.FC = () => {
 
         {/* Upcoming Events */}
         <motion.div variants={fadeUp} initial="hidden" animate="visible">
-          <div className="bg-[#181C1F] border border-[#2A3035] rounded-lg p-6">
+          <div className="bg-gray-50 dark:bg-[#181C1F] border border-gray-200 dark:border-[#2A3035] rounded-lg p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-white">Upcoming Events</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Upcoming Events</h2>
               <button className="text-[#E40000] hover:text-[#FF0000] text-sm font-medium flex items-center gap-2">
                 View Calendar
                 <Calendar className="w-4 h-4" />
@@ -124,11 +123,11 @@ const DashboardPartner: React.FC = () => {
             </div>
             <div className="space-y-4">
               {upcomingEvents.map((event) => (
-                <div key={event.id} className="border border-[#2A3035] rounded-lg p-4 hover:bg-[#22272B] transition-colors">
+                <div key={event.id} className="border border-gray-200 dark:border-[#2A3035] rounded-lg p-4 hover:bg-gray-100 dark:bg-[#22272B] transition-colors">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h3 className="font-medium text-white mb-1">{event.title}</h3>
-                      <div className="flex items-center gap-4 text-sm text-white/60 mb-2">
+                      <h3 className="font-medium text-gray-900 dark:text-white mb-1">{event.title}</h3>
+                      <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-white/60 mb-2">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {event.date}
@@ -138,7 +137,7 @@ const DashboardPartner: React.FC = () => {
                           {event.location}
                         </span>
                       </div>
-                      <p className="text-sm text-white/80">{event.description}</p>
+                      <p className="text-sm text-gray-600 dark:text-white/80">{event.description}</p>
                     </div>
                     <button className="text-[#E40000] hover:text-[#FF0000] text-sm font-medium">
                       RSVP
@@ -150,7 +149,7 @@ const DashboardPartner: React.FC = () => {
           </div>
         </motion.div>
       </div>
-    </DashboardLayout>
+    </>
   );
 };
 

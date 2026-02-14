@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import {
   Search, Filter, Download, Users, RefreshCw,
   ChevronLeft, ChevronRight, Eye, UserX, UserCheck,
-  MoreHorizontal, AlertCircle, CheckCircle,
+  AlertCircle, CheckCircle,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import adminUserService from '../../services/admin/adminUserService';
-import type { AdminUser, UserListResponse } from '../../services/admin/adminUserService';
+import type { UserListResponse } from '../../services/admin/adminUserService';
 
 // ------------------------------------------------------------------
 // Badge helpers
@@ -51,13 +51,13 @@ const TableSkeleton: React.FC = () => (
   <div className="space-y-3">
     {Array.from({ length: 8 }).map((_, i) => (
       <div key={i} className="animate-pulse flex items-center gap-4 px-4 py-3">
-        <div className="w-5 h-5 bg-[#22272B] rounded" />
-        <div className="w-40 h-4 bg-[#22272B] rounded" />
-        <div className="w-48 h-4 bg-[#22272B] rounded" />
-        <div className="w-20 h-4 bg-[#22272B] rounded" />
-        <div className="w-16 h-4 bg-[#22272B] rounded" />
-        <div className="w-32 h-4 bg-[#22272B] rounded" />
-        <div className="w-20 h-4 bg-[#22272B] rounded" />
+        <div className="w-5 h-5 bg-gray-100 dark:bg-[#22272B] rounded" />
+        <div className="w-40 h-4 bg-gray-100 dark:bg-[#22272B] rounded" />
+        <div className="w-48 h-4 bg-gray-100 dark:bg-[#22272B] rounded" />
+        <div className="w-20 h-4 bg-gray-100 dark:bg-[#22272B] rounded" />
+        <div className="w-16 h-4 bg-gray-100 dark:bg-[#22272B] rounded" />
+        <div className="w-32 h-4 bg-gray-100 dark:bg-[#22272B] rounded" />
+        <div className="w-20 h-4 bg-gray-100 dark:bg-[#22272B] rounded" />
       </div>
     ))}
   </div>
@@ -232,23 +232,23 @@ const UsersPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">User Management</h1>
-          <p className="text-white/50 text-sm mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">User Management</h1>
+          <p className="text-gray-500 dark:text-white/50 text-sm mt-1">
             Manage all platform accounts&nbsp;
-            {total > 0 && <span className="text-white/30">({total.toLocaleString()} users)</span>}
+            {total > 0 && <span className="text-gray-400 dark:text-white/30">({total.toLocaleString()} users)</span>}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors"
+            className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors"
           >
             <Download className="w-4 h-4" />
             Export CSV
           </button>
           <button
             onClick={() => fetchUsers()}
-            className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors"
+            className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
@@ -260,23 +260,23 @@ const UsersPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row gap-3">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
           <input
             type="text"
             placeholder="Search by name or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
           />
         </div>
 
         {/* Role filter */}
         <div className="relative">
-          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
           <select
             value={roleFilter}
             onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }}
-            className="pl-10 pr-8 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[140px]"
+            className="pl-10 pr-8 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[140px]"
           >
             <option value="">All Roles</option>
             <option value="student">Student</option>
@@ -292,7 +292,7 @@ const UsersPage: React.FC = () => {
         <select
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-          className="px-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[130px]"
+          className="px-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[130px]"
         >
           <option value="">All Status</option>
           <option value="active">Active</option>
@@ -315,7 +315,7 @@ const UsersPage: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-4 px-4 py-3 bg-[#E40000]/10 border border-[#E40000]/20 rounded-lg"
         >
-          <span className="text-sm text-white">
+          <span className="text-sm text-gray-900 dark:text-white">
             <strong>{selected.size}</strong> user{selected.size !== 1 ? 's' : ''} selected
           </span>
           <div className="flex items-center gap-2 ml-auto">
@@ -333,7 +333,7 @@ const UsersPage: React.FC = () => {
             </button>
             <button
               onClick={() => setSelected(new Set())}
-              className="px-3 py-1.5 text-xs text-white/50 hover:text-white transition-colors"
+              className="px-3 py-1.5 text-xs text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
             >
               Clear
             </button>
@@ -342,15 +342,15 @@ const UsersPage: React.FC = () => {
       )}
 
       {/* Table */}
-      <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+      <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
         {loading ? (
           <TableSkeleton />
         ) : users.length === 0 ? (
           /* Empty state */
           <div className="text-center py-16">
             <Users className="w-16 h-16 text-white/10 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-white mb-2">No Users Found</h3>
-            <p className="text-white/40 text-sm">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Users Found</h3>
+            <p className="text-gray-400 dark:text-white/40 text-sm">
               {search || roleFilter || statusFilter
                 ? 'Try adjusting your search or filter criteria.'
                 : 'No users have been created yet.'}
@@ -360,57 +360,57 @@ const UsersPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#22272B] text-left">
+                <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
                   <th className="px-4 py-3 w-10">
                     <input
                       type="checkbox"
                       checked={selected.size === users.length && users.length > 0}
                       onChange={handleSelectAll}
-                      className="rounded border-[#333] bg-[#22272B] text-[#E40000] focus:ring-[#E40000]/30"
+                      className="rounded border-gray-300 dark:border-[#333] bg-gray-100 dark:bg-[#22272B] text-[#E40000] focus:ring-[#E40000]/30"
                     />
                   </th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Name</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Email</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Role</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Status</th>
-                  <th className="px-4 py-3 text-white/60 font-medium">Last Login</th>
-                  <th className="px-4 py-3 text-white/60 font-medium text-right">Actions</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Name</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Email</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Role</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Status</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium">Last Login</th>
+                  <th className="px-4 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((user) => (
                   <tr
                     key={user.id}
-                    className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
+                    className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
                   >
                     <td className="px-4 py-3">
                       <input
                         type="checkbox"
                         checked={selected.has(user.id)}
                         onChange={() => handleSelectOne(user.id)}
-                        className="rounded border-[#333] bg-[#22272B] text-[#E40000] focus:ring-[#E40000]/30"
+                        className="rounded border-gray-300 dark:border-[#333] bg-gray-100 dark:bg-[#22272B] text-[#E40000] focus:ring-[#E40000]/30"
                       />
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[#22272B] flex items-center justify-center text-white/60 text-xs font-bold uppercase">
+                        <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-[#22272B] flex items-center justify-center text-gray-500 dark:text-white/60 text-xs font-bold uppercase">
                           {(user.full_name || user.email).slice(0, 2)}
                         </div>
-                        <span className="text-white font-medium truncate max-w-[180px]">
+                        <span className="text-gray-900 dark:text-white font-medium truncate max-w-[180px]">
                           {user.full_name || '(No name)'}
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-white/60 truncate max-w-[200px]">{user.email}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-white/60 truncate max-w-[200px]">{user.email}</td>
                     <td className="px-4 py-3"><RoleBadge role={user.role} /></td>
                     <td className="px-4 py-3"><StatusBadge active={user.is_active} /></td>
-                    <td className="px-4 py-3 text-white/40">{formatDate(user.last_login)}</td>
+                    <td className="px-4 py-3 text-gray-400 dark:text-white/40">{formatDate(user.last_login)}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => navigate(`/dashboard/admin/users/${user.id}`)}
                           title="View"
-                          className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors"
+                          className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
@@ -418,7 +418,7 @@ const UsersPage: React.FC = () => {
                           <button
                             onClick={() => handleDeactivate(user.id)}
                             title="Deactivate"
-                            className="p-1.5 rounded-lg hover:bg-red-500/10 text-white/50 hover:text-red-400 transition-colors"
+                            className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 dark:text-white/50 hover:text-red-400 transition-colors"
                           >
                             <UserX className="w-4 h-4" />
                           </button>
@@ -426,7 +426,7 @@ const UsersPage: React.FC = () => {
                           <button
                             onClick={() => handleReactivate(user.id)}
                             title="Reactivate"
-                            className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-white/50 hover:text-emerald-400 transition-colors"
+                            className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-gray-500 dark:text-white/50 hover:text-emerald-400 transition-colors"
                           >
                             <UserCheck className="w-4 h-4" />
                           </button>
@@ -442,8 +442,8 @@ const UsersPage: React.FC = () => {
 
         {/* Pagination */}
         {!loading && users.length > 0 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-[#22272B]">
-            <p className="text-xs text-white/40">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-[#22272B]">
+            <p className="text-xs text-gray-400 dark:text-white/40">
               Showing {(page - 1) * pageSize + 1}
               &ndash;{Math.min(page * pageSize, total)} of {total}
             </p>
@@ -451,7 +451,7 @@ const UsersPage: React.FC = () => {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -464,8 +464,8 @@ const UsersPage: React.FC = () => {
                     onClick={() => setPage(pageNum)}
                     className={`w-8 h-8 rounded-lg text-xs font-medium transition-colors ${
                       pageNum === page
-                        ? 'bg-[#E40000] text-white'
-                        : 'text-white/50 hover:bg-[#22272B] hover:text-white'
+                        ? 'bg-[#E40000] text-gray-900 dark:text-white'
+                        : 'text-gray-500 dark:text-white/50 hover:bg-gray-100 dark:hover:bg-[#22272B] hover:text-gray-900 dark:hover:text-white'
                     }`}
                   >
                     {pageNum}
@@ -475,7 +475,7 @@ const UsersPage: React.FC = () => {
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
-                className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -490,8 +490,8 @@ const UsersPage: React.FC = () => {
           <div
             className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
               toast.type === 'success'
-                ? 'bg-emerald-500 text-white'
-                : 'bg-red-500 text-white'
+                ? 'bg-emerald-500 text-gray-900 dark:text-white'
+                : 'bg-red-500 text-gray-900 dark:text-white'
             }`}
           >
             {toast.type === 'success' ? (

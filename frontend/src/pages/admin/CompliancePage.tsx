@@ -11,7 +11,6 @@ import {
   Users,
   FileCheck,
 } from 'lucide-react';
-import DashboardLayout from '../../components/layout/DashboardLayout';
 import AdminPageHeader from '../../components/admin/shared/AdminPageHeader';
 import AdminStatsCard from '../../components/admin/shared/AdminStatsCard';
 
@@ -263,22 +262,22 @@ const CompliancePage: React.FC = () => {
 
   if (loading) {
     return (
-      <DashboardLayout role="admin">
+      <>
         <div className="space-y-6">
-          <div className="h-16 bg-[#22272B] rounded-lg animate-pulse" />
+          <div className="h-16 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-28 bg-[#22272B] rounded-xl animate-pulse" />
+              <div key={i} className="h-28 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
             ))}
           </div>
-          <div className="h-80 bg-[#22272B] rounded-xl animate-pulse" />
+          <div className="h-80 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
         </div>
-      </DashboardLayout>
+      </>
     );
   }
 
   return (
-    <DashboardLayout role="admin">
+    <>
       <motion.div
         className="space-y-6"
         variants={containerVariants}
@@ -297,7 +296,7 @@ const CompliancePage: React.FC = () => {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
@@ -339,21 +338,21 @@ const CompliancePage: React.FC = () => {
         {/* Incident Log Table */}
         <motion.div
           variants={itemVariants}
-          className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6"
+          className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
             <div>
-              <h2 className="text-lg font-semibold text-white">Incident Log</h2>
-              <p className="text-sm text-white/50 mt-1">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Incident Log</h2>
+              <p className="text-sm text-gray-500 dark:text-white/50 mt-1">
                 Data protection and child safety incidents requiring attention
               </p>
             </div>
             <div className="flex items-center gap-2 mt-3 sm:mt-0">
-              <span className="text-xs text-white/40">
+              <span className="text-xs text-gray-400 dark:text-white/40">
                 {INCIDENTS.filter((i) => i.status !== 'resolved').length} active
               </span>
-              <span className="text-xs text-white/30">|</span>
-              <span className="text-xs text-white/40">
+              <span className="text-xs text-gray-400 dark:text-white/30">|</span>
+              <span className="text-xs text-gray-400 dark:text-white/40">
                 {INCIDENTS.filter((i) => i.status === 'resolved').length} resolved
               </span>
             </div>
@@ -361,41 +360,41 @@ const CompliancePage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#22272B]">
-                  <th className="text-left py-3 px-4 text-white/50 font-medium">Type</th>
-                  <th className="text-left py-3 px-4 text-white/50 font-medium">Incident</th>
-                  <th className="text-center py-3 px-4 text-white/50 font-medium">Severity</th>
-                  <th className="text-right py-3 px-4 text-white/50 font-medium">Affected</th>
-                  <th className="text-center py-3 px-4 text-white/50 font-medium">Status</th>
-                  <th className="text-right py-3 px-4 text-white/50 font-medium">Reported</th>
-                  <th className="text-center py-3 px-4 text-white/50 font-medium">Details</th>
+                <tr className="border-b border-gray-200 dark:border-[#22272B]">
+                  <th className="text-left py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Type</th>
+                  <th className="text-left py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Incident</th>
+                  <th className="text-center py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Severity</th>
+                  <th className="text-right py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Affected</th>
+                  <th className="text-center py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Status</th>
+                  <th className="text-right py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Reported</th>
+                  <th className="text-center py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Details</th>
                 </tr>
               </thead>
               <tbody>
                 {INCIDENTS.map((incident) => (
                   <React.Fragment key={incident.id}>
-                    <tr className="border-b border-[#22272B]/50 hover:bg-[#22272B]/30 transition-colors">
+                    <tr className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-gray-100 dark:hover:bg-[#22272B]/30 transition-colors">
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-2">
                           {typeIcons[incident.type]}
-                          <span className="text-white/60 text-xs capitalize">
+                          <span className="text-gray-500 dark:text-white/60 text-xs capitalize">
                             {incident.type.replace(/_/g, ' ')}
                           </span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-white font-medium max-w-[280px] truncate">
+                      <td className="py-3 px-4 text-gray-900 dark:text-white font-medium max-w-[280px] truncate">
                         {incident.title}
                       </td>
                       <td className="py-3 px-4 text-center">
                         <Badge label={incident.severity} colorClass={severityColors[incident.severity]} />
                       </td>
-                      <td className="py-3 px-4 text-right text-white/80">
+                      <td className="py-3 px-4 text-right text-gray-700 dark:text-white/80">
                         {incident.affectedUsers}
                       </td>
                       <td className="py-3 px-4 text-center">
                         <Badge label={incident.status} colorClass={statusColors[incident.status]} />
                       </td>
-                      <td className="py-3 px-4 text-right text-white/40">
+                      <td className="py-3 px-4 text-right text-gray-400 dark:text-white/40">
                         {formatDateTime(incident.reportedAt)}
                       </td>
                       <td className="py-3 px-4 text-center">
@@ -405,14 +404,14 @@ const CompliancePage: React.FC = () => {
                               expandedIncident === incident.id ? null : incident.id
                             )
                           }
-                          className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors"
+                          className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                       </td>
                     </tr>
                     {expandedIncident === incident.id && (
-                      <tr className="bg-[#0F1112]">
+                      <tr className="bg-gray-50 dark:bg-[#0F1112]">
                         <td colSpan={7} className="px-6 py-4">
                           <motion.div
                             initial={{ opacity: 0, height: 0 }}
@@ -420,16 +419,16 @@ const CompliancePage: React.FC = () => {
                             className="space-y-3"
                           >
                             <div>
-                              <span className="text-xs text-white/40 uppercase tracking-wider">Description</span>
-                              <p className="text-sm text-white/70 mt-1">{incident.description}</p>
+                              <span className="text-xs text-gray-400 dark:text-white/40 uppercase tracking-wider">Description</span>
+                              <p className="text-sm text-gray-600 dark:text-white/70 mt-1">{incident.description}</p>
                             </div>
                             {incident.resolution && (
                               <div>
-                                <span className="text-xs text-white/40 uppercase tracking-wider">Resolution</span>
+                                <span className="text-xs text-gray-400 dark:text-white/40 uppercase tracking-wider">Resolution</span>
                                 <p className="text-sm text-emerald-400/80 mt-1">{incident.resolution}</p>
                               </div>
                             )}
-                            <div className="flex items-center gap-4 text-xs text-white/40">
+                            <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-white/40">
                               <span className="flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
                                 Reported: {formatDateTime(incident.reportedAt)}
@@ -455,35 +454,35 @@ const CompliancePage: React.FC = () => {
         {/* DPA Compliance Checklist */}
         <motion.div
           variants={itemVariants}
-          className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6"
+          className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6"
         >
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-white">DPA Compliance Checklist</h2>
-            <p className="text-sm text-white/50 mt-1">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">DPA Compliance Checklist</h2>
+            <p className="text-sm text-gray-500 dark:text-white/50 mt-1">
               Kenya Data Protection Act 2019 requirements status
             </p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#22272B]">
-                  <th className="text-left py-3 px-4 text-white/50 font-medium">Category</th>
-                  <th className="text-left py-3 px-4 text-white/50 font-medium">Requirement</th>
-                  <th className="text-center py-3 px-4 text-white/50 font-medium">Status</th>
-                  <th className="text-right py-3 px-4 text-white/50 font-medium">Last Audit</th>
-                  <th className="text-left py-3 px-4 text-white/50 font-medium">Notes</th>
+                <tr className="border-b border-gray-200 dark:border-[#22272B]">
+                  <th className="text-left py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Category</th>
+                  <th className="text-left py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Requirement</th>
+                  <th className="text-center py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Status</th>
+                  <th className="text-right py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Last Audit</th>
+                  <th className="text-left py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Notes</th>
                 </tr>
               </thead>
               <tbody>
                 {COMPLIANCE_CHECKS.map((check) => (
                   <tr
                     key={check.id}
-                    className="border-b border-[#22272B]/50 hover:bg-[#22272B]/30 transition-colors"
+                    className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-gray-100 dark:hover:bg-[#22272B]/30 transition-colors"
                   >
-                    <td className="py-3 px-4 text-white/60 font-medium whitespace-nowrap">
+                    <td className="py-3 px-4 text-gray-500 dark:text-white/60 font-medium whitespace-nowrap">
                       {check.category}
                     </td>
-                    <td className="py-3 px-4 text-white/80 max-w-[300px]">
+                    <td className="py-3 px-4 text-gray-700 dark:text-white/80 max-w-[300px]">
                       {check.requirement}
                     </td>
                     <td className="py-3 px-4 text-center">
@@ -492,10 +491,10 @@ const CompliancePage: React.FC = () => {
                         colorClass={complianceStatusColors[check.status]}
                       />
                     </td>
-                    <td className="py-3 px-4 text-right text-white/40">
+                    <td className="py-3 px-4 text-right text-gray-400 dark:text-white/40">
                       {formatDate(check.lastAudit)}
                     </td>
-                    <td className="py-3 px-4 text-white/50 max-w-[250px] text-xs">
+                    <td className="py-3 px-4 text-gray-500 dark:text-white/50 max-w-[250px] text-xs">
                       {check.notes}
                     </td>
                   </tr>
@@ -505,15 +504,15 @@ const CompliancePage: React.FC = () => {
           </div>
 
           {/* Compliance Summary Bar */}
-          <div className="mt-6 pt-4 border-t border-[#22272B]">
-            <div className="flex items-center justify-between text-xs text-white/40 mb-2">
+          <div className="mt-6 pt-4 border-t border-gray-200 dark:border-[#22272B]">
+            <div className="flex items-center justify-between text-xs text-gray-400 dark:text-white/40 mb-2">
               <span>Overall Compliance</span>
               <span>
                 {COMPLIANCE_CHECKS.filter((c) => c.status === 'compliant').length}/
                 {COMPLIANCE_CHECKS.length} requirements met
               </span>
             </div>
-            <div className="h-2 bg-[#22272B] rounded-full overflow-hidden flex">
+            <div className="h-2 bg-gray-100 dark:bg-[#22272B] rounded-full overflow-hidden flex">
               <div
                 className="bg-emerald-400 h-full transition-all duration-500"
                 style={{
@@ -536,7 +535,7 @@ const CompliancePage: React.FC = () => {
           </div>
         </motion.div>
       </motion.div>
-    </DashboardLayout>
+    </>
   );
 };
 

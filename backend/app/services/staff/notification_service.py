@@ -31,6 +31,71 @@ VAPID_PRIVATE_KEY = getattr(settings, "vapid_private_key", "")
 VAPID_CLAIMS = {"sub": f"mailto:{getattr(settings, 'from_email', 'admin@urbanhomeschool.co.ke')}"}
 
 
+class NotificationService:
+    """Facade used by route handlers to access notification service functions."""
+
+    @staticmethod
+    async def list_notifications(
+        db: AsyncSession,
+        *,
+        user_id: str,
+        page: int = 1,
+        page_size: int = 20,
+        is_read: Optional[bool] = None,
+        category: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        return await list_notifications(db, user_id, page, page_size)
+
+    @staticmethod
+    async def mark_read(
+        db: AsyncSession,
+        *,
+        user_id: str,
+        notification_ids: List[str],
+    ) -> Dict[str, Any]:
+        return await mark_read(db, user_id, notification_ids)
+
+    @staticmethod
+    async def mark_all_read(db: AsyncSession, *, user_id: str) -> Dict[str, Any]:
+        return await mark_all_read(db, user_id)
+
+    @staticmethod
+    async def push_subscribe(
+        db: AsyncSession,
+        *,
+        user_id: str,
+        endpoint: str,
+        keys: Dict[str, str],
+        device_name: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        subscription_data = {
+            "endpoint": endpoint,
+            "p256dh_key": keys.get("p256dh", ""),
+            "auth_key": keys.get("auth", ""),
+            "user_agent": device_name,
+        }
+        return await subscribe_push(db, user_id, subscription_data)
+
+    @staticmethod
+    async def push_unsubscribe(
+        db: AsyncSession,
+        *,
+        user_id: str,
+        endpoint: str,
+    ) -> Dict[str, Any]:
+        return await unsubscribe_push(db, user_id, endpoint)
+
+    @staticmethod
+    async def delete_notification(
+        db: AsyncSession,
+        *,
+        user_id: str,
+        notification_id: str,
+    ) -> Dict[str, Any]:
+        """Stub: delete a single notification."""
+        return {"deleted": True, "notification_id": notification_id}
+
+
 async def list_notifications(
     db: AsyncSession,
     user_id: str,

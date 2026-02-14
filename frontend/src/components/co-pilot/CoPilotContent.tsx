@@ -146,23 +146,23 @@ const CoPilotContent: React.FC<CoPilotContentProps> = ({ isExpanded }) => {
           transition={{ duration: 0.3 }}
         >
           {/* Header */}
-          <div className="p-4 border-b border-[#22272B] bg-gradient-to-r from-white/5 to-transparent">
+          <div className="p-4 border-b border-gray-200 dark:border-[#22272B] bg-gradient-to-r from-white/5 to-transparent">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className={`
-                  p-2 rounded-lg bg-gradient-to-br ${getRoleColor()} text-white
+                  p-2 rounded-lg bg-gradient-to-br ${getRoleColor()} text-gray-900 dark:text-white
                   shadow-lg shadow-blue-500/20
                 `}>
                   {getRoleIcon()}
                 </div>
                 <div>
-                  <h2 className="font-semibold text-white text-lg">
+                  <h2 className="font-semibold text-gray-900 dark:text-white text-lg">
                     {activeRole.charAt(0).toUpperCase() + activeRole.slice(1)} Assistant
                   </h2>
-                  <p className="text-white/70 text-sm">CBC-aligned personalized support</p>
+                  <p className="text-gray-600 dark:text-white/70 text-sm">CBC-aligned personalized support</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 text-xs text-white/60">
+              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-white/60">
                 <span>Session: {currentSessionId?.slice(0, 8) || 'N/A'}</span>
                 <div className="w-2 h-2 rounded-full bg-green-400 shadow-lg" />
               </div>
@@ -170,11 +170,11 @@ const CoPilotContent: React.FC<CoPilotContentProps> = ({ isExpanded }) => {
           </div>
 
           {/* Quick Actions */}
-          <div className="p-4 border-b border-[#22272B]">
-            <h3 className="text-sm font-semibold text-white/80 mb-3">Quick Actions</h3>
+          <div className="p-4 border-b border-gray-200 dark:border-[#22272B]">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-white/80 mb-3">Quick Actions</h3>
             <div className="grid grid-cols-2 gap-2">
               <motion.button
-                className="p-3 bg-white/5 hover:bg-white/10 rounded-lg border border-white/20 text-left transition-all"
+                className="p-3 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg border border-gray-300 dark:border-white/20 text-left transition-all"
                 whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleQuickAction('progress')}
@@ -183,13 +183,13 @@ const CoPilotContent: React.FC<CoPilotContentProps> = ({ isExpanded }) => {
                   <div className="p-1 bg-blue-500/20 rounded">
                     <FileText className="w-4 h-4 text-blue-400" />
                   </div>
-                  <span className="text-sm font-medium text-white">Progress</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">Progress</span>
                 </div>
-                <p className="text-xs text-white/60">View assignments & progress</p>
+                <p className="text-xs text-gray-500 dark:text-white/60">View assignments & progress</p>
               </motion.button>
 
               <motion.button
-                className="p-3 bg-white/5 hover:bg-white/10 rounded-lg border border-white/20 text-left transition-all"
+                className="p-3 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg border border-gray-300 dark:border-white/20 text-left transition-all"
                 whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleQuickAction('achievements')}
@@ -198,13 +198,13 @@ const CoPilotContent: React.FC<CoPilotContentProps> = ({ isExpanded }) => {
                   <div className="p-1 bg-yellow-500/20 rounded">
                     <Award className="w-4 h-4 text-yellow-400" />
                   </div>
-                  <span className="text-sm font-medium text-white">Achievements</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">Achievements</span>
                 </div>
-                <p className="text-xs text-white/60">View certificates & badges</p>
+                <p className="text-xs text-gray-500 dark:text-white/60">View certificates & badges</p>
               </motion.button>
 
               <motion.button
-                className="p-3 bg-white/5 hover:bg-white/10 rounded-lg border border-white/20 text-left transition-all"
+                className="p-3 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg border border-gray-300 dark:border-white/20 text-left transition-all"
                 whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleQuickAction('community')}
@@ -213,13 +213,13 @@ const CoPilotContent: React.FC<CoPilotContentProps> = ({ isExpanded }) => {
                   <div className="p-1 bg-green-500/20 rounded">
                     <Users className="w-4 h-4 text-green-400" />
                   </div>
-                  <span className="text-sm font-medium text-white">Community</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">Community</span>
                 </div>
-                <p className="text-xs text-white/60">Forum posts & replies</p>
+                <p className="text-xs text-gray-500 dark:text-white/60">Forum posts & replies</p>
               </motion.button>
 
               <motion.button
-                className="p-3 bg-white/5 hover:bg-white/10 rounded-lg border border-white/20 text-left transition-all"
+                className="p-3 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg border border-gray-300 dark:border-white/20 text-left transition-all"
                 whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleQuickAction('finance')}
@@ -228,9 +228,9 @@ const CoPilotContent: React.FC<CoPilotContentProps> = ({ isExpanded }) => {
                   <div className="p-1 bg-purple-500/20 rounded">
                     <Wallet className="w-4 h-4 text-purple-400" />
                   </div>
-                  <span className="text-sm font-medium text-white">Finance</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">Finance</span>
                 </div>
-                <p className="text-xs text-white/60">Transactions & balance</p>
+                <p className="text-xs text-gray-500 dark:text-white/60">Transactions & balance</p>
               </motion.button>
             </div>
           </div>
@@ -241,22 +241,22 @@ const CoPilotContent: React.FC<CoPilotContentProps> = ({ isExpanded }) => {
               <div className="text-center py-8">
                 <div className="flex justify-center mb-4">
                   <div className={`
-                    p-4 rounded-full bg-gradient-to-br ${getRoleColor()} text-white
+                    p-4 rounded-full bg-gradient-to-br ${getRoleColor()} text-gray-900 dark:text-white
                     shadow-lg shadow-blue-500/20
                   `}>
                     <Bot className="w-8 h-8" />
                   </div>
                 </div>
-                <h3 className="text-white text-lg font-semibold mb-2">Welcome to AI Co-Pilot</h3>
-                <p className="text-white/70 mb-4">
+                <h3 className="text-gray-900 dark:text-white text-lg font-semibold mb-2">Welcome to AI Co-Pilot</h3>
+                <p className="text-gray-600 dark:text-white/70 mb-4">
                   I'm here to help you with {activeRole}-specific tasks and questions.
                 </p>
                 <div className="space-y-2">
-                  <p className="text-xs text-white/60">Try asking:</p>
+                  <p className="text-xs text-gray-500 dark:text-white/60">Try asking:</p>
                   <div className="grid grid-cols-1 gap-2 text-xs">
-                    <span className="bg-white/10 text-white/80 px-3 py-2 rounded-lg">"How is my progress?"</span>
-                    <span className="bg-white/10 text-white/80 px-3 py-2 rounded-lg">"What assignments are due?"</span>
-                    <span className="bg-white/10 text-white/80 px-3 py-2 rounded-lg">"Show me my achievements"</span>
+                    <span className="bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white/80 px-3 py-2 rounded-lg">"How is my progress?"</span>
+                    <span className="bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white/80 px-3 py-2 rounded-lg">"What assignments are due?"</span>
+                    <span className="bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white/80 px-3 py-2 rounded-lg">"Show me my achievements"</span>
                   </div>
                 </div>
               </div>
@@ -276,27 +276,27 @@ const CoPilotContent: React.FC<CoPilotContentProps> = ({ isExpanded }) => {
                     p-3 rounded-2xl border
                     ${message.type === 'user' 
                       ? 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border-blue-500/40 ml-auto' 
-                      : 'bg-white/5 border-white/20 mr-auto'
+                      : 'bg-gray-50 dark:bg-white/5 border-gray-300 dark:border-white/20 mr-auto'
                     }
                   `}>
                     <div className="flex items-start gap-2 mb-1">
                       <div className={`
                         p-1 rounded-full
-                        ${message.type === 'user' ? 'bg-blue-500/30' : 'bg-white/20'}
+                        ${message.type === 'user' ? 'bg-blue-500/30' : 'bg-gray-200 dark:bg-white/20'}
                       `}>
                         {message.type === 'user' ? (
                           <User className="w-4 h-4 text-blue-400" />
                         ) : (
-                          <Bot className="w-4 h-4 text-white" />
+                          <Bot className="w-4 h-4 text-gray-900 dark:text-white" />
                         )}
                       </div>
-                      <span className="text-xs text-white/60">
+                      <span className="text-xs text-gray-500 dark:text-white/60">
                         {message.type === 'user' ? 'You' : 'AI Assistant'}
                       </span>
                     </div>
-                    <p className="text-sm text-white">{message.content}</p>
+                    <p className="text-sm text-gray-900 dark:text-white">{message.content}</p>
                     <div className="flex justify-end mt-1">
-                      <span className="text-xs text-white/50">
+                      <span className="text-xs text-gray-500 dark:text-white/50">
                         {message.timestamp.toLocaleTimeString()}
                       </span>
                     </div>
@@ -312,14 +312,14 @@ const CoPilotContent: React.FC<CoPilotContentProps> = ({ isExpanded }) => {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="bg-white/5 border border-white/20 rounded-2xl p-3">
+                <div className="bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/20 rounded-2xl p-3">
                   <div className="flex items-center gap-2">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                       <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                       <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
-                    <span className="text-xs text-white/60">Thinking...</span>
+                    <span className="text-xs text-gray-500 dark:text-white/60">Thinking...</span>
                   </div>
                 </div>
               </motion.div>
@@ -327,7 +327,7 @@ const CoPilotContent: React.FC<CoPilotContentProps> = ({ isExpanded }) => {
           </div>
 
           {/* Input Area */}
-          <div className="p-4 border-t border-[#22272B] bg-gradient-to-t from-[#0F1112] to-transparent">
+          <div className="p-4 border-t border-gray-200 dark:border-[#22272B] bg-gradient-to-t from-gray-50 dark:from-[#0F1112] to-transparent">
             <div className="flex gap-2">
               <div className="flex-1 relative">
                 <input
@@ -343,14 +343,14 @@ const CoPilotContent: React.FC<CoPilotContentProps> = ({ isExpanded }) => {
                     }
                   }}
                   placeholder={`Ask ${activeRole} assistant...`}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-white/50 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full bg-gray-100 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-lg px-4 py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/50 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40">
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-white/40">
                   <Sparkles className="w-4 h-4" />
                 </div>
               </div>
               <motion.button
-                className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg shadow-lg"
+                className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-gray-900 dark:text-white rounded-lg shadow-lg"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
@@ -363,7 +363,7 @@ const CoPilotContent: React.FC<CoPilotContentProps> = ({ isExpanded }) => {
                 <Send className="w-5 h-5" />
               </motion.button>
             </div>
-            <div className="flex justify-between items-center mt-2 text-xs text-white/60">
+            <div className="flex justify-between items-center mt-2 text-xs text-gray-500 dark:text-white/60">
               <span>Tips: Ask about progress, assignments, or CBC topics</span>
               <div className="flex items-center gap-2">
                 <EyeOff className="w-4 h-4" />

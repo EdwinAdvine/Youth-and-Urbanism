@@ -134,7 +134,7 @@ const CoPilotPerformance: React.FC<CoPilotPerformanceProps> = ({ isExpanded }) =
     <>
       {/* Performance indicators for debugging */}
       {process.env.NODE_ENV === 'development' && (
-        <div className="fixed bottom-20 left-4 bg-black/50 text-white p-2 rounded text-xs z-50">
+        <div className="fixed bottom-20 left-4 bg-black/50 text-gray-900 dark:text-white p-2 rounded text-xs z-50">
           <div>Device: {isLowEndDevice ? 'Low-end' : 'Standard'}</div>
           <div>Motion: {isReducedMotion ? 'Reduced' : 'Normal'}</div>
           <div>Status: {isExpanded ? 'Expanded' : 'Retracted'}</div>

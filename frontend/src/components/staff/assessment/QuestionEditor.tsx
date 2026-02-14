@@ -120,13 +120,13 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, onSave, onCan
   const isValid = text.trim().length > 0 && (type !== 'mcq' || options.some((o) => o.text.trim()));
 
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#22272B]">
-        <h3 className="text-sm font-semibold text-white">
+      <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-200 dark:border-[#22272B]">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
           {question ? 'Edit Question' : 'New Question'}
         </h3>
-        <button onClick={onCancel} className="text-white/40 hover:text-white transition-colors">
+        <button onClick={onCancel} className="text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white transition-colors">
           <X className="w-4 h-4" />
         </button>
       </div>
@@ -134,13 +134,13 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, onSave, onCan
       <div className="p-5 space-y-5">
         {/* Question Text */}
         <div>
-          <label className="block text-xs font-medium text-white/60 mb-1.5">Question Text</label>
+          <label className="block text-xs font-medium text-gray-500 dark:text-white/60 mb-1.5">Question Text</label>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Enter your question..."
             rows={3}
-            className="w-full px-3 py-2.5 bg-[#22272B]/50 border border-[#22272B] rounded-lg text-sm text-white placeholder:text-white/30 outline-none focus:border-[#E40000]/50 resize-none transition-colors"
+            className="w-full px-3 py-2.5 bg-gray-100 dark:bg-[#22272B]/50 border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 outline-none focus:border-[#E40000]/50 resize-none transition-colors"
           />
         </div>
 
@@ -148,14 +148,14 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, onSave, onCan
         <div className="grid grid-cols-2 gap-4">
           {/* Question Type */}
           <div>
-            <label className="block text-xs font-medium text-white/60 mb-1.5">Question Type</label>
+            <label className="block text-xs font-medium text-gray-500 dark:text-white/60 mb-1.5">Question Type</label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value as QuestionType)}
-              className="w-full px-3 py-2.5 bg-[#22272B]/50 border border-[#22272B] rounded-lg text-sm text-white outline-none focus:border-[#E40000]/50 appearance-none cursor-pointer transition-colors"
+              className="w-full px-3 py-2.5 bg-gray-100 dark:bg-[#22272B]/50 border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-900 dark:text-white outline-none focus:border-[#E40000]/50 appearance-none cursor-pointer transition-colors"
             >
               {QUESTION_TYPES.map((qt) => (
-                <option key={qt.value} value={qt.value} className="bg-[#22272B]">
+                <option key={qt.value} value={qt.value} className="bg-gray-100 dark:bg-[#22272B]">
                   {qt.label}
                 </option>
               ))}
@@ -164,7 +164,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, onSave, onCan
 
           {/* Difficulty Slider */}
           <div>
-            <label className="block text-xs font-medium text-white/60 mb-1.5">
+            <label className="block text-xs font-medium text-gray-500 dark:text-white/60 mb-1.5">
               Difficulty:{' '}
               <span className={DIFFICULTY_LABELS[difficulty]?.color}>
                 {difficulty} - {DIFFICULTY_LABELS[difficulty]?.label}
@@ -198,13 +198,13 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, onSave, onCan
         {/* MCQ Options */}
         {type === 'mcq' && (
           <div>
-            <label className="block text-xs font-medium text-white/60 mb-2">
+            <label className="block text-xs font-medium text-gray-500 dark:text-white/60 mb-2">
               Answer Options
             </label>
             <div className="space-y-2">
               {options.map((option, index) => (
                 <div key={option.id} className="flex items-center gap-2">
-                  <GripVertical className="w-3.5 h-3.5 text-white/20 flex-shrink-0 cursor-grab" />
+                  <GripVertical className="w-3.5 h-3.5 text-gray-400 dark:text-gray-300 dark:text-white/20 flex-shrink-0 cursor-grab" />
                   <button
                     type="button"
                     onClick={() => handleSetCorrect(option.id)}
@@ -214,7 +214,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, onSave, onCan
                     {option.isCorrect ? (
                       <CheckCircle className="w-4.5 h-4.5 text-green-400" />
                     ) : (
-                      <Circle className="w-4.5 h-4.5 text-white/20 hover:text-white/40 transition-colors" />
+                      <Circle className="w-4.5 h-4.5 text-gray-400 dark:text-gray-300 dark:text-white/20 hover:text-gray-400 dark:hover:text-white/40 transition-colors" />
                     )}
                   </button>
                   <input
@@ -222,13 +222,13 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, onSave, onCan
                     value={option.text}
                     onChange={(e) => handleOptionTextChange(option.id, e.target.value)}
                     placeholder={`Option ${String.fromCharCode(65 + index)}`}
-                    className="flex-1 px-3 py-2 bg-[#22272B]/50 border border-[#22272B] rounded-lg text-sm text-white placeholder:text-white/30 outline-none focus:border-[#E40000]/50 transition-colors"
+                    className="flex-1 px-3 py-2 bg-gray-100 dark:bg-[#22272B]/50 border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 outline-none focus:border-[#E40000]/50 transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => handleRemoveOption(option.id)}
                     disabled={options.length <= 2}
-                    className="text-white/20 hover:text-red-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0"
+                    className="text-gray-400 dark:text-gray-300 dark:text-white/20 hover:text-red-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -238,7 +238,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, onSave, onCan
             <button
               type="button"
               onClick={handleAddOption}
-              className="mt-2 flex items-center gap-1.5 text-xs text-white/40 hover:text-white transition-colors"
+              className="mt-2 flex items-center gap-1.5 text-xs text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               Add option
@@ -247,17 +247,17 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, onSave, onCan
         )}
 
         {/* AI Grading Toggle */}
-        <div className="pt-2 border-t border-[#22272B]">
+        <div className="pt-2 border-t border-gray-200 dark:border-[#22272B]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-purple-400" />
-              <span className="text-sm text-white font-medium">AI Auto-Grading</span>
+              <span className="text-sm text-gray-900 dark:text-white font-medium">AI Auto-Grading</span>
             </div>
             <button
               type="button"
               onClick={() => setAiGradingEnabled(!aiGradingEnabled)}
               className={`relative w-9 h-5 rounded-full transition-colors ${
-                aiGradingEnabled ? 'bg-[#E40000]' : 'bg-[#22272B]'
+                aiGradingEnabled ? 'bg-[#E40000]' : 'bg-gray-100 dark:bg-[#22272B]'
               }`}
             >
               <span
@@ -270,7 +270,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, onSave, onCan
 
           {aiGradingEnabled && (
             <div className="mt-3">
-              <label className="block text-xs font-medium text-white/60 mb-1.5">
+              <label className="block text-xs font-medium text-gray-500 dark:text-white/60 mb-1.5">
                 AI Grading Prompt
               </label>
               <textarea
@@ -278,7 +278,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, onSave, onCan
                 onChange={(e) => setAiGradingPrompt(e.target.value)}
                 placeholder="Instructions for the AI grader (e.g., 'Grade based on understanding of photosynthesis concepts. Award partial marks for correct steps.')"
                 rows={3}
-                className="w-full px-3 py-2.5 bg-[#22272B]/50 border border-[#22272B] rounded-lg text-sm text-white placeholder:text-white/30 outline-none focus:border-[#E40000]/50 resize-none transition-colors"
+                className="w-full px-3 py-2.5 bg-gray-100 dark:bg-[#22272B]/50 border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 outline-none focus:border-[#E40000]/50 resize-none transition-colors"
               />
             </div>
           )}
@@ -286,17 +286,17 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, onSave, onCan
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-end gap-2 px-5 py-3.5 border-t border-[#22272B]">
+      <div className="flex items-center justify-end gap-2 px-5 py-3.5 border-t border-gray-200 dark:border-[#22272B]">
         <button
           onClick={onCancel}
-          className="px-4 py-2 text-sm text-white/60 hover:text-white transition-colors rounded-lg hover:bg-[#22272B]"
+          className="px-4 py-2 text-sm text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B]"
         >
           Cancel
         </button>
         <button
           onClick={handleSave}
           disabled={!isValid}
-          className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-[#E40000] rounded-lg hover:bg-[#E40000]/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-900 dark:text-white bg-[#E40000] rounded-lg hover:bg-[#E40000]/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Save className="w-3.5 h-3.5" />
           {question ? 'Update Question' : 'Save Question'}

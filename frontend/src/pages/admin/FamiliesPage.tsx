@@ -14,7 +14,6 @@ import {
   Search,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import DashboardLayout from '../../components/layout/DashboardLayout';
 import AdminPageHeader from '../../components/admin/shared/AdminPageHeader';
 
 // ------------------------------------------------------------------
@@ -242,14 +241,14 @@ const TabButton: React.FC<{
     onClick={() => onClick(tab)}
     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
       activeTab === tab
-        ? 'bg-[#E40000] text-white'
-        : 'bg-[#22272B] text-white/60 hover:text-white hover:bg-[#2A3035]'
+        ? 'bg-[#E40000] text-gray-900 dark:text-white'
+        : 'bg-gray-100 dark:bg-[#22272B] text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-[#2A3035]'
     }`}
   >
     {icon}
     {label}
     <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${
-      activeTab === tab ? 'bg-white/20' : 'bg-[#2A3035]'
+      activeTab === tab ? 'bg-gray-200 dark:bg-white/20' : 'bg-[#2A3035]'
     }`}>
       {count}
     </span>
@@ -304,7 +303,7 @@ const FamiliesPage: React.FC = () => {
   const pendingConsent = consentRequests.filter((c) => c.status === 'pending');
 
   return (
-    <DashboardLayout role="admin">
+    <>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -319,29 +318,29 @@ const FamiliesPage: React.FC = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/60 text-sm">Pending Enrollments</span>
+              <span className="text-gray-500 dark:text-white/60 text-sm">Pending Enrollments</span>
               <UserPlus className="w-5 h-5 text-blue-400" />
             </div>
-            <p className="text-2xl font-bold text-white">{pendingEnrollments.length}</p>
-            <p className="text-xs text-white/40 mt-1">Awaiting admin review</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{pendingEnrollments.length}</p>
+            <p className="text-xs text-gray-400 dark:text-white/40 mt-1">Awaiting admin review</p>
           </div>
-          <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/60 text-sm">Consent Queue</span>
+              <span className="text-gray-500 dark:text-white/60 text-sm">Consent Queue</span>
               <FileCheck className="w-5 h-5 text-purple-400" />
             </div>
-            <p className="text-2xl font-bold text-white">{pendingConsent.length}</p>
-            <p className="text-xs text-white/40 mt-1">Pending parent consent</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{pendingConsent.length}</p>
+            <p className="text-xs text-gray-400 dark:text-white/40 mt-1">Pending parent consent</p>
           </div>
-          <div className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6">
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/60 text-sm">Parent-Child Links</span>
+              <span className="text-gray-500 dark:text-white/60 text-sm">Parent-Child Links</span>
               <Link2 className="w-5 h-5 text-green-400" />
             </div>
-            <p className="text-2xl font-bold text-white">{mockLinks.length}</p>
-            <p className="text-xs text-white/40 mt-1">
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{mockLinks.length}</p>
+            <p className="text-xs text-gray-400 dark:text-white/40 mt-1">
               {mockLinks.filter((l) => l.verified).length} verified
             </p>
           </div>
@@ -357,13 +356,13 @@ const FamiliesPage: React.FC = () => {
         {/* Search (for links tab) */}
         {activeTab === 'links' && (
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
             <input
               type="text"
               placeholder="Search by parent name or email..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-[#181C1F] border border-[#22272B] rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
             />
           </div>
         )}
@@ -377,46 +376,46 @@ const FamiliesPage: React.FC = () => {
         >
           {/* Pending Enrollments Tab */}
           {activeTab === 'enrollments' && (
-            <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+            <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
               {pendingEnrollments.length === 0 ? (
                 <div className="text-center py-16">
                   <UserPlus className="w-16 h-16 text-white/10 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-white mb-2">No Pending Enrollments</h3>
-                  <p className="text-white/40 text-sm">All enrollment requests have been processed.</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Pending Enrollments</h3>
+                  <p className="text-gray-400 dark:text-white/40 text-sm">All enrollment requests have been processed.</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-[#22272B] text-left">
-                        <th className="px-6 py-3 text-white/60 font-medium">Student</th>
-                        <th className="px-6 py-3 text-white/60 font-medium">Parent</th>
-                        <th className="px-6 py-3 text-white/60 font-medium">Grade</th>
-                        <th className="px-6 py-3 text-white/60 font-medium">Documents</th>
-                        <th className="px-6 py-3 text-white/60 font-medium">Requested</th>
-                        <th className="px-6 py-3 text-white/60 font-medium">Status</th>
-                        <th className="px-6 py-3 text-white/60 font-medium text-right">Actions</th>
+                      <tr className="border-b border-gray-200 dark:border-[#22272B] text-left">
+                        <th className="px-6 py-3 text-gray-500 dark:text-white/60 font-medium">Student</th>
+                        <th className="px-6 py-3 text-gray-500 dark:text-white/60 font-medium">Parent</th>
+                        <th className="px-6 py-3 text-gray-500 dark:text-white/60 font-medium">Grade</th>
+                        <th className="px-6 py-3 text-gray-500 dark:text-white/60 font-medium">Documents</th>
+                        <th className="px-6 py-3 text-gray-500 dark:text-white/60 font-medium">Requested</th>
+                        <th className="px-6 py-3 text-gray-500 dark:text-white/60 font-medium">Status</th>
+                        <th className="px-6 py-3 text-gray-500 dark:text-white/60 font-medium text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {enrollments.map((enrollment) => (
                         <tr
                           key={enrollment.id}
-                          className="border-b border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
+                          className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
                         >
                           <td className="px-6 py-3">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-[#22272B] flex items-center justify-center text-white/60 text-xs font-bold uppercase">
+                              <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-[#22272B] flex items-center justify-center text-gray-500 dark:text-white/60 text-xs font-bold uppercase">
                                 {enrollment.student_name.slice(0, 2)}
                               </div>
                               <div>
-                                <span className="text-white font-medium">{enrollment.student_name}</span>
-                                <p className="text-[11px] text-white/30 mt-0.5 max-w-[200px] truncate">{enrollment.notes}</p>
+                                <span className="text-gray-900 dark:text-white font-medium">{enrollment.student_name}</span>
+                                <p className="text-[11px] text-gray-400 dark:text-white/30 mt-0.5 max-w-[200px] truncate">{enrollment.notes}</p>
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-3 text-white/60">{enrollment.parent_name}</td>
-                          <td className="px-6 py-3 text-white/60">{enrollment.grade_level}</td>
+                          <td className="px-6 py-3 text-gray-500 dark:text-white/60">{enrollment.parent_name}</td>
+                          <td className="px-6 py-3 text-gray-500 dark:text-white/60">{enrollment.grade_level}</td>
                           <td className="px-6 py-3">
                             <span className={`inline-flex items-center gap-1 text-xs ${
                               enrollment.documents_submitted
@@ -431,7 +430,7 @@ const FamiliesPage: React.FC = () => {
                               {enrollment.documents_submitted ? 'Complete' : 'Pending'}
                             </span>
                           </td>
-                          <td className="px-6 py-3 text-white/40 text-xs">{timeAgo(enrollment.requested_at)}</td>
+                          <td className="px-6 py-3 text-gray-400 dark:text-white/40 text-xs">{timeAgo(enrollment.requested_at)}</td>
                           <td className="px-6 py-3">
                             {enrollment.status === 'pending' ? (
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
@@ -456,14 +455,14 @@ const FamiliesPage: React.FC = () => {
                                 <>
                                   <button
                                     onClick={() => handleApproveEnrollment(enrollment.id)}
-                                    className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-white/50 hover:text-emerald-400 transition-colors"
+                                    className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-gray-500 dark:text-white/50 hover:text-emerald-400 transition-colors"
                                     title="Approve"
                                   >
                                     <Check className="w-4 h-4" />
                                   </button>
                                   <button
                                     onClick={() => handleRejectEnrollment(enrollment.id)}
-                                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-white/50 hover:text-red-400 transition-colors"
+                                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 dark:text-white/50 hover:text-red-400 transition-colors"
                                     title="Reject"
                                   >
                                     <X className="w-4 h-4" />
@@ -471,7 +470,7 @@ const FamiliesPage: React.FC = () => {
                                 </>
                               )}
                               <button
-                                className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors"
+                                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                                 title="View details"
                               >
                                 <Eye className="w-4 h-4" />
@@ -491,10 +490,10 @@ const FamiliesPage: React.FC = () => {
           {activeTab === 'consent' && (
             <div className="space-y-3">
               {pendingConsent.length === 0 ? (
-                <div className="bg-[#181C1F] border border-[#22272B] rounded-xl text-center py-16">
+                <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl text-center py-16">
                   <FileCheck className="w-16 h-16 text-white/10 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-white mb-2">No Pending Consent Requests</h3>
-                  <p className="text-white/40 text-sm">All consent requests have been addressed.</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Pending Consent Requests</h3>
+                  <p className="text-gray-400 dark:text-white/40 text-sm">All consent requests have been addressed.</p>
                 </div>
               ) : (
                 consentRequests.map((consent) => (
@@ -502,9 +501,9 @@ const FamiliesPage: React.FC = () => {
                     key={consent.id}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`bg-[#181C1F] border rounded-xl p-5 ${
+                    className={`bg-white dark:bg-[#181C1F] border rounded-xl p-5 ${
                       consent.status === 'pending'
-                        ? 'border-[#22272B]'
+                        ? 'border-gray-200 dark:border-[#22272B]'
                         : consent.status === 'approved'
                         ? 'border-emerald-500/20 opacity-60'
                         : 'border-red-500/20 opacity-60'
@@ -516,7 +515,7 @@ const FamiliesPage: React.FC = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <h4 className="text-sm font-semibold text-white">{consent.consent_type}</h4>
+                          <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{consent.consent_type}</h4>
                           {consent.status === 'pending' ? (
                             <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
                               Pending
@@ -531,10 +530,10 @@ const FamiliesPage: React.FC = () => {
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-white/50">{consent.description}</p>
-                        <div className="flex items-center gap-4 mt-2 text-xs text-white/30">
-                          <span>Parent: <span className="text-white/50">{consent.parent_name}</span></span>
-                          <span>Student: <span className="text-white/50">{consent.student_name}</span></span>
+                        <p className="text-sm text-gray-500 dark:text-white/50">{consent.description}</p>
+                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-400 dark:text-white/30">
+                          <span>Parent: <span className="text-gray-500 dark:text-white/50">{consent.parent_name}</span></span>
+                          <span>Student: <span className="text-gray-500 dark:text-white/50">{consent.student_name}</span></span>
                           <span>{timeAgo(consent.requested_at)}</span>
                         </div>
                       </div>
@@ -542,14 +541,14 @@ const FamiliesPage: React.FC = () => {
                         <div className="flex items-center gap-1 flex-shrink-0">
                           <button
                             onClick={() => handleApproveConsent(consent.id)}
-                            className="p-2 rounded-lg hover:bg-emerald-500/10 text-white/40 hover:text-emerald-400 transition-colors"
+                            className="p-2 rounded-lg hover:bg-emerald-500/10 text-gray-400 dark:text-white/40 hover:text-emerald-400 transition-colors"
                             title="Approve consent"
                           >
                             <Check className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDenyConsent(consent.id)}
-                            className="p-2 rounded-lg hover:bg-red-500/10 text-white/40 hover:text-red-400 transition-colors"
+                            className="p-2 rounded-lg hover:bg-red-500/10 text-gray-400 dark:text-white/40 hover:text-red-400 transition-colors"
                             title="Deny consent"
                           >
                             <X className="w-4 h-4" />
@@ -578,16 +577,16 @@ const FamiliesPage: React.FC = () => {
                 .map((link) => (
                   <div
                     key={link.id}
-                    className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5"
+                    className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[#22272B] flex items-center justify-center text-white/60 text-sm font-bold uppercase">
+                        <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-[#22272B] flex items-center justify-center text-gray-500 dark:text-white/60 text-sm font-bold uppercase">
                           {link.parent_name.slice(0, 2)}
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h4 className="text-sm font-semibold text-white">{link.parent_name}</h4>
+                            <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{link.parent_name}</h4>
                             {link.verified ? (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                                 Verified
@@ -598,10 +597,10 @@ const FamiliesPage: React.FC = () => {
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-white/40 mt-0.5">{link.parent_email}</p>
+                          <p className="text-xs text-gray-400 dark:text-white/40 mt-0.5">{link.parent_email}</p>
                         </div>
                       </div>
-                      <span className="text-xs text-white/30">
+                      <span className="text-xs text-gray-400 dark:text-white/30">
                         Linked {timeAgo(link.linked_at)}
                       </span>
                     </div>
@@ -610,11 +609,11 @@ const FamiliesPage: React.FC = () => {
                       {link.children.map((child) => (
                         <div
                           key={child.name}
-                          className="flex items-center gap-2 px-3 py-2 bg-[#0F1112] border border-[#22272B] rounded-lg"
+                          className="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg"
                         >
-                          <Users className="w-3.5 h-3.5 text-white/30" />
-                          <span className="text-sm text-white/70">{child.name}</span>
-                          <span className="text-[10px] text-white/40 bg-[#22272B] px-1.5 py-0.5 rounded">
+                          <Users className="w-3.5 h-3.5 text-gray-400 dark:text-white/30" />
+                          <span className="text-sm text-gray-600 dark:text-white/70">{child.name}</span>
+                          <span className="text-[10px] text-gray-400 dark:text-white/40 bg-gray-100 dark:bg-[#22272B] px-1.5 py-0.5 rounded">
                             {child.grade}
                           </span>
                           <span
@@ -637,8 +636,8 @@ const FamiliesPage: React.FC = () => {
             <div
               className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
                 toast.type === 'success'
-                  ? 'bg-emerald-500 text-white'
-                  : 'bg-red-500 text-white'
+                  ? 'bg-emerald-500 text-gray-900 dark:text-white'
+                  : 'bg-red-500 text-gray-900 dark:text-white'
               }`}
             >
               {toast.type === 'success' ? (
@@ -651,7 +650,7 @@ const FamiliesPage: React.FC = () => {
           </div>
         )}
       </motion.div>
-    </DashboardLayout>
+    </>
   );
 };
 

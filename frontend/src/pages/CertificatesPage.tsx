@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DashboardLayout from '../components/layout/DashboardLayout';
 import { useAuthStore } from '../store/authStore';
 import courseService from '../services/courseService';
 import {
@@ -279,7 +278,7 @@ const CertificatesPage: React.FC = () => {
   };
 
   return (
-    <DashboardLayout role={user?.role || 'student'}>
+    <>
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -302,7 +301,7 @@ const CertificatesPage: React.FC = () => {
                 </p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center">
-                <Award className="w-6 h-6 text-white" />
+                <Award className="w-6 h-6 text-gray-900 dark:text-white" />
               </div>
             </div>
           </div>
@@ -316,7 +315,7 @@ const CertificatesPage: React.FC = () => {
                 </p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center">
-                <GraduationCap className="w-6 h-6 text-white" />
+                <GraduationCap className="w-6 h-6 text-gray-900 dark:text-white" />
               </div>
             </div>
           </div>
@@ -330,7 +329,7 @@ const CertificatesPage: React.FC = () => {
                 </p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-white" />
+                <TrendingUp className="w-6 h-6 text-gray-900 dark:text-white" />
               </div>
             </div>
           </div>
@@ -398,7 +397,7 @@ const CertificatesPage: React.FC = () => {
                     <div
                       className={`${getGradeBadgeColor(
                         certificate.grade
-                      )} text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg`}
+                      )} text-gray-900 dark:text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg`}
                     >
                       {certificate.grade || 'Award'}
                     </div>
@@ -444,7 +443,7 @@ const CertificatesPage: React.FC = () => {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleViewCertificate(certificate)}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-gray-900 dark:text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-2"
                     >
                       <Award className="w-4 h-4" />
                       View
@@ -475,7 +474,7 @@ const CertificatesPage: React.FC = () => {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
             <div className="max-w-md mx-auto">
               <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Award className="w-12 h-12 text-white" />
+                <Award className="w-12 h-12 text-gray-900 dark:text-white" />
               </div>
 
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -494,7 +493,7 @@ const CertificatesPage: React.FC = () => {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <button
                     onClick={() => navigate('/dashboard/courses')}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                    className="bg-blue-600 hover:bg-blue-700 text-gray-900 dark:text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
                   >
                     <GraduationCap className="w-5 h-5" />
                     Browse Courses
@@ -502,7 +501,7 @@ const CertificatesPage: React.FC = () => {
 
                   <button
                     onClick={() => navigate('/dashboard/quizzes')}
-                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                    className="bg-green-600 hover:bg-green-700 text-gray-900 dark:text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
                   >
                     <Trophy className="w-5 h-5" />
                     Take Quizzes
@@ -544,7 +543,7 @@ const CertificatesPage: React.FC = () => {
                     {/* Logo/Icon */}
                     <div className="flex justify-center">
                       <div className="w-24 h-24 bg-yellow-600 dark:bg-yellow-500 rounded-full flex items-center justify-center shadow-lg">
-                        <Award className="w-12 h-12 text-white" />
+                        <Award className="w-12 h-12 text-gray-900 dark:text-white" />
                       </div>
                     </div>
 
@@ -595,7 +594,7 @@ const CertificatesPage: React.FC = () => {
                           <span
                             className={`${getGradeBadgeColor(
                               selectedCertificate.grade
-                            )} text-white px-4 py-1 rounded-full text-sm font-semibold`}
+                            )} text-gray-900 dark:text-white px-4 py-1 rounded-full text-sm font-semibold`}
                           >
                             Grade {selectedCertificate.grade}
                           </span>
@@ -642,7 +641,7 @@ const CertificatesPage: React.FC = () => {
                     {/* Seal */}
                     <div className="flex justify-center pt-4">
                       <div className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-700 border-4 border-yellow-600 flex items-center justify-center shadow-lg">
-                        <Star className="w-10 h-10 text-white" fill="currentColor" />
+                        <Star className="w-10 h-10 text-gray-900 dark:text-white" fill="currentColor" />
                       </div>
                     </div>
                   </div>
@@ -653,7 +652,7 @@ const CertificatesPage: React.FC = () => {
               <div className="flex gap-4 p-6 border-t border-gray-200 dark:border-gray-700 print:hidden">
                 <button
                   onClick={() => handleDownloadPDF(selectedCertificate)}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-gray-900 dark:text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                   <Download className="w-5 h-5" />
                   Download PDF
@@ -661,7 +660,7 @@ const CertificatesPage: React.FC = () => {
 
                 <button
                   onClick={handlePrint}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-gray-900 dark:text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                   <Printer className="w-5 h-5" />
                   Print
@@ -669,7 +668,7 @@ const CertificatesPage: React.FC = () => {
 
                 <button
                   onClick={() => handleShare(selectedCertificate)}
-                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-gray-900 dark:text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                   <Share2 className="w-5 h-5" />
                   Share
@@ -715,7 +714,7 @@ const CertificatesPage: React.FC = () => {
           }
         }
       `}</style>
-    </DashboardLayout>
+    </>
   );
 };
 

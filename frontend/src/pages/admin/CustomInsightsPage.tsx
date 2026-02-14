@@ -22,7 +22,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import DashboardLayout from '../../components/layout/DashboardLayout';
 import AdminPageHeader from '../../components/admin/shared/AdminPageHeader';
 import AdminStatsCard from '../../components/admin/shared/AdminStatsCard';
 
@@ -279,23 +278,23 @@ const CustomInsightsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <DashboardLayout role="admin">
+      <>
         <div className="space-y-6">
-          <div className="h-16 bg-[#22272B] rounded-lg animate-pulse" />
+          <div className="h-16 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-28 bg-[#22272B] rounded-xl animate-pulse" />
+              <div key={i} className="h-28 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
             ))}
           </div>
-          <div className="h-48 bg-[#22272B] rounded-xl animate-pulse" />
-          <div className="h-80 bg-[#22272B] rounded-xl animate-pulse" />
+          <div className="h-48 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
+          <div className="h-80 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
         </div>
-      </DashboardLayout>
+      </>
     );
   }
 
   return (
-    <DashboardLayout role="admin">
+    <>
       <motion.div
         className="space-y-6"
         variants={containerVariants}
@@ -314,7 +313,7 @@ const CustomInsightsPage: React.FC = () => {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
@@ -350,20 +349,20 @@ const CustomInsightsPage: React.FC = () => {
         {/* AI Query Builder */}
         <motion.div
           variants={itemVariants}
-          className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6"
+          className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6"
         >
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="w-5 h-5 text-[#E40000]" />
-            <h2 className="text-lg font-semibold text-white">AI Query Builder</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">AI Query Builder</h2>
           </div>
-          <p className="text-sm text-white/50 mb-4">
+          <p className="text-sm text-gray-500 dark:text-white/50 mb-4">
             Ask questions about your data in natural language. The AI will generate insights and visualizations.
           </p>
 
           {/* Query Input */}
           <div className="flex gap-3 mb-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
               <input
                 type="text"
                 placeholder="Ask a question about your data..."
@@ -372,19 +371,19 @@ const CustomInsightsPage: React.FC = () => {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleRunQuery();
                 }}
-                className="w-full pl-10 pr-4 py-3 bg-[#0F1112] border border-[#22272B] rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
               />
             </div>
             <button
               onClick={handleRunQuery}
               disabled={!queryInput.trim() || isQuerying}
-              className="flex items-center gap-2 px-4 py-3 text-sm bg-[#E40000] text-white rounded-lg hover:bg-[#E40000]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              className="flex items-center gap-2 px-4 py-3 text-sm bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#E40000]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
             >
               <Play className={`w-4 h-4 ${isQuerying ? 'animate-pulse' : ''}`} />
               {isQuerying ? 'Running...' : 'Run Query'}
             </button>
             <button
-              className="flex items-center gap-2 px-4 py-3 text-sm bg-[#22272B] border border-[#333] text-white/70 rounded-lg hover:text-white hover:border-[#444] transition-colors"
+              className="flex items-center gap-2 px-4 py-3 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] text-gray-600 dark:text-white/70 rounded-lg hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors"
             >
               <Save className="w-4 h-4" />
               Save
@@ -393,12 +392,12 @@ const CustomInsightsPage: React.FC = () => {
 
           {/* Example Queries */}
           <div className="flex flex-wrap gap-2 mb-6">
-            <span className="text-xs text-white/30 py-1">Try:</span>
+            <span className="text-xs text-gray-400 dark:text-white/30 py-1">Try:</span>
             {EXAMPLE_QUERIES.map((example, idx) => (
               <button
                 key={idx}
                 onClick={() => handleExampleClick(example)}
-                className="px-3 py-1 text-xs bg-[#22272B] border border-[#333] text-white/50 rounded-full hover:text-white hover:border-[#444] transition-colors"
+                className="px-3 py-1 text-xs bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] text-gray-500 dark:text-white/50 rounded-full hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors"
               >
                 {example}
               </button>
@@ -412,10 +411,10 @@ const CustomInsightsPage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
             >
               <div className="flex items-center justify-between mb-3">
-                <p className="text-sm text-white/70">
-                  Results for: <span className="text-white font-medium">{queryInput}</span>
+                <p className="text-sm text-gray-600 dark:text-white/70">
+                  Results for: <span className="text-gray-900 dark:text-white font-medium">{queryInput}</span>
                 </p>
-                <button className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white transition-colors">
+                <button className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white transition-colors">
                   <Download className="w-3.5 h-3.5" />
                   Export Results
                 </button>
@@ -448,10 +447,10 @@ const CustomInsightsPage: React.FC = () => {
             </motion.div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-16 h-16 bg-[#22272B] rounded-2xl flex items-center justify-center mb-4">
-                <Sparkles className="w-8 h-8 text-white/20" />
+              <div className="w-16 h-16 bg-gray-100 dark:bg-[#22272B] rounded-2xl flex items-center justify-center mb-4">
+                <Sparkles className="w-8 h-8 text-gray-400 dark:text-gray-300 dark:text-white/20" />
               </div>
-              <p className="text-white/40 text-sm">
+              <p className="text-gray-400 dark:text-white/40 text-sm">
                 Enter a query above to generate insights and visualizations
               </p>
               <p className="text-white/25 text-xs mt-1">
@@ -464,41 +463,41 @@ const CustomInsightsPage: React.FC = () => {
         {/* Saved Queries */}
         <motion.div
           variants={itemVariants}
-          className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6"
+          className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6"
         >
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-white">Saved Queries</h2>
-            <p className="text-sm text-white/50 mt-1">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Saved Queries</h2>
+            <p className="text-sm text-gray-500 dark:text-white/50 mt-1">
               Previously saved queries for quick access
             </p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#22272B]">
-                  <th className="text-left py-3 px-4 text-white/50 font-medium">Name</th>
-                  <th className="text-left py-3 px-4 text-white/50 font-medium">Query</th>
-                  <th className="text-right py-3 px-4 text-white/50 font-medium">Results</th>
-                  <th className="text-right py-3 px-4 text-white/50 font-medium">Last Run</th>
-                  <th className="text-center py-3 px-4 text-white/50 font-medium">Actions</th>
+                <tr className="border-b border-gray-200 dark:border-[#22272B]">
+                  <th className="text-left py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Name</th>
+                  <th className="text-left py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Query</th>
+                  <th className="text-right py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Results</th>
+                  <th className="text-right py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Last Run</th>
+                  <th className="text-center py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {SAVED_QUERIES.map((sq) => (
                   <tr
                     key={sq.id}
-                    className="border-b border-[#22272B]/50 hover:bg-[#22272B]/30 transition-colors"
+                    className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-gray-100 dark:hover:bg-[#22272B]/30 transition-colors"
                   >
-                    <td className="py-3 px-4 text-white font-medium whitespace-nowrap">
+                    <td className="py-3 px-4 text-gray-900 dark:text-white font-medium whitespace-nowrap">
                       {sq.name}
                     </td>
-                    <td className="py-3 px-4 text-white/50 max-w-[300px] truncate text-xs">
+                    <td className="py-3 px-4 text-gray-500 dark:text-white/50 max-w-[300px] truncate text-xs">
                       {sq.query}
                     </td>
-                    <td className="py-3 px-4 text-right text-white/80">
+                    <td className="py-3 px-4 text-right text-gray-700 dark:text-white/80">
                       {sq.resultCount.toLocaleString()}
                     </td>
-                    <td className="py-3 px-4 text-right text-white/40">
+                    <td className="py-3 px-4 text-right text-gray-400 dark:text-white/40">
                       {formatDateTime(sq.lastRun)}
                     </td>
                     <td className="py-3 px-4">
@@ -509,13 +508,13 @@ const CustomInsightsPage: React.FC = () => {
                             setShowChart(false);
                           }}
                           title="Load query"
-                          className="p-1.5 rounded-lg hover:bg-[#22272B] text-white/50 hover:text-white transition-colors"
+                          className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                         >
                           <Play className="w-4 h-4" />
                         </button>
                         <button
                           title="Delete"
-                          className="p-1.5 rounded-lg hover:bg-red-500/10 text-white/50 hover:text-red-400 transition-colors"
+                          className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 dark:text-white/50 hover:text-red-400 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -531,21 +530,21 @@ const CustomInsightsPage: React.FC = () => {
         {/* Scheduled Reports */}
         <motion.div
           variants={itemVariants}
-          className="bg-[#181C1F] border border-[#22272B] rounded-xl p-6"
+          className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
             <div>
-              <h2 className="text-lg font-semibold text-white">Scheduled Reports</h2>
-              <p className="text-sm text-white/50 mt-1">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Scheduled Reports</h2>
+              <p className="text-sm text-gray-500 dark:text-white/50 mt-1">
                 Automated report delivery to stakeholders
               </p>
             </div>
             <div className="flex items-center gap-2 mt-3 sm:mt-0">
-              <span className="text-xs text-white/40">
+              <span className="text-xs text-gray-400 dark:text-white/40">
                 {scheduledReportsCount} active
               </span>
-              <span className="text-xs text-white/30">|</span>
-              <span className="text-xs text-white/40">
+              <span className="text-xs text-gray-400 dark:text-white/30">|</span>
+              <span className="text-xs text-gray-400 dark:text-white/40">
                 {SCHEDULED_REPORTS.length - scheduledReportsCount} paused
               </span>
             </div>
@@ -553,23 +552,23 @@ const CustomInsightsPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#22272B]">
-                  <th className="text-left py-3 px-4 text-white/50 font-medium">Report Name</th>
-                  <th className="text-center py-3 px-4 text-white/50 font-medium">Schedule</th>
-                  <th className="text-left py-3 px-4 text-white/50 font-medium">Recipients</th>
-                  <th className="text-center py-3 px-4 text-white/50 font-medium">Format</th>
-                  <th className="text-center py-3 px-4 text-white/50 font-medium">Active</th>
-                  <th className="text-right py-3 px-4 text-white/50 font-medium">Last Sent</th>
-                  <th className="text-right py-3 px-4 text-white/50 font-medium">Next Run</th>
+                <tr className="border-b border-gray-200 dark:border-[#22272B]">
+                  <th className="text-left py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Report Name</th>
+                  <th className="text-center py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Schedule</th>
+                  <th className="text-left py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Recipients</th>
+                  <th className="text-center py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Format</th>
+                  <th className="text-center py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Active</th>
+                  <th className="text-right py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Last Sent</th>
+                  <th className="text-right py-3 px-4 text-gray-500 dark:text-white/50 font-medium">Next Run</th>
                 </tr>
               </thead>
               <tbody>
                 {SCHEDULED_REPORTS.map((report) => (
                   <tr
                     key={report.id}
-                    className="border-b border-[#22272B]/50 hover:bg-[#22272B]/30 transition-colors"
+                    className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-gray-100 dark:hover:bg-[#22272B]/30 transition-colors"
                   >
-                    <td className="py-3 px-4 text-white font-medium">{report.name}</td>
+                    <td className="py-3 px-4 text-gray-900 dark:text-white font-medium">{report.name}</td>
                     <td className="py-3 px-4 text-center">
                       <Badge
                         label={report.schedule}
@@ -578,8 +577,8 @@ const CustomInsightsPage: React.FC = () => {
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-1.5">
-                        <Mail className="w-3.5 h-3.5 text-white/30" />
-                        <span className="text-white/60 text-xs">
+                        <Mail className="w-3.5 h-3.5 text-gray-400 dark:text-white/30" />
+                        <span className="text-gray-500 dark:text-white/60 text-xs">
                           {report.recipients.length} recipient{report.recipients.length !== 1 ? 's' : ''}
                         </span>
                       </div>
@@ -606,11 +605,11 @@ const CustomInsightsPage: React.FC = () => {
                         </span>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-right text-white/40">
+                    <td className="py-3 px-4 text-right text-gray-400 dark:text-white/40">
                       {report.lastSent ? formatDateTime(report.lastSent) : 'Never'}
                     </td>
                     <td className="py-3 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5 text-white/40">
+                      <div className="flex items-center justify-end gap-1.5 text-gray-400 dark:text-white/40">
                         <Clock className="w-3 h-3" />
                         <span className="text-xs">{formatDate(report.nextRun)}</span>
                       </div>
@@ -622,7 +621,7 @@ const CustomInsightsPage: React.FC = () => {
           </div>
         </motion.div>
       </motion.div>
-    </DashboardLayout>
+    </>
   );
 };
 

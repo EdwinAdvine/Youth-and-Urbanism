@@ -128,7 +128,7 @@ export default function MyCoursesPage() {
               onClick={() => setFilterStatus('all')}
               className={`px-4 py-2 rounded-lg font-medium ${
                 filterStatus === 'all'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-blue-600 text-gray-900 dark:text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -138,7 +138,7 @@ export default function MyCoursesPage() {
               onClick={() => setFilterStatus('active')}
               className={`px-4 py-2 rounded-lg font-medium ${
                 filterStatus === 'active'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-blue-600 text-gray-900 dark:text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -148,7 +148,7 @@ export default function MyCoursesPage() {
               onClick={() => setFilterStatus('completed')}
               className={`px-4 py-2 rounded-lg font-medium ${
                 filterStatus === 'completed'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-blue-600 text-gray-900 dark:text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -175,7 +175,7 @@ export default function MyCoursesPage() {
             </p>
             <button
               onClick={() => navigate('/courses')}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="px-6 py-2 bg-blue-600 text-gray-900 dark:text-white rounded-lg hover:bg-blue-700"
             >
               Browse Courses
             </button>
@@ -252,7 +252,7 @@ function CourseEnrollmentCard({ enrollment, onContinue, onView }: CourseEnrollme
         {/* Course Thumbnail Placeholder */}
         <div className="flex-shrink-0">
           <div className="w-48 h-32 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-            <AcademicCapIcon className="h-12 w-12 text-white opacity-50" />
+            <AcademicCapIcon className="h-12 w-12 text-gray-900 dark:text-white opacity-50" />
           </div>
         </div>
 
@@ -321,7 +321,7 @@ function CourseEnrollmentCard({ enrollment, onContinue, onView }: CourseEnrollme
                   View Course
                 </button>
                 {enrollment.certificate_id && (
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                  <button className="px-4 py-2 bg-blue-600 text-gray-900 dark:text-white rounded-lg hover:bg-blue-700">
                     Download Certificate
                   </button>
                 )}
@@ -330,7 +330,7 @@ function CourseEnrollmentCard({ enrollment, onContinue, onView }: CourseEnrollme
               <>
                 <button
                   onClick={onContinue}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-gray-900 dark:text-white rounded-lg hover:bg-blue-700"
                 >
                   <PlayIcon className="h-4 w-4" />
                   Continue Learning

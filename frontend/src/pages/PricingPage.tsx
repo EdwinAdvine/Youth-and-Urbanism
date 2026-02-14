@@ -234,12 +234,12 @@ const BillingToggle: React.FC<{ isAnnual: boolean; onToggle: () => void }> = ({ 
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay: 0.3, duration: 0.5 }}
   >
-    <span className={`text-sm sm:text-base font-medium transition-colors duration-200 ${!isAnnual ? 'text-white' : 'text-white/50'}`}>
+    <span className={`text-sm sm:text-base font-medium transition-colors duration-200 ${!isAnnual ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-white/50'}`}>
       Monthly
     </span>
     <button
       onClick={onToggle}
-      className="relative w-14 h-7 rounded-full bg-[#22272B] border border-[#22272B] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50"
+      className="relative w-14 h-7 rounded-full bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#22272B] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50"
       aria-label="Toggle billing period"
     >
       <motion.div
@@ -248,7 +248,7 @@ const BillingToggle: React.FC<{ isAnnual: boolean; onToggle: () => void }> = ({ 
         transition={{ type: 'spring', stiffness: 500, damping: 30 }}
       />
     </button>
-    <span className={`text-sm sm:text-base font-medium transition-colors duration-200 ${isAnnual ? 'text-white' : 'text-white/50'}`}>
+    <span className={`text-sm sm:text-base font-medium transition-colors duration-200 ${isAnnual ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-white/50'}`}>
       Annual
     </span>
     {isAnnual && (
@@ -282,14 +282,14 @@ const PricingCard: React.FC<{ plan: Plan; isAnnual: boolean; index: number }> = 
       viewport={{ once: true, margin: '-40px' }}
       className={`relative flex flex-col rounded-2xl sm:rounded-3xl p-6 sm:p-8 border transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${
         plan.popular
-          ? 'border-[#FF0000] bg-[#181C1F] shadow-[#FF0000]/10 shadow-lg'
-          : 'border-[#22272B] bg-[#181C1F] hover:border-[#FF0000]/30 hover:shadow-[#FF0000]/10'
+          ? 'border-[#FF0000] bg-white dark:bg-[#181C1F] shadow-[#FF0000]/10 shadow-lg'
+          : 'border-gray-200 dark:border-[#22272B] bg-white dark:bg-[#181C1F] hover:border-[#FF0000]/30 hover:shadow-[#FF0000]/10'
       }`}
     >
       {/* Popular badge */}
       {plan.popular && (
         <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-          <span className="bg-[#FF0000] text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider whitespace-nowrap">
+          <span className="bg-[#FF0000] text-gray-900 dark:text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider whitespace-nowrap">
             Most Popular
           </span>
         </div>
@@ -298,7 +298,7 @@ const PricingCard: React.FC<{ plan: Plan; isAnnual: boolean; index: number }> = 
       {/* Annual only badge */}
       {plan.annualOnly && (
         <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-          <span className="bg-[#22272B] text-white/80 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider whitespace-nowrap border border-[#22272B]">
+          <span className="bg-gray-100 dark:bg-[#22272B] text-gray-700 dark:text-white/80 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider whitespace-nowrap border border-gray-200 dark:border-[#22272B]">
             Annual Only
           </span>
         </div>
@@ -306,12 +306,12 @@ const PricingCard: React.FC<{ plan: Plan; isAnnual: boolean; index: number }> = 
 
       {/* Icon + Name */}
       <div className="flex items-center gap-3 mb-4 mt-2">
-        <div className={`p-2 rounded-xl ${plan.popular ? 'bg-[#FF0000]/10 text-[#FF0000]' : 'bg-white/5 text-white/70'}`}>
+        <div className={`p-2 rounded-xl ${plan.popular ? 'bg-[#FF0000]/10 text-[#FF0000]' : 'bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-white/70'}`}>
           {plan.icon}
         </div>
         <div>
-          <h3 className="text-xl font-bold text-white">{plan.name}</h3>
-          <p className="text-sm text-white/60">{plan.description}</p>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">{plan.name}</h3>
+          <p className="text-sm text-gray-500 dark:text-white/60">{plan.description}</p>
         </div>
       </div>
 
@@ -319,20 +319,20 @@ const PricingCard: React.FC<{ plan: Plan; isAnnual: boolean; index: number }> = 
       <div className="mb-6">
         <div className="flex items-baseline gap-1">
           {displayPrice === 0 ? (
-            <span className="text-4xl sm:text-5xl font-bold text-white">Free</span>
+            <span className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white">Free</span>
           ) : (
             <>
-              <span className="text-lg text-white/50 font-medium">KES</span>
+              <span className="text-lg text-gray-500 dark:text-white/50 font-medium">KES</span>
               <motion.span
                 key={`${plan.id}-${isAnnual}`}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="text-4xl sm:text-5xl font-bold text-white"
+                className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white"
               >
                 {displayPrice?.toLocaleString()}
               </motion.span>
-              <span className="text-white/50 text-sm">{plan.perLabel}</span>
+              <span className="text-gray-500 dark:text-white/50 text-sm">{plan.perLabel}</span>
             </>
           )}
         </div>
@@ -348,7 +348,7 @@ const PricingCard: React.FC<{ plan: Plan; isAnnual: boolean; index: number }> = 
               {plan.savingsLabel}
             </span>
             {plan.annualTotal && (
-              <span className="text-xs text-white/40">
+              <span className="text-xs text-gray-400 dark:text-white/40">
                 {plan.annualTotal.toLocaleString()} KES/year
               </span>
             )}
@@ -357,14 +357,14 @@ const PricingCard: React.FC<{ plan: Plan; isAnnual: boolean; index: number }> = 
 
         {/* Crossed-out monthly price when annual is selected */}
         {isAnnual && !plan.annualOnly && plan.monthlyPrice !== null && plan.monthlyPrice > 0 && (
-          <p className="text-xs text-white/30 line-through mt-1">
+          <p className="text-xs text-gray-400 dark:text-white/30 line-through mt-1">
             KES {plan.monthlyPrice.toLocaleString()}{plan.perLabel}
           </p>
         )}
 
         {/* Sponsor note */}
         {plan.note && (
-          <p className="text-xs text-white/50 mt-2 italic">{plan.note}</p>
+          <p className="text-xs text-gray-500 dark:text-white/50 mt-2 italic">{plan.note}</p>
         )}
       </div>
 
@@ -375,9 +375,9 @@ const PricingCard: React.FC<{ plan: Plan; isAnnual: boolean; index: number }> = 
             {feature.included ? (
               <Check className="w-5 h-5 text-[#FF0000] shrink-0 mt-0.5" />
             ) : (
-              <X className="w-5 h-5 text-white/20 shrink-0 mt-0.5" />
+              <X className="w-5 h-5 text-gray-400 dark:text-gray-300 dark:text-white/20 shrink-0 mt-0.5" />
             )}
-            <span className={`text-sm ${feature.included ? 'text-white/80' : 'text-white/30'}`}>
+            <span className={`text-sm ${feature.included ? 'text-gray-700 dark:text-white/80' : 'text-gray-400 dark:text-white/30'}`}>
               {feature.text}
             </span>
           </li>
@@ -389,9 +389,9 @@ const PricingCard: React.FC<{ plan: Plan; isAnnual: boolean; index: number }> = 
         to={plan.ctaLink}
         className={`block w-full text-center py-3 sm:py-3.5 rounded-xl sm:rounded-2xl font-semibold text-sm sm:text-base transition-all duration-200 hover:scale-[1.02] ${
           plan.popular
-            ? 'bg-[#FF0000] hover:bg-[#E40000] text-white'
+            ? 'bg-[#FF0000] hover:bg-[#E40000] text-gray-900 dark:text-white'
             : plan.id === 'free'
-              ? 'bg-white/10 hover:bg-white/15 text-white border border-white/10'
+              ? 'bg-gray-100 dark:bg-white/10 hover:bg-gray-100 dark:hover:bg-white/15 text-gray-900 dark:text-white border border-gray-200 dark:border-white/10'
               : 'bg-[#FF0000]/10 hover:bg-[#FF0000]/20 text-[#FF0000] border border-[#FF0000]/30'
         }`}
       >
@@ -407,12 +407,12 @@ const ComparisonTable: React.FC = () => {
 
   const renderCell = (value: boolean | string) => {
     if (typeof value === 'string') {
-      return <span className="text-xs sm:text-sm text-white/70 font-medium">{value}</span>;
+      return <span className="text-xs sm:text-sm text-gray-600 dark:text-white/70 font-medium">{value}</span>;
     }
     return value ? (
       <Check className="w-5 h-5 text-[#FF0000] mx-auto" />
     ) : (
-      <X className="w-5 h-5 text-white/20 mx-auto" />
+      <X className="w-5 h-5 text-gray-400 dark:text-gray-300 dark:text-white/20 mx-auto" />
     );
   };
 
@@ -426,12 +426,12 @@ const ComparisonTable: React.FC = () => {
     >
       <table className="w-full min-w-[640px] border-collapse">
         <thead>
-          <tr className="border-b border-[#22272B]">
-            <th className="text-left py-4 px-4 text-sm font-semibold text-white/60 w-[200px] sm:w-[260px]">
+          <tr className="border-b border-gray-200 dark:border-[#22272B]">
+            <th className="text-left py-4 px-4 text-sm font-semibold text-gray-500 dark:text-white/60 w-[200px] sm:w-[260px]">
               Feature
             </th>
             {planColumns.map((col) => (
-              <th key={col} className="py-4 px-3 text-center text-sm font-semibold text-white">
+              <th key={col} className="py-4 px-3 text-center text-sm font-semibold text-gray-900 dark:text-white">
                 {planLabels[col]}
               </th>
             ))}
@@ -441,9 +441,9 @@ const ComparisonTable: React.FC = () => {
           {comparisonFeatures.map((feature, i) => (
             <tr
               key={i}
-              className={`border-b border-[#22272B]/50 ${i % 2 === 0 ? 'bg-white/[0.02]' : ''}`}
+              className={`border-b border-gray-200 dark:border-[#22272B]/50 ${i % 2 === 0 ? 'bg-white/[0.02]' : ''}`}
             >
-              <td className="py-3.5 px-4 text-sm text-white/80">{feature.name}</td>
+              <td className="py-3.5 px-4 text-sm text-gray-700 dark:text-white/80">{feature.name}</td>
               <td className="py-3.5 px-3 text-center">{renderCell(feature.free)}</td>
               <td className="py-3.5 px-3 text-center">{renderCell(feature.basic)}</td>
               <td className="py-3.5 px-3 text-center">{renderCell(feature.parents)}</td>
@@ -468,20 +468,20 @@ const FAQItem: React.FC<{ faq: FAQ; isOpen: boolean; onToggle: () => void; index
     initial="hidden"
     whileInView="visible"
     viewport={{ once: true, margin: '-20px' }}
-    className="border border-[#22272B] rounded-xl sm:rounded-2xl overflow-hidden"
+    className="border border-gray-200 dark:border-[#22272B] rounded-xl sm:rounded-2xl overflow-hidden"
   >
     <button
       onClick={onToggle}
       className="w-full flex items-center justify-between px-5 sm:px-6 py-4 sm:py-5 text-left hover:bg-white/[0.02] transition-colors duration-200"
       aria-expanded={isOpen}
     >
-      <span className="text-sm sm:text-base font-medium text-white pr-4">{faq.question}</span>
+      <span className="text-sm sm:text-base font-medium text-gray-900 dark:text-white pr-4">{faq.question}</span>
       <motion.div
         animate={{ rotate: isOpen ? 180 : 0 }}
         transition={{ duration: 0.25 }}
         className="shrink-0"
       >
-        <ChevronDown className="w-5 h-5 text-white/50" />
+        <ChevronDown className="w-5 h-5 text-gray-500 dark:text-white/50" />
       </motion.div>
     </button>
     <AnimatePresence initial={false}>
@@ -494,7 +494,7 @@ const FAQItem: React.FC<{ faq: FAQ; isOpen: boolean; onToggle: () => void; index
           className="overflow-hidden"
         >
           <div className="px-5 sm:px-6 pb-4 sm:pb-5">
-            <p className="text-sm text-white/70 leading-relaxed">{faq.answer}</p>
+            <p className="text-sm text-gray-600 dark:text-white/70 leading-relaxed">{faq.answer}</p>
           </div>
         </motion.div>
       )}
@@ -515,7 +515,7 @@ const PricingPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#0F1112] min-h-screen">
+    <div className="bg-gray-50 dark:bg-[#0F1112] min-h-screen">
       {/* ── Header Section ── */}
       <section className="pt-20 sm:pt-28 pb-4 sm:pb-6">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -524,18 +524,18 @@ const PricingPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl text-xs sm:text-sm mb-6 border border-white/20 text-white/80">
-              <span className="bg-[#FF0000] text-white text-xs font-bold px-2 py-1 rounded-xl">
+            <div className="inline-flex items-center gap-2 bg-gray-100 dark:bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl text-xs sm:text-sm mb-6 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-white/80">
+              <span className="bg-[#FF0000] text-gray-900 dark:text-white text-xs font-bold px-2 py-1 rounded-xl">
                 PRICING
               </span>
               Simple, transparent pricing
             </div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">
               Choose Your <span className="text-[#FF0000]">Plan</span>
             </h1>
 
-            <p className="text-base sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-white/70 max-w-2xl mx-auto leading-relaxed">
               Invest in your child's future with personalized AI tutoring.
               Start free, upgrade when you're ready.
             </p>
@@ -560,7 +560,7 @@ const PricingPage: React.FC = () => {
       </section>
 
       {/* ── Feature Comparison Table ── */}
-      <section className="py-16 sm:py-24 bg-[#181C1F]">
+      <section className="py-16 sm:py-24 bg-white dark:bg-[#181C1F]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             variants={sectionVariants}
@@ -569,10 +569,10 @@ const PricingPage: React.FC = () => {
             viewport={{ once: true, margin: '-60px' }}
             className="text-center mb-10 sm:mb-14"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               Compare Plans
             </h2>
-            <p className="text-base sm:text-lg text-white/60 max-w-xl mx-auto">
+            <p className="text-base sm:text-lg text-gray-500 dark:text-white/60 max-w-xl mx-auto">
               See exactly what you get with each plan
             </p>
           </motion.div>
@@ -582,7 +582,7 @@ const PricingPage: React.FC = () => {
       </section>
 
       {/* ── FAQ Section ── */}
-      <section className="py-16 sm:py-24 bg-[#0F1112]">
+      <section className="py-16 sm:py-24 bg-gray-50 dark:bg-[#0F1112]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             variants={sectionVariants}
@@ -591,10 +591,10 @@ const PricingPage: React.FC = () => {
             viewport={{ once: true, margin: '-60px' }}
             className="text-center mb-10 sm:mb-14"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               Frequently Asked Questions
             </h2>
-            <p className="text-base sm:text-lg text-white/60 max-w-xl mx-auto">
+            <p className="text-base sm:text-lg text-gray-500 dark:text-white/60 max-w-xl mx-auto">
               Everything you need to know about our pricing
             </p>
           </motion.div>
@@ -614,7 +614,7 @@ const PricingPage: React.FC = () => {
       </section>
 
       {/* ── Final CTA Section ── */}
-      <section className="py-16 sm:py-24 bg-[#181C1F]">
+      <section className="py-16 sm:py-24 bg-white dark:bg-[#181C1F]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             variants={sectionVariants}
@@ -622,10 +622,10 @@ const PricingPage: React.FC = () => {
             whileInView="visible"
             viewport={{ once: true, margin: '-60px' }}
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-6">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">
               Not sure? <span className="text-[#FF0000]">Start free</span> and upgrade anytime.
             </h2>
-            <p className="text-base sm:text-lg text-white/70 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed">
+            <p className="text-base sm:text-lg text-gray-600 dark:text-white/70 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed">
               Join thousands of Kenyan parents giving their children a brighter future
               with AI-powered, CBC-aligned tutoring. No commitment required.
             </p>
@@ -633,7 +633,7 @@ const PricingPage: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/signup"
-                className="bg-[#FF0000] hover:bg-[#E40000] text-white px-8 py-3 sm:px-10 sm:py-4 rounded-2xl sm:rounded-3xl font-semibold text-base sm:text-lg flex items-center justify-center gap-2 sm:gap-3 transition-all duration-200 hover:scale-[1.02] min-h-[44px]"
+                className="bg-[#FF0000] hover:bg-[#E40000] text-gray-900 dark:text-white px-8 py-3 sm:px-10 sm:py-4 rounded-2xl sm:rounded-3xl font-semibold text-base sm:text-lg flex items-center justify-center gap-2 sm:gap-3 transition-all duration-200 hover:scale-[1.02] min-h-[44px]"
               >
                 Get Started Free
                 <svg
@@ -652,7 +652,7 @@ const PricingPage: React.FC = () => {
               </Link>
               <Link
                 to="/contact"
-                className="border-2 border-white/30 hover:border-[#FF0000] hover:bg-[#FF0000]/20 px-8 py-3 sm:px-10 sm:py-4 rounded-2xl sm:rounded-3xl font-semibold text-base sm:text-lg transition-all duration-200 min-h-[44px] flex items-center justify-center text-white/90 hover:text-white"
+                className="border-2 border-white/30 hover:border-[#FF0000] hover:bg-[#FF0000]/20 px-8 py-3 sm:px-10 sm:py-4 rounded-2xl sm:rounded-3xl font-semibold text-base sm:text-lg transition-all duration-200 min-h-[44px] flex items-center justify-center text-gray-800 dark:text-white/90 hover:text-gray-900 dark:hover:text-white"
               >
                 Contact Sales
               </Link>

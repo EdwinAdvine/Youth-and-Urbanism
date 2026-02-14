@@ -86,10 +86,10 @@ interface CustomTooltipProps {
 const CustomChartTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#22272B] border border-[#333] rounded-lg px-3 py-2 text-xs shadow-xl">
-      <p className="text-white/60 mb-1">{label}</p>
+    <div className="bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg px-3 py-2 text-xs shadow-xl">
+      <p className="text-gray-500 dark:text-white/60 mb-1">{label}</p>
       {payload.map((entry, i) => (
-        <p key={i} className="text-white" style={{ color: entry.color }}>
+        <p key={i} className="text-gray-900 dark:text-white" style={{ color: entry.color }}>
           {entry.name}: <span className="font-semibold">{entry.value}</span>
         </p>
       ))}
@@ -119,14 +119,14 @@ const itemVariants = {
 const ServiceHealthCard: React.FC<{ service: ServiceHealth }> = ({ service }) => (
   <motion.div
     variants={itemVariants}
-    className="bg-[#181C1F] border border-[#22272B] rounded-xl p-4 hover:border-[#333] transition-colors"
+    className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4 hover:border-gray-300 dark:hover:border-[#333] transition-colors"
   >
     <div className="flex items-start justify-between mb-3">
       <div className="flex items-center gap-2">
-        <div className="p-1.5 bg-[#22272B] rounded-lg text-white/70">
+        <div className="p-1.5 bg-gray-100 dark:bg-[#22272B] rounded-lg text-gray-600 dark:text-white/70">
           {serviceIcon[service.key] ?? <Server className="w-4 h-4" />}
         </div>
-        <span className="text-sm font-medium text-white">{service.name}</span>
+        <span className="text-sm font-medium text-gray-900 dark:text-white">{service.name}</span>
       </div>
       <div className="flex items-center gap-1.5">
         <span className={`w-2 h-2 rounded-full ${statusDot[service.status]} ${service.status === 'healthy' ? 'animate-pulse' : ''}`} />
@@ -137,12 +137,12 @@ const ServiceHealthCard: React.FC<{ service: ServiceHealth }> = ({ service }) =>
     </div>
     <div className="grid grid-cols-2 gap-3 text-xs">
       <div>
-        <p className="text-white/40">Response</p>
-        <p className="text-white font-medium">{service.response_time_ms}ms</p>
+        <p className="text-gray-400 dark:text-white/40">Response</p>
+        <p className="text-gray-900 dark:text-white font-medium">{service.response_time_ms}ms</p>
       </div>
       <div>
-        <p className="text-white/40">Uptime</p>
-        <p className="text-white font-medium">{service.uptime_percent}%</p>
+        <p className="text-gray-400 dark:text-white/40">Uptime</p>
+        <p className="text-gray-900 dark:text-white font-medium">{service.uptime_percent}%</p>
       </div>
     </div>
   </motion.div>
@@ -163,21 +163,21 @@ const UrgentFlagRow: React.FC<{ flag: UrgentFlag }> = ({ flag }) => {
   return (
     <motion.div
       variants={itemVariants}
-      className="flex items-start gap-3 p-3 rounded-lg bg-[#1E2225] hover:bg-[#22272B] transition-colors"
+      className="flex items-start gap-3 p-3 rounded-lg bg-[#1E2225] hover:bg-gray-100 dark:hover:bg-[#22272B] transition-colors"
     >
       <div className="mt-0.5">
-        {categoryIcon[flag.category] ?? <AlertTriangle className="w-4 h-4 text-white/40" />}
+        {categoryIcon[flag.category] ?? <AlertTriangle className="w-4 h-4 text-gray-400 dark:text-white/40" />}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
-          <span className="text-sm font-medium text-white truncate">{flag.title}</span>
+          <span className="text-sm font-medium text-gray-900 dark:text-white truncate">{flag.title}</span>
           <AdminBadge variant={severityToBadge[flag.severity]} size="sm" dot>
             {flag.severity}
           </AdminBadge>
         </div>
-        <p className="text-xs text-white/40 line-clamp-2">{flag.description}</p>
+        <p className="text-xs text-gray-400 dark:text-white/40 line-clamp-2">{flag.description}</p>
       </div>
-      <div className="flex items-center gap-1 text-xs text-white/30 whitespace-nowrap mt-0.5">
+      <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-white/30 whitespace-nowrap mt-0.5">
         <Clock className="w-3 h-3" />
         {timeLabel}
       </div>
@@ -237,25 +237,25 @@ const PlatformPulsePage: React.FC = () => {
       {/* ====== Header ====== */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Platform Pulse</h1>
-          <p className="text-white/50 text-sm mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Platform Pulse</h1>
+          <p className="text-gray-500 dark:text-white/50 text-sm mt-1">
             Real-time system monitoring and urgent flags
             {lastUpdated && (
-              <span className="ml-2 text-white/30">
+              <span className="ml-2 text-gray-400 dark:text-white/30">
                 Updated {lastUpdated.toLocaleTimeString()}
               </span>
             )}
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-xs text-white/40">
+          <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-white/40">
             <Wifi className="w-3.5 h-3.5 text-emerald-400" />
             <span>Live &middot; 30s refresh</span>
           </div>
           <button
             onClick={() => fetchData(true)}
             disabled={refreshing}
-            className="flex items-center gap-2 px-3 py-2 text-sm bg-[#22272B] border border-[#333] rounded-lg text-white/70 hover:text-white hover:border-[#444] transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
@@ -280,51 +280,51 @@ const PlatformPulsePage: React.FC = () => {
           className="grid grid-cols-2 lg:grid-cols-4 gap-4"
         >
           {/* Active Users */}
-          <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-4">
+          <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/50 text-xs font-medium">Active Users</span>
-              <div className="p-1.5 bg-[#22272B] rounded-lg text-emerald-400">
+              <span className="text-gray-500 dark:text-white/50 text-xs font-medium">Active Users</span>
+              <div className="p-1.5 bg-gray-100 dark:bg-[#22272B] rounded-lg text-emerald-400">
                 <Users className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-white">{realtime.active_users}</p>
-            <p className="text-xs text-white/30 mt-1">{realtime.concurrent_sessions} concurrent sessions</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{realtime.active_users}</p>
+            <p className="text-xs text-gray-400 dark:text-white/30 mt-1">{realtime.concurrent_sessions} concurrent sessions</p>
           </motion.div>
 
           {/* AI Conversations */}
-          <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-4">
+          <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/50 text-xs font-medium">AI Chats / hr</span>
-              <div className="p-1.5 bg-[#22272B] rounded-lg text-cyan-400">
+              <span className="text-gray-500 dark:text-white/50 text-xs font-medium">AI Chats / hr</span>
+              <div className="p-1.5 bg-gray-100 dark:bg-[#22272B] rounded-lg text-cyan-400">
                 <Brain className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-white">{realtime.ai_conversations_per_hour}</p>
-            <p className="text-xs text-white/30 mt-1">{realtime.requests_per_minute} req/min</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{realtime.ai_conversations_per_hour}</p>
+            <p className="text-xs text-gray-400 dark:text-white/30 mt-1">{realtime.requests_per_minute} req/min</p>
           </motion.div>
 
           {/* Avg Response Time */}
-          <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-4">
+          <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/50 text-xs font-medium">Avg Response</span>
-              <div className="p-1.5 bg-[#22272B] rounded-lg text-blue-400">
+              <span className="text-gray-500 dark:text-white/50 text-xs font-medium">Avg Response</span>
+              <div className="p-1.5 bg-gray-100 dark:bg-[#22272B] rounded-lg text-blue-400">
                 <Zap className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-white">{realtime.avg_response_time_ms}ms</p>
-            <p className="text-xs text-white/30 mt-1">API latency</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{realtime.avg_response_time_ms}ms</p>
+            <p className="text-xs text-gray-400 dark:text-white/30 mt-1">API latency</p>
           </motion.div>
 
           {/* Error Rate */}
-          <motion.div variants={itemVariants} className="bg-[#181C1F] border border-[#22272B] rounded-xl p-4">
+          <motion.div variants={itemVariants} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/50 text-xs font-medium">Error Rate</span>
-              <div className="p-1.5 bg-[#22272B] rounded-lg text-orange-400">
+              <span className="text-gray-500 dark:text-white/50 text-xs font-medium">Error Rate</span>
+              <div className="p-1.5 bg-gray-100 dark:bg-[#22272B] rounded-lg text-orange-400">
                 <Activity className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-white">{realtime.error_rate_percent}%</p>
-            <p className="text-xs text-white/30 mt-1">
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{realtime.error_rate_percent}%</p>
+            <p className="text-xs text-gray-400 dark:text-white/30 mt-1">
               {realtime.error_rate_percent < 1 ? 'Within threshold' : 'Above normal'}
             </p>
           </motion.div>
@@ -343,21 +343,21 @@ const PlatformPulsePage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5"
+              className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5"
             >
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-sm font-semibold text-white">Sessions Over Time</h2>
-                  <p className="text-xs text-white/40 mt-0.5">Last 60 minutes (5-min intervals)</p>
+                  <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Sessions Over Time</h2>
+                  <p className="text-xs text-gray-400 dark:text-white/40 mt-0.5">Last 60 minutes (5-min intervals)</p>
                 </div>
                 <div className="flex items-center gap-4 text-xs">
                   <div className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                    <span className="text-white/50">Sessions</span>
+                    <span className="text-gray-500 dark:text-white/50">Sessions</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
-                    <span className="text-white/50">AI Chats</span>
+                    <span className="text-gray-500 dark:text-white/50">AI Chats</span>
                   </div>
                 </div>
               </div>
@@ -419,12 +419,12 @@ const PlatformPulsePage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35 }}
-              className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5"
+              className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 text-red-400" />
-                  <h2 className="text-sm font-semibold text-white">Urgent Flags</h2>
+                  <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Urgent Flags</h2>
                 </div>
                 <div className="flex items-center gap-2">
                   {urgentFlags.summary.critical > 0 && (
@@ -457,7 +457,7 @@ const PlatformPulsePage: React.FC = () => {
               {urgentFlags.flags.length === 0 && (
                 <div className="text-center py-8">
                   <Shield className="w-8 h-8 text-green-400/40 mx-auto mb-2" />
-                  <p className="text-white/40 text-sm">No urgent flags. All clear.</p>
+                  <p className="text-gray-400 dark:text-white/40 text-sm">No urgent flags. All clear.</p>
                 </div>
               )}
             </motion.div>
@@ -474,12 +474,12 @@ const PlatformPulsePage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
-              className="bg-[#181C1F] border border-[#22272B] rounded-xl p-5"
+              className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Server className="w-4 h-4 text-blue-400" />
-                  <h2 className="text-sm font-semibold text-white">Service Health</h2>
+                  <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Service Health</h2>
                 </div>
                 <div className="flex items-center gap-2">
                   <AdminBadge
@@ -514,12 +514,12 @@ const PlatformPulsePage: React.FC = () => {
               </motion.div>
 
               {/* Health Summary Bar */}
-              <div className="mt-4 pt-4 border-t border-[#22272B]">
-                <div className="flex items-center justify-between text-xs text-white/40 mb-2">
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#22272B]">
+                <div className="flex items-center justify-between text-xs text-gray-400 dark:text-white/40 mb-2">
                   <span>Overall Status</span>
                   <span>{health.summary.healthy}/{health.summary.total} services healthy</span>
                 </div>
-                <div className="h-2 bg-[#22272B] rounded-full overflow-hidden flex">
+                <div className="h-2 bg-gray-100 dark:bg-[#22272B] rounded-full overflow-hidden flex">
                   {health.summary.healthy > 0 && (
                     <div
                       className="bg-green-400 h-full transition-all duration-500"

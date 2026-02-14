@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DashboardLayout from '../components/layout/DashboardLayout';
 import { listAssessments } from '../services/assessmentService';
 import { useAuthStore } from '../store/authStore';
 
@@ -568,7 +567,7 @@ export default function QuizzesPage() {
       >
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
-          <h3 className="text-lg font-semibold text-white flex-1">{quiz.title}</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex-1">{quiz.title}</h3>
           {scoreData && (
             <span className={`ml-2 px-3 py-1 rounded-full text-sm font-bold ${scoreData.color}`}>
               {scoreData.grade}
@@ -688,10 +687,10 @@ export default function QuizzesPage() {
           {/* Modal Header */}
           <div className="p-6 border-b border-gray-700">
             <div className="flex justify-between items-start mb-4">
-              <h2 className="text-2xl font-bold text-white flex-1">{selectedQuiz.title}</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex-1">{selectedQuiz.title}</h2>
               <button
                 onClick={() => setShowDetailModal(false)}
-                className="text-gray-400 hover:text-white transition-colors"
+                className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -716,7 +715,7 @@ export default function QuizzesPage() {
           <div className="p-6 space-y-6">
             {/* Description */}
             <div>
-              <h3 className="text-lg font-semibold text-white mb-2">Description</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
               <p className="text-gray-400">{selectedQuiz.description}</p>
             </div>
 
@@ -724,11 +723,11 @@ export default function QuizzesPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-gray-700/50 rounded-lg p-4">
                 <div className="text-gray-400 text-sm mb-1">Questions</div>
-                <div className="text-white text-xl font-bold">{selectedQuiz.questionCount}</div>
+                <div className="text-gray-900 dark:text-white text-xl font-bold">{selectedQuiz.questionCount}</div>
               </div>
               <div className="bg-gray-700/50 rounded-lg p-4">
                 <div className="text-gray-400 text-sm mb-1">Time Limit</div>
-                <div className="text-white text-xl font-bold">{selectedQuiz.timeLimit} min</div>
+                <div className="text-gray-900 dark:text-white text-xl font-bold">{selectedQuiz.timeLimit} min</div>
               </div>
               {quizProgress.bestScore !== undefined && (
                 <div className="bg-gray-700/50 rounded-lg p-4 col-span-2">
@@ -740,7 +739,7 @@ export default function QuizzesPage() {
 
             {/* Learning Objectives */}
             <div>
-              <h3 className="text-lg font-semibold text-white mb-3">Learning Objectives</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Learning Objectives</h3>
               <ul className="space-y-2">
                 {selectedQuiz.learningObjectives.map((objective, index) => (
                   <li key={index} className="flex items-start gap-2 text-gray-400">
@@ -755,12 +754,12 @@ export default function QuizzesPage() {
 
             {/* Topics Covered */}
             <div>
-              <h3 className="text-lg font-semibold text-white mb-3">Topics Covered</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Topics Covered</h3>
               <div className="flex flex-wrap gap-2">
                 {selectedQuiz.topics.map((topic, index) => (
                   <span
                     key={index}
-                    className="px-3 py-1 bg-gray-700 text-gray-300 text-sm rounded-full"
+                    className="px-3 py-1 bg-gray-700 text-gray-400 dark:text-gray-300 text-sm rounded-full"
                   >
                     {topic}
                   </span>
@@ -773,7 +772,7 @@ export default function QuizzesPage() {
           <div className="p-6 border-t border-gray-700 flex gap-3">
             <button
               onClick={() => setShowDetailModal(false)}
-              className="flex-1 py-2 px-4 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              className="flex-1 py-2 px-4 bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-600 transition-colors"
             >
               Close
             </button>
@@ -784,10 +783,10 @@ export default function QuizzesPage() {
               }}
               className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
                 quizProgress.status === 'completed'
-                  ? 'bg-copilot-green text-white hover:bg-copilot-green/90'
+                  ? 'bg-copilot-green text-gray-900 dark:text-white hover:bg-copilot-green/90'
                   : quizProgress.status === 'in_progress'
-                  ? 'bg-orange-500 text-white hover:bg-orange-600'
-                  : 'bg-copilot-blue text-white hover:bg-copilot-blue/90'
+                  ? 'bg-orange-500 text-gray-900 dark:text-white hover:bg-orange-600'
+                  : 'bg-copilot-blue text-gray-900 dark:text-white hover:bg-copilot-blue/90'
               }`}
             >
               {quizProgress.status === 'completed'
@@ -803,11 +802,11 @@ export default function QuizzesPage() {
   };
 
   return (
-    <DashboardLayout role={user?.role || 'student'}>
+    <>
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Quizzes & Assessments</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Quizzes & Assessments</h1>
           <p className="text-gray-400">Test your knowledge with CBC-aligned quizzes</p>
         </div>
 
@@ -823,7 +822,7 @@ export default function QuizzesPage() {
                   setFilters({ ...filters, subject: e.target.value });
                   setCurrentPage(1);
                 }}
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-copilot-blue"
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-gray-900 dark:text-white focus:outline-none focus:border-copilot-blue"
               >
                 {subjects.map(subject => (
                   <option key={subject} value={subject}>{subject}</option>
@@ -840,7 +839,7 @@ export default function QuizzesPage() {
                   setFilters({ ...filters, gradeLevel: e.target.value });
                   setCurrentPage(1);
                 }}
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-copilot-blue"
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-gray-900 dark:text-white focus:outline-none focus:border-copilot-blue"
               >
                 {gradeLevels.map(grade => (
                   <option key={grade} value={grade}>{grade}</option>
@@ -857,7 +856,7 @@ export default function QuizzesPage() {
                   setFilters({ ...filters, difficulty: e.target.value });
                   setCurrentPage(1);
                 }}
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-copilot-blue"
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-gray-900 dark:text-white focus:outline-none focus:border-copilot-blue"
               >
                 {difficulties.map(difficulty => (
                   <option key={difficulty} value={difficulty}>
@@ -878,7 +877,7 @@ export default function QuizzesPage() {
                   setFilters({ ...filters, search: e.target.value });
                   setCurrentPage(1);
                 }}
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-copilot-blue"
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:border-copilot-blue"
               />
             </div>
           </div>
@@ -902,7 +901,7 @@ export default function QuizzesPage() {
                 className={`pb-3 px-4 font-medium transition-colors relative ${
                   activeTab === tab
                     ? 'text-copilot-blue'
-                    : 'text-gray-400 hover:text-white'
+                    : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
                 {tab === 'available' && 'Available'}
@@ -949,7 +948,7 @@ export default function QuizzesPage() {
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700 transition-colors"
+                  className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700 transition-colors"
                 >
                   Previous
                 </button>
@@ -960,8 +959,8 @@ export default function QuizzesPage() {
                       onClick={() => setCurrentPage(i + 1)}
                       className={`px-4 py-2 rounded-lg transition-colors ${
                         currentPage === i + 1
-                          ? 'bg-copilot-blue text-white'
-                          : 'bg-gray-800 border border-gray-700 text-white hover:bg-gray-700'
+                          ? 'bg-copilot-blue text-gray-900 dark:text-white'
+                          : 'bg-gray-800 border border-gray-700 text-gray-900 dark:text-white hover:bg-gray-700'
                       }`}
                     >
                       {i + 1}
@@ -971,7 +970,7 @@ export default function QuizzesPage() {
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700 transition-colors"
+                  className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700 transition-colors"
                 >
                   Next
                 </button>
@@ -987,6 +986,6 @@ export default function QuizzesPage() {
 
       {/* Detail Modal */}
       {showDetailModal && renderDetailModal()}
-    </DashboardLayout>
+    </>
   );
 }

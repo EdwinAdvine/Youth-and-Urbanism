@@ -1,0 +1,93 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';
+import { Wallet, ArrowUpRight, ArrowDownLeft, CreditCard, Smartphone, Sparkles } from 'lucide-react';
+
+const transactions = [
+  { id: '1', title: 'Course: Advanced Fractions', type: 'debit', amount: -500, date: 'Feb 12', method: 'Wallet' },
+  { id: '2', title: 'M-Pesa Top-up', type: 'credit', amount: 1000, date: 'Feb 10', method: 'M-Pesa' },
+  { id: '3', title: 'Course: Coding for Kids', type: 'debit', amount: -750, date: 'Feb 8', method: 'Wallet' },
+  { id: '4', title: 'Card Top-up', type: 'credit', amount: 2000, date: 'Feb 5', method: 'Visa' },
+  { id: '5', title: 'Monthly Subscription', type: 'debit', amount: -299, date: 'Feb 1', method: 'Auto' },
+];
+
+const WalletBalancePage: React.FC = () => {
+  const navigate = useNavigate();
+  const { borderRadius } = useAgeAdaptiveUI();
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">My Wallet</h1>
+        <p className="text-gray-600 dark:text-white/70">Manage your learning funds</p>
+      </div>
+
+      {/* Balance Card */}
+      <div className={`p-8 bg-gradient-to-br from-[#FF0000]/20 to-orange-500/20 ${borderRadius} border border-[#FF0000]/30`}>
+        <div className="flex items-center gap-2 mb-2">
+          <Wallet className="w-5 h-5 text-gray-500 dark:text-white/60" />
+          <span className="text-gray-500 dark:text-white/60 text-sm">Available Balance</span>
+        </div>
+        <div className="text-4xl font-bold text-gray-900 dark:text-white mb-4">KES 1,451</div>
+        <div className="flex gap-3">
+          <button onClick={() => navigate('/dashboard/student/wallet/topup/mpesa')} className={`px-4 py-2 bg-green-500 hover:bg-green-600 text-gray-900 dark:text-white ${borderRadius} flex items-center gap-2`}>
+            <Smartphone className="w-4 h-4" /> M-Pesa Top-up
+          </button>
+          <button onClick={() => navigate('/dashboard/student/wallet/topup/card')} className={`px-4 py-2 bg-blue-500 hover:bg-blue-600 text-gray-900 dark:text-white ${borderRadius} flex items-center gap-2`}>
+            <CreditCard className="w-4 h-4" /> Card Top-up
+          </button>
+        </div>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className={`p-4 bg-white dark:bg-[#181C1F] ${borderRadius} border border-gray-200 dark:border-[#22272B] text-center`}>
+          <div className="text-green-400 font-bold text-lg">KES 3,000</div>
+          <div className="text-gray-400 dark:text-white/40 text-sm">Total Top-ups</div>
+        </div>
+        <div className={`p-4 bg-white dark:bg-[#181C1F] ${borderRadius} border border-gray-200 dark:border-[#22272B] text-center`}>
+          <div className="text-red-400 font-bold text-lg">KES 1,549</div>
+          <div className="text-gray-400 dark:text-white/40 text-sm">Total Spent</div>
+        </div>
+        <div className={`p-4 bg-white dark:bg-[#181C1F] ${borderRadius} border border-gray-200 dark:border-[#22272B] text-center`}>
+          <div className="text-blue-400 font-bold text-lg">3</div>
+          <div className="text-gray-400 dark:text-white/40 text-sm">Courses Bought</div>
+        </div>
+      </div>
+
+      {/* Recent Transactions */}
+      <div>
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">Recent Transactions</h2>
+        <div className={`bg-white dark:bg-[#181C1F] ${borderRadius} border border-gray-200 dark:border-[#22272B] divide-y divide-white/5`}>
+          {transactions.map((tx) => (
+            <div key={tx.id} className="p-4 flex items-center gap-4">
+              <div className={`w-10 h-10 ${borderRadius} flex items-center justify-center ${tx.type === 'credit' ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+                {tx.type === 'credit' ? <ArrowDownLeft className="w-5 h-5 text-green-400" /> : <ArrowUpRight className="w-5 h-5 text-red-400" />}
+              </div>
+              <div className="flex-1">
+                <h3 className="text-gray-900 dark:text-white text-sm font-medium">{tx.title}</h3>
+                <p className="text-gray-400 dark:text-white/40 text-xs">{tx.date} · {tx.method}</p>
+              </div>
+              <span className={`font-bold ${tx.type === 'credit' ? 'text-green-400' : 'text-gray-900 dark:text-white'}`}>
+                {tx.type === 'credit' ? '+' : ''}{tx.amount.toLocaleString()} KES
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* AI Advisor */}
+      <div className={`p-4 bg-purple-500/10 ${borderRadius} border border-purple-500/20`}>
+        <div className="flex items-start gap-3">
+          <Sparkles className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-gray-900 dark:text-white font-medium text-sm">AI Fund Advisor</p>
+            <p className="text-gray-500 dark:text-white/60 text-sm mt-1">Based on your learning goals, you might want to save KES 500 for the upcoming Coding course. Consider a top-up before the end of the month.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default WalletBalancePage;

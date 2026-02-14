@@ -50,12 +50,12 @@ const ContentVersionHistory: React.FC<ContentVersionHistoryProps> = ({
   };
 
   return (
-    <div className="bg-[#181C1F] border border-[#22272B] rounded-xl overflow-hidden">
+    <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-2 px-5 py-3.5 border-b border-[#22272B]">
-        <History className="w-4 h-4 text-white/60" />
-        <h3 className="text-sm font-semibold text-white">Version History</h3>
-        <span className="ml-auto text-xs text-white/40">
+      <div className="flex items-center gap-2 px-5 py-3.5 border-b border-gray-200 dark:border-[#22272B]">
+        <History className="w-4 h-4 text-gray-500 dark:text-white/60" />
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Version History</h3>
+        <span className="ml-auto text-xs text-gray-400 dark:text-white/40">
           {versions.length} version{versions.length !== 1 ? 's' : ''}
         </span>
       </div>
@@ -63,11 +63,11 @@ const ContentVersionHistory: React.FC<ContentVersionHistoryProps> = ({
       {/* Timeline */}
       <div className="p-4">
         {sortedVersions.length === 0 ? (
-          <p className="text-sm text-white/40 text-center py-6">No version history available</p>
+          <p className="text-sm text-gray-400 dark:text-white/40 text-center py-6">No version history available</p>
         ) : (
           <div className="relative">
             {/* Timeline line */}
-            <div className="absolute left-[11px] top-3 bottom-3 w-px bg-[#22272B]" />
+            <div className="absolute left-[11px] top-3 bottom-3 w-px bg-gray-100 dark:bg-[#22272B]" />
 
             <div className="space-y-1">
               {sortedVersions.map((version) => {
@@ -81,19 +81,19 @@ const ContentVersionHistory: React.FC<ContentVersionHistoryProps> = ({
                       className={`absolute left-1.5 top-3 w-3 h-3 rounded-full border-2 ${
                         isCurrent
                           ? 'bg-[#E40000] border-[#E40000]'
-                          : 'bg-[#22272B] border-[#333]'
+                          : 'bg-gray-100 dark:bg-[#22272B] border-gray-300 dark:border-[#333]'
                       }`}
                     />
 
                     <button
                       onClick={() => toggleExpand(version.version)}
                       className={`w-full text-left p-3 rounded-lg transition-colors ${
-                        isExpanded ? 'bg-[#22272B]' : 'hover:bg-[#22272B]/50'
+                        isExpanded ? 'bg-gray-100 dark:bg-[#22272B]' : 'hover:bg-gray-100 dark:hover:bg-[#22272B]/50'
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-white">
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">
                             v{version.version}
                           </span>
                           {isCurrent && (
@@ -103,18 +103,18 @@ const ContentVersionHistory: React.FC<ContentVersionHistoryProps> = ({
                           )}
                         </div>
                         {isExpanded ? (
-                          <ChevronUp className="w-3.5 h-3.5 text-white/40" />
+                          <ChevronUp className="w-3.5 h-3.5 text-gray-400 dark:text-white/40" />
                         ) : (
-                          <ChevronDown className="w-3.5 h-3.5 text-white/40" />
+                          <ChevronDown className="w-3.5 h-3.5 text-gray-400 dark:text-white/40" />
                         )}
                       </div>
 
                       <div className="flex items-center gap-3 mt-1.5">
-                        <span className="text-xs text-white/40 flex items-center gap-1">
+                        <span className="text-xs text-gray-400 dark:text-white/40 flex items-center gap-1">
                           <User className="w-3 h-3" />
                           {version.createdBy}
                         </span>
-                        <span className="text-xs text-white/40 flex items-center gap-1">
+                        <span className="text-xs text-gray-400 dark:text-white/40 flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {formatDate(version.createdAt)}
                         </span>
@@ -124,7 +124,7 @@ const ContentVersionHistory: React.FC<ContentVersionHistoryProps> = ({
                     {/* Expanded content */}
                     {isExpanded && (
                       <div className="mx-3 mb-2 px-3 pb-3">
-                        <p className="text-xs text-white/60 leading-relaxed mb-3">
+                        <p className="text-xs text-gray-500 dark:text-white/60 leading-relaxed mb-3">
                           {version.changesSummary}
                         </p>
                         {!isCurrent && (
@@ -132,7 +132,7 @@ const ContentVersionHistory: React.FC<ContentVersionHistoryProps> = ({
                             onClick={() => handleRollback(version.version)}
                             className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${
                               confirmRollback === version.version
-                                ? 'bg-[#E40000] text-white'
+                                ? 'bg-[#E40000] text-gray-900 dark:text-white'
                                 : 'bg-[#E40000]/10 text-[#E40000] hover:bg-[#E40000]/20'
                             }`}
                           >

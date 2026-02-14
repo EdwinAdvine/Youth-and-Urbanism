@@ -70,15 +70,15 @@ const StatsCards: React.FC<StatsCardsProps> = ({ onAction }) => {
         return (
           <div
             key={stat.title}
-            className="bg-gradient-to-br from-[#181C1F] to-[#22272B] border border-[#2A3035] rounded-xl p-6 hover:border-[#FF0000]/50 transition-all duration-300 transform hover:scale-105 cursor-pointer group"
+            className="bg-gradient-to-br from-white dark:from-[#181C1F] to-[#22272B] border border-[#2A3035] rounded-xl p-6 hover:border-[#FF0000]/50 transition-all duration-300 transform hover:scale-105 cursor-pointer group"
             onClick={() => onAction?.(stat.action)}
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-white/60 font-medium">{stat.title}</p>
-                <p className="text-2xl font-bold text-white mt-2">{stat.value}</p>
+                <p className="text-sm text-gray-500 dark:text-white/60 font-medium">{stat.title}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">{stat.value}</p>
               </div>
-              <div className={`w-16 h-16 bg-gradient-to-br ${stat.color} rounded-xl flex items-center justify-center text-white shadow-lg shadow-black/20 group-hover:scale-110 transition-transform duration-300`}>
+              <div className={`w-16 h-16 bg-gradient-to-br ${stat.color} rounded-xl flex items-center justify-center text-gray-900 dark:text-white shadow-lg shadow-black/20 group-hover:scale-110 transition-transform duration-300`}>
                 <Icon className="w-8 h-8" />
               </div>
             </div>

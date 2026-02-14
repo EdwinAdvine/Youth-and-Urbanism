@@ -10,7 +10,7 @@ from typing import List
 
 from app.database import get_db
 from app.models.user import User
-from app.api.dependencies import require_role
+from app.utils.security import require_role
 from app.schemas.instructor.profile_schemas import (
     InstructorProfileResponse,
     InstructorProfileUpdate,

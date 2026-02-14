@@ -2,16 +2,15 @@
 Admin Finance Service - Phase 7 (Finance & Partnerships)
 
 Provides financial data aggregation, refund queue management,
-failed payment tracking, payout processing, partner management,
+payout processing, partner management, subscription plan listing,
 and invoice listing for the admin finance dashboard.
 
-Methods return dicts/lists suitable for direct JSON serialisation in
-FastAPI response models.
+All methods query real database models (Transaction, Invoice,
+PayoutQueueItem, PartnerContract).
 """
 
 import logging
-import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
@@ -19,6 +18,8 @@ from sqlalchemy import select, func, and_, or_, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.payment import Transaction
+from app.models.user import User
+from app.models.admin.finance import Invoice, PayoutQueueItem, PartnerContract
 
 logger = logging.getLogger(__name__)
 
@@ -46,24 +47,7 @@ class FinanceService:
         date_from: Optional[datetime] = None,
         date_to: Optional[datetime] = None,
     ) -> Dict[str, Any]:
-        """
-        Paginated list of transactions from the Transaction model.
-
-        Supports filtering by payment gateway, status, and date range.
-
-        Args:
-            db: Async database session
-            page: Current page number (1-based)
-            page_size: Number of items per page
-            gateway_filter: Filter by gateway (mpesa, paypal, stripe)
-            status_filter: Filter by status (pending, completed, failed, refunded)
-            date_from: Filter transactions created on or after this date
-            date_to: Filter transactions created on or before this date
-
-        Returns:
-            Dict with items, total, page, page_size, and total_pages
-        """
-        # Build base query with filters
+        """Paginated list of transactions from the Transaction model."""
         conditions = []
 
         if gateway_filter:
@@ -77,12 +61,10 @@ class FinanceService:
 
         where_clause = and_(*conditions) if conditions else True
 
-        # Count total matching records
         count_query = select(func.count(Transaction.id)).where(where_clause)
         count_result = await db.execute(count_query)
         total: int = count_result.scalar() or 0
 
-        # Fetch paginated records
         offset = (page - 1) * page_size
         items_query = (
             select(Transaction)
@@ -123,256 +105,107 @@ class FinanceService:
     # Refund Queue
     # ------------------------------------------------------------------
     @staticmethod
-    async def get_refund_queue(db: AsyncSession) -> List[Dict[str, Any]]:
+    async def get_refund_queue(
+        db: AsyncSession,
+        status_filter: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
         """
-        Get pending refund requests.
-
-        Returns mock data until a dedicated RefundRequest model is added.
-        Falls back to mock if no refunded transactions exist.
+        Get refund requests by querying transactions with status='refunded'
+        or status='pending_refund'.
         """
-        now = datetime.utcnow()
-
-        refund_requests: List[Dict[str, Any]] = [
-            {
-                "id": str(uuid.uuid4()),
-                "transaction_id": f"TXN-MPESA-{uuid.uuid4().hex[:8].upper()}",
-                "user_name": "Grace Wanjiku",
-                "user_email": "grace.wanjiku@example.com",
-                "amount": 1200.00,
-                "currency": "KES",
-                "gateway": "mpesa",
-                "reason": "Course content not as described",
-                "original_date": (now - timedelta(days=5)).isoformat(),
-                "requested_at": (now - timedelta(hours=8)).isoformat(),
-                "status": "pending_review",
-                "priority": "high",
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "transaction_id": f"TXN-MPESA-{uuid.uuid4().hex[:8].upper()}",
-                "user_name": "James Ochieng",
-                "user_email": "james.ochieng@example.com",
-                "amount": 2500.00,
-                "currency": "KES",
-                "gateway": "mpesa",
-                "reason": "Duplicate payment - paid twice for Premium plan",
-                "original_date": (now - timedelta(days=2)).isoformat(),
-                "requested_at": (now - timedelta(hours=3)).isoformat(),
-                "status": "pending_review",
-                "priority": "critical",
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "transaction_id": f"TXN-STRIPE-{uuid.uuid4().hex[:8].upper()}",
-                "user_name": "Mary Kamau",
-                "user_email": "mary.kamau@example.com",
-                "amount": 500.00,
-                "currency": "KES",
-                "gateway": "stripe",
-                "reason": "Accidental subscription upgrade",
-                "original_date": (now - timedelta(days=1)).isoformat(),
-                "requested_at": (now - timedelta(hours=12)).isoformat(),
-                "status": "pending_review",
-                "priority": "medium",
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "transaction_id": f"TXN-PAYPAL-{uuid.uuid4().hex[:8].upper()}",
-                "user_name": "Peter Njoroge",
-                "user_email": "peter.njoroge@example.com",
-                "amount": 3500.00,
-                "currency": "KES",
-                "gateway": "paypal",
-                "reason": "Technical issue prevented course access for 2 weeks",
-                "original_date": (now - timedelta(days=14)).isoformat(),
-                "requested_at": (now - timedelta(days=1)).isoformat(),
-                "status": "pending_review",
-                "priority": "high",
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "transaction_id": f"TXN-MPESA-{uuid.uuid4().hex[:8].upper()}",
-                "user_name": "Sarah Akinyi",
-                "user_email": "sarah.akinyi@example.com",
-                "amount": 800.00,
-                "currency": "KES",
-                "gateway": "mpesa",
-                "reason": "Child no longer attending - family relocation",
-                "original_date": (now - timedelta(days=7)).isoformat(),
-                "requested_at": (now - timedelta(hours=18)).isoformat(),
-                "status": "pending_review",
-                "priority": "low",
-            },
+        conditions = [
+            Transaction.status.in_(["refunded", "pending_refund"])
         ]
+        if status_filter:
+            conditions.append(Transaction.status == status_filter)
 
-        return refund_requests
+        q = (
+            select(Transaction)
+            .where(and_(*conditions))
+            .order_by(Transaction.created_at.desc())
+            .limit(50)
+        )
+        result = await db.execute(q)
+        rows = result.scalars().all()
 
-    # ------------------------------------------------------------------
-    # Failed Payments
-    # ------------------------------------------------------------------
-    @staticmethod
-    async def get_failed_payments(db: AsyncSession) -> List[Dict[str, Any]]:
-        """
-        Get recent failed payment attempts.
+        # Resolve user names
+        user_ids = list({r.user_id for r in rows if r.user_id})
+        user_names: Dict[str, str] = {}
+        if user_ids:
+            uq = select(User.id, User.first_name, User.last_name).where(User.id.in_(user_ids))
+            uresult = await db.execute(uq)
+            for row in uresult:
+                user_names[str(row.id)] = f"{row.first_name} {row.last_name}"
 
-        Returns mock data until dedicated failure tracking is in place.
-        """
-        now = datetime.utcnow()
+        items: List[Dict[str, Any]] = []
+        for txn in rows:
+            items.append({
+                "id": str(txn.id),
+                "transaction_id": str(txn.id),
+                "reference": txn.transaction_reference or "",
+                "user_name": user_names.get(str(txn.user_id), "Unknown"),
+                "amount": _decimal_to_float(txn.amount),
+                "currency": txn.currency,
+                "gateway": txn.gateway,
+                "status": txn.status,
+                "created_at": txn.created_at.isoformat() if txn.created_at else None,
+            })
 
-        failed: List[Dict[str, Any]] = [
-            {
-                "id": str(uuid.uuid4()),
-                "transaction_reference": f"MPESA-FAIL-{uuid.uuid4().hex[:6].upper()}",
-                "user_name": "John Mutua",
-                "user_email": "john.mutua@example.com",
-                "amount": 1200.00,
-                "currency": "KES",
-                "gateway": "mpesa",
-                "error_code": "INSUFFICIENT_FUNDS",
-                "error_message": "M-Pesa account has insufficient funds to complete this transaction",
-                "retry_count": 2,
-                "last_attempt": (now - timedelta(minutes=15)).isoformat(),
-                "created_at": (now - timedelta(hours=1)).isoformat(),
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "transaction_reference": f"STRIPE-FAIL-{uuid.uuid4().hex[:6].upper()}",
-                "user_name": "Amina Hassan",
-                "user_email": "amina.hassan@example.com",
-                "amount": 2500.00,
-                "currency": "KES",
-                "gateway": "stripe",
-                "error_code": "CARD_DECLINED",
-                "error_message": "The card was declined by the issuing bank",
-                "retry_count": 1,
-                "last_attempt": (now - timedelta(minutes=45)).isoformat(),
-                "created_at": (now - timedelta(hours=2)).isoformat(),
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "transaction_reference": f"MPESA-FAIL-{uuid.uuid4().hex[:6].upper()}",
-                "user_name": "David Kipchoge",
-                "user_email": "david.kipchoge@example.com",
-                "amount": 500.00,
-                "currency": "KES",
-                "gateway": "mpesa",
-                "error_code": "TIMEOUT",
-                "error_message": "M-Pesa STK push timed out - user did not enter PIN",
-                "retry_count": 3,
-                "last_attempt": (now - timedelta(hours=1)).isoformat(),
-                "created_at": (now - timedelta(hours=4)).isoformat(),
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "transaction_reference": f"PAYPAL-FAIL-{uuid.uuid4().hex[:6].upper()}",
-                "user_name": "Lucy Wambui",
-                "user_email": "lucy.wambui@example.com",
-                "amount": 3500.00,
-                "currency": "KES",
-                "gateway": "paypal",
-                "error_code": "ACCOUNT_RESTRICTED",
-                "error_message": "PayPal account is currently restricted. Contact PayPal support.",
-                "retry_count": 0,
-                "last_attempt": (now - timedelta(hours=3)).isoformat(),
-                "created_at": (now - timedelta(hours=3)).isoformat(),
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "transaction_reference": f"MPESA-FAIL-{uuid.uuid4().hex[:6].upper()}",
-                "user_name": "Samuel Otieno",
-                "user_email": "samuel.otieno@example.com",
-                "amount": 1800.00,
-                "currency": "KES",
-                "gateway": "mpesa",
-                "error_code": "NETWORK_ERROR",
-                "error_message": "Network connectivity issue between Safaricom and payment processor",
-                "retry_count": 4,
-                "last_attempt": (now - timedelta(minutes=5)).isoformat(),
-                "created_at": (now - timedelta(hours=6)).isoformat(),
-            },
-        ]
-
-        return failed
+        return items
 
     # ------------------------------------------------------------------
     # Payout Queue
     # ------------------------------------------------------------------
     @staticmethod
-    async def get_payout_queue(db: AsyncSession) -> List[Dict[str, Any]]:
-        """
-        Get pending instructor and partner payouts.
+    async def get_payout_queue(
+        db: AsyncSession,
+        status_filter: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        """Get pending/processing payouts from the PayoutQueueItem model."""
+        conditions = []
+        if status_filter:
+            conditions.append(PayoutQueueItem.status == status_filter)
 
-        Returns mock data until a dedicated Payout model is added.
-        """
-        now = datetime.utcnow()
+        where_clause = and_(*conditions) if conditions else True
 
-        payouts: List[Dict[str, Any]] = [
-            {
-                "id": str(uuid.uuid4()),
-                "recipient_name": "Dr. Faith Muthoni",
-                "recipient_type": "instructor",
-                "amount": 45000.00,
-                "currency": "KES",
-                "gateway": "mpesa",
-                "phone_number": "+254712***890",
-                "description": "Course royalties - January 2026",
-                "status": "pending_approval",
-                "requested_at": (now - timedelta(hours=4)).isoformat(),
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "recipient_name": "Elimu Digital Ltd",
-                "recipient_type": "partner",
-                "amount": 120000.00,
-                "currency": "KES",
-                "gateway": "mpesa",
-                "phone_number": "+254720***456",
-                "description": "Revenue share - Q4 2025",
-                "status": "pending_approval",
-                "requested_at": (now - timedelta(hours=12)).isoformat(),
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "recipient_name": "Prof. Kevin Onyango",
-                "recipient_type": "instructor",
-                "amount": 28500.00,
-                "currency": "KES",
-                "gateway": "mpesa",
-                "phone_number": "+254711***234",
-                "description": "Course royalties + bonus - January 2026",
-                "status": "pending_approval",
-                "requested_at": (now - timedelta(days=1)).isoformat(),
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "recipient_name": "Kenya Publishers Association",
-                "recipient_type": "partner",
-                "amount": 85000.00,
-                "currency": "KES",
-                "gateway": "stripe",
-                "phone_number": None,
-                "description": "Content licensing fees - January 2026",
-                "status": "pending_approval",
-                "requested_at": (now - timedelta(days=2)).isoformat(),
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "recipient_name": "Mrs. Njeri Macharia",
-                "recipient_type": "instructor",
-                "amount": 15750.00,
-                "currency": "KES",
-                "gateway": "mpesa",
-                "phone_number": "+254722***678",
-                "description": "Assessment creation fees - December 2025",
-                "status": "processing",
-                "requested_at": (now - timedelta(days=3)).isoformat(),
-            },
-        ]
+        q = (
+            select(PayoutQueueItem)
+            .where(where_clause)
+            .order_by(PayoutQueueItem.created_at.desc())
+            .limit(50)
+        )
+        result = await db.execute(q)
+        rows = result.scalars().all()
 
-        return payouts
+        # Resolve recipient names
+        recipient_ids = list({r.recipient_id for r in rows if r.recipient_id})
+        names: Dict[str, str] = {}
+        if recipient_ids:
+            uq = select(User.id, User.first_name, User.last_name).where(User.id.in_(recipient_ids))
+            uresult = await db.execute(uq)
+            for row in uresult:
+                names[str(row.id)] = f"{row.first_name} {row.last_name}"
+
+        items: List[Dict[str, Any]] = []
+        for p in rows:
+            items.append({
+                "id": str(p.id),
+                "recipient_id": str(p.recipient_id),
+                "recipient_name": names.get(str(p.recipient_id), "Unknown"),
+                "amount": _decimal_to_float(p.amount),
+                "currency": p.currency,
+                "payment_method": p.payment_method,
+                "status": p.status,
+                "reference": p.reference,
+                "processed_at": p.processed_at.isoformat() if p.processed_at else None,
+                "failure_reason": p.failure_reason,
+                "created_at": p.created_at.isoformat() if p.created_at else None,
+            })
+
+        return items
 
     # ------------------------------------------------------------------
-    # Partners
+    # Partners (via PartnerContract)
     # ------------------------------------------------------------------
     @staticmethod
     async def list_partners(
@@ -381,149 +214,54 @@ class FinanceService:
         page_size: int = 20,
         type_filter: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """
-        List partners with optional type filtering and pagination.
-
-        Returns mock data until a dedicated Partner model is added.
-
-        Args:
-            db: Async database session
-            page: Current page number (1-based)
-            page_size: Number of items per page
-            type_filter: Filter by partner type (content, business)
-        """
-        all_partners: List[Dict[str, Any]] = [
-            {
-                "id": str(uuid.uuid4()),
-                "name": "Elimu Digital Ltd",
-                "type": "content",
-                "contact_email": "partnerships@elimudigital.co.ke",
-                "contact_phone": "+254720456789",
-                "status": "active",
-                "revenue_share_percent": 15.0,
-                "students_referred": 342,
-                "revenue_generated": 1250000.00,
-                "api_usage": 12450,
-                "contract_start": "2024-06-01",
-                "contract_end": "2026-05-31",
-                "description": "Leading Kenyan digital textbook publisher providing CBC-aligned content",
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "name": "Kenya Publishers Association",
-                "type": "content",
-                "contact_email": "digital@kpa.co.ke",
-                "contact_phone": "+254733987654",
-                "status": "active",
-                "revenue_share_percent": 12.5,
-                "students_referred": 0,
-                "revenue_generated": 850000.00,
-                "api_usage": 8200,
-                "contract_start": "2025-01-01",
-                "contract_end": "2026-12-31",
-                "description": "National association providing licensed textbook content for all grade levels",
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "name": "Safaricom PLC",
-                "type": "business",
-                "contact_email": "edupartners@safaricom.co.ke",
-                "contact_phone": "+254722000100",
-                "status": "active",
-                "revenue_share_percent": 8.0,
-                "students_referred": 1580,
-                "revenue_generated": 3200000.00,
-                "api_usage": 45600,
-                "contract_start": "2024-09-01",
-                "contract_end": "2026-08-31",
-                "description": "M-Pesa payment integration and student acquisition via Safaricom bundles",
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "name": "Twiga Education Foundation",
-                "type": "business",
-                "contact_email": "admin@twigaedu.org",
-                "contact_phone": "+254711234567",
-                "status": "active",
-                "revenue_share_percent": 10.0,
-                "students_referred": 890,
-                "revenue_generated": 620000.00,
-                "api_usage": 3200,
-                "contract_start": "2025-03-01",
-                "contract_end": "2027-02-28",
-                "description": "Non-profit providing scholarships and subsidised access to rural students",
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "name": "Longhorn Publishers",
-                "type": "content",
-                "contact_email": "digital@longhornpublishers.com",
-                "contact_phone": "+254720876543",
-                "status": "pending",
-                "revenue_share_percent": 14.0,
-                "students_referred": 0,
-                "revenue_generated": 0.0,
-                "api_usage": 0,
-                "contract_start": "2026-03-01",
-                "contract_end": "2028-02-28",
-                "description": "Major East African publisher with extensive CBC curriculum materials",
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "name": "Equity Bank Foundation",
-                "type": "business",
-                "contact_email": "education@equitybank.co.ke",
-                "contact_phone": "+254763000200",
-                "status": "active",
-                "revenue_share_percent": 5.0,
-                "students_referred": 450,
-                "revenue_generated": 380000.00,
-                "api_usage": 1800,
-                "contract_start": "2025-06-01",
-                "contract_end": "2027-05-31",
-                "description": "Banking partner providing education loans and Wings to Fly integration",
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "name": "Oxford University Press EA",
-                "type": "content",
-                "contact_email": "digital.ea@oup.com",
-                "contact_phone": "+254733456789",
-                "status": "expired",
-                "revenue_share_percent": 18.0,
-                "students_referred": 120,
-                "revenue_generated": 450000.00,
-                "api_usage": 5600,
-                "contract_start": "2024-01-01",
-                "contract_end": "2025-12-31",
-                "description": "International publisher with Kenyan curriculum adaptation materials",
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "name": "Jomo Kenyatta Foundation",
-                "type": "content",
-                "contact_email": "partnerships@jkf.co.ke",
-                "contact_phone": "+254722345678",
-                "status": "active",
-                "revenue_share_percent": 11.0,
-                "students_referred": 215,
-                "revenue_generated": 720000.00,
-                "api_usage": 6800,
-                "contract_start": "2025-02-01",
-                "contract_end": "2027-01-31",
-                "description": "Government-affiliated publisher with primary and secondary school content",
-            },
-        ]
-
-        # Apply type filter
+        """List partner contracts with optional type filtering and pagination."""
+        conditions = []
         if type_filter:
-            all_partners = [p for p in all_partners if p["type"] == type_filter]
+            conditions.append(PartnerContract.contract_type == type_filter)
 
-        total = len(all_partners)
-        total_pages = max(1, (total + page_size - 1) // page_size)
+        where_clause = and_(*conditions) if conditions else True
+
+        count_q = select(func.count(PartnerContract.id)).where(where_clause)
+        count_result = await db.execute(count_q)
+        total: int = count_result.scalar() or 0
+
         offset = (page - 1) * page_size
-        items = all_partners[offset : offset + page_size]
+        q = (
+            select(PartnerContract)
+            .where(where_clause)
+            .order_by(PartnerContract.created_at.desc())
+            .offset(offset)
+            .limit(page_size)
+        )
+        result = await db.execute(q)
+        rows = result.scalars().all()
 
+        # Resolve partner names
+        partner_ids = list({r.partner_id for r in rows if r.partner_id})
+        names: Dict[str, str] = {}
+        if partner_ids:
+            uq = select(User.id, User.first_name, User.last_name).where(User.id.in_(partner_ids))
+            uresult = await db.execute(uq)
+            for row in uresult:
+                names[str(row.id)] = f"{row.first_name} {row.last_name}"
+
+        items: List[Dict[str, Any]] = []
+        for c in rows:
+            items.append({
+                "id": str(c.id),
+                "partner_id": str(c.partner_id),
+                "partner_name": names.get(str(c.partner_id), "Unknown"),
+                "contract_type": c.contract_type,
+                "status": c.status,
+                "total_value": _decimal_to_float(c.total_value),
+                "currency": c.currency,
+                "start_date": c.start_date.isoformat() if c.start_date else None,
+                "end_date": c.end_date.isoformat() if c.end_date else None,
+                "auto_renew": c.auto_renew,
+                "created_at": c.created_at.isoformat() if c.created_at else None,
+            })
+
+        total_pages = max(1, (total + page_size - 1) // page_size)
         return {
             "items": items,
             "total": total,
@@ -540,139 +278,61 @@ class FinanceService:
         db: AsyncSession,
         page: int = 1,
         page_size: int = 20,
+        status_filter: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """
-        List invoices with pagination.
+        """List invoices with pagination and optional status filter."""
+        conditions = []
+        if status_filter:
+            conditions.append(Invoice.status == status_filter)
 
-        Returns mock data until a dedicated Invoice model is added.
+        where_clause = and_(*conditions) if conditions else True
 
-        Args:
-            db: Async database session
-            page: Current page number (1-based)
-            page_size: Number of items per page
-        """
-        now = datetime.utcnow()
+        count_q = select(func.count(Invoice.id)).where(where_clause)
+        count_result = await db.execute(count_q)
+        total: int = count_result.scalar() or 0
 
-        all_invoices: List[Dict[str, Any]] = [
-            {
-                "id": str(uuid.uuid4()),
-                "invoice_number": "INV-2026-0001",
-                "recipient_name": "Dr. Faith Muthoni",
-                "recipient_email": "faith.muthoni@example.com",
-                "type": "instructor_payout",
-                "amount": 45000.00,
-                "currency": "KES",
-                "status": "paid",
-                "issued_date": (now - timedelta(days=30)).strftime("%Y-%m-%d"),
-                "due_date": (now - timedelta(days=15)).strftime("%Y-%m-%d"),
-                "paid_date": (now - timedelta(days=18)).strftime("%Y-%m-%d"),
-                "description": "Course royalties payment - January 2026",
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "invoice_number": "INV-2026-0002",
-                "recipient_name": "Elimu Digital Ltd",
-                "recipient_email": "finance@elimudigital.co.ke",
-                "type": "partner_revenue_share",
-                "amount": 120000.00,
-                "currency": "KES",
-                "status": "pending",
-                "issued_date": (now - timedelta(days=7)).strftime("%Y-%m-%d"),
-                "due_date": (now + timedelta(days=23)).strftime("%Y-%m-%d"),
-                "paid_date": None,
-                "description": "Revenue share payment - Q4 2025",
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "invoice_number": "INV-2026-0003",
-                "recipient_name": "Safaricom PLC",
-                "recipient_email": "billing@safaricom.co.ke",
-                "type": "service_fee",
-                "amount": 35000.00,
-                "currency": "KES",
-                "status": "overdue",
-                "issued_date": (now - timedelta(days=45)).strftime("%Y-%m-%d"),
-                "due_date": (now - timedelta(days=15)).strftime("%Y-%m-%d"),
-                "paid_date": None,
-                "description": "M-Pesa integration service fees - December 2025",
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "invoice_number": "INV-2026-0004",
-                "recipient_name": "Prof. Kevin Onyango",
-                "recipient_email": "kevin.onyango@example.com",
-                "type": "instructor_payout",
-                "amount": 28500.00,
-                "currency": "KES",
-                "status": "paid",
-                "issued_date": (now - timedelta(days=20)).strftime("%Y-%m-%d"),
-                "due_date": (now - timedelta(days=5)).strftime("%Y-%m-%d"),
-                "paid_date": (now - timedelta(days=8)).strftime("%Y-%m-%d"),
-                "description": "Course royalties + performance bonus - January 2026",
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "invoice_number": "INV-2026-0005",
-                "recipient_name": "Kenya Publishers Association",
-                "recipient_email": "finance@kpa.co.ke",
-                "type": "content_licensing",
-                "amount": 85000.00,
-                "currency": "KES",
-                "status": "pending",
-                "issued_date": (now - timedelta(days=3)).strftime("%Y-%m-%d"),
-                "due_date": (now + timedelta(days=27)).strftime("%Y-%m-%d"),
-                "paid_date": None,
-                "description": "Content licensing fees - January 2026",
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "invoice_number": "INV-2026-0006",
-                "recipient_name": "Twiga Education Foundation",
-                "recipient_email": "finance@twigaedu.org",
-                "type": "partner_revenue_share",
-                "amount": 62000.00,
-                "currency": "KES",
-                "status": "draft",
-                "issued_date": now.strftime("%Y-%m-%d"),
-                "due_date": (now + timedelta(days=30)).strftime("%Y-%m-%d"),
-                "paid_date": None,
-                "description": "Scholarship programme revenue share - February 2026",
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "invoice_number": "INV-2026-0007",
-                "recipient_name": "Jomo Kenyatta Foundation",
-                "recipient_email": "accounts@jkf.co.ke",
-                "type": "content_licensing",
-                "amount": 72000.00,
-                "currency": "KES",
-                "status": "paid",
-                "issued_date": (now - timedelta(days=35)).strftime("%Y-%m-%d"),
-                "due_date": (now - timedelta(days=5)).strftime("%Y-%m-%d"),
-                "paid_date": (now - timedelta(days=10)).strftime("%Y-%m-%d"),
-                "description": "Content licensing and digital rights - Q4 2025",
-            },
-            {
-                "id": str(uuid.uuid4()),
-                "invoice_number": "INV-2026-0008",
-                "recipient_name": "Mrs. Njeri Macharia",
-                "recipient_email": "njeri.macharia@example.com",
-                "type": "instructor_payout",
-                "amount": 15750.00,
-                "currency": "KES",
-                "status": "pending",
-                "issued_date": (now - timedelta(days=5)).strftime("%Y-%m-%d"),
-                "due_date": (now + timedelta(days=25)).strftime("%Y-%m-%d"),
-                "paid_date": None,
-                "description": "Assessment creation fees - December 2025",
-            },
-        ]
-
-        total = len(all_invoices)
-        total_pages = max(1, (total + page_size - 1) // page_size)
         offset = (page - 1) * page_size
-        items = all_invoices[offset : offset + page_size]
+        q = (
+            select(Invoice)
+            .where(where_clause)
+            .order_by(Invoice.created_at.desc())
+            .offset(offset)
+            .limit(page_size)
+        )
+        result = await db.execute(q)
+        rows = result.scalars().all()
 
+        # Resolve names (partner or user)
+        all_ids = set()
+        for inv in rows:
+            if inv.partner_id:
+                all_ids.add(inv.partner_id)
+            if inv.user_id:
+                all_ids.add(inv.user_id)
+        names: Dict[str, str] = {}
+        if all_ids:
+            uq = select(User.id, User.first_name, User.last_name).where(User.id.in_(list(all_ids)))
+            uresult = await db.execute(uq)
+            for row in uresult:
+                names[str(row.id)] = f"{row.first_name} {row.last_name}"
+
+        items: List[Dict[str, Any]] = []
+        for inv in rows:
+            recipient_id = str(inv.partner_id) if inv.partner_id else str(inv.user_id) if inv.user_id else None
+            items.append({
+                "id": str(inv.id),
+                "invoice_number": inv.invoice_number,
+                "recipient_name": names.get(recipient_id, "Unknown") if recipient_id else "Unknown",
+                "amount": _decimal_to_float(inv.amount),
+                "currency": inv.currency,
+                "status": inv.status,
+                "due_date": inv.due_date.isoformat() if inv.due_date else None,
+                "paid_at": inv.paid_at.isoformat() if inv.paid_at else None,
+                "notes": inv.notes,
+                "created_at": inv.created_at.isoformat() if inv.created_at else None,
+            })
+
+        total_pages = max(1, (total + page_size - 1) // page_size)
         return {
             "items": items,
             "total": total,
@@ -680,3 +340,87 @@ class FinanceService:
             "page_size": page_size,
             "total_pages": total_pages,
         }
+
+    # ------------------------------------------------------------------
+    # Subscription Plans (read from SystemConfig)
+    # ------------------------------------------------------------------
+    @staticmethod
+    async def list_subscription_plans(db: AsyncSession) -> List[Dict[str, Any]]:
+        """
+        List subscription plans from SystemConfig where
+        category='subscription_plans'. Falls back to defaults if none exist.
+        """
+        from app.models.admin.operations import SystemConfig
+
+        q = select(SystemConfig).where(
+            SystemConfig.category == "subscription_plans"
+        )
+        result = await db.execute(q)
+        configs = result.scalars().all()
+
+        if configs:
+            plans = []
+            for cfg in configs:
+                plan_data = cfg.value if isinstance(cfg.value, dict) else {}
+                plans.append({
+                    "id": str(cfg.id),
+                    "name": plan_data.get("name", cfg.key),
+                    "slug": cfg.key,
+                    "price": plan_data.get("price", 0),
+                    "currency": plan_data.get("currency", "KES"),
+                    "billing_cycle": plan_data.get("billing_cycle", "monthly"),
+                    "features": plan_data.get("features", []),
+                    "is_active": plan_data.get("is_active", True),
+                })
+            return plans
+
+        # Default plans when none configured
+        return [
+            {
+                "id": "default-individual",
+                "name": "Individual Student",
+                "slug": "individual",
+                "price": 1500.00,
+                "currency": "KES",
+                "billing_cycle": "monthly",
+                "features": [
+                    "1 student account",
+                    "Access to all CBC courses",
+                    "AI Tutor - Basic (50 chats/month)",
+                    "Progress reports",
+                ],
+                "is_active": True,
+            },
+            {
+                "id": "default-family",
+                "name": "Family Plan",
+                "slug": "family",
+                "price": 3500.00,
+                "currency": "KES",
+                "billing_cycle": "monthly",
+                "features": [
+                    "Up to 4 student accounts",
+                    "Access to all CBC courses",
+                    "AI Tutor - Premium (unlimited chats)",
+                    "Progress reports & analytics",
+                    "Parent dashboard",
+                ],
+                "is_active": True,
+            },
+            {
+                "id": "default-school",
+                "name": "School License",
+                "slug": "school",
+                "price": 25000.00,
+                "currency": "KES",
+                "billing_cycle": "monthly",
+                "features": [
+                    "Up to 50 student accounts",
+                    "All courses + custom content",
+                    "AI Tutor - Premium (unlimited)",
+                    "Admin dashboard & bulk management",
+                    "Dedicated support",
+                ],
+                "is_active": True,
+            },
+        ]
