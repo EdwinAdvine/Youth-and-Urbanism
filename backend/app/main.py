@@ -738,6 +738,45 @@ async def staff_websocket(websocket: WebSocket, token: str):
         ws_manager.disconnect(websocket, user_id, user_role)
 
 
+# Instructor real-time updates WebSocket
+@app.websocket("/ws/instructor/{token}")
+async def instructor_websocket(websocket: WebSocket, token: str):
+    """WebSocket endpoint for instructor real-time updates (counters, notifications, badges)."""
+    import json as _json
+    from app.websocket.instructor_connection_manager import instructor_ws_manager
+
+    try:
+        payload = verify_token(token)
+    except Exception:
+        await websocket.accept()
+        await websocket.close(code=4001, reason="Invalid token")
+        return
+
+    user_id = payload.get("sub") or payload.get("user_id")
+    user_role = payload.get("role", "")
+
+    if user_role != "instructor":
+        await websocket.accept()
+        await websocket.close(code=4003, reason="Instructor access required")
+        return
+
+    await instructor_ws_manager.connect(websocket, user_id)
+
+    try:
+        while True:
+            data = await websocket.receive_text()
+            try:
+                msg = _json.loads(data)
+                if msg.get("type") == "ping":
+                    await websocket.send_json({"type": "pong"})
+            except _json.JSONDecodeError:
+                pass
+    except WebSocketDisconnect:
+        instructor_ws_manager.disconnect(user_id)
+    except Exception:
+        instructor_ws_manager.disconnect(user_id)
+
+
 # Yjs collaborative editing WebSocket
 @app.websocket("/ws/yjs/{doc_id}/{token}")
 async def yjs_websocket(websocket: WebSocket, doc_id: str, token: str):
