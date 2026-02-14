@@ -54,7 +54,7 @@ class StaffModerationItem(Base):
 
     # Categorization
     category = Column(String(50), nullable=True)
-    metadata = Column(JSONB, default={})
+    extra_data = Column(JSONB, default={})
 
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

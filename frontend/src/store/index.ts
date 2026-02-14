@@ -13,8 +13,9 @@ import {
 } from '../types/index';
 import { useCoPilotStore, useCoPilotInit } from './coPilotStore';
 import { useAuthStore } from './authStore';
+import { useInstructorStore } from './instructorStore';
 
-export { useCoPilotStore, useCoPilotInit, useAuthStore };
+export { useCoPilotStore, useCoPilotInit, useAuthStore, useInstructorStore };
 
 interface UserState {
   preferences: UserPreferences;

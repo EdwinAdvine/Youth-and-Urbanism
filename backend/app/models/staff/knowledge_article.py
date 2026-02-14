@@ -85,7 +85,7 @@ class KBArticle(Base):
     is_internal = Column(Boolean, default=False, nullable=False)
 
     # Metadata
-    metadata = Column(JSONB, default={})
+    extra_data = Column(JSONB, default={})
 
     # Timestamps
     published_at = Column(DateTime, nullable=True)

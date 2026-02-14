@@ -57,7 +57,7 @@ class LiveSession(Base):
     ended_at = Column(DateTime, nullable=True)
 
     # Metadata
-    metadata = Column(JSONB, default={})
+    extra_data = Column(JSONB, default={})
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     __table_args__ = (

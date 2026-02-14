@@ -67,7 +67,7 @@ class StaffTicket(Base):
 
     # Flexible data
     tags = Column(JSONB, default=[])
-    metadata = Column(JSONB, default={})
+    extra_data = Column(JSONB, default={})
 
     # Timestamps
     first_response_at = Column(DateTime, nullable=True)

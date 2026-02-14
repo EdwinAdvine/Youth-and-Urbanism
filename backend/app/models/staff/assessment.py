@@ -115,7 +115,7 @@ class AssessmentQuestion(Base):
     ai_grading_prompt = Column(Text, nullable=True)
 
     # Metadata
-    metadata = Column(JSONB, default={})
+    extra_data = Column(JSONB, default={})
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     __table_args__ = (

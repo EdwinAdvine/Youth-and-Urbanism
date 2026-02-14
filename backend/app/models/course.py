@@ -85,6 +85,11 @@ class Course(Base):
     # Competencies
     competencies = Column(JSONB, default=[], nullable=False)  # CBC competencies covered
 
+    # Instructor dashboard enhancements
+    revenue_split_id = Column(UUID(as_uuid=True), ForeignKey("instructor_revenue_splits.id", ondelete="SET NULL"), nullable=True)
+    cbc_analysis_id = Column(UUID(as_uuid=True), ForeignKey("instructor_cbc_analyses.id", ondelete="SET NULL"), nullable=True)
+    ai_generated_meta = Column(JSONB, nullable=True)  # AI-generated metadata (keywords, difficulty, etc.)
+
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

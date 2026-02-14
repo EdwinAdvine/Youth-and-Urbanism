@@ -69,6 +69,27 @@ from app.models.staff import (
     CaseNote,
 )
 
+# Instructor models
+from app.models.instructor import (
+    InstructorProfile,
+    InstructorEarning,
+    InstructorPayout,
+    InstructorRevenueSplit,
+    InstructorBadge,
+    InstructorBadgeAward,
+    InstructorPoints,
+    InstructorPointsLog,
+    PeerKudo,
+    InstructorSessionAttendance,
+    InstructorSessionFollowUp,
+    InstructorDailyInsight,
+    InstructorCBCAnalysis,
+    InstructorForumPost,
+    InstructorForumReply,
+    InstructorTwoFactor,
+    LoginHistory,
+)
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

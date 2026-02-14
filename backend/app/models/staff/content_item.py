@@ -53,7 +53,7 @@ class StaffContentItem(Base):
 
     # Versioning and metadata
     version = Column(Integer, default=1, nullable=False)
-    metadata = Column(JSONB, default={})
+    extra_data = Column(JSONB, default={})
 
     # Timestamps
     published_at = Column(DateTime, nullable=True)
