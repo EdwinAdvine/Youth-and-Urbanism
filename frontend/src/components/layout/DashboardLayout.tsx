@@ -4,7 +4,7 @@ import { useThemeStore, useUserStore, useCoPilotStore } from '../../store';
 import Sidebar from './Sidebar';
 import PartnerSidebar from '../partner/PartnerSidebar';
 import ParentSidebar from '../parent/ParentSidebar';
-import InstructorSidebar from '../instructor/InstructorSidebar';
+import InstructorSidebar from '../instructor/sidebar/InstructorSidebar';
 import AdminSidebar from '../admin/sidebar/AdminSidebar';
 import StaffSidebar from '../staff/sidebar/StaffSidebar';
 import Topbar from './Topbar';
