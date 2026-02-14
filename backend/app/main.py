@@ -332,6 +332,11 @@ from app.api.v1.staff import team as staff_team
 from app.api.v1.staff import account as staff_account
 from app.api.v1.staff import notifications as staff_notifications
 
+# Instructor Dashboard routes
+from app.api.v1.instructor import dashboard_router as instructor_dashboard
+from app.api.v1.instructor import account_router as instructor_account
+from app.api.v1.instructor import earnings_router as instructor_earnings
+
 # Authentication endpoints (with auto-create AI tutor for students)
 app.include_router(
     auth.router,
@@ -605,6 +610,25 @@ app.include_router(
     staff_notifications.router,
     prefix=f"{settings.api_v1_prefix}/staff/notifications",
     tags=["Staff - Notifications"]
+)
+
+# Instructor Dashboard routes
+app.include_router(
+    instructor_dashboard,
+    prefix=f"{settings.api_v1_prefix}/instructor",
+    tags=["Instructor - Dashboard"]
+)
+
+app.include_router(
+    instructor_account,
+    prefix=f"{settings.api_v1_prefix}/instructor",
+    tags=["Instructor - Account"]
+)
+
+app.include_router(
+    instructor_earnings,
+    prefix=f"{settings.api_v1_prefix}/instructor",
+    tags=["Instructor - Earnings"]
 )
 
 # Phase 8 - Supporting APIs
