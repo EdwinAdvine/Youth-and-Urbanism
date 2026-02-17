@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useCoPilotStore } from '../../store';
 import { Send, Mic, Paperclip } from 'lucide-react';
 
 interface ChatInputProps {

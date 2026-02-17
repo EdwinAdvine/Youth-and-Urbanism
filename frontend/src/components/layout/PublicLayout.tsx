@@ -1,14 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Outlet } from 'react-router-dom';
 import PublicHeader from './PublicHeader';
 import Footer from './Footer';
-import { initializeTheme } from '../../store';
+import ScrollToTopButton from './ScrollToTopButton';
 
 const PublicLayout: React.FC = () => {
-  useEffect(() => {
-    initializeTheme();
-  }, []);
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-[#0F1112]">
       <PublicHeader />
@@ -16,6 +12,7 @@ const PublicLayout: React.FC = () => {
         <Outlet />
       </main>
       <Footer />
+      <ScrollToTopButton />
     </div>
   );
 };

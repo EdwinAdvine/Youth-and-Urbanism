@@ -146,7 +146,9 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
         try:
             yield session
-            await session.commit()
+            # Only commit if there are pending changes (avoids no-op commits on reads)
+            if session.new or session.dirty or session.deleted:
+                await session.commit()
         except SQLAlchemyError as e:
             await session.rollback()
             logger.error(f"Database session error: {str(e)}")

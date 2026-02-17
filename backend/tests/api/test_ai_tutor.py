@@ -31,7 +31,7 @@ class TestAITutorChat:
             "conversation_id": "conv-123"
         }
 
-        response = client.post("/api/v1/ai-tutor/chat",
+        response = await client.post("/api/v1/ai-tutor/chat",
             headers=auth_headers,
             json={
                 "message": "Explain the Pythagorean theorem",
@@ -64,7 +64,7 @@ class TestAITutorChat:
             "model_used": "gemini-pro"
         }
 
-        response = client.post("/api/v1/ai-tutor/chat",
+        response = await client.post("/api/v1/ai-tutor/chat",
             headers=auth_headers,
             json={
                 "message": "Can you explain more?",
@@ -78,9 +78,9 @@ class TestAITutorChat:
             status.HTTP_404_NOT_FOUND
         ]
 
-    def test_chat_requires_authentication(self, client):
+    async def test_chat_requires_authentication(self, client):
         """Test chat endpoint requires authentication."""
-        response = client.post("/api/v1/ai-tutor/chat",
+        response = await client.post("/api/v1/ai-tutor/chat",
             json={"message": "Test message"}
         )
 
@@ -90,9 +90,9 @@ class TestAITutorChat:
             status.HTTP_404_NOT_FOUND
         ]
 
-    def test_chat_empty_message_fails(self, client, auth_headers):
+    async def test_chat_empty_message_fails(self, client, auth_headers):
         """Test chat with empty message fails validation."""
-        response = client.post("/api/v1/ai-tutor/chat",
+        response = await client.post("/api/v1/ai-tutor/chat",
             headers=auth_headers,
             json={"message": ""}
         )
@@ -104,11 +104,11 @@ class TestAITutorChat:
             status.HTTP_404_NOT_FOUND
         ]
 
-    def test_chat_long_message_handled(self, client, auth_headers):
+    async def test_chat_long_message_handled(self, client, auth_headers):
         """Test chat handles very long messages."""
         long_message = "A" * 5000  # 5000 characters
 
-        response = client.post("/api/v1/ai-tutor/chat",
+        response = await client.post("/api/v1/ai-tutor/chat",
             headers=auth_headers,
             json={"message": long_message}
         )
@@ -134,7 +134,7 @@ class TestAITutorChat:
             "video_url": None
         }
 
-        response = client.post("/api/v1/ai-tutor/chat",
+        response = await client.post("/api/v1/ai-tutor/chat",
             headers=auth_headers,
             json={
                 "message": "Show me how to solve quadratic equations",
@@ -148,9 +148,9 @@ class TestAITutorChat:
             status.HTTP_404_NOT_FOUND
         ]
 
-    def test_chat_student_only_access(self, client, admin_headers):
+    async def test_chat_student_only_access(self, client, admin_headers):
         """Test chat endpoint is restricted to students only."""
-        response = client.post("/api/v1/ai-tutor/chat",
+        response = await client.post("/api/v1/ai-tutor/chat",
             headers=admin_headers,
             json={"message": "Test"}
         )
@@ -167,9 +167,9 @@ class TestAITutorChat:
 class TestAITutorConversationHistory:
     """Test conversation history management."""
 
-    def test_get_conversation_history_success(self, client, auth_headers):
+    async def test_get_conversation_history_success(self, client, auth_headers):
         """Test retrieving conversation history."""
-        response = client.get("/api/v1/ai-tutor/conversations",
+        response = await client.get("/api/v1/ai-tutor/conversations",
             headers=auth_headers
         )
 
@@ -183,9 +183,9 @@ class TestAITutorConversationHistory:
             data = response.json()
             assert isinstance(data, list) or "conversations" in data
 
-    def test_get_conversation_history_pagination(self, client, auth_headers):
+    async def test_get_conversation_history_pagination(self, client, auth_headers):
         """Test conversation history supports pagination."""
-        response = client.get("/api/v1/ai-tutor/conversations",
+        response = await client.get("/api/v1/ai-tutor/conversations",
             headers=auth_headers,
             params={"limit": 10, "offset": 0}
         )
@@ -196,9 +196,9 @@ class TestAITutorConversationHistory:
             status.HTTP_404_NOT_FOUND
         ]
 
-    def test_delete_conversation_success(self, client, auth_headers):
+    async def test_delete_conversation_success(self, client, auth_headers):
         """Test deleting a conversation."""
-        response = client.delete("/api/v1/ai-tutor/conversations/conv-123",
+        response = await client.delete("/api/v1/ai-tutor/conversations/conv-123",
             headers=auth_headers
         )
 
@@ -209,9 +209,9 @@ class TestAITutorConversationHistory:
             status.HTTP_501_NOT_IMPLEMENTED
         ]
 
-    def test_reset_conversation_history(self, client, auth_headers):
+    async def test_reset_conversation_history(self, client, auth_headers):
         """Test resetting all conversation history."""
-        response = client.post("/api/v1/ai-tutor/reset",
+        response = await client.post("/api/v1/ai-tutor/reset",
             headers=auth_headers
         )
 
@@ -227,12 +227,12 @@ class TestAITutorConversationHistory:
 class TestAITutorConfiguration:
     """Test AI tutor configuration endpoints."""
 
-    def test_update_response_mode_success(self, client, auth_headers):
+    async def test_update_response_mode_success(self, client, auth_headers):
         """Test updating AI tutor response mode."""
         modes = ["text", "voice", "video"]
 
         for mode in modes:
-            response = client.put("/api/v1/ai-tutor/response-mode",
+            response = await client.put("/api/v1/ai-tutor/response-mode",
                 headers=auth_headers,
                 json={"mode": mode}
             )
@@ -243,9 +243,9 @@ class TestAITutorConfiguration:
                 status.HTTP_501_NOT_IMPLEMENTED
             ]
 
-    def test_update_response_mode_invalid_fails(self, client, auth_headers):
+    async def test_update_response_mode_invalid_fails(self, client, auth_headers):
         """Test updating to invalid response mode fails."""
-        response = client.put("/api/v1/ai-tutor/response-mode",
+        response = await client.put("/api/v1/ai-tutor/response-mode",
             headers=auth_headers,
             json={"mode": "invalid-mode"}
         )
@@ -257,9 +257,9 @@ class TestAITutorConfiguration:
             status.HTTP_501_NOT_IMPLEMENTED
         ]
 
-    def test_get_tutor_status_success(self, client, auth_headers):
+    async def test_get_tutor_status_success(self, client, auth_headers):
         """Test getting AI tutor status and metrics."""
-        response = client.get("/api/v1/ai-tutor/status",
+        response = await client.get("/api/v1/ai-tutor/status",
             headers=auth_headers
         )
 
@@ -293,7 +293,7 @@ class TestAITutorFailover:
             }
         ]
 
-        response = client.post("/api/v1/ai-tutor/chat",
+        response = await client.post("/api/v1/ai-tutor/chat",
             headers=auth_headers,
             json={"message": "Test question"}
         )
@@ -317,7 +317,7 @@ class TestAITutorFailover:
         """Test graceful error when all AI providers fail."""
         mock_generate.side_effect = Exception("All AI providers unavailable")
 
-        response = client.post("/api/v1/ai-tutor/chat",
+        response = await client.post("/api/v1/ai-tutor/chat",
             headers=auth_headers,
             json={"message": "Test question"}
         )
@@ -345,7 +345,7 @@ class TestAITutorLearningPath:
         }
 
         # Grade 3 student
-        response = client.post("/api/v1/ai-tutor/chat",
+        response = await client.post("/api/v1/ai-tutor/chat",
             headers=auth_headers,
             json={
                 "message": "What is addition?",
@@ -359,9 +359,9 @@ class TestAITutorLearningPath:
             status.HTTP_404_NOT_FOUND
         ]
 
-    def test_performance_metrics_tracking(self, client, auth_headers):
+    async def test_performance_metrics_tracking(self, client, auth_headers):
         """Test AI tutor tracks student performance metrics."""
-        response = client.get("/api/v1/ai-tutor/performance",
+        response = await client.get("/api/v1/ai-tutor/performance",
             headers=auth_headers
         )
 
@@ -376,11 +376,11 @@ class TestAITutorLearningPath:
 class TestAITutorSecurity:
     """Test AI tutor security features."""
 
-    def test_chat_rate_limiting(self, client, auth_headers):
+    async def test_chat_rate_limiting(self, client, auth_headers):
         """Test chat endpoint has rate limiting."""
         # Send multiple rapid requests
         for i in range(20):
-            response = client.post("/api/v1/ai-tutor/chat",
+            response = await client.post("/api/v1/ai-tutor/chat",
                 headers=auth_headers,
                 json={"message": f"Message {i}"}
             )
@@ -397,7 +397,7 @@ class TestAITutorSecurity:
             if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
                 break
 
-    def test_chat_content_filtering(self, client, auth_headers):
+    async def test_chat_content_filtering(self, client, auth_headers):
         """Test inappropriate content is filtered."""
         inappropriate_messages = [
             "Tell me how to hack",
@@ -405,7 +405,7 @@ class TestAITutorSecurity:
         ]
 
         for msg in inappropriate_messages:
-            response = client.post("/api/v1/ai-tutor/chat",
+            response = await client.post("/api/v1/ai-tutor/chat",
                 headers=auth_headers,
                 json={"message": msg}
             )

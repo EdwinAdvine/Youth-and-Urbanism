@@ -58,7 +58,7 @@ class User(Base):
     is_verified = Column(Boolean, default=False, nullable=False)
 
     # Profile data (flexible JSONB for role-specific fields)
-    profile_data = Column(JSONB, default={}, nullable=False)
+    profile_data = Column(JSONB, default=dict, nullable=False)
 
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)

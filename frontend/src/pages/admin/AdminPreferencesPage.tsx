@@ -40,10 +40,23 @@ const AdminPreferencesPage: React.FC = () => {
     auto_refresh_interval: 60,
   });
   const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  const handleSave = () => { setSaving(true); setTimeout(() => setSaving(false), 1000); };
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleSave = () => {
+    setSaving(true);
+    setTimeout(() => {
+      setSaving(false);
+      showToast('Preferences saved successfully');
+    }, 1000);
+  };
   const handleReset = () => {
     setPreferences({ theme: 'dark', timezone: 'Africa/Nairobi', language: 'en', date_format: 'DD/MM/YYYY', notifications_email: true, notifications_push: true, notifications_sound: false, dashboard_layout: 'default', sidebar_collapsed: false, auto_refresh_interval: 60 });
+    showToast('Preferences reset to defaults');
   };
 
   const themeIcons = { dark: Moon, light: Sun, system: Monitor };
@@ -240,6 +253,15 @@ const AdminPreferencesPage: React.FC = () => {
           </table>
         </div>
       </motion.div>
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
+            toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+          }`}>
+            <p className="text-sm font-medium">{toast.message}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

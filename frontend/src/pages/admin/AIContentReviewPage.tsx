@@ -269,8 +269,33 @@ const AIContentReviewPage: React.FC = () => {
   const [contentTypeFilter, setContentTypeFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [items, setItems] = useState<ContentReviewItem[]>(mockContentItems);
+  const [refreshing, setRefreshing] = useState(false);
 
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+      showToast('Content review data refreshed', 'success');
+    }, 1200);
+  };
+
+  const handlePreviewContent = (item: ContentReviewItem) => {
+    alert(
+      `Content Preview\n\n` +
+      `Title: ${item.title}\n` +
+      `Type: ${contentTypeLabels[item.content_type]}\n` +
+      `Subject: ${item.subject}\n` +
+      `Grade: ${item.grade_level}\n` +
+      `AI Model: ${item.model_used}\n` +
+      `Accuracy Score: ${item.accuracy_score}%\n` +
+      `Status: ${reviewStatusLabels[item.review_status]}\n` +
+      `Reviewed By: ${item.reviewed_by || 'Not yet reviewed'}\n` +
+      `Generated: ${formatDate(item.generated_at)}\n\n` +
+      `Content Snippet:\n${item.snippet}`
+    );
+  };
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type });
@@ -322,8 +347,12 @@ const AIContentReviewPage: React.FC = () => {
             { label: 'Content Review' },
           ]}
           actions={
-            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors">
-              <RefreshCw className="w-4 h-4" />
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
             </button>
           }
@@ -454,6 +483,7 @@ const AIContentReviewPage: React.FC = () => {
                         <div className="flex items-center justify-end gap-1">
                           <button
                             title="Preview Content"
+                            onClick={() => handlePreviewContent(item)}
                             className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                           >
                             <Eye className="w-4 h-4" />

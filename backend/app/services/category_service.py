@@ -1,5 +1,11 @@
 """
-Category business logic service.
+Category Business Logic Service for Urban Home School
+
+Handles CRUD operations for course categories, including hierarchical
+category trees for navigation menus. Categories support parent-child
+nesting, display ordering, icons, and images.
+
+All functions are async and accept an AsyncSession for database operations.
 """
 
 import logging
@@ -15,6 +21,13 @@ logger = logging.getLogger(__name__)
 
 
 async def create_category(db: AsyncSession, data: dict) -> Category:
+    """
+    Create a new category from a data dictionary.
+
+    Accepts any valid Category model fields in the data dict (name, slug,
+    description, icon, image_url, parent_id, display_order, is_active).
+    Returns the newly created Category instance after committing to the database.
+    """
     category = Category(**data)
     db.add(category)
     await db.commit()
@@ -24,16 +37,29 @@ async def create_category(db: AsyncSession, data: dict) -> Category:
 
 
 async def get_category_by_id(db: AsyncSession, category_id: UUID) -> Optional[Category]:
+    """
+    Look up a category by its UUID. Returns the Category or None if not found.
+    """
     result = await db.execute(select(Category).where(Category.id == category_id))
     return result.scalar_one_or_none()
 
 
 async def get_category_by_slug(db: AsyncSession, slug: str) -> Optional[Category]:
+    """
+    Look up a category by its URL-friendly slug. Returns the Category or None.
+    """
     result = await db.execute(select(Category).where(Category.slug == slug))
     return result.scalar_one_or_none()
 
 
 async def list_categories(db: AsyncSession, active_only: bool = True) -> List[Category]:
+    """
+    List all categories ordered by display_order then name.
+
+    When active_only is True (default), only active categories are returned.
+    Set active_only to False to include inactive categories (useful for admin).
+    Returns a flat list of Category instances.
+    """
     query = select(Category).order_by(Category.display_order, Category.name)
     if active_only:
         query = query.where(Category.is_active == True)
@@ -42,7 +68,17 @@ async def list_categories(db: AsyncSession, active_only: bool = True) -> List[Ca
 
 
 async def get_category_tree(db: AsyncSession) -> List[dict]:
-    """Return categories as a nested tree structure for mega-menu."""
+    """
+    Return categories as a nested tree structure for mega-menu navigation.
+
+    Builds a hierarchy by grouping categories under their parents. Root
+    categories (those with no parent) appear at the top level. Each node
+    includes id, name, slug, description, icon, image_url, parent_id,
+    display_order, is_active, course_count, timestamps, and a children
+    list containing nested subcategories.
+
+    Returns a list of root category dicts with recursively nested children.
+    """
     categories = await list_categories(db, active_only=True)
 
     # Build parent->children map
@@ -80,6 +116,12 @@ async def get_category_tree(db: AsyncSession) -> List[dict]:
 
 
 async def update_category(db: AsyncSession, category_id: UUID, data: dict) -> Optional[Category]:
+    """
+    Update an existing category with values from the data dictionary.
+
+    Only non-None values in the data dict will be applied. Returns the
+    updated Category instance, or None if no category matches the given UUID.
+    """
     category = await get_category_by_id(db, category_id)
     if not category:
         return None
@@ -92,6 +134,11 @@ async def update_category(db: AsyncSession, category_id: UUID, data: dict) -> Op
 
 
 async def delete_category(db: AsyncSession, category_id: UUID) -> bool:
+    """
+    Soft-delete a category by setting is_active to False.
+
+    Returns True if the category was deactivated, False if not found.
+    """
     category = await get_category_by_id(db, category_id)
     if not category:
         return False
@@ -101,6 +148,11 @@ async def delete_category(db: AsyncSession, category_id: UUID) -> bool:
 
 
 async def count_categories(db: AsyncSession, active_only: bool = True) -> int:
+    """
+    Count the total number of categories. Filters to active-only by default.
+
+    Returns an integer count.
+    """
     query = select(func.count()).select_from(Category)
     if active_only:
         query = query.where(Category.is_active == True)

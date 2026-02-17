@@ -40,6 +40,7 @@ async def list_notifications(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> NotificationListResponse:
+    """List the current user's notifications with optional read-status and type filters."""
     data = await notification_service.get_notifications(
         db=db,
         user_id=current_user.id,
@@ -69,6 +70,7 @@ async def unread_count(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> UnreadCountResponse:
+    """Return the number of unread notifications for the current user."""
     count = await notification_service.get_unread_count(db, current_user.id)
     return UnreadCountResponse(unread_count=count)
 
@@ -84,6 +86,7 @@ async def mark_read(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> NotificationResponse:
+    """Mark a single notification as read by its ID."""
     notification = await notification_service.mark_as_read(
         db=db, user_id=current_user.id, notification_id=notification_id
     )
@@ -107,6 +110,7 @@ async def mark_all_read(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
+    """Mark all of the current user's notifications as read at once."""
     count = await notification_service.mark_all_as_read(db, current_user.id)
     await db.commit()
     return {"message": f"Marked {count} notifications as read"}
@@ -122,6 +126,7 @@ async def delete_notification(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> None:
+    """Permanently delete a single notification belonging to the current user."""
     deleted = await notification_service.delete_notification(
         db=db, user_id=current_user.id, notification_id=notification_id
     )

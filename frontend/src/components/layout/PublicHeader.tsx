@@ -51,10 +51,10 @@ const PublicHeader: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleAuthSuccess = (authUser: any) => {
+  const handleAuthSuccess = (_authUser: any) => {
     setIsAuthModalOpen(false);
-    const role = authUser?.role || user?.role || 'student';
-    navigate(`/dashboard/${role}`, { replace: true });
+    // Navigation is handled by AppContent's useEffect that watches isAuthenticated.
+    // Navigating here as well creates a dual-navigation race condition.
   };
 
   const handleLogout = () => {

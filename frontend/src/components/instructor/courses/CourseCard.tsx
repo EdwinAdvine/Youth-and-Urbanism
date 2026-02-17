@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Users, Star, TrendingUp, Calendar, MoreVertical } from 'lucide-react';
+import { BookOpen, Users, Star, TrendingUp, MoreVertical } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface CourseCardProps {

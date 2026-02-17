@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';
-import { ArrowLeft, CheckCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
+import { getNotificationSettings, updateNotificationSettings } from '../../services/student/studentAccountService';
 
-const settings = [
+const settingsConfig = [
   { id: 'quiz_reminders', label: 'Quiz Reminders', description: 'Get notified before upcoming quizzes', default: true },
   { id: 'assignment_due', label: 'Assignment Deadlines', description: 'Reminders when assignments are due', default: true },
   { id: 'session_start', label: 'Live Session Alerts', description: 'Notify when live sessions are starting', default: true },
@@ -17,16 +18,59 @@ const NotificationSettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const { borderRadius } = useAgeAdaptiveUI();
   const [prefs, setPrefs] = useState<Record<string, boolean>>(
-    Object.fromEntries(settings.map(s => [s.id, s.default]))
+    Object.fromEntries(settingsConfig.map(s => [s.id, s.default]))
   );
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const toggle = (id: string) => setPrefs(prev => ({ ...prev, [id]: !prev[id] }));
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getNotificationSettings();
+        if (data && typeof data === 'object') {
+          setPrefs(prev => ({ ...prev, ...data }));
+        }
+      } catch (err) {
+        console.error('Failed to load notification settings:', err);
+        setError('Failed to load notification settings. Using defaults.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSettings();
+  }, []);
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const toggle = (id: string) => {
+    setPrefs(prev => ({ ...prev, [id]: !prev[id] }));
+    setSaved(false);
   };
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+      await updateNotificationSettings(prefs);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error('Failed to save notification settings:', err);
+      setError('Failed to save settings. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <Loader2 className="w-8 h-8 text-[#FF0000] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -40,8 +84,22 @@ const NotificationSettingsPage: React.FC = () => {
         </div>
       </div>
 
+      {error && (
+        <div className={`p-3 bg-red-500/10 border border-red-500/20 ${borderRadius} flex items-center gap-2`}>
+          <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+          <p className="text-red-400 text-sm">{error}</p>
+        </div>
+      )}
+
+      {saved && (
+        <div className={`p-3 bg-green-500/10 border border-green-500/20 ${borderRadius} flex items-center gap-2`}>
+          <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
+          <p className="text-green-400 text-sm">Settings saved successfully!</p>
+        </div>
+      )}
+
       <div className="space-y-2">
-        {settings.map((s) => (
+        {settingsConfig.map((s) => (
           <div key={s.id} className={`p-4 bg-white dark:bg-[#181C1F] ${borderRadius} border border-gray-200 dark:border-[#22272B] flex items-center gap-4`}>
             <div className="flex-1">
               <h3 className="text-gray-900 dark:text-white font-medium text-sm">{s.label}</h3>
@@ -62,9 +120,16 @@ const NotificationSettingsPage: React.FC = () => {
 
       <button
         onClick={handleSave}
-        className={`w-full py-2.5 ${saved ? 'bg-green-600' : 'bg-[#FF0000] hover:bg-[#FF0000]/80'} text-gray-900 dark:text-white font-medium ${borderRadius} flex items-center justify-center gap-2`}
+        disabled={saving}
+        className={`w-full py-2.5 ${saved ? 'bg-green-600' : 'bg-[#FF0000] hover:bg-[#FF0000]/80'} text-gray-900 dark:text-white font-medium ${borderRadius} flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed`}
       >
-        {saved ? <><CheckCircle className="w-4 h-4" /> Saved!</> : 'Save Settings'}
+        {saving ? (
+          <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
+        ) : saved ? (
+          <><CheckCircle className="w-4 h-4" /> Saved!</>
+        ) : (
+          'Save Settings'
+        )}
       </button>
     </div>
   );

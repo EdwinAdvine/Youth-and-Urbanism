@@ -8,7 +8,9 @@ This module provides:
 - Role-based access control decorator
 """
 
-from datetime import datetime, timedelta
+import logging
+import uuid as _uuid
+from datetime import datetime, timedelta, timezone
 from typing import Any, Callable, Dict, List, Optional, Union
 from functools import wraps
 
@@ -23,8 +25,12 @@ import hashlib
 from app.config import settings
 from app.database import get_db
 
+logger = logging.getLogger(__name__)
+
 # HTTP Bearer token security scheme
-security = HTTPBearer()
+# auto_error=False so missing tokens return 401 (via our handler) instead of
+# FastAPI's default 403, keeping status codes consistent for the frontend interceptor.
+security = HTTPBearer(auto_error=False)
 
 # Initialize Fernet cipher for API key encryption
 def _get_fernet_key() -> bytes:
@@ -55,9 +61,15 @@ def _get_fernet_key() -> bytes:
 try:
     fernet = Fernet(_get_fernet_key())
 except Exception as e:
-    # Fallback: generate a temporary key for development
-    # In production, this should raise an error
-    print(f"WARNING: Using generated encryption key. Set encryption_key in production: {str(e)}")
+    if getattr(settings, 'is_production', False):
+        raise RuntimeError(
+            f"FATAL: Failed to initialize encryption. Set a valid ENCRYPTION_KEY: {str(e)}"
+        )
+    # In development, generate a temporary key but warn loudly
+    logger.warning(
+        "Using generated encryption key — encrypted data will NOT persist across restarts. "
+        "Set ENCRYPTION_KEY in your environment for data persistence."
+    )
     fernet = Fernet(Fernet.generate_key())
 
 
@@ -139,17 +151,23 @@ def create_access_token(
 
     # Set expiration time
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(
+        expire = datetime.now(timezone.utc) + timedelta(
             minutes=settings.access_token_expire_minutes
         )
 
+    now = datetime.now(timezone.utc)
     to_encode.update({
         "exp": expire,
-        "iat": datetime.utcnow(),
-        "type": "access"
+        "iat": now,
+        "nbf": now,
+        "jti": str(_uuid.uuid4()),
     })
+
+    # Only set type if not already specified (for email verification, password reset, etc.)
+    if "type" not in to_encode:
+        to_encode["type"] = "access"
 
     encoded_jwt = jwt.encode(
         to_encode,
@@ -176,11 +194,14 @@ def create_refresh_token(data: Dict[str, Any]) -> str:
     to_encode = data.copy()
 
     # Refresh tokens expire after 7 days
-    expire = datetime.utcnow() + timedelta(days=7)
+    now = datetime.now(timezone.utc)
+    expire = now + timedelta(days=7)
 
     to_encode.update({
         "exp": expire,
-        "iat": datetime.utcnow(),
+        "iat": now,
+        "nbf": now,
+        "jti": str(_uuid.uuid4()),
         "type": "refresh"
     })
 
@@ -232,8 +253,10 @@ def verify_token(token: str, token_type: str = "access") -> Dict[str, Any]:
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        # Check if token has subject (user identifier)
+        # Check required claims (sub and jti)
         if payload.get("sub") is None:
+            raise credentials_exception
+        if payload.get("jti") is None:
             raise credentials_exception
 
         return payload
@@ -419,10 +442,6 @@ def check_permissions(
     if resource_owner_id and user_id and resource_owner_id == user_id:
         return True
 
-    # Admin always has access
-    if user_role == "admin":
-        return True
-
     return False
 
 
@@ -581,6 +600,10 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
+    # With auto_error=False, credentials is None when no Bearer token is present
+    if credentials is None:
+        raise credentials_exception
+
     try:
         token = credentials.credentials
         payload = verify_token(token, token_type="access")
@@ -614,29 +637,39 @@ async def get_current_user(
 
 
 async def get_current_active_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security)
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db=Depends(get_db)
 ) -> Dict[str, Any]:
     """
-    Get current active user with full validation.
+    Get current active user with full validation against the database.
 
-    This is a simpler version that returns user data from token.
-    For database user object, use get_current_user with proper db injection.
+    Verifies the JWT token, checks the blacklist, and confirms the user
+    is still active in the database (not just in the token claims).
 
     Args:
         credentials: HTTPAuthorizationCredentials from Bearer token
+        db: Database session (injected by FastAPI)
 
     Returns:
-        Dictionary with user information from token
+        Dictionary with verified user information
 
     Raises:
-        HTTPException 401: If token is invalid
-        HTTPException 403: If user is inactive
+        HTTPException 401: If token is invalid or user not found
+        HTTPException 403: If user is inactive or deleted
     """
+    from app.models.user import User
+    from sqlalchemy import select
+    from uuid import UUID
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+    # With auto_error=False, credentials is None when no Bearer token is present
+    if credentials is None:
+        raise credentials_exception
 
     try:
         # Extract and verify token
@@ -647,26 +680,40 @@ async def get_current_active_user(
         if user_id is None:
             raise credentials_exception
 
-        # Return user info from token
-        user_data = {
-            "id": user_id,
-            "role": payload.get("role", "student"),
-            "email": payload.get("email", ""),
-            "is_active": payload.get("is_active", True),
-        }
+        # Check if token has been blacklisted (user logged out)
+        try:
+            from app.api.v1.auth import is_token_blacklisted
+            if await is_token_blacklisted(token):
+                raise credentials_exception
+        except ImportError:
+            pass  # auth module not yet loaded
 
-        # Check if user is active
-        if not user_data.get("is_active", True):
+        # Verify user is still active in database (not just token claims)
+        result = await db.execute(
+            select(User.id, User.email, User.role, User.is_active, User.is_deleted)
+            .where(User.id == UUID(user_id))
+        )
+        user_row = result.first()
+
+        if user_row is None:
+            raise credentials_exception
+
+        if not user_row.is_active or user_row.is_deleted:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Inactive user"
             )
 
-        return user_data
+        return {
+            "id": str(user_row.id),
+            "role": user_row.role,
+            "email": user_row.email,
+            "is_active": user_row.is_active,
+        }
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         raise credentials_exception
 
 
@@ -724,6 +771,6 @@ def check_rate_limit(
         return True
 
     except Exception as e:
-        # If Redis fails, allow the request (fail open)
-        print(f"Rate limit check failed: {str(e)}")
-        return True
+        # If Redis fails, block the request (fail closed) to prevent abuse
+        logger.error(f"Rate limit check failed (blocking request): {str(e)}")
+        return False

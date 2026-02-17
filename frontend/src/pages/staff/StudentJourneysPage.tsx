@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Search, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
 
 const StudentJourneysPage: React.FC = () => {
   const [search, setSearch] = useState('');

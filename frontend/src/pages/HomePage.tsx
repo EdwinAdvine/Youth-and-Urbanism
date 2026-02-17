@@ -1,3 +1,5 @@
+// HomePage - Public landing page at /. Showcases The Bird AI platform with hero section,
+// subject cards, features, testimonials, and call-to-action for signup.
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';

@@ -317,8 +317,11 @@ def verify_partner_or_admin_access():
 
 def verify_admin_access():
     """
-    FastAPI dependency to verify admin role access.
+    FastAPI dependency to verify admin or staff role access.
     Reusable across all admin endpoints.
+
+    NOTE: Despite the name, this allows both admin AND staff roles.
+    For new code, prefer the alias verify_admin_or_staff() for clarity.
 
     Usage:
         @router.get("/admin/something")
@@ -340,3 +343,7 @@ def verify_admin_access():
         return current_user
 
     return admin_checker
+
+
+# Clearer alias — prefer this in new code
+verify_admin_or_staff = verify_admin_access

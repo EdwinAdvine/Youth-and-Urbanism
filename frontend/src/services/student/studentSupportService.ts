@@ -1,23 +1,19 @@
 /**
  * Student Support Service - Help, Guides, Tickets
  */
-import axios from 'axios';
+import apiClient from '../api';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const API_PREFIX = '/api/v1/student/support';
 
 /**
  * Get help guides
  */
 export const getHelpGuides = async (category?: string) => {
-  const token = localStorage.getItem('access_token');
   const url = category
-    ? `${API_BASE}${API_PREFIX}/guides?category=${category}`
-    : `${API_BASE}${API_PREFIX}/guides`;
+    ? `${API_PREFIX}/guides?category=${category}`
+    : `${API_PREFIX}/guides`;
 
-  const response = await axios.get(url, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(url);
   return response.data;
 };
 
@@ -25,10 +21,7 @@ export const getHelpGuides = async (category?: string) => {
  * Get specific guide
  */
 export const getGuide = async (guideId: string) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/guides/${guideId}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/guides/${guideId}`);
   return response.data;
 };
 
@@ -36,10 +29,7 @@ export const getGuide = async (guideId: string) => {
  * Get FAQ
  */
 export const getFAQ = async () => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/faq`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/faq`);
   return response.data;
 };
 
@@ -51,11 +41,7 @@ export const createSupportTicket = async (data: {
   description: string;
   priority?: 'normal' | 'high' | 'urgent';
 }) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.post(`${API_BASE}${API_PREFIX}/tickets`,
-    data,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const response = await apiClient.post(`${API_PREFIX}/tickets`, data);
   return response.data;
 };
 
@@ -63,10 +49,7 @@ export const createSupportTicket = async (data: {
  * Get student tickets
  */
 export const getStudentTickets = async () => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/tickets`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/tickets`);
   return response.data;
 };
 
@@ -74,11 +57,7 @@ export const getStudentTickets = async () => {
  * Get AI help
  */
 export const getAIHelp = async (question: string) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.post(`${API_BASE}${API_PREFIX}/ai-help`,
-    { question },
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const response = await apiClient.post(`${API_PREFIX}/ai-help`, { question });
   return response.data;
 };
 
@@ -90,10 +69,6 @@ export const reportProblem = async (data: {
   description: string;
   urgency?: 'normal' | 'high' | 'critical';
 }) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.post(`${API_BASE}${API_PREFIX}/report`,
-    data,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const response = await apiClient.post(`${API_PREFIX}/report`, data);
   return response.data;
 };

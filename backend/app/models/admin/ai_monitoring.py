@@ -12,6 +12,15 @@ from app.database import Base
 
 
 class AIConversationFlag(Base):
+    """
+    A flag raised on an AI-student conversation for admin review.
+
+    The AI safety layer or a manual reviewer flags conversations for issues
+    such as safety concerns, potential bias, quality problems, or hallucinations.
+    Each flag records a text snippet, the model that generated the response,
+    severity, and current review status (pending_review -> approved/dismissed).
+    """
+
     __tablename__ = "ai_conversation_flags"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -38,6 +47,15 @@ class AIConversationFlag(Base):
 
 
 class AIContentReview(Base):
+    """
+    A review of AI-generated content before it is published to students.
+
+    Stores the original content, the model used, and a JSONB list of flagged
+    issues found during automated or manual review. Status transitions:
+    pending -> approved/rejected/edited. An admin can approve as-is, reject
+    the content, or edit it before publication.
+    """
+
     __tablename__ = "ai_content_reviews"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -56,6 +74,15 @@ class AIContentReview(Base):
 
 
 class AIPerformanceMetric(Base):
+    """
+    A time-series data point tracking an AI model's performance.
+
+    Metrics include latency, accuracy, cost, and throughput, recorded per
+    model for a defined time period. The admin AI monitoring dashboard
+    aggregates these rows to detect degradation, compare models, and
+    optimize cost vs. quality trade-offs.
+    """
+
     __tablename__ = "ai_performance_metrics"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

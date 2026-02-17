@@ -1,17 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useChatStore } from '../../store/chatStore';
 import { useCoPilotStore } from '../../store';
-import { 
-  Bot, 
-  User, 
-  Sparkles, 
-  Brain, 
-  BookOpen, 
-  Play, 
-  Star, 
-  Clock, 
-  Eye, 
+import aiTutorService from '../../services/aiTutorService';
+import {
+  Bot,
+  User,
+  Sparkles,
+  BookOpen,
+  Play,
   EyeOff,
   MessageCircle,
   FileText,
@@ -28,51 +25,12 @@ interface CoPilotContentProps {
 const CoPilotContent: React.FC<CoPilotContentProps> = ({ isExpanded }) => {
   const [isTyping, setIsTyping] = useState(false);
   const [currentInput, setCurrentInput] = useState('');
-  
+
   // State from stores
   const { messages, addMessage, updateCurrentInput } = useChatStore();
   const { activeRole, currentSessionId } = useCoPilotStore();
 
-  // AI responses for different roles
-  const roleResponses = {
-    student: [
-      "Let me check your recent assignments and progress...",
-      "Based on your learning patterns, I recommend focusing on math fundamentals.",
-      "Here's a fun way to learn that concept - let's explore together!",
-      "Your progress is impressive! Keep up the great work.",
-      "I can help explain that topic in a simpler way."
-    ],
-    parent: [
-      "Your child is making excellent progress in math and reading.",
-      "Here are some activities you can do at home to support their learning.",
-      "I've noticed some areas where they could use extra practice.",
-      "Their recent quiz scores show improvement in science concepts.",
-      "Let me generate a progress report for you."
-    ],
-    teacher: [
-      "Class average on the recent test was 78%, with 3 students needing extra help.",
-      "I've analyzed the learning patterns and suggest these teaching strategies.",
-      "Here are insights on student engagement levels this week.",
-      "The most challenging topic this month was algebra fundamentals.",
-      "Let me help you create a personalized learning plan for struggling students."
-    ],
-    admin: [
-      "System usage has increased by 25% this month across all departments.",
-      "Here are the key performance metrics for the learning platform.",
-      "I've identified some areas where we can improve user engagement.",
-      "Budget allocation analysis shows optimal resource distribution.",
-      "Let me generate a comprehensive system report for you."
-    ],
-    partner: [
-      "Your collaboration metrics show strong engagement with community features.",
-      "Here are some partnership opportunities based on your interests.",
-      "I've found relevant resources for your current projects.",
-      "Your recent contributions have been highly valued by the community.",
-      "Let me suggest some networking opportunities for you."
-    ]
-  };
-
-  const handleSendMessage = (message: string) => {
+  const handleSendMessage = async (message: string) => {
     if (!message.trim()) return;
 
     // Add user message
@@ -85,32 +43,44 @@ const CoPilotContent: React.FC<CoPilotContentProps> = ({ isExpanded }) => {
     setCurrentInput('');
     setIsTyping(true);
 
-    // Simulate AI thinking and response
-    setTimeout(() => {
-      setIsTyping(false);
-      const responses = roleResponses[activeRole as keyof typeof roleResponses] || roleResponses.student;
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-      
-      addMessage({
-        type: 'ai',
-        content: randomResponse
+    try {
+      // Send to real AI backend
+      const response = await aiTutorService.sendMessage({
+        message,
+        include_context: true,
+        context_messages: 10
       });
 
-    }, 1500);
+      addMessage({
+        type: 'ai',
+        content: response.message,
+        audioUrl: response.audio_url,
+        videoUrl: response.video_url
+      });
+    } catch (error) {
+      console.error('CoPilot AI request failed:', error);
+      addMessage({
+        type: 'ai',
+        content: "I'm having trouble connecting right now. Please check that the backend is running and try again."
+      });
+    } finally {
+      setIsTyping(false);
+    }
   };
 
+  // Quick actions send real prompts to the AI backend
   const handleQuickAction = (action: string) => {
-    const actionMessages: Record<string, string> = {
-      'progress': "Let me analyze your recent progress and assignments...",
-      'achievements': "Here are your recent certificates and achievements...",
-      'community': "Let me check your recent forum activity and community posts...",
-      'finance': "Here are your recent transactions and wallet balance...",
-      'insights': "Let me provide some personalized learning insights...",
-      'report': "Generating a comprehensive progress report..."
+    const actionPrompts: Record<string, string> = {
+      'progress': "Analyze my recent progress and assignments. What should I focus on next?",
+      'achievements': "Show me a summary of my recent certificates, badges, and achievements.",
+      'community': "Summarize my recent forum activity and community interactions.",
+      'finance': "Give me a summary of my recent transactions and current wallet balance.",
+      'insights': "Provide personalized learning insights based on my recent performance.",
+      'report': "Generate a comprehensive progress report covering my recent learning activities."
     };
 
-    const message = actionMessages[action] || "Let me help you with that!";
-    handleSendMessage(message);
+    const prompt = actionPrompts[action] || `Help me with: ${action}`;
+    handleSendMessage(prompt);
   };
 
   const getRoleIcon = () => {

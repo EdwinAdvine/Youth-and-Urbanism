@@ -128,8 +128,8 @@ export const MyCoursesPage: React.FC = () => {
     }
   };
 
-  const handleViewAnalytics = (courseId: string) => {
-    navigate(`/dashboard/instructor/courses/${courseId}/analytics`);
+  const handleViewAnalytics = (_courseId: string) => {
+    navigate('/dashboard/instructor/performance');
   };
 
   // Filter courses based on search query

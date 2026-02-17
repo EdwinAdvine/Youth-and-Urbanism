@@ -46,7 +46,16 @@ class EnrollmentStatus(str, enum.Enum):
 
 
 class Enrollment(Base):
-    """Student-Course enrollment tracking"""
+    """
+    Tracks a single student's enrollment in a course.
+
+    Records enrollment status (active, completed, dropped, expired,
+    pending_payment), lesson-by-lesson progress, performance metrics
+    (grades, quiz and assignment scores), payment details for paid courses,
+    and optional post-completion rating and review. Provides helper methods
+    for marking lessons complete, updating progress, and handling completion
+    and dropout workflows.
+    """
 
     __tablename__ = "enrollments"
 

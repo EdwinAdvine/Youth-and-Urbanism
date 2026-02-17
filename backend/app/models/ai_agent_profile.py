@@ -1,5 +1,11 @@
 """
-AI Agent Profile - Per-user AI assistant customization
+AI Agent Profile Model
+
+Per-user customization for the AI assistant ("The Bird AI"). Each user
+can personalize their AI tutor's name, avatar, persona, language,
+expertise focus areas, response style, and quick-action shortcuts.
+This profile drives the system prompt and UI presentation of the AI
+assistant throughout the student dashboard and CoPilot interface.
 """
 import uuid
 from datetime import datetime
@@ -18,6 +24,16 @@ class ResponseStyle(str, enum.Enum):
 
 
 class AIAgentProfile(Base):
+    """
+    Per-user AI assistant configuration.
+
+    Stores the user's chosen agent name, avatar, persona prompt, preferred
+    language, expertise subjects, response style (concise/detailed/
+    conversational/academic), and quick-action shortcuts. One profile per
+    user (unique user_id). The AI orchestrator reads these settings when
+    building the system prompt for each conversation.
+    """
+
     __tablename__ = "ai_agent_profiles"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

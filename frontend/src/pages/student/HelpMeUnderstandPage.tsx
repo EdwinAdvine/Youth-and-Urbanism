@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';
-import { HelpCircle, Send, Lightbulb, BookOpen, Image, Volume2 } from 'lucide-react';
+import { explainConcept } from '../../services/student/studentAIService';
+import { HelpCircle, Send, Lightbulb, BookOpen, Image, Volume2, AlertCircle, Loader2 } from 'lucide-react';
 
 const quickTopics = [
   { label: 'Fractions', subject: 'Math' },
@@ -17,22 +18,28 @@ const HelpMeUnderstandPage: React.FC = () => {
   const [explanation, setExplanation] = useState('');
   const [explainLevel, setExplainLevel] = useState<'simple' | 'detailed' | 'visual'>('simple');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleExplain = (topicText?: string) => {
+  const handleExplain = async (topicText?: string) => {
     const t = topicText || topic;
     if (!t.trim()) return;
+
     setLoading(true);
-    setTimeout(() => {
-      setExplanation(
-        `Great question about "${t}"!\n\n` +
-        (explainLevel === 'simple'
-          ? `Think of it this way: ${t} is like a puzzle piece that fits into what you're learning. The key idea is that it helps us understand how things work in the world around us.`
-          : explainLevel === 'detailed'
-          ? `Let's dive deep into "${t}".\n\n1. Foundation: The basic building blocks\n2. Core concept: The main idea\n3. Applications: Real-life examples\n4. Practice: Test your understanding`
-          : `Imagine this concept as a picture:\n\nThe visual representation helps you see how the different parts connect together.`)
-      );
+    setError(null);
+    setExplanation('');
+
+    try {
+      const response = await explainConcept({
+        concept: t,
+        context: `Explain at a ${explainLevel} level${explainLevel === 'visual' ? ' using visual descriptions and analogies' : ''}`,
+      });
+      setExplanation(response.explanation);
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.detail || err?.message || 'Failed to get an explanation. Please try again.';
+      setError(errorMessage);
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -46,8 +53,8 @@ const HelpMeUnderstandPage: React.FC = () => {
         <label className="text-gray-900 dark:text-white font-medium mb-3 block">What would you like me to explain?</label>
         <div className="flex gap-2">
           <input type="text" value={topic} onChange={(e) => setTopic(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleExplain()} placeholder="e.g., How do fractions work?" className={`flex-1 px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-[#22272B] ${borderRadius} text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none focus:border-[#FF0000]`} />
-          <button onClick={() => handleExplain()} disabled={loading} className={`px-6 py-3 bg-[#FF0000] hover:bg-[#FF0000]/80 text-gray-900 dark:text-white ${borderRadius} flex items-center gap-2 disabled:opacity-50`}>
-            {loading ? 'Thinking...' : <><Send className="w-4 h-4" /> Explain</>}
+          <button onClick={() => handleExplain()} disabled={loading || !topic.trim()} className={`px-6 py-3 bg-[#FF0000] hover:bg-[#FF0000]/80 text-gray-900 dark:text-white ${borderRadius} flex items-center gap-2 disabled:opacity-50`}>
+            {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Thinking...</> : <><Send className="w-4 h-4" /> Explain</>}
           </button>
         </div>
         <div className="flex gap-2 mt-4 flex-wrap">
@@ -67,12 +74,27 @@ const HelpMeUnderstandPage: React.FC = () => {
         <h3 className="text-gray-900 dark:text-white font-medium mb-3">Quick Topics</h3>
         <div className="flex gap-2 flex-wrap">
           {quickTopics.map((qt, i) => (
-            <button key={i} onClick={() => { setTopic(qt.label); handleExplain(qt.label); }} className={`px-3 py-1.5 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-white/60 ${borderRadius} text-sm border border-gray-200 dark:border-white/10`}>
+            <button key={i} onClick={() => { setTopic(qt.label); handleExplain(qt.label); }} disabled={loading} className={`px-3 py-1.5 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-white/60 ${borderRadius} text-sm border border-gray-200 dark:border-white/10 disabled:opacity-50`}>
               {qt.label} <span className="text-gray-400 dark:text-white/30 ml-1">({qt.subject})</span>
             </button>
           ))}
         </div>
       </div>
+
+      {error && (
+        <div className={`p-4 bg-red-500/10 border border-red-500/20 ${borderRadius} flex items-center gap-2 text-red-400 text-sm`}>
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <span>{error}</span>
+          <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-300 text-xs underline">Dismiss</button>
+        </div>
+      )}
+
+      {loading && !explanation && (
+        <div className={`p-6 bg-white dark:bg-[#181C1F] ${borderRadius} border border-gray-200 dark:border-[#22272B] flex items-center justify-center gap-3`}>
+          <Loader2 className="w-6 h-6 animate-spin text-[#FF0000]" />
+          <span className="text-gray-500 dark:text-white/60">Generating explanation...</span>
+        </div>
+      )}
 
       {explanation && (
         <div className={`p-6 bg-white dark:bg-[#181C1F] ${borderRadius} border border-gray-200 dark:border-[#22272B]`}>
@@ -83,7 +105,7 @@ const HelpMeUnderstandPage: React.FC = () => {
           <div className="text-gray-700 dark:text-white/80 whitespace-pre-line leading-relaxed">{explanation}</div>
           <div className="flex gap-2 mt-4 flex-wrap">
             <button className={`px-4 py-2 bg-green-500/20 text-green-400 ${borderRadius} text-sm`}>I understand now!</button>
-            <button onClick={() => handleExplain()} className={`px-4 py-2 bg-orange-500/20 text-orange-400 ${borderRadius} text-sm`}>Explain differently</button>
+            <button onClick={() => handleExplain()} disabled={loading} className={`px-4 py-2 bg-orange-500/20 text-orange-400 ${borderRadius} text-sm disabled:opacity-50`}>Explain differently</button>
             <button className={`px-4 py-2 bg-purple-500/20 text-purple-400 ${borderRadius} text-sm`}>Give me an example</button>
           </div>
         </div>

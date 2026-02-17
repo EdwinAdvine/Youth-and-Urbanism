@@ -13,6 +13,15 @@ from app.database import Base
 
 
 class AuditLog(Base):
+    """
+    Immutable record of a single admin action.
+
+    Every POST, PUT, PATCH, or DELETE request to an admin endpoint creates
+    one row here. Stores the actor's identity, the target resource, request
+    metadata (IP, user-agent), and a JSONB details blob for before/after diffs.
+    Rows are never updated or deleted -- they form a permanent compliance trail.
+    """
+
     __tablename__ = "audit_logs"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

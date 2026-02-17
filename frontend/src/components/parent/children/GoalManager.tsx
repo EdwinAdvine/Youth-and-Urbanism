@@ -31,6 +31,9 @@ const GoalManager: React.FC<GoalManagerProps> = ({ goals, childId, onGoalsChange
     progress_percentage: 0,
   });
 
+  // Edit form state
+  const [editFormData, setEditFormData] = useState<Partial<FamilyGoalUpdate>>({});
+
   const categoryIcons: Record<string, React.ReactNode> = {
     academic: <BookOpen className="w-4 h-4" />,
     behavioral: <Heart className="w-4 h-4" />,
@@ -241,7 +244,15 @@ const GoalManager: React.FC<GoalManagerProps> = ({ goals, childId, onGoalsChange
                 {/* Actions */}
                 <div className="flex gap-1">
                   <button
-                    onClick={() => setEditingId(goal.id)}
+                    onClick={() => {
+                      setEditingId(goal.id);
+                      setEditFormData({
+                        title: goal.title,
+                        description: goal.description || '',
+                        category: goal.category,
+                        target_date: goal.target_date,
+                      });
+                    }}
                     className="p-1.5 bg-gray-100 dark:bg-[#22272B] rounded hover:bg-[#2A2E33] transition-colors"
                     title="Edit"
                   >
@@ -272,6 +283,75 @@ const GoalManager: React.FC<GoalManagerProps> = ({ goals, childId, onGoalsChange
                   />
                 </div>
               </div>
+
+              {/* Inline Edit Form */}
+              {editingId === goal.id && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="space-y-3 pt-3 border-t border-gray-200 dark:border-[#22272B]"
+                >
+                  <div>
+                    <label className="text-xs text-gray-700 dark:text-white/80 mb-1 block">Title</label>
+                    <input
+                      type="text"
+                      value={editFormData.title || ''}
+                      onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+                      className="w-full p-2 bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#E40000]/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-700 dark:text-white/80 mb-1 block">Description</label>
+                    <textarea
+                      value={editFormData.description || ''}
+                      onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                      rows={2}
+                      className="w-full p-2 bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#E40000]/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-700 dark:text-white/80 mb-1 block">Category</label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {['academic', 'behavioral', 'creative', 'health'].map((cat) => (
+                        <button
+                          key={cat}
+                          onClick={() => setEditFormData({ ...editFormData, category: cat })}
+                          className={`p-1.5 rounded-lg border text-xs font-medium transition-colors ${
+                            editFormData.category === cat
+                              ? categoryColors[cat]
+                              : 'bg-gray-100 dark:bg-[#22272B] text-gray-500 dark:text-white/60 border-gray-200 dark:border-[#22272B]'
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-700 dark:text-white/80 mb-1 block">Target Date</label>
+                    <input
+                      type="date"
+                      value={editFormData.target_date ? new Date(editFormData.target_date).toISOString().split('T')[0] : ''}
+                      onChange={(e) => setEditFormData({ ...editFormData, target_date: e.target.value || undefined })}
+                      className="w-full p-2 bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#E40000]/50"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleUpdate(goal.id, editFormData)}
+                      className="flex-1 py-2 bg-[#E40000] text-gray-900 dark:text-white text-sm rounded-lg hover:bg-[#FF0000] transition-colors"
+                    >
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={() => setEditingId(null)}
+                      className="px-4 py-2 bg-gray-100 dark:bg-[#22272B] text-gray-700 dark:text-white/80 text-sm rounded-lg hover:bg-[#2A2E33] transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </motion.div>
+              )}
 
               {/* Quick Update Progress */}
               {editingId !== goal.id && goal.status === 'active' && (

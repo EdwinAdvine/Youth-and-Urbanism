@@ -1,43 +1,27 @@
+// AssignmentsPage - Authenticated page at /assignments. Lists all assignments with status
+// filtering, submission upload, grading details, and deadline tracking.
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUserStore } from '../store';
-import { useThemeStore } from '../store';
-import { 
-  FileText, 
-  Calendar, 
-  Clock, 
-  CheckCircle, 
-  Upload, 
-  Eye, 
-  Download, 
-  Search, 
-  Filter, 
-  SortAsc,
+import {
+  FileText,
+  Calendar,
+  Clock,
+  CheckCircle,
+  Upload,
+  Eye,
+  Download,
+  Search,
   Star,
   TrendingUp,
   AlertCircle,
   FileCheck
 } from 'lucide-react';
 
-interface Assignment {
-  id: string;
-  title: string;
-  courseTitle: string;
-  description: string;
-  dueDate: Date;
-  submissionDate?: Date;
-  status: 'pending' | 'submitted' | 'graded';
-  grade?: number;
-  feedback?: string;
-  maxPoints: number;
-  attachments?: string[];
-}
-
 const AssignmentsPage: React.FC = () => {
   const navigate = useNavigate();
   const { status: statusParam } = useParams();
   const { assignments } = useUserStore();
-  const { isDarkMode } = useThemeStore();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'due_date' | 'title' | 'grade' | 'course'>('due_date');

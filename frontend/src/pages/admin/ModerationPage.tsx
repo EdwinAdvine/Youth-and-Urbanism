@@ -136,6 +136,8 @@ const ModerationPage: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
   const [queue, setQueue] = useState(MOCK_QUEUE);
+  const [keywords, setKeywords] = useState<KeywordFilter[]>(MOCK_KEYWORDS);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 600);
@@ -153,6 +155,34 @@ const ModerationPage: React.FC = () => {
 
   const handleReject = (id: string) => {
     setQueue((prev) => prev.map((item) => item.id === id ? { ...item, status: 'rejected' as const } : item));
+  };
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleAddKeyword = () => {
+    const keyword = prompt('Enter new keyword to filter:');
+    if (keyword && keyword.trim()) {
+      const newKeyword: KeywordFilter = {
+        id: `KW-${Date.now()}`,
+        keyword: keyword.trim(),
+        category: 'custom',
+        action: 'flag',
+        matches_count: 0,
+        active: true,
+      };
+      setKeywords((prev) => [...prev, newKeyword]);
+      showToast(`Keyword "${keyword.trim()}" added`);
+    }
+  };
+
+  const handleDeleteKeyword = (id: string, keyword: string) => {
+    if (confirm(`Delete keyword "${keyword}"?`)) {
+      setKeywords((prev) => prev.filter((kw) => kw.id !== id));
+      showToast(`Keyword "${keyword}" deleted`);
+    }
   };
 
   const pendingCount = queue.filter((q) => q.status === 'pending').length;
@@ -348,7 +378,10 @@ const ModerationPage: React.FC = () => {
             <div>
               <div className="p-4 border-b border-gray-200 dark:border-[#22272B] flex items-center justify-between">
                 <h3 className="text-sm font-medium text-gray-900 dark:text-white">Keyword Filters</h3>
-                <button className="flex items-center gap-2 px-3 py-1.5 text-xs bg-[#E40000] rounded-lg text-gray-900 dark:text-white hover:bg-[#C00] transition-colors">
+                <button
+                  onClick={handleAddKeyword}
+                  className="flex items-center gap-2 px-3 py-1.5 text-xs bg-[#E40000] rounded-lg text-gray-900 dark:text-white hover:bg-[#C00] transition-colors"
+                >
                   <Plus className="w-3.5 h-3.5" />
                   Add Keyword
                 </button>
@@ -365,7 +398,7 @@ const ModerationPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {MOCK_KEYWORDS.map((kw) => (
+                  {keywords.map((kw) => (
                     <tr key={kw.id} className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
                       <td className="px-4 py-3 text-gray-900 dark:text-white font-mono text-sm">{kw.keyword}</td>
                       <td className="px-4 py-3">
@@ -388,7 +421,11 @@ const ModerationPage: React.FC = () => {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-1">
-                          <button title="Delete" className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 dark:text-white/50 hover:text-red-400 transition-colors">
+                          <button
+                            onClick={() => handleDeleteKeyword(kw.id, kw.keyword)}
+                            title="Delete"
+                            className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 dark:text-white/50 hover:text-red-400 transition-colors"
+                          >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
@@ -437,6 +474,16 @@ const ModerationPage: React.FC = () => {
           )}
         </div>
       </motion.div>
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
+            toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+          }`}>
+            <p className="text-sm font-medium">{toast.message}</p>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };

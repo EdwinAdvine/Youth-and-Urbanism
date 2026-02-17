@@ -159,11 +159,68 @@ const PlansPage: React.FC = () => {
   const [plans, setPlans] = useState<SubscriptionPlan[]>(MOCK_PLANS);
   const [showForm, setShowForm] = useState(false);
   const [editingPlan, setEditingPlan] = useState<SubscriptionPlan | null>(null);
+  const [formData, setFormData] = useState({ name: '', price: '', billing_cycle: 'monthly' as 'monthly' | 'quarterly' | 'yearly', features: '' });
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(timer);
   }, []);
+
+  const openForm = (plan: SubscriptionPlan | null) => {
+    setEditingPlan(plan);
+    if (plan) {
+      setFormData({
+        name: plan.name,
+        price: String(plan.price),
+        billing_cycle: plan.billing_cycle,
+        features: plan.features.join('\n'),
+      });
+    } else {
+      setFormData({ name: '', price: '', billing_cycle: 'monthly', features: '' });
+    }
+    setShowForm(true);
+  };
+
+  const handleSavePlan = () => {
+    if (!formData.name.trim()) {
+      showToast('Plan name is required', 'error');
+      return;
+    }
+    if (!formData.price || isNaN(Number(formData.price))) {
+      showToast('Valid price is required', 'error');
+      return;
+    }
+    const features = formData.features.split('\n').map(f => f.trim()).filter(Boolean);
+    if (editingPlan) {
+      setPlans(prev => prev.map(p =>
+        p.id === editingPlan.id
+          ? { ...p, name: formData.name, price: Number(formData.price), billing_cycle: formData.billing_cycle, features }
+          : p
+      ));
+      showToast('Plan updated successfully');
+    } else {
+      const newPlan: SubscriptionPlan = {
+        id: `plan-${Date.now()}`,
+        name: formData.name,
+        price: Number(formData.price),
+        billing_cycle: formData.billing_cycle,
+        subscriber_count: 0,
+        status: 'active',
+        features,
+        created_at: new Date().toISOString().split('T')[0],
+        revenue: 0,
+      };
+      setPlans(prev => [...prev, newPlan]);
+      showToast('Plan created successfully');
+    }
+    setShowForm(false);
+  };
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -178,11 +235,16 @@ const PlansPage: React.FC = () => {
           : p
       )
     );
+    const plan = plans.find(p => p.id === planId);
+    if (plan) {
+      showToast(`Plan ${plan.status === 'active' ? 'deactivated' : 'activated'} successfully`);
+    }
   };
 
   const handleDelete = (planId: string) => {
     if (!confirm('Are you sure you want to delete this plan?')) return;
     setPlans((prev) => prev.filter((p) => p.id !== planId));
+    showToast('Plan deleted successfully');
   };
 
   const totalSubscribers = plans.reduce((sum, p) => sum + p.subscriber_count, 0);
@@ -231,7 +293,7 @@ const PlansPage: React.FC = () => {
         actions={
           <div className="flex items-center gap-2">
             <button
-              onClick={() => { setEditingPlan(null); setShowForm(true); }}
+              onClick={() => openForm(null)}
               className="flex items-center gap-2 px-3 py-2 text-sm bg-[#E40000] rounded-lg text-gray-900 dark:text-white hover:bg-[#C00] transition-colors"
             >
               <Plus className="w-4 h-4" />
@@ -317,7 +379,7 @@ const PlansPage: React.FC = () => {
                         )}
                       </button>
                       <button
-                        onClick={() => { setEditingPlan(plan); setShowForm(true); }}
+                        onClick={() => openForm(plan)}
                         title="Edit"
                         className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                       >
@@ -364,7 +426,8 @@ const PlansPage: React.FC = () => {
                 <label className="block text-sm text-gray-500 dark:text-white/60 mb-1.5">Plan Name</label>
                 <input
                   type="text"
-                  defaultValue={editingPlan?.name || ''}
+                  value={formData.name}
+                  onChange={e => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Enter plan name"
                   className="w-full px-4 py-2.5 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
                 />
@@ -374,7 +437,8 @@ const PlansPage: React.FC = () => {
                   <label className="block text-sm text-gray-500 dark:text-white/60 mb-1.5">Price (KES)</label>
                   <input
                     type="number"
-                    defaultValue={editingPlan?.price || ''}
+                    value={formData.price}
+                    onChange={e => setFormData({ ...formData, price: e.target.value })}
                     placeholder="0"
                     className="w-full px-4 py-2.5 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
                   />
@@ -382,7 +446,8 @@ const PlansPage: React.FC = () => {
                 <div>
                   <label className="block text-sm text-gray-500 dark:text-white/60 mb-1.5">Billing Cycle</label>
                   <select
-                    defaultValue={editingPlan?.billing_cycle || 'monthly'}
+                    value={formData.billing_cycle}
+                    onChange={e => setFormData({ ...formData, billing_cycle: e.target.value as 'monthly' | 'quarterly' | 'yearly' })}
                     className="w-full px-4 py-2.5 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors"
                   >
                     <option value="monthly">Monthly</option>
@@ -395,7 +460,8 @@ const PlansPage: React.FC = () => {
                 <label className="block text-sm text-gray-500 dark:text-white/60 mb-1.5">Features (one per line)</label>
                 <textarea
                   rows={4}
-                  defaultValue={editingPlan?.features.join('\n') || ''}
+                  value={formData.features}
+                  onChange={e => setFormData({ ...formData, features: e.target.value })}
                   placeholder="Feature 1&#10;Feature 2&#10;Feature 3"
                   className="w-full px-4 py-2.5 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors resize-none"
                 />
@@ -410,7 +476,7 @@ const PlansPage: React.FC = () => {
                 Cancel
               </button>
               <button
-                onClick={() => setShowForm(false)}
+                onClick={handleSavePlan}
                 className="flex items-center gap-2 px-4 py-2 text-sm bg-[#E40000] rounded-lg text-gray-900 dark:text-white hover:bg-[#C00] transition-colors"
               >
                 <Check className="w-4 h-4" />
@@ -418,6 +484,15 @@ const PlansPage: React.FC = () => {
               </button>
             </div>
           </motion.div>
+        </div>
+      )}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
+            toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+          }`}>
+            <p className="text-sm font-medium">{toast.message}</p>
+          </div>
         </div>
       )}
     </motion.div>

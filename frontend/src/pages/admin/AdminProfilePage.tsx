@@ -42,6 +42,49 @@ const AdminProfilePage: React.FC = () => {
     phone: '+254 700 000 000',
     bio: 'Platform administrator for Urban Home School',
   });
+  const [sessions, setSessions] = useState<ActiveSession[]>(mockSessions);
+  const [passwords, setPasswords] = useState({ current: '', new_password: '', confirm: '' });
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleSaveProfile = () => {
+    if (!profile.first_name.trim() || !profile.last_name.trim()) {
+      showToast('First name and last name are required', 'error');
+      return;
+    }
+    showToast('Profile updated successfully');
+  };
+
+  const handleUpdatePassword = () => {
+    if (!passwords.current) {
+      showToast('Please enter your current password', 'error');
+      return;
+    }
+    if (!passwords.new_password) {
+      showToast('Please enter a new password', 'error');
+      return;
+    }
+    if (passwords.new_password.length < 8) {
+      showToast('New password must be at least 8 characters', 'error');
+      return;
+    }
+    if (passwords.new_password !== passwords.confirm) {
+      showToast('New passwords do not match', 'error');
+      return;
+    }
+    setPasswords({ current: '', new_password: '', confirm: '' });
+    showToast('Password updated successfully');
+  };
+
+  const handleRevokeSession = (sessionId: string) => {
+    if (!confirm('Are you sure you want to revoke this session?')) return;
+    setSessions(prev => prev.filter(s => s.id !== sessionId));
+    showToast('Session revoked successfully');
+  };
 
   return (
     <div className="space-y-6">
@@ -105,7 +148,7 @@ const AdminProfilePage: React.FC = () => {
                 <label className="block text-xs text-gray-500 dark:text-white/50 mb-1.5">Bio</label>
                 <textarea value={profile.bio} onChange={e => setProfile({ ...profile, bio: e.target.value })} rows={3} className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-gray-300 dark:focus:border-[#444] resize-none" />
               </div>
-              <button className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-gray-900 dark:text-white text-sm rounded-lg transition-colors">
+              <button onClick={handleSaveProfile} className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-gray-900 dark:text-white text-sm rounded-lg transition-colors">
                 <Save className="w-4 h-4" />Save Changes
               </button>
             </div>
@@ -124,7 +167,7 @@ const AdminProfilePage: React.FC = () => {
               <div>
                 <label className="block text-xs text-gray-500 dark:text-white/50 mb-1.5">Current Password</label>
                 <div className="relative">
-                  <input type={showPassword ? 'text' : 'password'} placeholder="Enter current password" className="w-full px-3 py-2 pr-10 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-gray-300 dark:focus:border-[#444]" />
+                  <input type={showPassword ? 'text' : 'password'} value={passwords.current} onChange={e => setPasswords({ ...passwords, current: e.target.value })} placeholder="Enter current password" className="w-full px-3 py-2 pr-10 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-gray-300 dark:focus:border-[#444]" />
                   <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/30 hover:text-gray-500 dark:hover:text-white/60">
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -132,13 +175,13 @@ const AdminProfilePage: React.FC = () => {
               </div>
               <div>
                 <label className="block text-xs text-gray-500 dark:text-white/50 mb-1.5">New Password</label>
-                <input type="password" placeholder="Enter new password" className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-gray-300 dark:focus:border-[#444]" />
+                <input type="password" value={passwords.new_password} onChange={e => setPasswords({ ...passwords, new_password: e.target.value })} placeholder="Enter new password" className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-gray-300 dark:focus:border-[#444]" />
               </div>
               <div>
                 <label className="block text-xs text-gray-500 dark:text-white/50 mb-1.5">Confirm New Password</label>
-                <input type="password" placeholder="Confirm new password" className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-gray-300 dark:focus:border-[#444]" />
+                <input type="password" value={passwords.confirm} onChange={e => setPasswords({ ...passwords, confirm: e.target.value })} placeholder="Confirm new password" className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-gray-300 dark:focus:border-[#444]" />
               </div>
-              <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] text-gray-900 dark:text-white text-sm rounded-lg hover:border-gray-300 dark:hover:border-[#444] transition-colors">
+              <button onClick={handleUpdatePassword} className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] text-gray-900 dark:text-white text-sm rounded-lg hover:border-gray-300 dark:hover:border-[#444] transition-colors">
                 <Save className="w-4 h-4" />Update Password
               </button>
             </div>
@@ -162,7 +205,7 @@ const AdminProfilePage: React.FC = () => {
 
       {activeTab === 'sessions' && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
-          {mockSessions.map(session => (
+          {sessions.map(session => (
             <div key={session.id} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -183,7 +226,7 @@ const AdminProfilePage: React.FC = () => {
                   </div>
                 </div>
                 {!session.is_current && (
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
+                  <button onClick={() => handleRevokeSession(session.id)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
                     <LogOut className="w-3.5 h-3.5" />Revoke
                   </button>
                 )}
@@ -191,6 +234,15 @@ const AdminProfilePage: React.FC = () => {
             </div>
           ))}
         </motion.div>
+      )}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
+            toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+          }`}>
+            <p className="text-sm font-medium">{toast.message}</p>
+          </div>
+        </div>
       )}
     </div>
   );

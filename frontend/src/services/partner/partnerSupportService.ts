@@ -3,15 +3,10 @@
  * API calls for support tickets and help resources
  */
 
-import axios from 'axios';
+import apiClient from '../api';
 import type { PartnerTicket, PaginatedResponse } from '../../types/partner';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const BASE_PATH = `${API_URL}/api/v1/partner/support`;
-
-const getAuthHeaders = () => ({
-  Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-});
+const BASE_PATH = `/api/v1/partner/support`;
 
 /**
  * Create support ticket
@@ -38,11 +33,8 @@ export const createTicket = async (data: {
     });
   }
 
-  const response = await axios.post(`${BASE_PATH}/tickets`, formData, {
-    headers: {
-      ...getAuthHeaders(),
-      'Content-Type': 'multipart/form-data',
-    },
+  const response = await apiClient.post(`${BASE_PATH}/tickets`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
   });
   return response.data;
 };
@@ -57,10 +49,7 @@ export const getTickets = async (params?: {
   page?: number;
   limit?: number;
 }): Promise<PaginatedResponse<PartnerTicket>> => {
-  const response = await axios.get(`${BASE_PATH}/tickets`, {
-    headers: getAuthHeaders(),
-    params,
-  });
+  const response = await apiClient.get(`${BASE_PATH}/tickets`, { params });
   return response.data;
 };
 
@@ -68,9 +57,7 @@ export const getTickets = async (params?: {
  * Get single ticket
  */
 export const getTicket = async (ticketId: string): Promise<PartnerTicket> => {
-  const response = await axios.get(`${BASE_PATH}/tickets/${ticketId}`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.get(`${BASE_PATH}/tickets/${ticketId}`);
   return response.data;
 };
 
@@ -81,9 +68,7 @@ export const updateTicket = async (
   ticketId: string,
   data: Partial<PartnerTicket>
 ): Promise<PartnerTicket> => {
-  const response = await axios.put(`${BASE_PATH}/tickets/${ticketId}`, data, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.put(`${BASE_PATH}/tickets/${ticketId}`, data);
   return response.data;
 };
 

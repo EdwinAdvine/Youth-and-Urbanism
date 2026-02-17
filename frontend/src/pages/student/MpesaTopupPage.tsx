@@ -1,21 +1,69 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';
-import { Smartphone, ArrowLeft, CheckCircle, Shield, Clock, AlertCircle } from 'lucide-react';
+import { initiateMpesaPayment, formatMpesaPhoneNumber, checkPaymentStatus } from '../../services/paymentService';
+import { Smartphone, ArrowLeft, CheckCircle, Shield, Clock, AlertCircle, Loader2 } from 'lucide-react';
 
 const MpesaTopupPage: React.FC = () => {
   const navigate = useNavigate();
   const { borderRadius } = useAgeAdaptiveUI();
   const [phone, setPhone] = useState('');
   const [amount, setAmount] = useState('');
-  const [step, setStep] = useState<'form' | 'pending' | 'success'>('form');
+  const [step, setStep] = useState<'form' | 'pending' | 'success' | 'error'>('form');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [transactionRef, setTransactionRef] = useState<string | null>(null);
 
   const quickAmounts = [100, 250, 500, 1000, 2000, 5000];
 
-  const handleSubmit = () => {
-    if (phone && amount) {
+  const handleSubmit = async () => {
+    if (!phone || !amount || phone.length < 9) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const formattedPhone = formatMpesaPhoneNumber(phone);
+      const response = await initiateMpesaPayment(
+        formattedPhone,
+        Number(amount),
+        'TUHS-TOPUP',
+        'Urban Home School Wallet Top-up'
+      );
+
+      setTransactionRef(response.transactionRef || null);
       setStep('pending');
-      setTimeout(() => setStep('success'), 3000);
+
+      // Poll for payment status
+      if (response.transactionRef) {
+        const ref = response.transactionRef;
+        const pollInterval = setInterval(async () => {
+          try {
+            const statusResponse = await checkPaymentStatus(ref);
+            if (statusResponse.status === 'completed' || statusResponse.status === 'success') {
+              clearInterval(pollInterval);
+              setStep('success');
+            } else if (statusResponse.status === 'failed' || statusResponse.status === 'cancelled') {
+              clearInterval(pollInterval);
+              setError(statusResponse.message || 'Payment was not completed.');
+              setStep('error');
+            }
+          } catch {
+            // Continue polling on network errors
+          }
+        }, 5000);
+
+        // Stop polling after 2 minutes
+        setTimeout(() => {
+          clearInterval(pollInterval);
+        }, 120000);
+      }
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.detail || err?.message || 'Failed to initiate M-Pesa payment. Please try again.';
+      setError(errorMessage);
+      setStep('error');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -95,12 +143,23 @@ const MpesaTopupPage: React.FC = () => {
             </div>
           )}
 
+          {error && (
+            <div className={`p-3 bg-red-500/10 border border-red-500/20 ${borderRadius} flex items-center gap-2 text-red-400 text-sm`}>
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
           <button
             onClick={handleSubmit}
-            disabled={!phone || !amount || phone.length < 9}
+            disabled={!phone || !amount || phone.length < 9 || loading}
             className={`w-full py-3 bg-green-500 hover:bg-green-600 disabled:bg-gray-100 dark:disabled:bg-white/10 disabled:text-gray-400 dark:disabled:text-white/30 text-gray-900 dark:text-white font-bold ${borderRadius} flex items-center justify-center gap-2`}
           >
-            <Smartphone className="w-5 h-5" /> Send STK Push
+            {loading ? (
+              <><Loader2 className="w-5 h-5 animate-spin" /> Initiating...</>
+            ) : (
+              <><Smartphone className="w-5 h-5" /> Send STK Push</>
+            )}
           </button>
 
           <div className={`p-3 bg-gray-50 dark:bg-white/5 ${borderRadius} flex items-center gap-2`}>
@@ -131,12 +190,30 @@ const MpesaTopupPage: React.FC = () => {
           </div>
           <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Top-up Successful!</h2>
           <p className="text-gray-500 dark:text-white/60 mb-1">KES {Number(amount).toLocaleString()} has been added to your wallet</p>
-          <p className="text-gray-400 dark:text-white/40 text-sm mb-6">Transaction ID: MPX{Date.now().toString().slice(-8)}</p>
+          {transactionRef && (
+            <p className="text-gray-400 dark:text-white/40 text-sm mb-6">Transaction ID: {transactionRef}</p>
+          )}
           <button
             onClick={() => navigate('/dashboard/student/wallet')}
             className={`px-6 py-2 bg-green-500 hover:bg-green-600 text-gray-900 dark:text-white ${borderRadius}`}
           >
             Back to Wallet
+          </button>
+        </div>
+      )}
+
+      {step === 'error' && (
+        <div className={`p-12 bg-white dark:bg-[#181C1F] ${borderRadius} border border-gray-200 dark:border-[#22272B] text-center`}>
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/20 flex items-center justify-center">
+            <AlertCircle className="w-8 h-8 text-red-400" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Payment Failed</h2>
+          <p className="text-gray-500 dark:text-white/60 mb-6">{error || 'Something went wrong with the payment. Please try again.'}</p>
+          <button
+            onClick={() => { setStep('form'); setError(null); }}
+            className={`px-6 py-2 bg-green-500 hover:bg-green-600 text-gray-900 dark:text-white ${borderRadius}`}
+          >
+            Try Again
           </button>
         </div>
       )}

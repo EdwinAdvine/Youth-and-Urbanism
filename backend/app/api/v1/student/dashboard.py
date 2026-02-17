@@ -1,11 +1,18 @@
 """
 Student Dashboard API Routes
+
+Provides the student's daily dashboard experience including time-adaptive
+greetings, AI-generated daily plans, mood check-ins, learning streaks,
+daily quotes, and XP/level progression data.
 """
+import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Dict, List, Optional
 from uuid import UUID
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 from app.database import get_db
 from app.models.user import User
@@ -19,12 +26,14 @@ router = APIRouter(prefix="/student/dashboard", tags=["Student Dashboard"])
 
 # Pydantic schemas
 class MoodCheckInRequest(BaseModel):
+    """Request body for submitting a student mood check-in."""
     mood_type: MoodType
-    energy_level: int
+    energy_level: int  # 1-5 scale
     note: Optional[str] = None
 
 
 class DailyPlanUpdateRequest(BaseModel):
+    """Request body for reordering or marking items complete in the daily plan."""
     items: List[Dict]
 
 
@@ -63,15 +72,16 @@ async def get_today_dashboard(
     try:
         dashboard_data = await service.get_today_dashboard(current_user.student_id)
         return dashboard_data
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
+            detail="Student profile not found"
         )
     except Exception as e:
+        logger.error(f"Failed to fetch dashboard for student {current_user.student_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch dashboard: {str(e)}"
+            detail="Failed to load dashboard data"
         )
 
 
@@ -127,9 +137,10 @@ async def submit_mood_check_in(
             "message": "Mood check-in saved successfully"
         }
     except Exception as e:
+        logger.error(f"Failed to save mood check-in for student {current_user.student_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to save mood check-in: {str(e)}"
+            detail="Failed to save mood check-in"
         )
 
 
@@ -161,9 +172,10 @@ async def get_teacher_sync_notes(
         notes = await service.get_teacher_sync_notes(current_user.student_id)
         return notes
     except Exception as e:
+        logger.error(f"Failed to fetch teacher notes for student {current_user.student_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch teacher notes: {str(e)}"
+            detail="Failed to fetch teacher notes"
         )
 
 
@@ -204,9 +216,10 @@ async def get_daily_quote(
         quote = await service._get_daily_quote(student.grade_level)
         return quote
     except Exception as e:
+        logger.error(f"Failed to fetch daily quote: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch daily quote: {str(e)}"
+            detail="Failed to fetch daily quote"
         )
 
 
@@ -249,7 +262,8 @@ async def update_daily_plan(
             "message": "Daily plan updated successfully"
         }
     except Exception as e:
+        logger.error(f"Failed to update daily plan for student {current_user.student_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update daily plan: {str(e)}"
+            detail="Failed to update daily plan"
         )

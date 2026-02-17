@@ -1,5 +1,11 @@
 """
-Student Dashboard Models - Dashboard, Mood, Streaks, Daily Plans
+Student Dashboard Models
+
+Models supporting the student dashboard experience: mood check-ins,
+learning streaks, AI-generated daily plans, reflective journal entries,
+course wishlists, and session preparation tips. These tables power the
+personalized dashboard widgets that help students stay organized,
+self-aware, and on track with their learning goals.
 """
 from sqlalchemy import Column, String, Integer, Float, DateTime, Boolean, Text, ForeignKey, Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID, JSONB, ARRAY
@@ -20,7 +26,14 @@ class MoodType(str, enum.Enum):
 
 
 class StudentMoodEntry(Base):
-    """Student mood check-ins"""
+    """
+    A single mood check-in recorded by a student.
+
+    Students log how they feel (happy, okay, tired, frustrated, excited)
+    along with an energy level (1-5) and optional note. Check-ins can be
+    triggered at login, manually, or by an AI prompt. The dashboard uses
+    mood trends to adapt learning recommendations and alert parents.
+    """
     __tablename__ = "student_mood_entries"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -42,7 +55,15 @@ class StudentMoodEntry(Base):
 
 
 class StudentStreak(Base):
-    """Student learning streaks"""
+    """
+    Tracks a student's consecutive-day learning streak.
+
+    One row per student (unique student_id). Records the current streak
+    length, longest historical streak, last activity date, and available
+    streak shields (which let a student skip a day without breaking the
+    streak). History is stored as a JSONB array of daily entries showing
+    whether the student completed activities each day.
+    """
     __tablename__ = "student_streaks"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -65,7 +86,14 @@ class StudentStreak(Base):
 
 
 class StudentDailyPlan(Base):
-    """AI-generated daily learning plans"""
+    """
+    A daily learning plan for a student, typically AI-generated.
+
+    Each plan contains a JSONB array of items (lessons, activities, breaks)
+    with estimated durations. Plans can be AI-generated or manually edited
+    by the student. The dashboard tracks total planned duration and how
+    many items have been completed.
+    """
     __tablename__ = "student_daily_plans"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -89,7 +117,14 @@ class StudentDailyPlan(Base):
 
 
 class StudentJournalEntry(Base):
-    """AI journal and reflections"""
+    """
+    A reflective journal entry written by a student.
+
+    Students write free-form reflections that the AI analyzes to produce
+    insights (sentiment, key topics, suggestions) stored in the ai_insights
+    JSONB field. Optional reflection_prompts guide the student's next entry.
+    Entries can be tagged with a mood to correlate with mood check-in data.
+    """
     __tablename__ = "student_journal_entries"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -111,7 +146,13 @@ class StudentJournalEntry(Base):
 
 
 class StudentWishlist(Base):
-    """Student course wishlist"""
+    """
+    A course saved to a student's wishlist for future enrollment.
+
+    Links a student to a course they are interested in but have not yet
+    enrolled in. A priority field allows the student to rank their wishlist
+    items. The dashboard shows wishlisted courses as recommendations.
+    """
     __tablename__ = "student_wishlists"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -131,7 +172,14 @@ class StudentWishlist(Base):
 
 
 class StudentSessionPrep(Base):
-    """AI session preparation tips"""
+    """
+    AI-generated preparation tips for an upcoming live session.
+
+    Before a live class, the AI generates tips (JSONB array), an engagement
+    prediction (high/medium/low), and recommended pre-reading materials.
+    Teachers can also attach notes. This helps students arrive prepared and
+    boosts participation during the live session.
+    """
     __tablename__ = "student_session_prep"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

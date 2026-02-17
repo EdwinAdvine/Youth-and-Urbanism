@@ -149,8 +149,9 @@ const TicketDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [replyText, setReplyText] = useState('');
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  const ticket = id ? MOCK_TICKETS[id] : null;
+  const initialTicket = id ? MOCK_TICKETS[id] : null;
 
   // Fallback for unknown tickets
   const fallbackTicket: TicketDetail = {
@@ -172,12 +173,64 @@ const TicketDetailPage: React.FC = () => {
     ],
   };
 
-  const data = ticket || fallbackTicket;
+  const [ticketData, setTicketData] = useState<TicketDetail>(initialTicket || fallbackTicket);
+  const [localMessages, setLocalMessages] = useState<TicketMessage[]>((initialTicket || fallbackTicket).messages);
+
+  const data = ticketData;
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const handleSendReply = () => {
     if (!replyText.trim()) return;
-    // In a real app, this would call the API
+    const newMessage: TicketMessage = {
+      id: `msg-${Date.now()}`,
+      sender: 'Admin Team',
+      sender_role: 'agent',
+      content: replyText.trim(),
+      timestamp: new Date().toISOString(),
+    };
+    setLocalMessages((prev) => [...prev, newMessage]);
     setReplyText('');
+    showToast('Reply sent successfully');
+  };
+
+  const handleResolve = () => {
+    setTicketData((prev) => ({ ...prev, status: 'resolved', updated_at: new Date().toISOString() }));
+    showToast('Ticket resolved');
+  };
+
+  const handleClose = () => {
+    setTicketData((prev) => ({ ...prev, status: 'closed', updated_at: new Date().toISOString() }));
+    showToast('Ticket closed');
+  };
+
+  const handleReassign = () => {
+    const assignee = prompt('Reassign ticket to:');
+    if (assignee && assignee.trim()) {
+      setTicketData((prev) => ({ ...prev, assignee: assignee.trim(), updated_at: new Date().toISOString() }));
+      showToast(`Ticket reassigned to ${assignee.trim()}`);
+    }
+  };
+
+  const handleChangePriority = () => {
+    const priorities: TicketDetail['priority'][] = ['low', 'medium', 'high', 'critical'];
+    const currentIndex = priorities.indexOf(data.priority);
+    const nextPriority = priorities[(currentIndex + 1) % priorities.length];
+    setTicketData((prev) => ({ ...prev, priority: nextPriority, updated_at: new Date().toISOString() }));
+    showToast(`Priority changed to ${nextPriority}`);
+  };
+
+  const handleEscalate = () => {
+    if (confirm('Are you sure you want to escalate this ticket to a manager?')) {
+      showToast('Ticket escalated to manager');
+    }
+  };
+
+  const handleMerge = () => {
+    alert('Merge feature coming soon');
   };
 
   return (
@@ -236,7 +289,7 @@ const TicketDetailPage: React.FC = () => {
             transition={{ delay: 0.1 }}
             className="space-y-4"
           >
-            {data.messages.map((msg, idx) => (
+            {localMessages.map((msg, idx) => (
               <div
                 key={msg.id}
                 className={`flex ${msg.sender_role === 'agent' ? 'justify-end' : 'justify-start'}`}
@@ -282,11 +335,17 @@ const TicketDetailPage: React.FC = () => {
             />
             <div className="flex items-center justify-between mt-3">
               <div className="flex items-center gap-2">
-                <button className="px-3 py-1.5 text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/30 transition-colors flex items-center gap-1.5">
+                <button
+                  onClick={handleResolve}
+                  className="px-3 py-1.5 text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/30 transition-colors flex items-center gap-1.5"
+                >
                   <CheckCircle className="w-3.5 h-3.5" />
                   Resolve
                 </button>
-                <button className="px-3 py-1.5 text-xs bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition-colors flex items-center gap-1.5">
+                <button
+                  onClick={handleClose}
+                  className="px-3 py-1.5 text-xs bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition-colors flex items-center gap-1.5"
+                >
                   <XCircle className="w-3.5 h-3.5" />
                   Close
                 </button>
@@ -388,22 +447,44 @@ const TicketDetailPage: React.FC = () => {
           >
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
             <div className="space-y-2">
-              <button className="w-full text-left px-3 py-2 text-sm text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] rounded-lg transition-colors">
+              <button
+                onClick={handleReassign}
+                className="w-full text-left px-3 py-2 text-sm text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] rounded-lg transition-colors"
+              >
                 Reassign Ticket
               </button>
-              <button className="w-full text-left px-3 py-2 text-sm text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] rounded-lg transition-colors">
+              <button
+                onClick={handleChangePriority}
+                className="w-full text-left px-3 py-2 text-sm text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] rounded-lg transition-colors"
+              >
                 Change Priority
               </button>
-              <button className="w-full text-left px-3 py-2 text-sm text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] rounded-lg transition-colors">
+              <button
+                onClick={handleEscalate}
+                className="w-full text-left px-3 py-2 text-sm text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] rounded-lg transition-colors"
+              >
                 Escalate to Manager
               </button>
-              <button className="w-full text-left px-3 py-2 text-sm text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] rounded-lg transition-colors">
+              <button
+                onClick={handleMerge}
+                className="w-full text-left px-3 py-2 text-sm text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] rounded-lg transition-colors"
+              >
                 Merge with Another Ticket
               </button>
             </div>
           </motion.div>
         </div>
       </div>
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
+            toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+          }`}>
+            <p className="text-sm font-medium">{toast.message}</p>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };

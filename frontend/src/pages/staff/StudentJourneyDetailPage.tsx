@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, TrendingUp, AlertTriangle, CheckCircle, Calendar } from 'lucide-react';
+import { ArrowLeft, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const StudentJourneyDetailPage: React.FC = () => {

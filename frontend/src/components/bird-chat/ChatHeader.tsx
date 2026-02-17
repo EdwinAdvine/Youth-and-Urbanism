@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Menu, Plus, Settings, User, ChevronDown, Sun, Moon } from 'lucide-react';
+import { Menu, Plus, Settings, ChevronDown, Sun, Moon } from 'lucide-react';
 import { useThemeStore } from '../../store';
 
 interface ChatHeaderProps {
@@ -12,9 +12,9 @@ interface ChatHeaderProps {
 const ChatHeader: React.FC<ChatHeaderProps> = ({ 
   onNewChat, 
   onSidebarToggle, 
-  isSidebarOpen 
+  isSidebarOpen: _isSidebarOpen
 }) => {
-  const { theme, isDarkMode, toggleTheme } = useThemeStore();
+  const { isDarkMode, toggleTheme } = useThemeStore();
 
   return (
     <header className="bg-gradient-to-r from-gray-50 dark:from-[#0F1112] to-gray-100 dark:to-[#181C1F] border-b border-gray-200 dark:border-[#22272B] shadow-lg shadow-black/30 sticky top-0 z-50">

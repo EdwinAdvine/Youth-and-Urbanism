@@ -1,15 +1,13 @@
-import { 
-  User, 
-  Course, 
-  Assignment, 
-  Quiz, 
-  Certificate, 
-  Transaction, 
-  ForumPost, 
+import {
+  User,
+  Course,
+  Assignment,
+  Quiz,
+  Certificate,
+  Transaction,
+  ForumPost,
   Notification,
   CourseCategory,
-  Question,
-  Answer
 } from '../types/index';
 
 // Mock Users

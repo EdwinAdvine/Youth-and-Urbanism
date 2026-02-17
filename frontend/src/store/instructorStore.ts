@@ -3,7 +3,6 @@ import { persist } from 'zustand/middleware';
 import type {
   InstructorNotification,
   InstructorRealtimeCounters,
-  InstructorWSEventType,
 } from '../types/instructor';
 
 export type ViewMode = 'teaching_focus' | 'earnings_focus' | 'custom';

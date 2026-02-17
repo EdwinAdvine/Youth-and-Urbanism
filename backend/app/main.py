@@ -185,6 +185,130 @@ app = FastAPI(
 )
 
 
+# ── Security Headers Middleware ────────────────────────────────────────
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Add security headers to every HTTP response."""
+
+    async def dispatch(self, request: Request, call_next):
+        response: Response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        # Content Security Policy — applied to API JSON responses.
+        # The frontend SPA's CSP should be set by the web server (Nginx/Vite).
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline'; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "font-src 'self' https://fonts.gstatic.com; "
+            "img-src 'self' data: https:; "
+            "connect-src 'self' https://api.stripe.com https://api-m.paypal.com https://api-m.sandbox.paypal.com wss:; "
+            "frame-ancestors 'none'; "
+            "base-uri 'self'; "
+            "form-action 'self';"
+        )
+        if not settings.debug:
+            response.headers["Strict-Transport-Security"] = (
+                "max-age=31536000; includeSubDomains; preload"
+            )
+        return response
+
+
+app.add_middleware(SecurityHeadersMiddleware)
+
+
+# ── Cookie-to-Header Auth Middleware ──────────────────────────────────
+class CookieAuthMiddleware(BaseHTTPMiddleware):
+    """
+    Read access_token from httpOnly cookie and inject as Authorization header.
+
+    This allows the existing HTTPBearer dependency to work unchanged while tokens
+    are stored in secure httpOnly cookies instead of localStorage.
+    If an Authorization header is already present (e.g. mobile apps), it takes precedence.
+
+    Also populates request.state with user identity for audit logging.
+    """
+
+    async def dispatch(self, request: Request, call_next):
+        token = None
+
+        # Check for token in Authorization header first (mobile/API clients)
+        auth_header = request.headers.get("authorization", "")
+        if auth_header.startswith("Bearer "):
+            token = auth_header[7:]  # Strip "Bearer " prefix
+        elif "authorization" not in request.headers:
+            # Fall back to cookie-based auth (browser clients)
+            token = request.cookies.get("access_token")
+            if token:
+                # Inject as Authorization header (scope headers are list of byte tuples)
+                request.scope["headers"] = [
+                    *request.scope["headers"],
+                    (b"authorization", f"Bearer {token}".encode()),
+                ]
+
+        # Populate request.state for audit logging (all auth types)
+        if token:
+            try:
+                from app.utils.security import decode_token
+                payload = decode_token(token)
+                request.state.user_id = payload.get("sub")
+                request.state.user_email = payload.get("email")
+                request.state.user_role = payload.get("role")
+            except Exception:
+                # If token decode fails, don't block the request
+                # (let the auth dependency handle validation)
+                pass
+
+        return await call_next(request)
+
+
+app.add_middleware(CookieAuthMiddleware)
+
+
+# ── CSRF Origin Validation Middleware ──────────────────────────────────
+class CSRFMiddleware(BaseHTTPMiddleware):
+    """
+    Prevent cross-site request forgery on cookie-authenticated mutating requests.
+
+    For POST/PUT/PATCH/DELETE requests that carry an access_token cookie,
+    the Origin (or Referer) header must match one of the allowed CORS origins.
+    Requests with an explicit Authorization header (API/mobile clients) are exempt
+    because they don't rely on ambient cookie credentials.
+    """
+
+    MUTATING_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
+
+    async def dispatch(self, request: Request, call_next):
+        if request.method in self.MUTATING_METHODS:
+            has_cookie = "access_token" in request.cookies
+            has_auth_header = "authorization" in request.headers
+
+            # Only enforce for cookie-based auth (browser clients)
+            if has_cookie and not has_auth_header:
+                origin = request.headers.get("origin") or ""
+                referer = request.headers.get("referer") or ""
+
+                allowed = settings.cors_origins_list
+                origin_ok = any(origin == o for o in allowed) if origin else False
+                referer_ok = any(referer.startswith(o) for o in allowed) if referer else False
+
+                if not origin_ok and not referer_ok:
+                    return JSONResponse(
+                        status_code=403,
+                        content={"detail": "CSRF validation failed: origin not allowed"},
+                    )
+
+        return await call_next(request)
+
+
+app.add_middleware(CSRFMiddleware)
+
 # Configure CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -194,6 +318,10 @@ app.add_middleware(
     allow_headers=settings.cors_allow_headers,
     expose_headers=["Content-Range", "X-Total-Count"],
 )
+
+# Error logging middleware — captures unhandled exceptions and 5xx to error_logs table
+from app.middleware.error_logging_middleware import ErrorLoggingMiddleware
+app.add_middleware(ErrorLoggingMiddleware)
 
 # Audit logging middleware — auto-logs all POST/PUT/PATCH/DELETE to admin/staff endpoints
 from app.middleware.audit_middleware import AuditMiddleware
@@ -273,14 +401,14 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     """
     logger.warning(f"HTTP {exc.status_code} error on {request.url.path}: {exc.detail}")
 
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "detail": exc.detail,
-            "status_code": exc.status_code,
-            "path": str(request.url.path),
-        },
-    )
+    content = {
+        "detail": exc.detail,
+        "status_code": exc.status_code,
+    }
+    if settings.debug:
+        content["path"] = str(request.url.path)
+
+    return JSONResponse(status_code=exc.status_code, content=content)
 
 
 @app.exception_handler(RequestValidationError)
@@ -297,15 +425,15 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     """
     logger.warning(f"Validation error on {request.url.path}: {exc.errors()}")
 
-    return JSONResponse(
-        status_code=422,
-        content={
-            "detail": "Validation error",
-            "status_code": 422,
-            "path": str(request.url.path),
-            "errors": exc.errors(),
-        },
-    )
+    content = {
+        "detail": "Validation error",
+        "status_code": 422,
+        "errors": exc.errors(),
+    }
+    if settings.debug:
+        content["path"] = str(request.url.path)
+
+    return JSONResponse(status_code=422, content=content)
 
 
 @app.exception_handler(Exception)
@@ -322,17 +450,16 @@ async def general_exception_handler(request: Request, exc: Exception):
     """
     logger.error(f"Unhandled exception on {request.url.path}: {str(exc)}", exc_info=True)
 
-    # Don't expose internal error details in production
-    detail = str(exc) if settings.debug else "Internal server error"
+    # Never expose internal error details in production
+    content = {
+        "detail": "Internal server error",
+        "status_code": 500,
+    }
+    if settings.debug:
+        content["detail"] = str(exc)
+        content["path"] = str(request.url.path)
 
-    return JSONResponse(
-        status_code=500,
-        content={
-            "detail": detail,
-            "status_code": 500,
-            "path": str(request.url.path),
-        },
-    )
+    return JSONResponse(status_code=500, content=content)
 
 
 # API Router inclusion (Phase 2 - AI Orchestration Layer)
@@ -353,6 +480,7 @@ from app.api.v1.admin import operations as admin_operations
 from app.api.v1.admin import account as admin_account
 from app.api.v1.admin import families as admin_families
 from app.api.v1.admin import restrictions as admin_restrictions
+from app.api.v1.admin import system_health as admin_system_health
 
 # Staff Dashboard routes
 from app.api.v1.staff import dashboard as staff_dashboard
@@ -693,6 +821,13 @@ app.include_router(
     tags=["Admin - Restrictions"]
 )
 
+# Admin System Health endpoints (error logs, test runner, AI diagnosis)
+app.include_router(
+    admin_system_health.router,
+    prefix=f"{settings.api_v1_prefix}/admin",
+    tags=["Admin - System Health"]
+)
+
 # ── Staff Dashboard Routes ──────────────────────────────────────────
 
 # Staff Dashboard
@@ -967,26 +1102,81 @@ from app.websocket.connection_manager import ws_manager
 from app.utils.security import verify_token
 
 
-@app.websocket("/ws/admin/{token}")
-async def admin_websocket(websocket: WebSocket, token: str):
-    """WebSocket endpoint for admin real-time updates."""
-    import json as _json
+# ── WebSocket Helper ──────────────────────────────────────────────────
+from fastapi import Query
+from app.api.v1.auth import is_token_blacklisted as _is_token_blacklisted
 
-    # Verify JWT token (verify_token raises HTTPException on failure)
+
+def _ws_extract_token(websocket: WebSocket, token_path: str = "", token_query: str = "") -> str:
+    """
+    Extract token from (in priority order):
+    1. Query parameter ?token= (preferred for new clients)
+    2. URL path /{token} (legacy, deprecated — will be removed)
+    3. httpOnly cookie (automatic for browser clients)
+    """
+    return token_query or token_path or websocket.cookies.get("access_token", "")
+
+
+async def _ws_authenticate(
+    websocket: WebSocket,
+    token_path: str = "",
+    token_query: str = "",
+    allowed_roles: tuple[str, ...] | None = None,
+) -> dict | None:
+    """
+    Authenticate a WebSocket connection:
+    1. Extract token (query param / path / cookie)
+    2. Verify JWT signature and claims
+    3. Check token blacklist (logout invalidation)
+    4. Optionally enforce role-based access
+
+    Returns the JWT payload dict on success, or None after closing the socket on failure.
+    """
+    auth_token = _ws_extract_token(websocket, token_path, token_query)
+
+    if not auth_token:
+        await websocket.close(code=4001, reason="Token required")
+        return None
+
     try:
-        payload = verify_token(token)
+        payload = verify_token(auth_token)
     except Exception:
         await websocket.accept()
         await websocket.close(code=4001, reason="Invalid token")
+        return None
+
+    # Check blacklist — reject logged-out tokens
+    if await _is_token_blacklisted(auth_token):
+        await websocket.accept()
+        await websocket.close(code=4001, reason="Token revoked")
+        return None
+
+    if allowed_roles:
+        user_role = payload.get("role", "")
+        if user_role not in allowed_roles:
+            await websocket.accept()
+            await websocket.close(code=4003, reason="Insufficient permissions")
+            return None
+
+    return payload
+
+
+@app.websocket("/ws/admin")
+@app.websocket("/ws/admin/{token_path}")
+async def admin_websocket(
+    websocket: WebSocket,
+    token_path: str = "",
+    token: str = Query("", alias="token"),
+):
+    """WebSocket endpoint for admin real-time updates. Token via ?token= query param."""
+    import json as _json
+
+    payload = await _ws_authenticate(websocket, token_path, token, allowed_roles=("admin", "staff"))
+    if payload is None:
         return
 
     user_id = payload.get("sub") or payload.get("user_id")
     user_role = payload.get("role", "")
-
-    if user_role not in ("admin", "staff"):
-        await websocket.accept()
-        await websocket.close(code=4003, reason="Admin access required")
-        return
 
     await ws_manager.connect(websocket, user_id, user_role)
 
@@ -1007,28 +1197,23 @@ async def admin_websocket(websocket: WebSocket, token: str):
 
 # ── Staff WebSocket Endpoints ───────────────────────────────────────
 
-# Staff real-time updates WebSocket
-@app.websocket("/ws/staff/{token}")
-async def staff_websocket(websocket: WebSocket, token: str):
+@app.websocket("/ws/staff")
+@app.websocket("/ws/staff/{token_path}")
+async def staff_websocket(
+    websocket: WebSocket,
+    token_path: str = "",
+    token: str = Query("", alias="token"),
+):
     """WebSocket endpoint for staff real-time updates (counters, notifications, SLA warnings)."""
     import json as _json
 
-    try:
-        payload = verify_token(token)
-    except Exception:
-        await websocket.accept()
-        await websocket.close(code=4001, reason="Invalid token")
+    payload = await _ws_authenticate(websocket, token_path, token, allowed_roles=("staff", "admin"))
+    if payload is None:
         return
 
     user_id = payload.get("sub") or payload.get("user_id")
     user_role = payload.get("role", "")
 
-    if user_role not in ("staff", "admin"):
-        await websocket.accept()
-        await websocket.close(code=4003, reason="Staff access required")
-        return
-
-    # Use the same ws_manager for staff connections
     await ws_manager.connect(websocket, user_id, user_role)
 
     try:
@@ -1047,26 +1232,22 @@ async def staff_websocket(websocket: WebSocket, token: str):
 
 
 # Instructor real-time updates WebSocket
-@app.websocket("/ws/instructor/{token}")
-async def instructor_websocket(websocket: WebSocket, token: str):
+@app.websocket("/ws/instructor")
+@app.websocket("/ws/instructor/{token_path}")
+async def instructor_websocket(
+    websocket: WebSocket,
+    token_path: str = "",
+    token: str = Query("", alias="token"),
+):
     """WebSocket endpoint for instructor real-time updates (counters, notifications, badges)."""
     import json as _json
     from app.websocket.instructor_connection_manager import instructor_ws_manager
 
-    try:
-        payload = verify_token(token)
-    except Exception:
-        await websocket.accept()
-        await websocket.close(code=4001, reason="Invalid token")
+    payload = await _ws_authenticate(websocket, token_path, token, allowed_roles=("instructor",))
+    if payload is None:
         return
 
     user_id = payload.get("sub") or payload.get("user_id")
-    user_role = payload.get("role", "")
-
-    if user_role != "instructor":
-        await websocket.accept()
-        await websocket.close(code=4003, reason="Instructor access required")
-        return
 
     await instructor_ws_manager.connect(websocket, user_id)
 
@@ -1086,26 +1267,22 @@ async def instructor_websocket(websocket: WebSocket, token: str):
 
 
 # Parent real-time updates WebSocket
-@app.websocket("/ws/parent/{token}")
-async def parent_websocket(websocket: WebSocket, token: str):
+@app.websocket("/ws/parent")
+@app.websocket("/ws/parent/{token_path}")
+async def parent_websocket(
+    websocket: WebSocket,
+    token_path: str = "",
+    token: str = Query("", alias="token"),
+):
     """WebSocket endpoint for parent real-time updates (messages, alerts, achievements, counters)."""
     import json as _json
     from app.websocket.parent_connection_manager import parent_ws_manager
 
-    try:
-        payload = verify_token(token)
-    except Exception:
-        await websocket.accept()
-        await websocket.close(code=4001, reason="Invalid token")
+    payload = await _ws_authenticate(websocket, token_path, token, allowed_roles=("parent",))
+    if payload is None:
         return
 
     user_id = payload.get("sub") or payload.get("user_id")
-    user_role = payload.get("role", "")
-
-    if user_role != "parent":
-        await websocket.accept()
-        await websocket.close(code=4003, reason="Parent access required")
-        return
 
     await parent_ws_manager.connect(websocket, user_id)
 
@@ -1125,25 +1302,22 @@ async def parent_websocket(websocket: WebSocket, token: str):
 
 
 # Student real-time updates WebSocket
-@app.websocket("/ws/student/{token}")
-async def student_websocket(websocket: WebSocket, token: str):
+@app.websocket("/ws/student")
+@app.websocket("/ws/student/{token_path}")
+async def student_websocket(
+    websocket: WebSocket,
+    token_path: str = "",
+    token: str = Query("", alias="token"),
+):
     """WebSocket endpoint for student real-time updates (notifications, progress, achievements)."""
     import json as _json
 
-    try:
-        payload = verify_token(token)
-    except Exception:
-        await websocket.accept()
-        await websocket.close(code=4001, reason="Invalid token")
+    payload = await _ws_authenticate(websocket, token_path, token, allowed_roles=("student",))
+    if payload is None:
         return
 
     user_id = payload.get("sub") or payload.get("user_id")
     user_role = payload.get("role", "")
-
-    if user_role != "student":
-        await websocket.accept()
-        await websocket.close(code=4003, reason="Student access required")
-        return
 
     await ws_manager.connect(websocket, user_id, user_role)
 
@@ -1163,25 +1337,22 @@ async def student_websocket(websocket: WebSocket, token: str):
 
 
 # Partner real-time updates WebSocket
-@app.websocket("/ws/partner/{token}")
-async def partner_websocket(websocket: WebSocket, token: str):
+@app.websocket("/ws/partner")
+@app.websocket("/ws/partner/{token_path}")
+async def partner_websocket(
+    websocket: WebSocket,
+    token_path: str = "",
+    token: str = Query("", alias="token"),
+):
     """WebSocket endpoint for partner real-time updates (notifications, analytics)."""
     import json as _json
 
-    try:
-        payload = verify_token(token)
-    except Exception:
-        await websocket.accept()
-        await websocket.close(code=4001, reason="Invalid token")
+    payload = await _ws_authenticate(websocket, token_path, token, allowed_roles=("partner",))
+    if payload is None:
         return
 
     user_id = payload.get("sub") or payload.get("user_id")
     user_role = payload.get("role", "")
-
-    if user_role != "partner":
-        await websocket.accept()
-        await websocket.close(code=4003, reason="Partner access required")
-        return
 
     await ws_manager.connect(websocket, user_id, user_role)
 
@@ -1201,23 +1372,20 @@ async def partner_websocket(websocket: WebSocket, token: str):
 
 
 # Yjs collaborative editing WebSocket
-@app.websocket("/ws/yjs/{doc_id}/{token}")
-async def yjs_websocket(websocket: WebSocket, doc_id: str, token: str):
+@app.websocket("/ws/yjs/{doc_id}")
+@app.websocket("/ws/yjs/{doc_id}/{token_path}")
+async def yjs_websocket(
+    websocket: WebSocket,
+    doc_id: str,
+    token_path: str = "",
+    token: str = Query("", alias="token"),
+):
     """WebSocket endpoint for Yjs CRDT collaborative document editing."""
-    try:
-        payload = verify_token(token)
-    except Exception:
-        await websocket.accept()
-        await websocket.close(code=4001, reason="Invalid token")
+    payload = await _ws_authenticate(websocket, token_path, token, allowed_roles=("staff", "admin", "instructor"))
+    if payload is None:
         return
 
     user_id = payload.get("sub") or payload.get("user_id")
-    user_role = payload.get("role", "")
-
-    if user_role not in ("staff", "admin", "instructor"):
-        await websocket.accept()
-        await websocket.close(code=4003, reason="Staff or instructor access required")
-        return
 
     try:
         from app.websocket.yjs_handler import yjs_manager
@@ -1238,16 +1406,19 @@ async def yjs_websocket(websocket: WebSocket, doc_id: str, token: str):
 
 
 # Live support chat WebSocket
-@app.websocket("/ws/support-chat/{ticket_id}/{token}")
-async def support_chat_websocket(websocket: WebSocket, ticket_id: str, token: str):
+@app.websocket("/ws/support-chat/{ticket_id}")
+@app.websocket("/ws/support-chat/{ticket_id}/{token_path}")
+async def support_chat_websocket(
+    websocket: WebSocket,
+    ticket_id: str,
+    token_path: str = "",
+    token: str = Query("", alias="token"),
+):
     """WebSocket endpoint for real-time support chat on tickets."""
     import json as _json
 
-    try:
-        payload = verify_token(token)
-    except Exception:
-        await websocket.accept()
-        await websocket.close(code=4001, reason="Invalid token")
+    payload = await _ws_authenticate(websocket, token_path, token)
+    if payload is None:
         return
 
     user_id = payload.get("sub") or payload.get("user_id")
@@ -1275,24 +1446,25 @@ async def support_chat_websocket(websocket: WebSocket, ticket_id: str, token: st
 
 
 # WebRTC signaling WebSocket for live video sessions
-@app.websocket("/ws/webrtc/{room_id}/{token}")
-async def webrtc_signaling_websocket(websocket: WebSocket, room_id: str, token: str):
+@app.websocket("/ws/webrtc/{room_id}")
+@app.websocket("/ws/webrtc/{room_id}/{token_path}")
+async def webrtc_signaling_websocket(
+    websocket: WebSocket,
+    room_id: str,
+    token_path: str = "",
+    token: str = Query("", alias="token"),
+):
     """WebSocket endpoint for WebRTC signaling (offer/answer/ICE candidates)."""
-    try:
-        payload = verify_token(token)
-    except Exception:
-        await websocket.accept()
-        await websocket.close(code=4001, reason="Invalid token")
+    payload = await _ws_authenticate(
+        websocket, token_path, token,
+        allowed_roles=("instructor", "student", "staff", "admin"),
+    )
+    if payload is None:
         return
 
     user_id = payload.get("sub") or payload.get("user_id")
     user_role = payload.get("role", "")
     user_name = payload.get("name", payload.get("email", "Unknown"))
-
-    if user_role not in ("instructor", "student", "staff", "admin"):
-        await websocket.accept()
-        await websocket.close(code=4003, reason="Access denied")
-        return
 
     try:
         from app.websocket.webrtc_signaling import webrtc_signaling_manager

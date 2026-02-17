@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
 
 class UserBase(BaseModel):
@@ -112,11 +112,19 @@ class UserResponse(BaseModel):
     id: UUID = Field(..., description="Unique user identifier")
     email: EmailStr = Field(..., description="User's email address")
     role: str = Field(..., description="User role in the system")
+    full_name: Optional[str] = Field(None, description="User's full name")
     is_active: bool = Field(..., description="Whether the user account is active")
     is_verified: bool = Field(..., description="Whether the user's email has been verified")
     profile_data: dict = Field(default_factory=dict, description="Additional profile information")
     created_at: datetime = Field(..., description="Account creation timestamp")
     last_login: Optional[datetime] = Field(None, description="Last login timestamp")
+
+    @model_validator(mode='after')
+    def extract_full_name(self) -> 'UserResponse':
+        """Extract full_name from profile_data if not set at model level."""
+        if not self.full_name and self.profile_data:
+            self.full_name = self.profile_data.get('full_name')
+        return self
 
     class Config:
         """Pydantic configuration."""

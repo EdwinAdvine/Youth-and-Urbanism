@@ -1,20 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Bot, Save, RotateCcw, X, Sparkles } from 'lucide-react';
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
-const getAuthHeaders = () => {
-  const stored = localStorage.getItem('auth-storage');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      const token = parsed?.state?.token;
-      if (token) return { Authorization: `Bearer ${token}` };
-    } catch { /* ignore */ }
-  }
-  return {};
-};
+import apiClient from '../../services/api';
 
 interface AgentProfile {
   agent_name: string;
@@ -70,7 +56,7 @@ const AgentProfileSettings: React.FC<AgentProfileSettingsProps> = ({ onClose }) 
 
   const loadProfile = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/v1/ai-agent/profile`, { headers: getAuthHeaders() });
+      const res = await apiClient.get('/api/v1/ai-agent/profile');
       setProfile({ ...defaultProfile, ...res.data });
     } catch {
       // Use defaults
@@ -83,7 +69,7 @@ const AgentProfileSettings: React.FC<AgentProfileSettingsProps> = ({ onClose }) 
     setSaving(true);
     setMessage('');
     try {
-      await axios.put(`${API_URL}/api/v1/ai-agent/profile`, profile, { headers: getAuthHeaders() });
+      await apiClient.put('/api/v1/ai-agent/profile', profile);
       setMessage('Profile saved!');
       setTimeout(() => setMessage(''), 2000);
     } catch {
@@ -96,7 +82,7 @@ const AgentProfileSettings: React.FC<AgentProfileSettingsProps> = ({ onClose }) 
   const resetProfile = async () => {
     setSaving(true);
     try {
-      await axios.post(`${API_URL}/api/v1/ai-agent/profile/reset`, {}, { headers: getAuthHeaders() });
+      await apiClient.post('/api/v1/ai-agent/profile/reset', {});
       setProfile(defaultProfile);
       setMessage('Reset to defaults');
       setTimeout(() => setMessage(''), 2000);

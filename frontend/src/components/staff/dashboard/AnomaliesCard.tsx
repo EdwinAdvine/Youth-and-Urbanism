@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Zap, TrendingDown, TrendingUp, AlertCircle } from 'lucide-react';
 
 interface Anomaly {
@@ -16,7 +17,28 @@ interface AnomaliesCardProps {
   isLoading?: boolean;
 }
 
+/** Determine the navigation target based on the anomaly title/description. */
+function getAnomalyRoute(anomaly: Anomaly): string {
+  const text = `${anomaly.title} ${anomaly.description}`.toLowerCase();
+  if (text.includes('login') || text.includes('security') || text.includes('auth')) {
+    return '/dashboard/staff/account/security';
+  }
+  if (text.includes('ai') || text.includes('tutor') || text.includes('response')) {
+    return '/dashboard/staff/insights/health';
+  }
+  if (text.includes('assessment') || text.includes('submission') || text.includes('answer')) {
+    return '/dashboard/staff/moderation/review';
+  }
+  if (text.includes('content') || text.includes('performance')) {
+    return '/dashboard/staff/insights/content';
+  }
+  // Default to platform health
+  return '/dashboard/staff/insights/health';
+}
+
 const AnomaliesCard: React.FC<AnomaliesCardProps> = ({ anomalies, isLoading }) => {
+  const navigate = useNavigate();
+
   if (isLoading) {
     return (
       <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5 animate-pulse">
@@ -62,7 +84,16 @@ const AnomaliesCard: React.FC<AnomaliesCardProps> = ({ anomalies, isLoading }) =
             return (
               <div
                 key={anomaly.id}
-                className={`p-3 rounded-lg bg-gray-100 dark:bg-[#22272B]/50 border ${config.bg}`}
+                onClick={() => navigate(getAnomalyRoute(anomaly))}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate(getAnomalyRoute(anomaly));
+                  }
+                }}
+                className={`p-3 rounded-lg bg-gray-100 dark:bg-[#22272B]/50 border ${config.bg} cursor-pointer hover:bg-gray-200 dark:hover:bg-[#22272B] transition-colors`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">

@@ -125,12 +125,41 @@ class MpesaB2CClient:
     def _get_security_credential(self) -> str:
         """
         Generate security credential for B2C API.
-        In sandbox, use the test credential. In production, encrypt with cert.
+
+        In sandbox: base64-encode the initiator password.
+        In production: RSA-encrypt the password with Safaricom's public certificate.
+
+        Raises:
+            ValueError: If initiator password is not configured
         """
-        # For sandbox, use a base64-encoded placeholder
-        # In production, encrypt initiator_password with Safaricom's public cert
-        initiator_password = getattr(settings, "mpesa_initiator_password", "Safaricom999!*!")
-        return base64.b64encode(initiator_password.encode()).encode().decode()
+        initiator_password = getattr(settings, "mpesa_initiator_password", None)
+        if not initiator_password:
+            raise ValueError(
+                "MPESA_INITIATOR_PASSWORD must be set in environment. "
+                "Do NOT use default/hardcoded passwords."
+            )
+
+        mpesa_env = getattr(settings, "mpesa_environment", "sandbox")
+        if mpesa_env == "production":
+            # In production, encrypt with Safaricom's public certificate (RSA/PKCS1 v1.5)
+            cert_path = getattr(settings, "mpesa_certificate_path", None)
+            if not cert_path:
+                raise ValueError("MPESA_CERTIFICATE_PATH required for production M-Pesa")
+
+            from cryptography.x509 import load_pem_x509_certificate
+            from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
+
+            with open(cert_path, "rb") as cert_file:
+                cert = load_pem_x509_certificate(cert_file.read())
+                public_key = cert.public_key()
+                encrypted = public_key.encrypt(
+                    initiator_password.encode("utf-8"),
+                    PKCS1v15()
+                )
+                return base64.b64encode(encrypted).decode("utf-8")
+        else:
+            # Sandbox: base64 encode (Safaricom sandbox accepts this)
+            return base64.b64encode(initiator_password.encode()).decode()
 
     async def check_transaction_status(
         self, transaction_id: str

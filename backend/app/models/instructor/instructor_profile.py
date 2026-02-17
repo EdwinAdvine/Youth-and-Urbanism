@@ -16,7 +16,15 @@ from app.database import Base
 
 
 class InstructorProfile(Base):
-    """Extended profile for instructors with public page and portfolio support"""
+    """
+    Extended profile for an instructor, linked one-to-one with a User record.
+
+    Stores professional information (specializations, qualifications,
+    experience, subjects, languages, teaching style), public profile
+    settings (slug, SEO meta, portfolio items), AI personality configuration,
+    availability and booking rules, social links, and onboarding progress.
+    The public profile page uses the public_slug as its URL path.
+    """
 
     __tablename__ = "instructor_profiles"
 

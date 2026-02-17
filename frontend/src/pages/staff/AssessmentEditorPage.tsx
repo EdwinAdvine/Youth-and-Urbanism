@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ChevronRight,
@@ -16,7 +16,15 @@ import {
   ToggleLeft,
   ToggleRight,
   FileText,
+  Loader2,
+  AlertCircle,
 } from 'lucide-react';
+import {
+  getAssessment,
+  updateAssessment,
+  addQuestion,
+  deleteQuestion as deleteQuestionApi,
+} from '@/services/staff/staffAssessmentService';
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -36,6 +44,12 @@ interface Question {
   adaptive_paths: AdaptivePath[];
 }
 
+interface RubricEntry {
+  criterion: string;
+  description: string;
+  max_score: number;
+}
+
 interface Assessment {
   id: string;
   title: string;
@@ -50,40 +64,10 @@ interface Assessment {
   shuffle_questions: boolean;
   show_feedback: boolean;
   questions: Question[];
+  rubric: RubricEntry[];
   created_at: string;
   updated_at: string;
 }
-
-/* ------------------------------------------------------------------ */
-/* Mock data                                                           */
-/* ------------------------------------------------------------------ */
-
-const MOCK_ASSESSMENT: Assessment = {
-  id: 'ASM-001',
-  title: 'Grade 4 Mathematics - Fractions & Decimals',
-  type: 'quiz',
-  status: 'draft',
-  subject: 'Mathematics',
-  grade_level: 'Grade 4',
-  time_limit_minutes: 45,
-  passing_score: 60,
-  adaptive_enabled: true,
-  ai_grading_enabled: true,
-  shuffle_questions: false,
-  show_feedback: true,
-  questions: [
-    { id: 'Q-001', text: 'What is 1/4 + 1/2? Express your answer as a fraction.', type: 'short_answer', difficulty: 2, points: 5, adaptive_paths: [{ condition: 'correct', next_question_id: 'Q-003' }, { condition: 'incorrect', next_question_id: 'Q-002' }] },
-    { id: 'Q-002', text: 'Which of the following fractions is equivalent to 1/2?', type: 'multiple_choice', difficulty: 1, points: 3, adaptive_paths: [] },
-    { id: 'Q-003', text: 'Convert 0.75 to a fraction in its simplest form.', type: 'short_answer', difficulty: 3, points: 5, adaptive_paths: [{ condition: 'correct', next_question_id: 'Q-005' }] },
-    { id: 'Q-004', text: 'True or False: 3/4 is greater than 0.8', type: 'true_false', difficulty: 2, points: 2, adaptive_paths: [] },
-    { id: 'Q-005', text: 'Explain why 1/3 cannot be expressed exactly as a decimal. Use mathematical reasoning.', type: 'essay', difficulty: 4, points: 10, adaptive_paths: [] },
-    { id: 'Q-006', text: 'Match each fraction with its decimal equivalent.', type: 'matching', difficulty: 3, points: 8, adaptive_paths: [] },
-    { id: 'Q-007', text: 'A farmer has 3/5 of an acre. He plants maize on 2/3 of that land. What fraction of the total acre is planted with maize?', type: 'short_answer', difficulty: 4, points: 8, adaptive_paths: [] },
-    { id: 'Q-008', text: 'Arrange the following in ascending order: 0.5, 1/3, 0.25, 3/8', type: 'short_answer', difficulty: 3, points: 5, adaptive_paths: [] },
-  ],
-  created_at: '2025-01-10T08:00:00Z',
-  updated_at: '2025-01-15T14:30:00Z',
-};
 
 /* ------------------------------------------------------------------ */
 /* Helpers                                                             */
@@ -105,14 +89,70 @@ const statusColors: Record<string, string> = {
 
 const difficultyLabels = ['', 'Easy', 'Medium', 'Hard', 'Advanced', 'Expert'];
 
+// Map API question types to local display types
+const mapQuestionTypeFromApi = (apiType: string): Question['type'] => {
+  const mapping: Record<string, Question['type']> = {
+    mcq: 'multiple_choice',
+    short_answer: 'short_answer',
+    essay: 'essay',
+    matching: 'matching',
+    fill_blank: 'short_answer',
+    ordering: 'matching',
+  };
+  return mapping[apiType] || 'short_answer';
+};
+
+const mapQuestionTypeToApi = (localType: Question['type']): string => {
+  const mapping: Record<string, string> = {
+    multiple_choice: 'mcq',
+    short_answer: 'short_answer',
+    essay: 'essay',
+    matching: 'matching',
+    true_false: 'mcq',
+  };
+  return mapping[localType] || 'short_answer';
+};
+
+const mapAssessmentTypeFromApi = (apiType: string): Assessment['type'] => {
+  const mapping: Record<string, Assessment['type']> = {
+    quiz: 'quiz',
+    exam: 'exam',
+    formative: 'assignment',
+    diagnostic: 'practice',
+  };
+  return mapping[apiType] || 'quiz';
+};
+
 /* ------------------------------------------------------------------ */
 /* Component                                                           */
 /* ------------------------------------------------------------------ */
 
 const AssessmentEditorPage: React.FC = () => {
   const { assessmentId } = useParams<{ assessmentId: string }>();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [assessment, setAssessment] = useState<Assessment>(MOCK_ASSESSMENT);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [activating, setActivating] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [assessment, setAssessment] = useState<Assessment>({
+    id: '',
+    title: '',
+    type: 'quiz',
+    status: 'draft',
+    subject: '',
+    grade_level: '',
+    time_limit_minutes: 45,
+    passing_score: 60,
+    adaptive_enabled: false,
+    ai_grading_enabled: false,
+    shuffle_questions: false,
+    show_feedback: true,
+    questions: [],
+    rubric: [],
+    created_at: '',
+    updated_at: '',
+  });
   const [showAddForm, setShowAddForm] = useState(false);
   const [expandedQuestion, setExpandedQuestion] = useState<string | null>(null);
   const [newQuestion, setNewQuestion] = useState({
@@ -122,10 +162,57 @@ const AssessmentEditorPage: React.FC = () => {
     points: 5,
   });
 
+  const fetchAssessment = useCallback(async () => {
+    if (!assessmentId) {
+      setLoading(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getAssessment(assessmentId);
+      setAssessment({
+        id: data.id,
+        title: data.title || '',
+        type: mapAssessmentTypeFromApi(data.assessment_type),
+        status: data.status,
+        subject: data.learning_area || '',
+        grade_level: data.grade_level || '',
+        time_limit_minutes: data.time_limit_minutes || 45,
+        passing_score: data.adaptive_config?.step_up_threshold || 60,
+        adaptive_enabled: data.adaptive_config?.initial_difficulty > 0,
+        ai_grading_enabled: data.is_ai_graded,
+        shuffle_questions: false,
+        show_feedback: true,
+        questions: [],
+        rubric: data.rubric
+          ? Object.entries(data.rubric).map(([key, val]) => ({
+              criterion: key,
+              description: String(val || ''),
+              max_score: 10,
+            }))
+          : [],
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load assessment');
+    } finally {
+      setLoading(false);
+    }
+  }, [assessmentId]);
+
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(timer);
-  }, []);
+    fetchAssessment();
+  }, [fetchAssessment]);
+
+  // Clear save messages after 3 seconds
+  useEffect(() => {
+    if (saveMessage) {
+      const timer = setTimeout(() => setSaveMessage(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [saveMessage]);
 
   const handleTitleChange = (title: string) => {
     setAssessment({ ...assessment, title });
@@ -135,25 +222,126 @@ const AssessmentEditorPage: React.FC = () => {
     setAssessment({ ...assessment, type });
   };
 
-  const handleAddQuestion = () => {
+  const handleAddQuestion = async () => {
     if (!newQuestion.text.trim()) return;
-    const q: Question = {
-      id: `Q-${String(assessment.questions.length + 1).padStart(3, '0')}`,
-      text: newQuestion.text,
-      type: newQuestion.type,
-      difficulty: newQuestion.difficulty,
-      points: newQuestion.points,
-      adaptive_paths: [],
-    };
-    setAssessment({ ...assessment, questions: [...assessment.questions, q] });
+    if (assessmentId) {
+      try {
+        const created = await addQuestion(assessmentId, {
+          question_text: newQuestion.text,
+          question_type: mapQuestionTypeToApi(newQuestion.type) as 'mcq' | 'short_answer' | 'essay' | 'fill_blank' | 'matching' | 'ordering',
+          difficulty: newQuestion.difficulty as 1 | 2 | 3 | 4 | 5,
+          points: newQuestion.points,
+        });
+        const q: Question = {
+          id: created.id,
+          text: created.question_text,
+          type: mapQuestionTypeFromApi(created.question_type),
+          difficulty: created.difficulty,
+          points: created.points,
+          adaptive_paths: [],
+        };
+        setAssessment({ ...assessment, questions: [...assessment.questions, q] });
+      } catch (err) {
+        setSaveMessage(`Failed to add question: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      }
+    } else {
+      const q: Question = {
+        id: `Q-${String(assessment.questions.length + 1).padStart(3, '0')}`,
+        text: newQuestion.text,
+        type: newQuestion.type,
+        difficulty: newQuestion.difficulty,
+        points: newQuestion.points,
+        adaptive_paths: [],
+      };
+      setAssessment({ ...assessment, questions: [...assessment.questions, q] });
+    }
     setNewQuestion({ text: '', type: 'multiple_choice', difficulty: 2, points: 5 });
     setShowAddForm(false);
   };
 
-  const handleDeleteQuestion = (questionId: string) => {
+  const handleDeleteQuestion = async (questionId: string) => {
+    if (assessmentId) {
+      try {
+        await deleteQuestionApi(questionId);
+      } catch (err) {
+        setSaveMessage(`Failed to delete question: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        return;
+      }
+    }
     setAssessment({
       ...assessment,
       questions: assessment.questions.filter((q) => q.id !== questionId),
+    });
+  };
+
+  const handleCopyQuestion = (question: Question) => {
+    const copiedQuestion: Question = {
+      ...question,
+      id: `Q-COPY-${Date.now()}`,
+      text: `${question.text} (copy)`,
+      adaptive_paths: [...question.adaptive_paths],
+    };
+    const index = assessment.questions.findIndex((q) => q.id === question.id);
+    const newQuestions = [...assessment.questions];
+    newQuestions.splice(index + 1, 0, copiedQuestion);
+    setAssessment({ ...assessment, questions: newQuestions });
+  };
+
+  const handleSaveDraft = async () => {
+    if (!assessmentId) return;
+    try {
+      setSaving(true);
+      await updateAssessment(assessmentId, {
+        title: assessment.title,
+        time_limit_minutes: assessment.time_limit_minutes,
+        is_ai_graded: assessment.ai_grading_enabled,
+        status: 'draft',
+        rubric: assessment.rubric.length > 0
+          ? Object.fromEntries(assessment.rubric.map((r) => [r.criterion, r.description]))
+          : undefined,
+      });
+      setSaveMessage('Draft saved successfully');
+    } catch (err) {
+      setSaveMessage(`Failed to save: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleActivate = async () => {
+    if (!assessmentId) return;
+    try {
+      setActivating(true);
+      await updateAssessment(assessmentId, { status: 'active' });
+      setAssessment({ ...assessment, status: 'active' });
+      setSaveMessage('Assessment activated');
+    } catch (err) {
+      setSaveMessage(`Failed to activate: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setActivating(false);
+    }
+  };
+
+  const handleAddRubric = () => {
+    setAssessment({
+      ...assessment,
+      rubric: [
+        ...assessment.rubric,
+        { criterion: '', description: '', max_score: 10 },
+      ],
+    });
+  };
+
+  const handleUpdateRubric = (index: number, field: keyof RubricEntry, value: string | number) => {
+    const updatedRubric = [...assessment.rubric];
+    updatedRubric[index] = { ...updatedRubric[index], [field]: value };
+    setAssessment({ ...assessment, rubric: updatedRubric });
+  };
+
+  const handleRemoveRubric = (index: number) => {
+    setAssessment({
+      ...assessment,
+      rubric: assessment.rubric.filter((_, i) => i !== index),
     });
   };
 
@@ -184,6 +372,23 @@ const AssessmentEditorPage: React.FC = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+          <p className="text-gray-400 dark:text-white/40 text-sm mb-4">{error}</p>
+          <button
+            onClick={fetchAssessment}
+            className="px-4 py-2 bg-[#E40000]/20 text-[#FF4444] rounded-lg hover:bg-[#E40000]/30 text-sm"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       className="space-y-6"
@@ -191,9 +396,21 @@ const AssessmentEditorPage: React.FC = () => {
       initial="hidden"
       animate="visible"
     >
+      {/* Save status message */}
+      {saveMessage && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-2 rounded-lg text-sm ${saveMessage.includes('Failed') ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
+          {saveMessage}
+        </div>
+      )}
+
       {/* Breadcrumb */}
       <motion.div variants={itemVariants} className="flex items-center gap-2 text-sm text-gray-400 dark:text-white/40">
-        <span className="hover:text-gray-500 dark:hover:text-white/60 cursor-pointer transition-colors">Assessment Builder</span>
+        <span
+          onClick={() => navigate('/dashboard/staff/learning/assessments')}
+          className="hover:text-gray-500 dark:hover:text-white/60 cursor-pointer transition-colors"
+        >
+          Assessment Builder
+        </span>
         <ChevronRight className="w-4 h-4" />
         <span className="text-gray-900 dark:text-white">Edit Assessment</span>
         {assessmentId && (
@@ -288,7 +505,11 @@ const AssessmentEditorPage: React.FC = () => {
                       <ChevronDown className="w-4 h-4" />
                     )}
                   </button>
-                  <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-400 dark:text-white/30 hover:text-gray-500 dark:hover:text-white/60 transition-colors">
+                  <button
+                    onClick={() => handleCopyQuestion(question)}
+                    className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-400 dark:text-white/30 hover:text-gray-500 dark:hover:text-white/60 transition-colors"
+                    title="Duplicate question"
+                  >
                     <Copy className="w-4 h-4" />
                   </button>
                   <button
@@ -476,26 +697,75 @@ const AssessmentEditorPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Rubric placeholder */}
+          {/* Rubric */}
           <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4">
             <div className="flex items-center gap-2 mb-3">
               <FileText className="w-4 h-4 text-gray-500 dark:text-white/50" />
               <h3 className="text-sm font-medium text-gray-900 dark:text-white">Rubric</h3>
             </div>
-            <p className="text-xs text-gray-400 dark:text-white/30">No rubric attached. Click below to create or upload one.</p>
-            <button className="mt-2 text-xs text-[#E40000] hover:text-[#E40000]/80 transition-colors">
+            {assessment.rubric.length === 0 ? (
+              <p className="text-xs text-gray-400 dark:text-white/30">No rubric attached. Click below to create or upload one.</p>
+            ) : (
+              <div className="space-y-2 mb-2">
+                {assessment.rubric.map((entry, index) => (
+                  <div key={index} className="p-2 bg-gray-100 dark:bg-[#22272B]/50 rounded-lg space-y-1">
+                    <input
+                      type="text"
+                      value={entry.criterion}
+                      onChange={(e) => handleUpdateRubric(index, 'criterion', e.target.value)}
+                      placeholder="Criterion name"
+                      className="w-full px-2 py-1 bg-transparent text-xs text-gray-900 dark:text-white border-b border-transparent focus:border-[#E40000]/50 focus:outline-none placeholder-white/30"
+                    />
+                    <input
+                      type="text"
+                      value={entry.description}
+                      onChange={(e) => handleUpdateRubric(index, 'description', e.target.value)}
+                      placeholder="Description"
+                      className="w-full px-2 py-1 bg-transparent text-[10px] text-gray-500 dark:text-white/60 border-b border-transparent focus:border-[#E40000]/50 focus:outline-none placeholder-white/30"
+                    />
+                    <div className="flex items-center justify-between">
+                      <input
+                        type="number"
+                        value={entry.max_score}
+                        onChange={(e) => handleUpdateRubric(index, 'max_score', Number(e.target.value))}
+                        className="w-16 px-2 py-0.5 bg-transparent text-[10px] text-gray-400 dark:text-white/40 border border-gray-300 dark:border-[#333] rounded focus:outline-none"
+                        min={1}
+                      />
+                      <button
+                        onClick={() => handleRemoveRubric(index)}
+                        className="text-[10px] text-red-400 hover:text-red-300"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button
+              onClick={handleAddRubric}
+              className="mt-2 text-xs text-[#E40000] hover:text-[#E40000]/80 transition-colors"
+            >
               + Add Rubric
             </button>
           </div>
 
           {/* Action Buttons */}
           <div className="space-y-2">
-            <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm hover:border-gray-300 dark:hover:border-[#444] transition-colors">
-              <Save className="w-4 h-4" />
+            <button
+              onClick={handleSaveDraft}
+              disabled={saving || !assessmentId}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-900 dark:text-white text-sm hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save Draft
             </button>
-            <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#E40000] hover:bg-[#C80000] text-gray-900 dark:text-white text-sm rounded-lg transition-colors">
-              <Zap className="w-4 h-4" />
+            <button
+              onClick={handleActivate}
+              disabled={activating || !assessmentId}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#E40000] hover:bg-[#C80000] text-gray-900 dark:text-white text-sm rounded-lg transition-colors disabled:opacity-50"
+            >
+              {activating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
               Activate
             </button>
           </div>

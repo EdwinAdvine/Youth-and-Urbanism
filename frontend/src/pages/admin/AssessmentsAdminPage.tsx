@@ -105,12 +105,63 @@ const TAB_CONFIG: { key: TabKey; label: string }[] = [
 const AssessmentsAdminPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('overrides');
   const [search, setSearch] = useState('');
+  const [overrides, setOverrides] = useState<GradeOverride[]>(MOCK_OVERRIDES);
+  const [refreshing, setRefreshing] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  const pendingOverrides = MOCK_OVERRIDES.filter((o) => o.status === 'pending');
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  /* -- Button handlers ------------------------------------------------- */
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+      showToast('Data refreshed successfully');
+    }, 1200);
+  };
+
+  const handleViewOverride = (ov: GradeOverride) => {
+    alert(
+      `Grade Override Details\n\nStudent: ${ov.student_name} (${ov.student_id})\nCourse: ${ov.course}\nAssessment: ${ov.assessment_title}\nOriginal Grade: ${ov.original_grade}\nRequested Grade: ${ov.requested_grade}\nReason: ${ov.reason}\nRequested By: ${ov.requested_by}\nDate: ${ov.requested_at}\nStatus: ${ov.status}`
+    );
+  };
+
+  const handleApproveOverride = (overrideId: string) => {
+    setOverrides((prev) =>
+      prev.map((o) => (o.id === overrideId ? { ...o, status: 'approved' as OverrideStatus } : o))
+    );
+    showToast('Grade override approved successfully');
+  };
+
+  const handleRejectOverride = (overrideId: string) => {
+    if (!confirm('Are you sure you want to reject this grade override request?')) return;
+    setOverrides((prev) =>
+      prev.map((o) => (o.id === overrideId ? { ...o, status: 'rejected' as OverrideStatus } : o))
+    );
+    showToast('Grade override rejected');
+  };
+
+  const handleViewRubric = (rubric: RubricTemplate) => {
+    alert(
+      `Rubric Template Details\n\nName: ${rubric.name}\nAssessment Type: ${rubric.assessment_type}\nCriteria Count: ${rubric.criteria_count}\nGrade Levels: ${rubric.grade_levels}\nLast Updated: ${rubric.last_updated}\nUsage Count: ${rubric.usage_count}`
+    );
+  };
+
+  const handleMoreRubric = () => {
+    alert('More options coming soon');
+  };
+
+  /* ------------------------------------------------------------------- */
+
+  const pendingOverrides = overrides.filter((o) => o.status === 'pending');
   const totalAssessments = 1847; // Mock total
-  const totalOverrides = MOCK_OVERRIDES.length;
+  const totalOverrides = overrides.length;
 
-  const filteredOverrides = MOCK_OVERRIDES.filter((o) => {
+  const filteredOverrides = overrides.filter((o) => {
     if (!search) return true;
     const q = search.toLowerCase();
     return (
@@ -153,9 +204,13 @@ const AssessmentsAdminPage: React.FC = () => {
             { label: 'Assessments' },
           ]}
           actions={
-            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors">
-              <RefreshCw className="w-4 h-4" />
-              Refresh
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+              {refreshing ? 'Refreshing...' : 'Refresh'}
             </button>
           }
         />
@@ -295,6 +350,7 @@ const AssessmentsAdminPage: React.FC = () => {
                           <div className="flex items-center justify-end gap-1">
                             <button
                               title="View Details"
+                              onClick={() => handleViewOverride(ov)}
                               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                             >
                               <Eye className="w-4 h-4" />
@@ -303,12 +359,14 @@ const AssessmentsAdminPage: React.FC = () => {
                               <>
                                 <button
                                   title="Approve"
+                                  onClick={() => handleApproveOverride(ov.id)}
                                   className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-gray-500 dark:text-white/50 hover:text-emerald-400 transition-colors"
                                 >
                                   <CheckCircle className="w-4 h-4" />
                                 </button>
                                 <button
                                   title="Reject"
+                                  onClick={() => handleRejectOverride(ov.id)}
                                   className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 dark:text-white/50 hover:text-red-400 transition-colors"
                                 >
                                   <XCircle className="w-4 h-4" />
@@ -382,12 +440,14 @@ const AssessmentsAdminPage: React.FC = () => {
                           <div className="flex items-center justify-end gap-1">
                             <button
                               title="View"
+                              onClick={() => handleViewRubric(rubric)}
                               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                             >
                               <Eye className="w-4 h-4" />
                             </button>
                             <button
                               title="More"
+                              onClick={handleMoreRubric}
                               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                             >
                               <MoreHorizontal className="w-4 h-4" />
@@ -411,6 +471,17 @@ const AssessmentsAdminPage: React.FC = () => {
           </motion.div>
         )}
       </motion.div>
+
+      {/* Toast notification */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
+            toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+          }`}>
+            <p className="text-sm font-medium">{toast.message}</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };

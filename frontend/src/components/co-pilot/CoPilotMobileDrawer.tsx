@@ -1,19 +1,14 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCoPilotStore, useThemeStore } from '../../store';
-import { 
-  Bot, 
-  X, 
-  Plus, 
-  BookOpen, 
-  Star, 
-  MessageCircle, 
-  Brain, 
-  Sparkles, 
-  Wifi, 
-  WifiOff,
-  Sun,
-  Moon
+import {
+  Bot,
+  X,
+  BookOpen,
+  Star,
+  MessageCircle,
+  Brain,
+  Sparkles
 } from 'lucide-react';
 
 interface CoPilotMobileDrawerProps {
@@ -36,7 +31,7 @@ const CoPilotMobileDrawer: React.FC<CoPilotMobileDrawerProps> = ({ isOpen, onClo
 
   const currentConfig = roleConfig[activeRole];
 
-  const handleQuickAction = (action: string) => {
+  const handleQuickAction = (_action: string) => {
     onClose();
   };
 

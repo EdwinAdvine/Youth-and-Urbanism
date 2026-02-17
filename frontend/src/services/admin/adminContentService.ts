@@ -5,45 +5,9 @@
  * assessment overrides, certificates, and resource library.
  */
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const BASE = `${API_URL}/api/v1/admin/content`;
+import apiClient from '../api';
 
-function getAuthHeaders(): Record<string, string> {
-  let jwt = '';
-  const stored = localStorage.getItem('auth-store');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      jwt = parsed?.state?.token || parsed?.token || '';
-    } catch {
-      jwt = stored;
-    }
-  }
-  return {
-    Authorization: `Bearer ${jwt}`,
-    'Content-Type': 'application/json',
-  };
-}
-
-async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(url, {
-    headers: getAuthHeaders(),
-    ...options,
-  });
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status} ${response.statusText}`);
-  }
-  const json = await response.json();
-  return json.data ?? json;
-}
-
-function buildQuery(params: Record<string, string | number | undefined>): string {
-  const qs = Object.entries(params)
-    .filter(([, v]) => v !== undefined && v !== '' && v !== null)
-    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
-    .join('&');
-  return qs ? `?${qs}` : '';
-}
+const BASE = `/api/v1/admin/content`;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -207,50 +171,49 @@ export interface ResourceListParams {
 // ---------------------------------------------------------------------------
 
 const adminContentService = {
-  listCourses: (params: CourseListParams = {}): Promise<CourseListResponse> =>
-    fetchJson<CourseListResponse>(
-      `${BASE}/courses${buildQuery({
-        page: params.page,
-        page_size: params.page_size,
-        status: params.status,
-        search: params.search,
-      })}`,
-    ),
+  listCourses: async (params: CourseListParams = {}): Promise<CourseListResponse> => {
+    const r = await apiClient.get(`${BASE}/courses`, { params });
+    return r.data.data ?? r.data;
+  },
 
-  approveCourse: (courseId: string): Promise<{ success: boolean; course_id: string }> =>
-    fetchJson(`${BASE}/courses/${courseId}/approve`, { method: 'PUT' }),
+  approveCourse: async (courseId: string): Promise<{ success: boolean; course_id: string }> => {
+    const r = await apiClient.put(`${BASE}/courses/${courseId}/approve`);
+    return r.data.data ?? r.data;
+  },
 
-  rejectCourse: (courseId: string, reason: string): Promise<{ success: boolean }> =>
-    fetchJson(`${BASE}/courses/${courseId}/reject`, {
-      method: 'PUT',
-      body: JSON.stringify({ reason }),
-    }),
+  rejectCourse: async (courseId: string, reason: string): Promise<{ success: boolean }> => {
+    const r = await apiClient.put(`${BASE}/courses/${courseId}/reject`, { reason });
+    return r.data.data ?? r.data;
+  },
 
-  getCourseVersions: (courseId: string): Promise<CourseVersion[]> =>
-    fetchJson<CourseVersion[]>(`${BASE}/courses/${courseId}/versions`),
+  getCourseVersions: async (courseId: string): Promise<CourseVersion[]> => {
+    const r = await apiClient.get(`${BASE}/courses/${courseId}/versions`);
+    return r.data.data ?? r.data;
+  },
 
-  getCBCAlignment: (): Promise<CBCAlignmentData> =>
-    fetchJson<CBCAlignmentData>(`${BASE}/cbc-alignment`),
+  getCBCAlignment: async (): Promise<CBCAlignmentData> => {
+    const r = await apiClient.get(`${BASE}/cbc-alignment`);
+    return r.data.data ?? r.data;
+  },
 
-  getAssessmentOverrides: (page = 1, pageSize = 10): Promise<GradeOverrideListResponse> =>
-    fetchJson<GradeOverrideListResponse>(
-      `${BASE}/assessments/overrides?page=${page}&page_size=${pageSize}`,
-    ),
+  getAssessmentOverrides: async (page = 1, pageSize = 10): Promise<GradeOverrideListResponse> => {
+    const r = await apiClient.get(`${BASE}/assessments/overrides`, {
+      params: { page, page_size: pageSize },
+    });
+    return r.data.data ?? r.data;
+  },
 
-  getCertificatesLog: (page = 1, pageSize = 10): Promise<CertificateListResponse> =>
-    fetchJson<CertificateListResponse>(
-      `${BASE}/certificates?page=${page}&page_size=${pageSize}`,
-    ),
+  getCertificatesLog: async (page = 1, pageSize = 10): Promise<CertificateListResponse> => {
+    const r = await apiClient.get(`${BASE}/certificates`, {
+      params: { page, page_size: pageSize },
+    });
+    return r.data.data ?? r.data;
+  },
 
-  listResources: (params: ResourceListParams = {}): Promise<ResourceListResponse> =>
-    fetchJson<ResourceListResponse>(
-      `${BASE}/resources${buildQuery({
-        page: params.page,
-        page_size: params.page_size,
-        category: params.category,
-        status: params.status,
-      })}`,
-    ),
+  listResources: async (params: ResourceListParams = {}): Promise<ResourceListResponse> => {
+    const r = await apiClient.get(`${BASE}/resources`, { params });
+    return r.data.data ?? r.data;
+  },
 };
 
 export default adminContentService;

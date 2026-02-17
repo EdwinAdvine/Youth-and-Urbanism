@@ -1,3 +1,5 @@
+// ContactPage - Public page at /contact. Provides a contact form, office location,
+// phone, email, and business hours for reaching Urban Home School support.
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {

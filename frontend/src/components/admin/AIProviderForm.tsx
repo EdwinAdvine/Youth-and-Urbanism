@@ -60,7 +60,7 @@ export default function AIProviderForm({
         provider_type: provider.provider_type || '',
         api_endpoint: provider.api_endpoint || '',
         api_key: '', // Don't pre-fill API key for security
-        specialization: provider.specialization || '',
+        specialization: (provider.specialization as FormData['specialization']) || '',
         cost_per_request: provider.cost_per_request?.toString() || '',
         is_recommended: provider.is_recommended || false,
         configuration: provider.configuration ? JSON.stringify(provider.configuration, null, 2) : '',

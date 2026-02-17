@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useStudentStore } from '../../../store/studentStore';
 import { useAgeAdaptiveUI } from '../../../hooks/useAgeAdaptiveUI';
-import { Smile, Meh, Frown, Coffee, Zap, X } from 'lucide-react';
+import { submitMoodCheckIn } from '../../../services/student/studentDashboardService';
+import { Smile, Meh, Frown, Coffee, Zap, X, Loader2, AlertCircle } from 'lucide-react';
 import type { MoodType } from '../../../types/student';
 
 interface MoodCheckInModalProps {
@@ -21,21 +22,39 @@ const MoodCheckInModal: React.FC<MoodCheckInModalProps> = ({ isOpen, onClose }) 
   const { setCurrentMood } = useStudentStore();
   const { borderRadius } = useAgeAdaptiveUI();
   const [selectedMood, setSelectedMood] = useState<MoodType | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
-  const handleSubmit = () => {
-    if (selectedMood) {
+  const handleSubmit = async () => {
+    if (!selectedMood) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await submitMoodCheckIn({
+        mood_type: selectedMood,
+        energy_level: 3,
+      });
+
+      // After successful API call, update Zustand store
       setCurrentMood({
-        id: Date.now().toString(),
+        id: response.id || Date.now().toString(),
         studentId: 'current-student',
         moodType: selectedMood,
-        energyLevel: 3,
-        note: '',
-        timestamp: new Date()
+        energyLevel: response.energy_level || 3,
+        note: response.note || '',
+        timestamp: response.timestamp ? new Date(response.timestamp) : new Date(),
       });
       localStorage.setItem('last_mood_checkin', new Date().toDateString());
       onClose();
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.detail || err?.message || 'Failed to save mood. Please try again.';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -53,9 +72,10 @@ const MoodCheckInModal: React.FC<MoodCheckInModalProps> = ({ isOpen, onClose }) 
             <button
               key={mood.type}
               onClick={() => setSelectedMood(mood.type)}
+              disabled={loading}
               className={`p-4 bg-gradient-to-br ${mood.color} ${borderRadius} border-2 ${
                 selectedMood === mood.type ? 'border-white' : 'border-transparent'
-              } hover:scale-105 transition-transform`}
+              } hover:scale-105 transition-transform disabled:opacity-70`}
             >
               <div className="flex flex-col items-center gap-2 text-gray-900 dark:text-white">
                 {mood.icon}
@@ -64,12 +84,20 @@ const MoodCheckInModal: React.FC<MoodCheckInModalProps> = ({ isOpen, onClose }) 
             </button>
           ))}
         </div>
+
+        {error && (
+          <div className={`mb-4 p-3 bg-red-500/10 border border-red-500/20 ${borderRadius} flex items-center gap-2 text-red-400 text-sm`}>
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
         <button
           onClick={handleSubmit}
-          disabled={!selectedMood}
-          className={`w-full py-2.5 bg-[#FF0000] hover:bg-[#FF0000]/80 disabled:bg-gray-100 dark:disabled:bg-white/10 disabled:text-gray-400 dark:disabled:text-white/30 text-gray-900 dark:text-white font-medium ${borderRadius}`}
+          disabled={!selectedMood || loading}
+          className={`w-full py-2.5 bg-[#FF0000] hover:bg-[#FF0000]/80 disabled:bg-gray-100 dark:disabled:bg-white/10 disabled:text-gray-400 dark:disabled:text-white/30 text-gray-900 dark:text-white font-medium ${borderRadius} flex items-center justify-center gap-2`}
         >
-          Save & Continue
+          {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : 'Save & Continue'}
         </button>
       </div>
     </div>

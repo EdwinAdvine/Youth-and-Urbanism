@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useCoPilotStore, useUserStore } from '../../store';
-import CoPilotMobileDrawer from './CoPilotMobileDrawer';
+import { useCoPilotStore } from '../../store';
 import AgentProfileSettings from './AgentProfileSettings';
 import {
   Bot,
-  ChevronRight,
-  ChevronLeft,
   Plus,
   Settings,
   User,
@@ -16,17 +13,9 @@ import {
   BookOpen,
   Play,
   Star,
-  Clock,
   X,
-  Wifi,
   WifiOff,
   Eye,
-  EyeOff,
-  Sun,
-  Moon,
-  Send,
-  Mic,
-  Paperclip,
   Trash2,
   Sliders
 } from 'lucide-react';
@@ -38,8 +27,7 @@ interface CoPilotSidebarProps {
   onOpenAuthModal?: () => void;
 }
 
-const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal }) => {
-  const [isHovered, setIsHovered] = useState(false);
+const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpenAuthModal }) => {
   const [showOfflineMessage, setShowOfflineMessage] = useState(false);
   const [showAgentSettings, setShowAgentSettings] = useState(false);
   
@@ -64,9 +52,6 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal }) => {
     resetToNormalMode,
     clearChatMessages
   } = useCoPilotStore();
-  
-  const { preferences } = useUserStore();
-  
 
   // Handle online/offline status
   useEffect(() => {
@@ -166,10 +151,6 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal }) => {
   const handleDeleteSession = (sessionId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     deleteSession(sessionId);
-  };
-
-  const handleRoleChange = (role: any) => {
-    setActiveRole(role);
   };
 
   const handleCloseSidebar = () => {

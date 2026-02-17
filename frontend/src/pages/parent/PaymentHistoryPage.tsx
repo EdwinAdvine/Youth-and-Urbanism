@@ -179,7 +179,11 @@ const PaymentHistoryPage: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-center">
                         {payment.receipt_number ? (
-                          <button className="text-[#E40000] hover:text-[#FF0000] transition-colors">
+                          <button
+                            onClick={() => window.open(`/api/v1/parent/finance/receipts/${payment.receipt_number}`, '_blank')}
+                            className="text-[#E40000] hover:text-[#FF0000] transition-colors"
+                            title={`Download receipt ${payment.receipt_number}`}
+                          >
                             <Download className="w-4 h-4" />
                           </button>
                         ) : (

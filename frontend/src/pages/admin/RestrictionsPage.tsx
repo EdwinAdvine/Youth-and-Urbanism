@@ -318,6 +318,7 @@ const RestrictionsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('active');
   const [restrictions, setRestrictions] = useState(mockRestrictions);
   const [appeals, setAppeals] = useState(mockAppeals);
+  const [watchList, setWatchList] = useState(mockWatchList);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<RestrictionType | ''>('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -354,6 +355,32 @@ const RestrictionsPage: React.FC = () => {
       prev.map((a) => (a.id === id ? { ...a, status: 'denied' as const, reviewed_by: 'Admin' } : a))
     );
     showToast('Appeal denied', 'success');
+  };
+
+  const handleRestrictFromWatchList = (entry: WatchListEntry) => {
+    const newRestriction: Restriction = {
+      id: `rst_auto_${Date.now()}`,
+      user_name: entry.user_name,
+      user_email: entry.user_email,
+      user_role: entry.user_role,
+      type: entry.risk_level === 'high' ? 'suspension' : 'warning',
+      reason: entry.reason,
+      details: `Escalated from watch list. Flags: ${entry.flags.join(', ')}`,
+      issued_by: 'Admin',
+      issued_at: new Date(),
+      expires_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+      is_active: true,
+    };
+    setRestrictions((prev) => [newRestriction, ...prev]);
+    setWatchList((prev) => prev.filter((w) => w.id !== entry.id));
+    showToast(`Restriction issued for ${entry.user_name}`, 'success');
+  };
+
+  const handleRemoveFromWatchList = (id: string) => {
+    if (!confirm('Are you sure you want to remove this user from the watch list?')) return;
+    const entry = watchList.find((w) => w.id === id);
+    setWatchList((prev) => prev.filter((w) => w.id !== id));
+    showToast(`${entry?.user_name ?? 'User'} removed from watch list`, 'success');
   };
 
   const activeRestrictions = restrictions.filter((r) => r.is_active);
@@ -405,9 +432,9 @@ const RestrictionsPage: React.FC = () => {
               <span className="text-gray-500 dark:text-white/60 text-sm">Watch List</span>
               <Eye className="w-5 h-5 text-yellow-400" />
             </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{mockWatchList.length}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{watchList.length}</p>
             <p className="text-xs text-gray-400 dark:text-white/40 mt-1">
-              {mockWatchList.filter((w) => w.risk_level === 'high').length} high risk
+              {watchList.filter((w) => w.risk_level === 'high').length} high risk
             </p>
           </div>
           <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
@@ -426,7 +453,7 @@ const RestrictionsPage: React.FC = () => {
         <div className="flex items-center gap-2 overflow-x-auto pb-2">
           <TabButton tab="active" activeTab={activeTab} label="Active Restrictions" icon={<ShieldBan className="w-4 h-4" />} count={activeRestrictions.length} onClick={setActiveTab} />
           <TabButton tab="appeals" activeTab={activeTab} label="Appeals Queue" icon={<AlertTriangle className="w-4 h-4" />} count={pendingAppeals.length} onClick={setActiveTab} />
-          <TabButton tab="watchlist" activeTab={activeTab} label="Watch List" icon={<Eye className="w-4 h-4" />} count={mockWatchList.length} onClick={setActiveTab} />
+          <TabButton tab="watchlist" activeTab={activeTab} label="Watch List" icon={<Eye className="w-4 h-4" />} count={watchList.length} onClick={setActiveTab} />
         </div>
 
         {/* Tab Content */}
@@ -637,14 +664,14 @@ const RestrictionsPage: React.FC = () => {
           {/* Watch List Tab */}
           {activeTab === 'watchlist' && (
             <div className="space-y-3">
-              {mockWatchList.length === 0 ? (
+              {watchList.length === 0 ? (
                 <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl text-center py-16">
                   <Eye className="w-16 h-16 text-white/10 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Watch List Empty</h3>
                   <p className="text-gray-400 dark:text-white/40 text-sm">No users are currently being monitored.</p>
                 </div>
               ) : (
-                mockWatchList.map((entry) => {
+                watchList.map((entry) => {
                   const risk = riskLevelConfig[entry.risk_level];
                   return (
                     <motion.div
@@ -694,13 +721,13 @@ const RestrictionsPage: React.FC = () => {
 
                         <div className="flex items-center gap-1 flex-shrink-0">
                           <button
-                            onClick={() => showToast('Restriction issued', 'success')}
+                            onClick={() => handleRestrictFromWatchList(entry)}
                             className="px-3 py-1.5 rounded-lg text-xs bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 transition-colors"
                           >
                             Restrict
                           </button>
                           <button
-                            onClick={() => showToast('Removed from watch list', 'success')}
+                            onClick={() => handleRemoveFromWatchList(entry.id)}
                             className="px-3 py-1.5 rounded-lg text-xs bg-gray-100 dark:bg-[#22272B] text-gray-500 dark:text-white/50 border border-gray-300 dark:border-[#333] hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors"
                           >
                             Remove

@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   FolderDown, CheckSquare, Square, FileText, Award, BookOpen,
-  Loader, CheckCircle, Users,
+  Loader, CheckCircle, Users, Download,
 } from 'lucide-react';
 import { useParentStore } from '../../store/parentStore';
 import { exportPortfolio, getExportStatus } from '../../services/parentReportsService';
@@ -34,6 +34,7 @@ const PortfolioExportPage: React.FC = () => {
   const [exporting, setExporting] = useState(false);
   const [, setExportJobId] = useState<string | null>(null);
   const [exportStatus, setExportStatus] = useState<string | null>(null);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const selectedChild = children.find((c) => c.student_id === selectedChildId);
@@ -69,6 +70,7 @@ const PortfolioExportPage: React.FC = () => {
       const status = await getExportStatus(jobId);
       setExportStatus(status.status);
       if (status.status === 'completed') {
+        setDownloadUrl(status.download_url || null);
         setExporting(false);
       } else if (status.status === 'failed') {
         setError('Export failed. Please try again.');
@@ -152,7 +154,17 @@ const PortfolioExportPage: React.FC = () => {
             <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-6 text-center">
               <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
               <p className="text-gray-900 dark:text-white font-medium mb-1">Export Complete!</p>
-              <p className="text-sm text-gray-500 dark:text-white/60">Your portfolio has been exported successfully.</p>
+              <p className="text-sm text-gray-500 dark:text-white/60 mb-4">Your portfolio has been exported successfully.</p>
+              {downloadUrl && (
+                <a
+                  href={downloadUrl}
+                  download
+                  className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#FF0000] transition-colors font-medium text-sm"
+                >
+                  <Download className="w-4 h-4" />
+                  Download Portfolio
+                </a>
+              )}
             </div>
           </motion.div>
         )}

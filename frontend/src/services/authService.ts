@@ -50,44 +50,32 @@ class AuthService {
   }
 
   async login(credentials: LoginRequest): Promise<{ user: User; tokens: TokenResponse }> {
-    console.log('[Auth] authService.login: POST /api/v1/auth/login');
+    // Login sets httpOnly cookies automatically via Set-Cookie header
     const response = await apiClient.post<TokenResponse>('/api/v1/auth/login', credentials);
     const tokens = response.data;
-    console.log('[Auth] authService.login: got tokens, storing in localStorage');
 
-    // Store tokens in localStorage
-    localStorage.setItem('access_token', tokens.access_token);
-    localStorage.setItem('refresh_token', tokens.refresh_token);
-
-    // Get user info (backend returns flat User object from /auth/me)
-    console.log('[Auth] authService.login: GET /api/v1/auth/me');
+    // Get user info (cookie is sent automatically with withCredentials: true)
     const userResponse = await apiClient.get<User>('/api/v1/auth/me');
     const user = userResponse.data;
-    console.log('[Auth] authService.login: got user:', user);
 
     // Extract full_name from profile_data if not at top level
     if (!user.full_name && user.profile_data?.full_name) {
       user.full_name = user.profile_data.full_name;
     }
 
-    // Store user in localStorage
+    // Store non-sensitive user display data only (NO tokens in localStorage)
     localStorage.setItem('user', JSON.stringify(user));
 
     return { user, tokens };
   }
 
   async logout(): Promise<void> {
-    // Invalidate token on the server (best-effort)
+    // Server call clears httpOnly cookies and blacklists the token
     try {
-      const token = localStorage.getItem('access_token');
-      if (token) {
-        await apiClient.post('/api/v1/auth/logout');
-      }
+      await apiClient.post('/api/v1/auth/logout');
     } catch {
-      // Ignore errors – we still clear local state below
+      // Ignore errors – cookies are cleared server-side
     }
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
   }
 
@@ -100,10 +88,9 @@ class AuthService {
     return user;
   }
 
-  async refreshToken(refreshToken: string): Promise<TokenResponse> {
-    const response = await apiClient.post<TokenResponse>('/api/v1/auth/refresh', {
-      refresh_token: refreshToken
-    });
+  async refreshToken(): Promise<TokenResponse> {
+    // Refresh token is sent via httpOnly cookie automatically
+    const response = await apiClient.post<TokenResponse>('/api/v1/auth/refresh', {});
     return response.data;
   }
 
@@ -117,12 +104,10 @@ class AuthService {
     }
   }
 
-  getAccessToken(): string | null {
-    return localStorage.getItem('access_token');
-  }
-
   isAuthenticated(): boolean {
-    return !!this.getAccessToken();
+    // Check if user data exists in localStorage.
+    // The actual token validity is verified server-side via httpOnly cookie.
+    return !!this.getStoredUser();
   }
 }
 

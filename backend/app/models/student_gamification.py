@@ -1,5 +1,11 @@
 """
-Student Gamification Models - XP, Levels, Badges, Goals
+Student Gamification Models
+
+Models powering the student gamification system: XP (experience points)
+earning events, level progression, achievement badges with rarity tiers,
+learning goals, skill tree nodes, and AI-generated weekly learning reports.
+Together these tables drive the motivational layer that keeps students
+engaged through rewards, visible progress, and friendly competition.
 """
 from sqlalchemy import Column, String, Integer, Float, DateTime, Boolean, Text, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID, JSONB
@@ -11,7 +17,15 @@ from ..database import Base
 
 
 class StudentXPEvent(Base):
-    """XP earning events"""
+    """
+    A single XP (experience points) earning event for a student.
+
+    XP is awarded for completing assignments, quizzes, challenges, maintaining
+    streaks, daily logins, helping peers, and finishing projects. Each event
+    records the source, amount, and an optional multiplier (e.g. 2x for
+    weekend bonus). The student level system aggregates these events to
+    determine the student's current level.
+    """
     __tablename__ = "student_xp_events"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -32,7 +46,14 @@ class StudentXPEvent(Base):
 
 
 class StudentLevel(Base):
-    """Student level and XP tracking"""
+    """
+    A student's current level and cumulative XP total.
+
+    One row per student (unique student_id). Stores the current level number,
+    total XP earned across all events, and the XP threshold needed to reach
+    the next level. The dashboard displays this as a progress bar showing
+    how close the student is to leveling up.
+    """
     __tablename__ = "student_levels"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -53,7 +74,15 @@ class StudentLevel(Base):
 
 
 class StudentBadge(Base):
-    """Student badges and achievements"""
+    """
+    A badge or achievement earned by a student.
+
+    Badges are categorized by type (achievement, milestone, skill, special)
+    and rarity (common, uncommon, rare, epic, legendary). Each badge has a
+    name, description, and icon. The is_shareable flag controls whether the
+    student can display the badge publicly. Additional metadata (criteria,
+    context) is stored in badge_metadata JSONB.
+    """
     __tablename__ = "student_badges"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -77,7 +106,15 @@ class StudentBadge(Base):
 
 
 class StudentGoal(Base):
-    """Student learning goals"""
+    """
+    A learning goal set by or for a student.
+
+    Goals have a title, target value, current progress, unit of measure
+    (lessons, hours, assignments), and optional deadline. Goals can be
+    student-created, AI-suggested, or teacher-assigned. Status transitions:
+    active -> completed/abandoned. The dashboard uses these to show
+    progress rings and send reminder notifications.
+    """
     __tablename__ = "student_goals"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -104,7 +141,14 @@ class StudentGoal(Base):
 
 
 class StudentSkillNode(Base):
-    """Skill tree nodes"""
+    """
+    A node in a student's skill tree representing mastery of a specific topic.
+
+    Each node tracks proficiency (0-100) for a named skill within a subject.
+    Nodes can form a hierarchy via parent_node_id, creating branching skill
+    trees that visualize a student's learning path. The last_practiced
+    timestamp helps the AI recommend skills that need refreshing.
+    """
     __tablename__ = "student_skill_nodes"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -127,7 +171,15 @@ class StudentSkillNode(Base):
 
 
 class StudentWeeklyReport(Base):
-    """AI-generated weekly learning reports"""
+    """
+    An AI-generated weekly summary of a student's learning activity.
+
+    Generated at the end of each week, the report includes a narrative
+    "story" written by the AI, quantitative metrics (lessons completed,
+    average score, time spent), strongest subject, area for improvement,
+    and an optional teacher highlight. Reports can be shared with the
+    student's parent via the shared_with_parent flag.
+    """
     __tablename__ = "student_weekly_reports"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

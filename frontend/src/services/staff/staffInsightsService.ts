@@ -11,26 +11,7 @@ import type {
   ContentPerformanceData,
   SupportMetrics,
 } from '../../types/staff';
-
-const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/staff`;
-
-function getAuthHeaders(): HeadersInit {
-  const token =
-    localStorage.getItem('access_token') ||
-    JSON.parse(localStorage.getItem('auth-store') || '{}')?.state?.token;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
-
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Request failed' }));
-    throw new Error(error.detail || `HTTP ${response.status}`);
-  }
-  return response.json();
-}
+import apiClient from '../api';
 
 // ---------------------------------------------------------------------------
 // API calls
@@ -41,15 +22,15 @@ export async function getPlatformHealth(
   dateFrom?: string,
   dateTo?: string,
 ): Promise<PlatformHealthMetrics> {
-  const qs = new URLSearchParams();
-  if (dateFrom) qs.set('date_from', dateFrom);
-  if (dateTo) qs.set('date_to', dateTo);
+  const params: Record<string, string> = {};
+  if (dateFrom) params.date_from = dateFrom;
+  if (dateTo) params.date_to = dateTo;
 
-  const query = qs.toString();
-  const url = `${API_BASE}/insights/platform-health${query ? `?${query}` : ''}`;
-
-  const response = await fetch(url, { headers: getAuthHeaders() });
-  return handleResponse<PlatformHealthMetrics>(response);
+  const { data } = await apiClient.get<PlatformHealthMetrics>(
+    '/api/v1/staff/insights/platform-health',
+    { params },
+  );
+  return data;
 }
 
 /** Fetch content performance analytics for a given date range. */
@@ -57,15 +38,15 @@ export async function getContentPerformance(
   dateFrom?: string,
   dateTo?: string,
 ): Promise<ContentPerformanceData> {
-  const qs = new URLSearchParams();
-  if (dateFrom) qs.set('date_from', dateFrom);
-  if (dateTo) qs.set('date_to', dateTo);
+  const params: Record<string, string> = {};
+  if (dateFrom) params.date_from = dateFrom;
+  if (dateTo) params.date_to = dateTo;
 
-  const query = qs.toString();
-  const url = `${API_BASE}/insights/content-performance${query ? `?${query}` : ''}`;
-
-  const response = await fetch(url, { headers: getAuthHeaders() });
-  return handleResponse<ContentPerformanceData>(response);
+  const { data } = await apiClient.get<ContentPerformanceData>(
+    '/api/v1/staff/insights/content-performance',
+    { params },
+  );
+  return data;
 }
 
 /** Fetch support effectiveness metrics for a given date range. */
@@ -73,13 +54,13 @@ export async function getSupportMetrics(
   dateFrom?: string,
   dateTo?: string,
 ): Promise<SupportMetrics> {
-  const qs = new URLSearchParams();
-  if (dateFrom) qs.set('date_from', dateFrom);
-  if (dateTo) qs.set('date_to', dateTo);
+  const params: Record<string, string> = {};
+  if (dateFrom) params.date_from = dateFrom;
+  if (dateTo) params.date_to = dateTo;
 
-  const query = qs.toString();
-  const url = `${API_BASE}/insights/support-metrics${query ? `?${query}` : ''}`;
-
-  const response = await fetch(url, { headers: getAuthHeaders() });
-  return handleResponse<SupportMetrics>(response);
+  const { data } = await apiClient.get<SupportMetrics>(
+    '/api/v1/staff/insights/support-metrics',
+    { params },
+  );
+  return data;
 }

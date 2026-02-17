@@ -1,5 +1,6 @@
 import React from 'react';
-import { Sparkles, ArrowRight, Clock, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Sparkles, ArrowRight, Clock } from 'lucide-react';
 
 interface AIAgendaItem {
   id: string;
@@ -17,6 +18,8 @@ interface AIAgendaCardProps {
 }
 
 const AIAgendaCard: React.FC<AIAgendaCardProps> = ({ items, isLoading }) => {
+  const navigate = useNavigate();
+
   if (isLoading) {
     return (
       <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5 col-span-full lg:col-span-2 animate-pulse">
@@ -53,7 +56,22 @@ const AIAgendaCard: React.FC<AIAgendaCardProps> = ({ items, isLoading }) => {
           items.map((item, index) => (
             <div
               key={item.id}
-              className="flex items-start gap-3 p-3 rounded-lg bg-gray-100 dark:bg-[#22272B]/50 hover:bg-gray-100 dark:hover:bg-[#22272B] transition-colors group"
+              onClick={() => {
+                if (item.actionUrl) {
+                  navigate(item.actionUrl);
+                }
+              }}
+              role={item.actionUrl ? 'button' : undefined}
+              tabIndex={item.actionUrl ? 0 : undefined}
+              onKeyDown={(e) => {
+                if (item.actionUrl && (e.key === 'Enter' || e.key === ' ')) {
+                  e.preventDefault();
+                  navigate(item.actionUrl);
+                }
+              }}
+              className={`flex items-start gap-3 p-3 rounded-lg bg-gray-100 dark:bg-[#22272B]/50 hover:bg-gray-100 dark:hover:bg-[#22272B] transition-colors group ${
+                item.actionUrl ? 'cursor-pointer' : ''
+              }`}
             >
               <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                 index === 0 ? 'bg-[#E40000]/20 text-[#FF4444]' : 'bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/50'

@@ -111,7 +111,7 @@ async def main():
                 specializations=["CBC Education", "STEM", "Literacy", "Digital Skills"],
                 partnership_tier="premium",
                 onboarding_completed=True,
-                onboarding_step=5,
+                onboarding_step="completed",
                 branding_config={
                     "primary_color": "#E40000",
                     "secondary_color": "#FFD700",
@@ -425,8 +425,8 @@ async def main():
                     },
                     receipt_url=f"/receipts/partner_{uuid.uuid4().hex[:12]}.pdf",
                     invoice_number=f"INV-HF-{2026}-{100 + payment_count:04d}",
-                    period_start=date(2026, 1 - i, 1),
-                    period_end=date(2026, 1 - i, 28),
+                    period_start=(date(2026, 2, 1) - timedelta(days=30 * (i + 1))),
+                    period_end=(date(2026, 2, 1) - timedelta(days=30 * i)),
                     paid_at=datetime.utcnow() - timedelta(days=30 * (i + 1))
                 )
                 session.add(payment)
@@ -505,7 +505,7 @@ async def main():
             {
                 "subject": "Add 3 more children to program",
                 "description": "We've identified 3 more eligible students for the Individual Scholarship Program. Can you help with enrollment?",
-                "category": TicketCategory.ENROLLMENT,
+                "category": TicketCategory.SPONSORSHIP,
                 "priority": TicketPriority.HIGH,
                 "status": TicketStatus.IN_PROGRESS,
                 "resolved_at": None
@@ -533,42 +533,119 @@ async def main():
         await session.flush()
         print(f"   Created {ticket_count} support tickets")
 
-        # Create Sample Messages
-        print("\n12. Creating collaboration messages...")
-        message = PartnerMessage(
-            partner_id=partner_user.id,
-            recipient_id=partner_user.id,  # Demo: self-message
-            subject="Welcome to Urban Home School Partner Dashboard",
-            body="Thank you for partnering with us to transform education in Kenya. Your dashboard provides real-time insights into your sponsored children's learning journeys. Explore the Analytics section for detailed impact reports.",
-            attachments={"files": []},
-            read_at=datetime.utcnow() - timedelta(days=1)
+        # Get a staff/admin user for messaging (avoid self-messaging)
+        print("\n12. Finding staff user for messages...")
+        result = await session.execute(
+            select(User).where(User.role == "staff").limit(1)
         )
-        session.add(message)
-        print("   [NEW] Welcome message created")
+        staff_user = result.scalars().first()
+        if not staff_user:
+            result = await session.execute(
+                select(User).where(User.role == "admin").limit(1)
+            )
+            staff_user = result.scalars().first()
+        recipient_id = staff_user.id if staff_user else partner_user.id
 
-        # Create Sample Meeting
-        print("\n13. Creating scheduled meeting...")
-        meeting = PartnerMeeting(
-            partner_id=partner_user.id,
-            title="Q1 Impact Review - STEM Achievers Cohort",
-            description="Quarterly review of program outcomes, challenges, and planning for Q2 activities.",
-            scheduled_at=datetime.utcnow() + timedelta(days=7),
-            duration_minutes=60,
-            meeting_url="https://meet.urbanhomeschool.co.ke/partner/q1-review",
-            attendees={
-                "partner": ["Grace Akinyi"],
-                "staff": ["Program Coordinator", "Data Analyst"],
-                "optional": ["Finance Team"]
+        # Create Sample Messages
+        print("\n13. Creating collaboration messages...")
+        messages_data = [
+            {
+                "subject": "Welcome to Urban Home School Partner Dashboard",
+                "body": "Thank you for partnering with us to transform education in Kenya. Your dashboard provides real-time insights into your sponsored children's learning journeys.",
+                "read_at": datetime.utcnow() - timedelta(days=1),
             },
-            status=MeetingStatus.SCHEDULED,
-            ai_suggested=True,
-            notes="AI recommended based on program milestone completion"
-        )
-        session.add(meeting)
-        print("   [NEW] Meeting scheduled")
+            {
+                "subject": "Q1 Partnership Review Meeting",
+                "body": "Hi, I wanted to follow up on our discussion regarding the Q1 targets and the upcoming review session scheduled for next week.",
+                "read_at": None,
+            },
+            {
+                "subject": "New Enrollment Batch - February",
+                "body": "We have a new batch of 15 students ready for enrollment. Please review the consent forms attached and confirm the program allocation.",
+                "read_at": None,
+            },
+            {
+                "subject": "Impact Report Feedback",
+                "body": "Thank you for sharing the January impact report. The board was impressed with the completion rates. A few suggestions for improvement.",
+                "read_at": datetime.utcnow() - timedelta(days=3),
+            },
+            {
+                "subject": "Resource Allocation Update",
+                "body": "Just a quick update on the resource allocation for Term 1. We have secured additional learning materials for the science program.",
+                "read_at": datetime.utcnow() - timedelta(days=5),
+            },
+        ]
+        msg_count = 0
+        for msg_data in messages_data:
+            message = PartnerMessage(
+                partner_id=partner_user.id,
+                recipient_id=recipient_id,
+                subject=msg_data["subject"],
+                body=msg_data["body"],
+                attachments={"files": []},
+                read_at=msg_data["read_at"],
+            )
+            session.add(message)
+            msg_count += 1
+        print(f"   [NEW] Created {msg_count} messages")
+
+        # Create Sample Meetings
+        print("\n14. Creating scheduled meetings...")
+        meetings_data = [
+            {
+                "title": "Q1 Impact Review - STEM Achievers Cohort",
+                "description": "Quarterly review of program outcomes, challenges, and planning for Q2 activities.",
+                "scheduled_at": datetime.utcnow() + timedelta(days=1),
+                "duration_minutes": 60,
+                "meeting_url": "https://meet.urbanhomeschool.co.ke/partner/q1-review",
+                "attendees": {"partner": ["Grace Akinyi"], "staff": ["Program Coordinator", "Data Analyst"]},
+                "status": MeetingStatus.SCHEDULED,
+                "ai_suggested": True,
+                "notes": "AI recommended based on program milestone completion",
+            },
+            {
+                "title": "Parent Orientation Session",
+                "description": "Orientation for parents of newly enrolled students in the sponsorship programs.",
+                "scheduled_at": datetime.utcnow() + timedelta(days=3),
+                "duration_minutes": 120,
+                "meeting_url": None,
+                "location": "School Auditorium, Nairobi",
+                "attendees": {"partner": ["Grace Akinyi"], "parents": ["15 parents"], "staff": ["Support Staff"]},
+                "status": MeetingStatus.SCHEDULED,
+                "ai_suggested": False,
+                "notes": "In-person event for new parents",
+            },
+            {
+                "title": "STEM Program Planning",
+                "description": "Planning session for STEM program curriculum updates and new resource allocation.",
+                "scheduled_at": datetime.utcnow() + timedelta(days=8),
+                "duration_minutes": 45,
+                "meeting_url": "https://meet.urbanhomeschool.co.ke/partner/stem-planning",
+                "attendees": {"partner": ["Grace Akinyi"], "staff": ["STEM Coordinator"]},
+                "status": MeetingStatus.SCHEDULED,
+                "ai_suggested": True,
+                "notes": "Focus on Q2 curriculum enhancements",
+            },
+        ]
+        for mtg_data in meetings_data:
+            meeting = PartnerMeeting(
+                partner_id=partner_user.id,
+                title=mtg_data["title"],
+                description=mtg_data["description"],
+                scheduled_at=mtg_data["scheduled_at"],
+                duration_minutes=mtg_data["duration_minutes"],
+                meeting_url=mtg_data.get("meeting_url"),
+                location=mtg_data.get("location"),
+                attendees=mtg_data["attendees"],
+                status=mtg_data["status"],
+                ai_suggested=mtg_data["ai_suggested"],
+                notes=mtg_data["notes"],
+            )
+            session.add(meeting)
+        print(f"   [NEW] Created {len(meetings_data)} meetings")
 
         # Create Sample Resource
-        print("\n14. Creating partner resource contribution...")
+        print("\n15. Creating partner resource contribution...")
         resource = PartnerResource(
             partner_id=partner_user.id,
             title="Hope Foundation STEM Challenge Workbook",

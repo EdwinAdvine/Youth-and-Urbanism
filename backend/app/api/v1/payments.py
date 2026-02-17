@@ -14,6 +14,9 @@ Features:
 - Instructor revenue tracking
 """
 
+import hmac
+import hashlib
+import logging
 from typing import List, Optional
 from uuid import UUID
 from decimal import Decimal
@@ -23,6 +26,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 
 from app.database import get_db
+from app.config import settings
 from app.schemas import (
     PaymentInitiateRequest,
     MpesaCallbackRequest,
@@ -35,6 +39,16 @@ from app.schemas import (
 from app.models.payment import Transaction, Wallet, PaymentMethod
 from app.models.user import User
 from app.utils.security import get_current_user, RateLimitExceeded
+
+logger = logging.getLogger(__name__)
+
+# Safaricom M-Pesa IP whitelist (sandbox + production)
+MPESA_ALLOWED_IPS = {
+    "196.201.214.200", "196.201.214.206", "196.201.214.207",
+    "196.201.214.208", "196.201.213.114", "196.201.214.105",
+    # Allow localhost/Docker for development
+    "127.0.0.1", "::1",
+}
 
 
 # NOTE: PaymentService needs to be created in backend/app/services/payment_service.py
@@ -111,8 +125,8 @@ async def verify_payment_service():
     """Verify payment service is available."""
     if PaymentService is None:
         raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Payment service not implemented. Please create payment_service.py"
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Payment service is currently unavailable"
         )
 
 
@@ -188,14 +202,16 @@ async def initiate_payment(
         return result
 
     except ValueError as e:
+        logger.warning(f"Payment initiation validation error: {e}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
+            detail="Invalid payment data"
         )
     except Exception as e:
+        logger.error(f"Payment initiation failed: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Payment initiation failed: {str(e)}"
+            detail="Payment initiation failed"
         )
 
 
@@ -207,9 +223,10 @@ async def initiate_payment(
     "/mpesa/callback",
     status_code=status.HTTP_200_OK,
     summary="M-Pesa payment callback",
-    description="Webhook endpoint for M-Pesa Daraja API callbacks (no authentication required)"
+    description="Webhook endpoint for M-Pesa Daraja API callbacks (IP-restricted)"
 )
 async def mpesa_callback(
+    request: Request,
     callback_data: MpesaCallbackRequest,
     db: AsyncSession = Depends(get_db)
 ) -> dict:
@@ -217,20 +234,32 @@ async def mpesa_callback(
     Handle M-Pesa STK Push callback.
 
     This endpoint receives payment confirmation from Safaricom's M-Pesa API.
-    No authentication required as it's called by M-Pesa servers.
+    Validates request source IP against Safaricom's known IP ranges.
 
     Args:
+        request: FastAPI request for IP verification
         callback_data: M-Pesa callback payload
         db: Database session
 
     Returns:
         Acknowledgment response for M-Pesa
     """
+    # Verify source IP is from Safaricom (skip in sandbox/dev)
+    client_ip = request.client.host if request.client else "unknown"
+    is_production = getattr(settings, 'environment', 'development') == 'production'
+
+    if is_production and client_ip not in MPESA_ALLOWED_IPS:
+        logger.warning(f"M-Pesa callback rejected: unauthorized IP {client_ip}")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Unauthorized callback source"
+        )
+
     await verify_payment_service()
 
     try:
         payment_service = PaymentService(db)
-        await payment_service.process_mpesa_callback(callback_data)
+        await payment_service.handle_mpesa_callback(callback_data)
 
         return {
             "ResultCode": 0,
@@ -238,8 +267,7 @@ async def mpesa_callback(
         }
 
     except Exception as e:
-        # Log error but return success to M-Pesa to avoid retries
-        print(f"M-Pesa callback processing error: {str(e)}")
+        logger.error(f"M-Pesa callback processing error: {str(e)}", exc_info=True)
         return {
             "ResultCode": 0,
             "ResultDesc": "Callback received"
@@ -284,15 +312,15 @@ async def check_mpesa_status(
 
         return payment_status
 
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
+            detail="Payment not found"
         )
-    except PermissionError as e:
+    except PermissionError:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=str(e)
+            detail="Not authorized to view this payment"
         )
 
 
@@ -304,7 +332,7 @@ async def check_mpesa_status(
     "/paypal/webhook",
     status_code=status.HTTP_200_OK,
     summary="PayPal webhook handler",
-    description="Webhook endpoint for PayPal payment events (no authentication required)"
+    description="Webhook endpoint for PayPal payment events (signature-verified)"
 )
 async def paypal_webhook(
     request: Request,
@@ -314,7 +342,7 @@ async def paypal_webhook(
     Handle PayPal webhook events.
 
     Processes PayPal webhook notifications for payment events.
-    Verifies webhook signature for security.
+    Verifies webhook signature using PayPal transmission headers.
 
     Args:
         request: FastAPI request containing webhook payload
@@ -322,22 +350,45 @@ async def paypal_webhook(
 
     Returns:
         Acknowledgment response
+
+    Raises:
+        HTTPException 400: If signature verification fails
     """
     await verify_payment_service()
 
+    # Verify required PayPal signature headers are present
+    required_headers = [
+        "paypal-transmission-id",
+        "paypal-transmission-time",
+        "paypal-transmission-sig",
+        "paypal-cert-url",
+    ]
+    headers = dict(request.headers)
+    missing_headers = [h for h in required_headers if h not in headers]
+    if missing_headers:
+        logger.warning(f"PayPal webhook missing headers: {missing_headers}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Missing required PayPal signature headers"
+        )
+
     try:
-        # Get raw body and headers for signature verification
+        # Get raw body for signature verification
         body = await request.body()
-        headers = dict(request.headers)
 
         payment_service = PaymentService(db)
-        await payment_service.process_paypal_webhook(body, headers)
+        await payment_service.handle_paypal_webhook(body, headers)
 
         return {"status": "success"}
 
+    except HTTPException:
+        raise
     except Exception as e:
-        print(f"PayPal webhook processing error: {str(e)}")
-        return {"status": "received"}
+        logger.error(f"PayPal webhook processing error: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Webhook processing failed"
+        )
 
 
 @router.post(
@@ -378,15 +429,15 @@ async def capture_paypal_payment(
 
         return TransactionResponse.model_validate(payment)
 
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
+            detail="Payment capture failed"
         )
-    except PermissionError as e:
+    except PermissionError:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=str(e)
+            detail="Not authorized to capture this payment"
         )
 
 
@@ -402,7 +453,7 @@ async def capture_paypal_payment(
 )
 async def stripe_webhook(
     request: Request,
-    stripe_signature: str = Header(None, alias="stripe-signature"),
+    stripe_signature: str = Header(..., alias="stripe-signature"),
     db: AsyncSession = Depends(get_db)
 ) -> dict:
     """
@@ -426,15 +477,15 @@ async def stripe_webhook(
         body = await request.body()
 
         payment_service = PaymentService(db)
-        await payment_service.process_stripe_webhook(body, stripe_signature)
+        await payment_service.handle_stripe_webhook(body, stripe_signature)
 
         return {"status": "success"}
 
     except Exception as e:
-        print(f"Stripe webhook processing error: {str(e)}")
+        logger.error(f"Stripe webhook processing error: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Webhook processing failed: {str(e)}"
+            detail="Webhook processing failed"
         )
 
 
@@ -476,15 +527,15 @@ async def confirm_stripe_payment(
 
         return TransactionResponse.model_validate(payment)
 
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
+            detail="Payment confirmation failed"
         )
-    except PermissionError as e:
+    except PermissionError:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=str(e)
+            detail="Not authorized to confirm this payment"
         )
 
 
@@ -548,9 +599,10 @@ async def get_wallet_balance(
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"Failed to retrieve wallet: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve wallet: {str(e)}"
+            detail="Failed to retrieve wallet"
         )
 
 
@@ -611,9 +663,10 @@ async def get_transaction_history(
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"Failed to retrieve transactions: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve transactions: {str(e)}"
+            detail="Failed to retrieve transactions"
         )
 
 
@@ -662,14 +715,16 @@ async def add_funds_to_wallet(
         return TransactionResponse.model_validate(payment)
 
     except ValueError as e:
+        logger.warning(f"Add funds validation error: {e}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
+            detail="Invalid payment data"
         )
     except Exception as e:
+        logger.error(f"Failed to add wallet funds: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to add funds: {str(e)}"
+            detail="Failed to add funds"
         )
 
 
@@ -712,9 +767,10 @@ async def list_payment_methods(
         return methods
 
     except Exception as e:
+        logger.error(f"Failed to retrieve payment methods: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve payment methods: {str(e)}"
+            detail="Failed to retrieve payment methods"
         )
 
 
@@ -761,12 +817,13 @@ async def add_payment_method(
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
+            detail="Invalid payment method data"
         )
     except Exception as e:
+        logger.error(f"Failed to add payment method: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to add payment method: {str(e)}"
+            detail="Failed to add payment method"
         )
 
 
@@ -805,15 +862,16 @@ async def remove_payment_method(
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
+            detail="Payment method not found"
         )
-    except PermissionError as e:
+    except PermissionError:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=str(e)
+            detail="Not authorized to remove this payment method"
         )
     except Exception as e:
+        logger.error(f"Failed to remove payment method: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to remove payment method: {str(e)}"
+            detail="Failed to remove payment method"
         )

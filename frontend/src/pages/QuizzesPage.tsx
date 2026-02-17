@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+// QuizzesPage - Authenticated page at /quizzes. Lists available quizzes with filtering by
+// subject, grade level, and difficulty, and allows students to start quiz attempts.
+import { useState, useEffect } from 'react';
 import { listAssessments } from '../services/assessmentService';
-import { useAuthStore } from '../store/authStore';
 
 interface Quiz {
   id: string;
@@ -423,8 +423,6 @@ const gradeLevels = [
 const difficulties = ['All Levels', 'easy', 'medium', 'hard'];
 
 export default function QuizzesPage() {
-  const { user } = useAuthStore();
-  const navigate = useNavigate();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [progress, setProgress] = useState<QuizProgress[]>([]);
   const [loading, setLoading] = useState(true);

@@ -52,6 +52,25 @@ async def get_children_list(
     )
 
 
+@router.get("/goals/all", response_model=GoalsListResponse)
+async def get_all_goals(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_parent_role)
+):
+    """
+    Get all family goals.
+
+    Returns:
+    - All goals across all children
+    - Family-wide goals
+    """
+    return await parent_children_service.get_goals(
+        db=db,
+        parent_id=current_user.id,
+        child_id=None
+    )
+
+
 @router.get("/{child_id}", response_model=ChildProfileResponse)
 async def get_child_profile(
     child_id: UUID,
@@ -208,25 +227,6 @@ async def get_child_goals(
         db=db,
         parent_id=current_user.id,
         child_id=child_id
-    )
-
-
-@router.get("/goals/all", response_model=GoalsListResponse)
-async def get_all_goals(
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_parent_role)
-):
-    """
-    Get all family goals.
-
-    Returns:
-    - All goals across all children
-    - Family-wide goals
-    """
-    return await parent_children_service.get_goals(
-        db=db,
-        parent_id=current_user.id,
-        child_id=None
     )
 
 

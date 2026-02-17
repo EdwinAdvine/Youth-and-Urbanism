@@ -1,10 +1,9 @@
 /**
  * Student AI Tutor Service - API calls for AI interactions
  */
-import axios from 'axios';
+import apiClient from '../api';
 import type { MoodType, JournalEntry } from '../../types/student';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const API_PREFIX = '/api/v1/student/ai';
 
 /**
@@ -19,12 +18,7 @@ export const chatWithAI = async (data: {
   provider: string;
   timestamp: Date;
 }> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.post(`${API_BASE}${API_PREFIX}/chat`, data, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await apiClient.post(`${API_PREFIX}/chat`, data);
   return response.data;
 };
 
@@ -36,12 +30,7 @@ export const getLearningPath = async (): Promise<{
   generated_at: Date;
   student_grade: number;
 }> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/learning-path`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/learning-path`);
   return response.data;
 };
 
@@ -49,12 +38,7 @@ export const getLearningPath = async (): Promise<{
  * Get journal entries
  */
 export const getJournalEntries = async (limit: number = 10): Promise<JournalEntry[]> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/journal?limit=${limit}`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/journal?limit=${limit}`);
   return response.data;
 };
 
@@ -72,12 +56,7 @@ export const createJournalEntry = async (data: {
   created_at: Date;
   message: string;
 }> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.post(`${API_BASE}${API_PREFIX}/journal`, data, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await apiClient.post(`${API_PREFIX}/journal`, data);
   return response.data;
 };
 
@@ -93,12 +72,7 @@ export const explainConcept = async (data: {
   grade_level: number;
   timestamp: Date;
 }> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.post(`${API_BASE}${API_PREFIX}/explain`, data, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await apiClient.post(`${API_PREFIX}/explain`, data);
   return response.data;
 };
 
@@ -115,12 +89,7 @@ export const sendTeacherQuestion = async (data: {
   created_at: Date;
   message: string;
 }> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.post(`${API_BASE}${API_PREFIX}/teacher-question`, data, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await apiClient.post(`${API_PREFIX}/teacher-question`, data);
   return response.data;
 };
 
@@ -135,12 +104,7 @@ export const getTeacherResponses = async (): Promise<Array<{
   answered_at: Date;
   is_public: boolean;
 }>> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/teacher-responses`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/teacher-responses`);
   return response.data;
 };
 
@@ -154,11 +118,6 @@ export const generateVoiceResponse = async (text: string): Promise<{
   timestamp: Date;
   message: string;
 }> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.post(`${API_BASE}${API_PREFIX}/voice`, { text }, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await apiClient.post(`${API_PREFIX}/voice`, { text });
   return response.data;
 };

@@ -12,26 +12,7 @@ import type {
   KBCategory,
   KBSearchResult,
 } from '../../types/staff';
-
-const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/staff`;
-
-function getAuthHeaders(): HeadersInit {
-  const token =
-    localStorage.getItem('access_token') ||
-    JSON.parse(localStorage.getItem('auth-store') || '{}')?.state?.token;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
-
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Request failed' }));
-    throw new Error(error.detail || `HTTP ${response.status}`);
-  }
-  return response.json();
-}
+import apiClient from '../api';
 
 // ---------------------------------------------------------------------------
 // Types local to this service
@@ -77,78 +58,56 @@ export interface CreateCategoryPayload {
 export async function getArticles(
   params: ArticleListParams = {},
 ): Promise<PaginatedResponse<KBArticle>> {
-  const qs = new URLSearchParams();
-  if (params.page != null) qs.set('page', String(params.page));
-  if (params.page_size != null) qs.set('page_size', String(params.page_size));
-  if (params.category_id) qs.set('category_id', params.category_id);
-  if (params.status) qs.set('status', params.status);
-
-  const response = await fetch(`${API_BASE}/kb/articles?${qs.toString()}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<PaginatedResponse<KBArticle>>(response);
+  const { data } = await apiClient.get<PaginatedResponse<KBArticle>>(
+    '/api/v1/staff/kb/articles',
+    { params },
+  );
+  return data;
 }
 
 /** Fetch a single KB article by ID. */
 export async function getArticle(articleId: string): Promise<KBArticle> {
-  const response = await fetch(`${API_BASE}/kb/articles/${articleId}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<KBArticle>(response);
+  const { data } = await apiClient.get<KBArticle>(`/api/v1/staff/kb/articles/${articleId}`);
+  return data;
 }
 
 /** Create a new KB article. */
 export async function createArticle(
-  data: CreateArticlePayload,
+  payload: CreateArticlePayload,
 ): Promise<KBArticle> {
-  const response = await fetch(`${API_BASE}/kb/articles`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<KBArticle>(response);
+  const { data } = await apiClient.post<KBArticle>('/api/v1/staff/kb/articles', payload);
+  return data;
 }
 
 /** Update an existing KB article. */
 export async function updateArticle(
   articleId: string,
-  data: UpdateArticlePayload,
+  payload: UpdateArticlePayload,
 ): Promise<KBArticle> {
-  const response = await fetch(`${API_BASE}/kb/articles/${articleId}`, {
-    method: 'PATCH',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<KBArticle>(response);
+  const { data } = await apiClient.patch<KBArticle>(
+    `/api/v1/staff/kb/articles/${articleId}`,
+    payload,
+  );
+  return data;
 }
 
 /** Delete a KB article. */
 export async function deleteArticle(articleId: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/kb/articles/${articleId}`, {
-    method: 'DELETE',
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<void>(response);
+  await apiClient.delete(`/api/v1/staff/kb/articles/${articleId}`);
 }
 
 /** Fetch all KB categories. */
 export async function getCategories(): Promise<KBCategory[]> {
-  const response = await fetch(`${API_BASE}/kb/categories`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<KBCategory[]>(response);
+  const { data } = await apiClient.get<KBCategory[]>('/api/v1/staff/kb/categories');
+  return data;
 }
 
 /** Create a new KB category. */
 export async function createCategory(
-  data: CreateCategoryPayload,
+  payload: CreateCategoryPayload,
 ): Promise<KBCategory> {
-  const response = await fetch(`${API_BASE}/kb/categories`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<KBCategory>(response);
+  const { data } = await apiClient.post<KBCategory>('/api/v1/staff/kb/categories', payload);
+  return data;
 }
 
 /** Search the knowledge base using a text query. */
@@ -156,12 +115,11 @@ export async function searchKB(
   query: string,
   limit?: number,
 ): Promise<KBSearchResult[]> {
-  const response = await fetch(`${API_BASE}/kb/search`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ query, ...(limit != null ? { limit } : {}) }),
+  const { data } = await apiClient.post<KBSearchResult[]>('/api/v1/staff/kb/search', {
+    query,
+    ...(limit != null ? { limit } : {}),
   });
-  return handleResponse<KBSearchResult[]>(response);
+  return data;
 }
 
 /** Get AI-suggested KB articles relevant to a support ticket. */
@@ -169,10 +127,9 @@ export async function getAISuggestions(
   ticketId: string,
   ticketText: string,
 ): Promise<KBSearchResult[]> {
-  const response = await fetch(`${API_BASE}/kb/suggestions`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ ticket_id: ticketId, ticket_text: ticketText }),
+  const { data } = await apiClient.post<KBSearchResult[]>('/api/v1/staff/kb/suggestions', {
+    ticket_id: ticketId,
+    ticket_text: ticketText,
   });
-  return handleResponse<KBSearchResult[]>(response);
+  return data;
 }

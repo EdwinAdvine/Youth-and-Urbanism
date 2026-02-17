@@ -13,6 +13,15 @@ from app.database import Base
 
 
 class ContentVersion(Base):
+    """
+    Versioned snapshot of a course's content changes.
+
+    Every time an instructor or admin edits a course, a new row is created
+    with the version number incremented and the changes stored as JSONB
+    (before/after diffs). This provides a complete edit history so content
+    can be reviewed, compared, or rolled back if needed.
+    """
+
     __tablename__ = "content_versions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -31,6 +40,15 @@ class ContentVersion(Base):
 
 
 class CompetencyTag(Base):
+    """
+    A CBC (Competency-Based Curriculum) competency label.
+
+    Tags represent specific skills or knowledge areas defined by Kenya's CBC
+    framework. Each tag belongs to a strand and optional sub-strand, and is
+    scoped to a grade level. Courses are linked to these tags via
+    CourseCompetencyMapping to verify CBC alignment.
+    """
+
     __tablename__ = "competency_tags"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -47,6 +65,15 @@ class CompetencyTag(Base):
 
 
 class CourseCompetencyMapping(Base):
+    """
+    Links a course to a CBC competency tag with a coverage level.
+
+    The coverage_level indicates whether the course fully or partially covers
+    the competency. A unique composite index on (course_id, competency_tag_id)
+    prevents duplicate mappings. Used by the admin dashboard to audit CBC
+    compliance across the course catalog.
+    """
+
     __tablename__ = "course_competency_mappings"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -61,6 +88,14 @@ class CourseCompetencyMapping(Base):
 
 
 class GradeOverride(Base):
+    """
+    A request to manually override a student's assessment score.
+
+    Instructors submit override requests with a reason. An admin reviews and
+    approves or rejects the request. Both the original and overridden scores
+    are recorded for transparency. Status transitions: pending -> approved/rejected.
+    """
+
     __tablename__ = "grade_overrides"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -80,6 +115,14 @@ class GradeOverride(Base):
 
 
 class CertificateTemplate(Base):
+    """
+    A reusable template for generating student completion certificates.
+
+    Stores template data (layout, fields, branding) as JSONB so admins can
+    design multiple certificate styles. Templates can be activated or
+    deactivated without deletion.
+    """
+
     __tablename__ = "certificate_templates"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -94,6 +137,15 @@ class CertificateTemplate(Base):
 
 
 class ResourceItem(Base):
+    """
+    An uploaded file in the platform resource library.
+
+    Instructors and admins upload resources (PDFs, videos, worksheets) that
+    are categorized and tagged for discoverability. Each resource goes through
+    a moderation workflow (pending -> approved/flagged) before becoming visible
+    to students. Usage count tracks how often the resource is accessed.
+    """
+
     __tablename__ = "resource_items"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

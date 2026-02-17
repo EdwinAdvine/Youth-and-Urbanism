@@ -1,3 +1,5 @@
+// ClassCalendarPage - Student page at /dashboard/student/class-calendar. Monthly calendar
+// view displaying scheduled classes, live sessions, assignment deadlines, and exam dates.
 import React, { useState } from 'react';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';
 import { ChevronLeft, ChevronRight, Video, BookOpen, FileText } from 'lucide-react';

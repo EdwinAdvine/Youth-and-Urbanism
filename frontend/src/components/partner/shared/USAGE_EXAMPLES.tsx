@@ -44,7 +44,7 @@ export const PartnerComponentExamples: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, _setIsLoading] = useState(false);
 
   // Example data
   const sponsorships: Sponsorship[] = [
@@ -100,7 +100,7 @@ export const PartnerComponentExamples: React.FC = () => {
     {
       id: 'actions',
       header: 'Actions',
-      cell: ({ row }) => (
+      cell: ({ row: _row }) => (
         <div className="flex items-center gap-2">
           <button className="p-1 text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white">
             <Edit className="w-4 h-4" />

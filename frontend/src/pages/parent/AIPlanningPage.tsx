@@ -7,7 +7,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Target, TrendingUp, Users } from 'lucide-react';
+import { ArrowLeft, Target, TrendingUp, Users, AlertCircle } from 'lucide-react';
 import { useParentStore } from '../../store/parentStore';
 import { getAIPlanning } from '../../services/parentAIService';
 import type { AIPlanningResponse } from '../../types/parent';
@@ -25,6 +25,7 @@ const AIPlanningPage: React.FC = () => {
 
   const [planning, setPlanning] = useState<AIPlanningResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (effectiveChildId) {
@@ -39,10 +40,12 @@ const AIPlanningPage: React.FC = () => {
 
     try {
       setLoading(true);
+      setError(null);
       const data = await getAIPlanning(effectiveChildId);
       setPlanning(data);
     } catch (error) {
       console.error('Failed to load AI planning:', error);
+      setError('Failed to load AI planning data. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -53,6 +56,24 @@ const AIPlanningPage: React.FC = () => {
       <>
         <div className="flex items-center justify-center h-96">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#E40000]" />
+        </div>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <div className="text-center py-12">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <p className="text-gray-900 dark:text-white font-medium mb-2">Something went wrong</p>
+          <p className="text-gray-500 dark:text-white/60 mb-4">{error}</p>
+          <button
+            onClick={loadPlanning}
+            className="px-6 py-2 bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#FF0000] transition-colors"
+          >
+            Try Again
+          </button>
         </div>
       </>
     );

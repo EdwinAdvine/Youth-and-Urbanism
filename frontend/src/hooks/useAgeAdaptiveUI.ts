@@ -31,9 +31,10 @@ export const useAgeAdaptiveUI = (): {
 
   // Check if user has manual age UI preference override
   const ageGroup: AgeGroup = useMemo(() => {
-    // Check for manual override in user preferences
-    if (user?.preferences?.ageUiMode) {
-      return user.preferences.ageUiMode as AgeGroup;
+    // Check for manual override in user preferences (stored in profile_data)
+    const profileData = (user as any)?.profile_data;
+    if (profileData?.preferences?.ageUiMode) {
+      return profileData.preferences.ageUiMode as AgeGroup;
     }
 
     // Fall back to grade-based detection

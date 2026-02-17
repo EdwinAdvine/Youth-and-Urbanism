@@ -1,3 +1,5 @@
+// DashboardAdmin - Admin role dashboard at /dashboard. Provides platform overview with user
+// stats, system health, analytics, content management, and AI monitoring quick links.
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -97,7 +99,7 @@ const DashboardAdmin: React.FC = () => {
           <motion.div variants={fadeUp} className="lg:col-span-2 bg-gray-50 dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
             <div className="grid grid-cols-2 gap-3">
-              <motion.button whileHover={{ scale: 1.02 }} className="p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg hover:bg-gray-200 dark:bg-[#2A3035] transition-colors text-left">
+              <motion.button whileHover={{ scale: 1.02 }} onClick={() => navigate('/dashboard/admin/users')} className="p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg hover:bg-gray-200 dark:bg-[#2A3035] transition-colors text-left">
                 <div className="flex items-center justify-between mb-2">
                   <Users className="w-5 h-5 text-blue-400" />
                   <span className="text-xs text-gray-500 dark:text-white/60">Manage Users</span>
@@ -117,7 +119,7 @@ const DashboardAdmin: React.FC = () => {
                 <p className="text-sm font-medium text-gray-900 dark:text-white">Manage AI provider settings</p>
               </motion.button>
 
-              <motion.button whileHover={{ scale: 1.02 }} className="p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg hover:bg-gray-200 dark:bg-[#2A3035] transition-colors text-left">
+              <motion.button whileHover={{ scale: 1.02 }} onClick={() => navigate('/dashboard/admin/analytics/business')} className="p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg hover:bg-gray-200 dark:bg-[#2A3035] transition-colors text-left">
                 <div className="flex items-center justify-between mb-2">
                   <BarChart3 className="w-5 h-5 text-green-400" />
                   <span className="text-xs text-gray-500 dark:text-white/60">Analytics</span>
@@ -125,7 +127,7 @@ const DashboardAdmin: React.FC = () => {
                 <p className="text-sm font-medium text-gray-900 dark:text-white">View platform statistics</p>
               </motion.button>
 
-              <motion.button whileHover={{ scale: 1.02 }} className="p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg hover:bg-gray-200 dark:bg-[#2A3035] transition-colors text-left">
+              <motion.button whileHover={{ scale: 1.02 }} onClick={() => navigate('/dashboard/admin/config')} className="p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg hover:bg-gray-200 dark:bg-[#2A3035] transition-colors text-left">
                 <div className="flex items-center justify-between mb-2">
                   <Settings className="w-5 h-5 text-purple-400" />
                   <span className="text-xs text-gray-500 dark:text-white/60">System Settings</span>
@@ -133,7 +135,7 @@ const DashboardAdmin: React.FC = () => {
                 <p className="text-sm font-medium text-gray-900 dark:text-white">Configure platform settings</p>
               </motion.button>
 
-              <motion.button whileHover={{ scale: 1.02 }} className="p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg hover:bg-gray-200 dark:bg-[#2A3035] transition-colors text-left">
+              <motion.button whileHover={{ scale: 1.02 }} onClick={() => navigate('/dashboard/admin/users')} className="p-4 bg-gray-100 dark:bg-[#22272B] rounded-lg hover:bg-gray-200 dark:bg-[#2A3035] transition-colors text-left">
                 <div className="flex items-center justify-between mb-2">
                   <Plus className="w-5 h-5 text-orange-400" />
                   <span className="text-xs text-gray-500 dark:text-white/60">Create Account</span>
@@ -222,19 +224,19 @@ const DashboardAdmin: React.FC = () => {
                     </div>
                     <p className="text-xs text-gray-500 dark:text-white/60">Configure AI models and providers</p>
                   </motion.button>
-                  <motion.button whileHover={{ scale: 1.02 }} className="w-full text-left p-3 bg-gray-100 dark:bg-[#22272B] rounded-lg hover:bg-gray-200 dark:bg-[#2A3035] transition-colors">
+                  <motion.button whileHover={{ scale: 1.02 }} onClick={() => navigate('/dashboard/admin/users')} className="w-full text-left p-3 bg-gray-100 dark:bg-[#22272B] rounded-lg hover:bg-gray-200 dark:bg-[#2A3035] transition-colors">
                     <p className="font-medium text-gray-900 dark:text-white">User Management</p>
                     <p className="text-xs text-gray-500 dark:text-white/60">Approve accounts, reset passwords</p>
                   </motion.button>
-                  <motion.button whileHover={{ scale: 1.02 }} className="w-full text-left p-3 bg-gray-100 dark:bg-[#22272B] rounded-lg hover:bg-gray-200 dark:bg-[#2A3035] transition-colors">
+                  <motion.button whileHover={{ scale: 1.02 }} onClick={() => navigate('/dashboard/admin/moderation')} className="w-full text-left p-3 bg-gray-100 dark:bg-[#22272B] rounded-lg hover:bg-gray-200 dark:bg-[#2A3035] transition-colors">
                     <p className="font-medium text-gray-900 dark:text-white">Content Moderation</p>
                     <p className="text-xs text-gray-500 dark:text-white/60">Review user content and reports</p>
                   </motion.button>
-                  <motion.button whileHover={{ scale: 1.02 }} className="w-full text-left p-3 bg-gray-100 dark:bg-[#22272B] rounded-lg hover:bg-gray-200 dark:bg-[#2A3035] transition-colors">
-                    <p className="font-medium text-gray-900 dark:text-white">System Logs</p>
-                    <p className="text-xs text-gray-500 dark:text-white/60">View system events and errors</p>
+                  <motion.button whileHover={{ scale: 1.02 }} onClick={() => navigate('/dashboard/admin/system-health')} className="w-full text-left p-3 bg-gray-100 dark:bg-[#22272B] rounded-lg hover:bg-gray-200 dark:bg-[#2A3035] transition-colors">
+                    <p className="font-medium text-gray-900 dark:text-white">System Health</p>
+                    <p className="text-xs text-gray-500 dark:text-white/60">Error logs, test runner & AI diagnostics</p>
                   </motion.button>
-                  <motion.button whileHover={{ scale: 1.02 }} className="w-full text-left p-3 bg-gray-100 dark:bg-[#22272B] rounded-lg hover:bg-gray-200 dark:bg-[#2A3035] transition-colors">
+                  <motion.button whileHover={{ scale: 1.02 }} onClick={() => alert('Backup & Restore feature coming soon')} className="w-full text-left p-3 bg-gray-100 dark:bg-[#22272B] rounded-lg hover:bg-gray-200 dark:bg-[#2A3035] transition-colors">
                     <p className="font-medium text-gray-900 dark:text-white">Backup & Restore</p>
                     <p className="text-xs text-gray-500 dark:text-white/60">Manage data backups</p>
                   </motion.button>

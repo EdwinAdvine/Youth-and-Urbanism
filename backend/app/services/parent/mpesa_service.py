@@ -5,11 +5,14 @@ M-Pesa Daraja API integration for STK Push payments.
 """
 
 import base64
+import logging
 import requests
 from datetime import datetime
 from typing import Optional
 
 from app.config import settings
+
+logger = logging.getLogger(__name__)
 from app.schemas.parent.finance_schemas import (
     MpesaSTKPushRequest, MpesaSTKPushResponse, MpesaPaymentStatusResponse
 )
@@ -50,7 +53,7 @@ class MpesaService:
             response.raise_for_status()
             return response.json()['access_token']
         except Exception as e:
-            print(f"Error getting access token: {e}")
+            logger.error(f"Error getting M-Pesa access token: {e}")
             return "sandbox_token"
 
     def generate_password(self) -> tuple[str, str]:
@@ -105,7 +108,7 @@ class MpesaService:
                 customer_message=data.get('CustomerMessage', '')
             )
         except Exception as e:
-            print(f"Error initiating STK push: {e}")
+            logger.error(f"Error initiating M-Pesa STK push: {e}")
             # Return sandbox response
             return MpesaSTKPushResponse(
                 checkout_request_id='ws_CO_123456789',

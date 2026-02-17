@@ -1,5 +1,9 @@
 """
 Student Services Package
+
+Business logic layer for all student-facing dashboard features including
+the AI tutor, gamification, learning progress, community forums, wallet
+management, support tickets, and account settings.
 """
 from .dashboard_service import DashboardService
 from .ai_tutor_service import AITutorService

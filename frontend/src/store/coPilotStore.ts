@@ -1,9 +1,26 @@
+/**
+ * AI CoPilot sidebar store.
+ *
+ * Controls the collapsible CoPilot panel that appears on every dashboard.
+ * Manages sessions, chat messages, online status, and role-based context
+ * detection.  Sends real user messages to the backend AI tutor endpoint
+ * and appends AI responses into the chat history.
+ *
+ * Persisted fields (localStorage key "co-pilot-storage"):
+ *  - isExpanded, activeRole, sessions, currentSessionId
+ *
+ * The useCoPilotInit() hook auto-creates an initial session when no
+ * sessions exist for the active role.
+ */
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import React from 'react';
 
+/** Supported user roles across the platform dashboards. */
 export type UserRole = 'student' | 'parent' | 'teacher' | 'admin' | 'partner' | 'staff';
 
+/** Represents a single CoPilot conversation session. */
 export interface CoPilotSession {
   id: string;
   title: string;
@@ -13,6 +30,7 @@ export interface CoPilotSession {
   role: UserRole;
 }
 
+/** A single chat message exchanged between the user and the AI CoPilot. */
 export interface ChatMessage {
   id: string;
   content: string;
@@ -21,6 +39,7 @@ export interface ChatMessage {
   status: 'sending' | 'sent' | 'delivered' | 'read';
 }
 
+/** Full state shape and actions for the CoPilot sidebar store. */
 export interface CoPilotState {
   // Core state
   isExpanded: boolean;
@@ -211,7 +230,7 @@ export const useCoPilotStore = create<CoPilotState>()(
           .then(data => {
             const aiMessage: ChatMessage = {
               id: (Date.now() + 1).toString(),
-              content: data.response || data.message || data.detail || "I've received your message. How can I help you today?",
+              content: data.message || data.response || data.detail || "I'm having trouble processing that. Please try again.",
               sender: 'ai',
               timestamp: new Date(),
               status: 'sent'

@@ -1,42 +1,26 @@
+// CoursesPage - Authenticated page at /courses. Browse and manage course enrollments
+// with progress tracking, ratings, search, and category filtering.
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUserStore } from '../store';
-import { useThemeStore } from '../store';
-import { 
-  BookOpen, 
-  Play, 
-  BarChart3, 
-  CheckCircle, 
-  Star, 
-  MessageCircle, 
-  Search, 
-  Filter, 
-  SortAsc,
+import {
+  BookOpen,
+  Play,
+  BarChart3,
+  CheckCircle,
+  Star,
+  MessageCircle,
+  Search,
   Clock,
   Calendar,
   Users,
   Award
 } from 'lucide-react';
 
-interface Course {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  instructor: string;
-  progress: number;
-  status: 'enrolled' | 'in_progress' | 'completed';
-  rating?: number;
-  thumbnail?: string;
-  duration: string;
-  lessons: number;
-}
-
 const CoursesPage: React.FC = () => {
   const navigate = useNavigate();
   const { category } = useParams();
   const { courses } = useUserStore();
-  const { isDarkMode } = useThemeStore();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'title' | 'progress' | 'date' | 'rating'>('title');
@@ -198,7 +182,7 @@ const CoursesPage: React.FC = () => {
                     </span>
                     <span className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
-                      {course.lessons} lessons
+                      {Array.isArray(course.lessons) ? course.lessons.length : course.lessons} lessons
                     </span>
                     {course.rating && (
                       <span className="flex items-center gap-1">

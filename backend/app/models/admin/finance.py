@@ -12,6 +12,15 @@ from app.database import Base
 
 
 class PartnerContract(Base):
+    """
+    A legal contract between the platform and a partner organization.
+
+    Contracts define the commercial terms (sponsorship, revenue share, or flat fee)
+    including total value, currency, and auto-renewal setting. Status transitions
+    through pending -> active -> expired/terminated. The terms JSONB stores
+    detailed clauses and conditions specific to each agreement.
+    """
+
     __tablename__ = "partner_contracts"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -37,6 +46,15 @@ class PartnerContract(Base):
 
 
 class Invoice(Base):
+    """
+    A billing invoice issued to a partner or user.
+
+    Each invoice has a unique sequential number, line items (JSONB array),
+    and a status that moves through draft -> sent -> paid/overdue/cancelled.
+    Invoices link to either a partner_id or user_id depending on who is
+    being billed, and track due dates and payment timestamps.
+    """
+
     __tablename__ = "invoices"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -57,6 +75,15 @@ class Invoice(Base):
 
 
 class PayoutQueueItem(Base):
+    """
+    A queued payout awaiting processing for an instructor or partner.
+
+    Created when an instructor requests a withdrawal or when the system
+    schedules an automatic payout. Status transitions: pending -> processing
+    -> completed/failed. Failed payouts store a failure_reason so the admin
+    can retry or investigate. Supports M-Pesa, bank transfer, and PayPal.
+    """
+
     __tablename__ = "payout_queue"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

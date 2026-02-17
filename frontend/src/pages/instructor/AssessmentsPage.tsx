@@ -120,8 +120,8 @@ export const AssessmentsPage: React.FC = () => {
     navigate(`/dashboard/instructor/assessments/${assessmentId}/edit`);
   };
 
-  const handleViewSubmissions = (assessmentId: string) => {
-    navigate(`/dashboard/instructor/assessments/${assessmentId}/submissions`);
+  const handleViewSubmissions = (_assessmentId: string) => {
+    navigate('/dashboard/instructor/submissions');
   };
 
   const filteredAssessments = assessments.filter((assessment) => {

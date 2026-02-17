@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useStaffStore } from '../../../store/staffStore';
 import { useAuthStore } from '../../../store/authStore';
+import { getDashboardStats } from '../../../services/staff/staffDashboardService';
 import {
   LayoutDashboard,
   Shield,
@@ -28,7 +29,6 @@ import {
   FileBarChart,
   LineChart,
   Star,
-  Compass,
   Library,
   Bell,
   UserCircle,
@@ -62,8 +62,31 @@ interface NavItem {
 const StaffSidebar: React.FC<StaffSidebarProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { counters, openSidebarSections, toggleSidebarSection, globalSearch, setGlobalSearch, viewMode, setViewMode, sidebarCollapsed, setSidebarCollapsed } = useStaffStore();
+  const { counters, updateCounters, openSidebarSections, toggleSidebarSection, globalSearch, setGlobalSearch, viewMode, setViewMode, sidebarCollapsed, setSidebarCollapsed } = useStaffStore();
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
+
+  // Fetch dashboard stats on mount to populate sidebar badge counters
+  useEffect(() => {
+    let cancelled = false;
+    const fetchCounters = async () => {
+      try {
+        const stats = await getDashboardStats();
+        if (!cancelled) {
+          updateCounters({
+            openTickets: stats.tickets_assigned,
+            moderationQueue: stats.moderation_pending,
+            pendingApprovals: stats.content_in_review,
+            activeSessions: stats.active_sessions,
+            slaAtRisk: stats.sla_at_risk,
+          });
+        }
+      } catch {
+        // Silently fail — counters will remain at their persisted or default values
+      }
+    };
+    fetchCounters();
+    return () => { cancelled = true; };
+  }, [updateCounters]);
 
   const navigationItems: NavItem[] = [
     // 1. DASHBOARD
@@ -277,6 +300,32 @@ const StaffSidebar: React.FC<StaffSidebarProps> = ({ isOpen, onClose }) => {
     },
   ];
 
+  // Filter navigation items based on globalSearch text
+  const filteredNavigationItems = useMemo(() => {
+    const query = globalSearch.trim().toLowerCase();
+    if (!query) return navigationItems;
+
+    return navigationItems
+      .map((section) => {
+        // Check if the section title itself matches
+        const sectionMatches = section.title.toLowerCase().includes(query);
+
+        // Filter children that match the query
+        const filteredChildren = section.children?.filter((child) =>
+          child.title.toLowerCase().includes(query) ||
+          child.id.toLowerCase().includes(query)
+        );
+
+        // Include section if it matches or has matching children
+        if (sectionMatches) return section;
+        if (filteredChildren && filteredChildren.length > 0) {
+          return { ...section, children: filteredChildren };
+        }
+        return null;
+      })
+      .filter((section): section is NavItem => section !== null);
+  }, [globalSearch, navigationItems]);
+
   const isActive = (path?: string) => {
     if (!path) return false;
     if (path === '/dashboard/staff') {
@@ -395,7 +444,12 @@ const StaffSidebar: React.FC<StaffSidebarProps> = ({ isOpen, onClose }) => {
 
         {/* Navigation */}
         <nav className={`flex-1 ${sidebarCollapsed ? 'p-1.5' : 'p-3'} space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-[#333] scrollbar-track-transparent`}>
-          {navigationItems.map((section) => (
+          {filteredNavigationItems.length === 0 && globalSearch.trim() && (
+            <div className="text-center py-6">
+              <p className="text-xs text-gray-400 dark:text-white/40">No results for "{globalSearch}"</p>
+            </div>
+          )}
+          {filteredNavigationItems.map((section) => (
             <div key={section.id} className="space-y-0.5">
               {sidebarCollapsed ? (
                 /* Collapsed: icon-only with flyout */
@@ -468,8 +522,8 @@ const StaffSidebar: React.FC<StaffSidebarProps> = ({ isOpen, onClose }) => {
                     />
                   </button>
 
-                  {/* Section Children */}
-                  {openSidebarSections.includes(section.id) && section.children && (
+                  {/* Section Children — auto-expand when searching */}
+                  {(openSidebarSections.includes(section.id) || globalSearch.trim()) && section.children && (
                     <div className="ml-3 space-y-0.5 border-l border-gray-200 dark:border-[#22272B] pl-3">
                       {section.children.map((item) => (
                         <button

@@ -22,7 +22,8 @@ interface ChatMessage {
 
 interface UseWebRTCOptions {
   roomId: string;
-  token: string;
+  /** @deprecated Token is no longer needed — httpOnly cookie used for auth */
+  token?: string;
   autoConnect?: boolean;
 }
 
@@ -46,7 +47,6 @@ interface UseWebRTCReturn {
 
 export function useWebRTC({
   roomId,
-  token,
   autoConnect = false,
 }: UseWebRTCOptions): UseWebRTCReturn {
   const wsRef = useRef<WebSocket | null>(null);
@@ -63,31 +63,35 @@ export function useWebRTC({
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [myUserId, setMyUserId] = useState('');
   const [iceServers, setIceServers] = useState<RTCIceServer[]>([]);
+  const iceServersRef = useRef<RTCIceServer[]>([]);
+  const stopScreenShareRef = useRef<() => void>(() => {});
 
-  // Fetch ICE config
+  // Fetch ICE config (uses httpOnly cookie auth)
   const fetchIceConfig = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/api/v1/instructor/sessions/${roomId}/ice-config`, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
       });
       const data = await res.json();
-      setIceServers(
-        data.ice_servers?.map((s: { urls: string | string[]; username?: string; credential?: string }) => ({
+      const servers = data.ice_servers?.map((s: { urls: string | string[]; username?: string; credential?: string }) => ({
           urls: s.urls,
           username: s.username,
           credential: s.credential,
-        })) || []
-      );
+        })) || [];
+      iceServersRef.current = servers;
+      setIceServers(servers);
     } catch {
       // Fallback to public STUN
-      setIceServers([{ urls: 'stun:stun.l.google.com:19302' }]);
+      const fallback = [{ urls: 'stun:stun.l.google.com:19302' }];
+      iceServersRef.current = fallback;
+      setIceServers(fallback);
     }
-  }, [roomId, token]);
+  }, [roomId]);
 
   // Create peer connection for a remote peer
   const createPeerConnection = useCallback(
     (peerId: string): RTCPeerConnection => {
-      const pc = new RTCPeerConnection({ iceServers });
+      const pc = new RTCPeerConnection({ iceServers: iceServersRef.current });
 
       // Add local tracks to the connection
       if (localStreamRef.current) {
@@ -137,7 +141,7 @@ export function useWebRTC({
       peerConnectionsRef.current.set(peerId, pc);
       return pc;
     },
-    [iceServers]
+    []
   );
 
   // Handle signaling messages
@@ -302,8 +306,8 @@ export function useWebRTC({
       setLocalStream(null);
     }
 
-    // Connect to signaling server
-    const ws = new WebSocket(`${WS_URL}/ws/webrtc/${roomId}/${token}`);
+    // Connect to signaling server (httpOnly cookie sent automatically)
+    const ws = new WebSocket(`${WS_URL}/ws/webrtc/${roomId}`);
     wsRef.current = ws;
 
     ws.onopen = () => setIsConnected(true);
@@ -324,7 +328,7 @@ export function useWebRTC({
     ws.onerror = () => {
       setIsConnected(false);
     };
-  }, [roomId, token, fetchIceConfig, handleSignalingMessage]);
+  }, [roomId, fetchIceConfig, handleSignalingMessage]);
 
   // Disconnect
   const disconnect = useCallback(() => {
@@ -405,9 +409,9 @@ export function useWebRTC({
         if (sender) sender.replaceTrack(screenTrack);
       });
 
-      // Handle screen share stop from browser UI
+      // Handle screen share stop from browser UI — use ref to avoid stale closure
       screenTrack.onended = () => {
-        stopScreenShare();
+        stopScreenShareRef.current();
       };
 
       wsRef.current?.send(
@@ -423,7 +427,7 @@ export function useWebRTC({
     }
   }, [isVideoEnabled, isAudioEnabled]);
 
-  // Stop screen share
+  // Stop screen share — also stored in ref so onended always calls latest version
   const stopScreenShare = useCallback(() => {
     screenStreamRef.current?.getTracks().forEach((track) => track.stop());
     screenStreamRef.current = null;
@@ -450,6 +454,9 @@ export function useWebRTC({
     );
   }, [isVideoEnabled, isAudioEnabled]);
 
+  // Keep ref in sync so onended always calls the latest stopScreenShare
+  stopScreenShareRef.current = stopScreenShare;
+
   // Send chat message
   const sendChat = useCallback(
     (content: string) => {
@@ -466,13 +473,13 @@ export function useWebRTC({
 
   // Auto-connect
   useEffect(() => {
-    if (autoConnect && roomId && token) {
+    if (autoConnect && roomId) {
       connect();
     }
     return () => {
       disconnect();
     };
-  }, [autoConnect, roomId, token, connect, disconnect]);
+  }, [autoConnect, roomId, connect, disconnect]);
 
   return {
     localStream,

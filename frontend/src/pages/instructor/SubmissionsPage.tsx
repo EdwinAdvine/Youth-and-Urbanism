@@ -121,7 +121,7 @@ export const SubmissionsPage: React.FC = () => {
   };
 
   const handleGradeSubmission = (submissionId: string) => {
-    navigate(`/dashboard/instructor/submissions/${submissionId}/grade`);
+    navigate(`/dashboard/instructor/submissions/${submissionId}`);
   };
 
   const handleViewDetails = (submissionId: string) => {

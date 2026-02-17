@@ -14,6 +14,7 @@ router = APIRouter()
 
 
 class SearchResult(BaseModel):
+    """A single search result item with type, title, description, and link."""
     type: str
     title: str
     description: str
@@ -23,6 +24,7 @@ class SearchResult(BaseModel):
 
 
 class SearchResponse(BaseModel):
+    """Aggregated search response containing results grouped by category."""
     query: str
     total: int
     results: List[SearchResult]

@@ -1,11 +1,18 @@
 """
 Student AI Tutor API Routes
+
+Endpoints for the student's AI tutor experience including chat, learning
+path generation, journal entries with AI insights, concept explanations,
+teacher Q&A with AI summaries, and voice response generation via ElevenLabs.
 """
+import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Dict, List, Optional
 from uuid import UUID
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 from app.database import get_db
 from app.models.user import User
@@ -19,26 +26,31 @@ router = APIRouter(prefix="/student/ai", tags=["Student AI Tutor"])
 
 # Pydantic schemas
 class ChatRequest(BaseModel):
+    """Request body for sending a message to the AI tutor."""
     message: str
     conversation_history: Optional[List[Dict]] = None
 
 
 class JournalEntryRequest(BaseModel):
+    """Request body for creating a journal entry with optional mood tag."""
     content: str
     mood_tag: Optional[MoodType] = None
 
 
 class ExplainRequest(BaseModel):
+    """Request body for asking the AI to explain a concept."""
     concept: str
     context: Optional[str] = None
 
 
 class TeacherQuestionRequest(BaseModel):
+    """Request body for sending a question to a teacher through the AI."""
     teacher_id: str
     question: str
 
 
 class VoiceRequest(BaseModel):
+    """Request body for generating a voice response from text via ElevenLabs TTS."""
     text: str
 
 
@@ -77,15 +89,16 @@ async def chat_with_ai_tutor(
             conversation_history=request.conversation_history
         )
         return response
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
+            detail="AI tutor not found for this student"
         )
     except Exception as e:
+        logger.error(f"AI tutor chat failed for student {current_user.student_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to chat with AI: {str(e)}"
+            detail="Failed to process AI chat request"
         )
 
 
@@ -114,15 +127,16 @@ async def get_learning_path(
     try:
         path = await service.get_learning_path(current_user.student_id)
         return path
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
+            detail="AI tutor not found for this student"
         )
     except Exception as e:
+        logger.error(f"Learning path generation failed for student {current_user.student_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to generate learning path: {str(e)}"
+            detail="Failed to generate learning path"
         )
 
 
@@ -167,9 +181,10 @@ async def get_journal_entries(
             for entry in entries
         ]
     except Exception as e:
+        logger.error(f"Failed to fetch journal entries for student {current_user.student_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch journal entries: {str(e)}"
+            detail="Failed to fetch journal entries"
         )
 
 
@@ -216,9 +231,10 @@ async def create_journal_entry(
             "message": "Journal entry created successfully"
         }
     except Exception as e:
+        logger.error(f"Failed to create journal entry for student {current_user.student_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create journal entry: {str(e)}"
+            detail="Failed to create journal entry"
         )
 
 
@@ -256,15 +272,16 @@ async def explain_concept(
             context=request.context
         )
         return explanation
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
+            detail="AI tutor not found for this student"
         )
     except Exception as e:
+        logger.error(f"Concept explanation failed for student {current_user.student_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to explain concept: {str(e)}"
+            detail="Failed to explain concept"
         )
 
 
@@ -311,15 +328,16 @@ async def send_teacher_question(
             "created_at": qa_record.created_at,
             "message": "Question sent to teacher successfully"
         }
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid teacher ID: {str(e)}"
+            detail="Invalid teacher ID format"
         )
     except Exception as e:
+        logger.error(f"Failed to send teacher question for student {current_user.student_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to send question: {str(e)}"
+            detail="Failed to send question"
         )
 
 
@@ -349,9 +367,10 @@ async def get_teacher_responses(
         responses = await service.get_teacher_responses(current_user.student_id)
         return responses
     except Exception as e:
+        logger.error(f"Failed to fetch teacher responses for student {current_user.student_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch teacher responses: {str(e)}"
+            detail="Failed to fetch teacher responses"
         )
 
 
@@ -390,7 +409,8 @@ async def generate_voice_response(
         )
         return voice_response
     except Exception as e:
+        logger.error(f"Voice response generation failed for student {current_user.student_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to generate voice response: {str(e)}"
+            detail="Failed to generate voice response"
         )

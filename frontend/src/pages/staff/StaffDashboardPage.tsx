@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ViewToggle from '../../components/staff/dashboard/ViewToggle';
 import StaffBentoGrid from '../../components/staff/dashboard/StaffBentoGrid';
 import UrgentTicketsCard from '../../components/staff/dashboard/UrgentTicketsCard';
@@ -7,6 +7,18 @@ import AIAgendaCard from '../../components/staff/dashboard/AIAgendaCard';
 import TasksDeadlinesCard from '../../components/staff/dashboard/TasksDeadlinesCard';
 import StudentFlagsCard from '../../components/staff/dashboard/StudentFlagsCard';
 import AnomaliesCard from '../../components/staff/dashboard/AnomaliesCard';
+import { getDashboardStats, getMyFocus, getAIAgenda } from '@/services/staff/staffDashboardService';
+import { useStaffStore } from '@/store/staffStore';
+import type {
+  StaffDashboardStats,
+  MyFocusData,
+  AIAgendaItem as APIAgendaItem,
+  StaffTicketSummary,
+  ModerationItemSummary,
+  TaskDeadline,
+  StudentFlag as APIStudentFlag,
+  AIAnomalyItem,
+} from '@/types/staff';
 
 interface StatCard {
   label: string;
@@ -19,111 +31,274 @@ interface StatCard {
 interface UrgentTicket {
   id: string;
   subject: string;
-  priority: 'critical' | 'high' | 'medium';
+  priority: 'critical' | 'high';
   slaRemaining: string;
-  assignedTo: string;
+  isBreached: boolean;
 }
 
-interface ModerationItem {
+interface ModerationHighlight {
   id: string;
+  contentType: string;
   contentTitle: string;
-  type: string;
-  riskScore: number;
-  flagSource: 'ai' | 'user' | 'system';
-  createdAt: string;
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  aiRiskScore: number;
 }
 
 interface AgendaItem {
   id: string;
   title: string;
-  time: string;
-  type: 'review' | 'meeting' | 'deadline' | 'followup';
-  priority: 'high' | 'medium' | 'low';
+  priority: number;
+  rationale: string;
+  category: string;
+  estimatedMinutes: number;
+  actionUrl: string;
 }
 
-interface TaskItem {
+interface Task {
   id: string;
   title: string;
-  deadline: string;
-  status: 'overdue' | 'due_today' | 'upcoming';
-  category: string;
+  dueDate: string;
+  type: 'review' | 'ticket' | 'session' | 'content' | 'assessment';
+  isOverdue: boolean;
+  isCompleted: boolean;
 }
 
-interface StudentFlag {
+interface StudentFlagUI {
   id: string;
   studentName: string;
-  grade: string;
+  flagType: 'at_risk' | 'attendance' | 'performance' | 'behavior';
+  description: string;
   riskScore: number;
-  flagType: string;
-  lastActivity: string;
 }
 
 interface Anomaly {
   id: string;
+  title: string;
   description: string;
-  severity: 'critical' | 'warning' | 'info';
+  severity: 'high' | 'medium' | 'low';
+  trend: 'up' | 'down' | 'flat';
+  metric: string;
   detectedAt: string;
-  category: string;
+}
+
+/** Map API priority string to numeric priority for the agenda card. */
+function priorityToNumber(p: string): number {
+  switch (p) {
+    case 'critical': return 1;
+    case 'high': return 2;
+    case 'medium': return 3;
+    case 'low': return 4;
+    default: return 5;
+  }
+}
+
+/** Convert SLA remaining minutes to a human-readable string. */
+function formatSlaRemaining(minutes: number | null): string {
+  if (minutes === null || minutes === undefined) return 'N/A';
+  if (minutes <= 0) return '0h 0m';
+  const hours = Math.floor(minutes / 60);
+  const mins = Math.round(minutes % 60);
+  return `${hours}h ${mins}m`;
+}
+
+/** Map API task type to component task type. */
+function mapTaskType(apiType: string): Task['type'] {
+  const mapping: Record<string, Task['type']> = {
+    content_review: 'review',
+    assessment_grade: 'assessment',
+    session_prep: 'session',
+    report_due: 'content',
+  };
+  return mapping[apiType] || 'review';
+}
+
+/** Map API flag type to UI flag type. */
+function mapFlagType(apiType: string): StudentFlagUI['flagType'] {
+  const mapping: Record<string, StudentFlagUI['flagType']> = {
+    at_risk: 'at_risk',
+    attendance: 'attendance',
+    behavior: 'behavior',
+    achievement: 'performance',
+  };
+  return mapping[apiType] || 'at_risk';
+}
+
+/** Map severity to a numeric risk score for display. */
+function severityToRiskScore(severity: string): number {
+  switch (severity) {
+    case 'high': return 0.85;
+    case 'medium': return 0.6;
+    case 'low': return 0.35;
+    default: return 0.5;
+  }
 }
 
 const StaffDashboardPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'bento' | 'list'>('bento');
+  const [error, setError] = useState<string | null>(null);
 
   const [stats, setStats] = useState<StatCard[]>([]);
   const [urgentTickets, setUrgentTickets] = useState<UrgentTicket[]>([]);
-  const [moderationQueue, setModerationQueue] = useState<ModerationItem[]>([]);
+  const [moderationQueue, setModerationQueue] = useState<ModerationHighlight[]>([]);
   const [agendaItems, setAgendaItems] = useState<AgendaItem[]>([]);
-  const [tasks, setTasks] = useState<TaskItem[]>([]);
-  const [studentFlags, setStudentFlags] = useState<StudentFlag[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [studentFlags, setStudentFlags] = useState<StudentFlagUI[]>([]);
   const [anomalies, setAnomalies] = useState<Anomaly[]>([]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setStats([
-        { label: 'Open Tickets', value: 23, change: -3, changeLabel: 'from yesterday', icon: 'ticket' },
-        { label: 'Moderation Queue', value: 8, change: 2, changeLabel: 'new today', icon: 'shield' },
-        { label: 'Pending Approvals', value: 14, change: 0, changeLabel: 'unchanged', icon: 'check' },
-        { label: 'Active Sessions', value: 342, change: 18, changeLabel: 'vs last hour', icon: 'users' },
+  const { updateCounters } = useStaffStore();
+
+  const loadDashboardData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const [focusData, dashboardStats, aiAgenda] = await Promise.allSettled([
+        getMyFocus(),
+        getDashboardStats(),
+        getAIAgenda(),
       ]);
-      setUrgentTickets([
-        { id: 'TK-2024-0089', subject: 'Payment gateway timeout affecting 12 families', priority: 'critical', slaRemaining: '1h 23m', assignedTo: 'James K.' },
-        { id: 'TK-2024-0091', subject: 'Student unable to access Grade 7 CBC content', priority: 'high', slaRemaining: '3h 45m', assignedTo: 'Unassigned' },
-        { id: 'TK-2024-0087', subject: 'AI tutor generating incorrect Kiswahili translations', priority: 'critical', slaRemaining: '0h 42m', assignedTo: 'Sarah M.' },
-        { id: 'TK-2024-0093', subject: 'Parent dashboard showing wrong student data', priority: 'high', slaRemaining: '5h 10m', assignedTo: 'David O.' },
-      ]);
-      setModerationQueue([
-        { id: 'MOD-001', contentTitle: 'Grade 5 Science: Human Body Systems', type: 'lesson', riskScore: 78, flagSource: 'ai', createdAt: '2024-01-15T08:30:00Z' },
-        { id: 'MOD-002', contentTitle: 'Forum post: Homework help request', type: 'forum_post', riskScore: 45, flagSource: 'user', createdAt: '2024-01-15T09:15:00Z' },
-        { id: 'MOD-003', contentTitle: 'Grade 8 Social Studies assignment', type: 'assignment', riskScore: 62, flagSource: 'ai', createdAt: '2024-01-15T07:45:00Z' },
-      ]);
-      setAgendaItems([
-        { id: 'AG-001', title: 'Review flagged AI tutor responses (12 items)', time: '09:00 AM', type: 'review', priority: 'high' },
-        { id: 'AG-002', title: 'Weekly content quality standup', time: '10:30 AM', type: 'meeting', priority: 'medium' },
-        { id: 'AG-003', title: 'CBC alignment report due', time: '02:00 PM', type: 'deadline', priority: 'high' },
-        { id: 'AG-004', title: 'Follow up with Wanjiku family case', time: '03:30 PM', type: 'followup', priority: 'medium' },
-        { id: 'AG-005', title: 'Review new partner content submissions', time: '04:00 PM', type: 'review', priority: 'low' },
-      ]);
-      setTasks([
-        { id: 'TSK-001', title: 'Approve Grade 6 Mathematics module', deadline: '2024-01-15', status: 'overdue', category: 'Content Review' },
-        { id: 'TSK-002', title: 'Respond to parent escalation - Ochieng family', deadline: '2024-01-15', status: 'due_today', category: 'Support' },
-        { id: 'TSK-003', title: 'Complete safety audit for AI chat logs', deadline: '2024-01-17', status: 'upcoming', category: 'Safety' },
-        { id: 'TSK-004', title: 'Update KB article: M-Pesa payment guide', deadline: '2024-01-16', status: 'upcoming', category: 'Knowledge Base' },
-      ]);
-      setStudentFlags([
-        { id: 'SF-001', studentName: 'Brian Kipchoge', grade: 'Grade 7', riskScore: 85, flagType: 'Engagement Drop', lastActivity: '3 days ago' },
-        { id: 'SF-002', studentName: 'Amina Hassan', grade: 'Grade 5', riskScore: 72, flagType: 'Assessment Decline', lastActivity: '1 day ago' },
-        { id: 'SF-003', studentName: 'Kevin Otieno', grade: 'Grade 8', riskScore: 91, flagType: 'Absence Pattern', lastActivity: '5 days ago' },
-      ]);
-      setAnomalies([
-        { id: 'AN-001', description: 'Unusual spike in failed login attempts from Mombasa region', severity: 'critical', detectedAt: '2024-01-15T06:30:00Z', category: 'Security' },
-        { id: 'AN-002', description: 'AI tutor response time degraded by 340% in last hour', severity: 'warning', detectedAt: '2024-01-15T08:45:00Z', category: 'Performance' },
-        { id: 'AN-003', description: '15 students submitted identical assessment answers in Grade 6 Math', severity: 'warning', detectedAt: '2024-01-15T07:20:00Z', category: 'Academic Integrity' },
-      ]);
+
+      // --- Process dashboard stats ---
+      let statsResult: StaffDashboardStats | null = null;
+
+      if (dashboardStats.status === 'fulfilled') {
+        statsResult = dashboardStats.value;
+      } else if (focusData.status === 'fulfilled') {
+        statsResult = focusData.value.stats;
+      }
+
+      if (statsResult) {
+        setStats([
+          { label: 'Open Tickets', value: statsResult.tickets_assigned, change: 0, changeLabel: 'assigned to you', icon: 'ticket' },
+          { label: 'Moderation Queue', value: statsResult.moderation_pending, change: 0, changeLabel: 'pending review', icon: 'shield' },
+          { label: 'Pending Approvals', value: statsResult.content_in_review, change: 0, changeLabel: 'in review', icon: 'check' },
+          { label: 'Active Sessions', value: statsResult.active_sessions, change: 0, changeLabel: 'live now', icon: 'users' },
+        ]);
+
+        // Sync counters to the store so sidebar badges update
+        updateCounters({
+          openTickets: statsResult.tickets_assigned,
+          moderationQueue: statsResult.moderation_pending,
+          pendingApprovals: statsResult.content_in_review,
+          activeSessions: statsResult.active_sessions,
+          slaAtRisk: statsResult.sla_at_risk,
+        });
+      }
+
+      // --- Process My Focus data ---
+      if (focusData.status === 'fulfilled') {
+        const focus: MyFocusData = focusData.value;
+
+        // Map urgent tickets
+        setUrgentTickets(
+          focus.urgent_tickets.map((t: StaffTicketSummary) => ({
+            id: t.ticket_number || t.id,
+            subject: t.subject,
+            priority: (t.priority === 'critical' || t.priority === 'high' ? t.priority : 'high') as 'critical' | 'high',
+            slaRemaining: formatSlaRemaining(t.sla_time_remaining_minutes),
+            isBreached: t.sla_breached,
+          }))
+        );
+
+        // Map moderation highlights
+        setModerationQueue(
+          focus.moderation_highlights.map((m: ModerationItemSummary) => ({
+            id: m.id,
+            contentType: m.content_type,
+            contentTitle: m.title,
+            priority: (m.priority as ModerationHighlight['priority']) || 'medium',
+            aiRiskScore: m.ai_risk_score ?? 0,
+          }))
+        );
+
+        // Map tasks and deadlines
+        setTasks(
+          focus.tasks_deadlines.map((t: TaskDeadline) => ({
+            id: t.id,
+            title: t.title,
+            dueDate: t.due_at ? new Date(t.due_at).toLocaleDateString() : '',
+            type: mapTaskType(t.type),
+            isOverdue: t.status === 'overdue',
+            isCompleted: false,
+          }))
+        );
+
+        // Map student flags
+        setStudentFlags(
+          focus.student_flags.map((f: APIStudentFlag) => ({
+            id: f.student_id || f.id,
+            studentName: f.student_name,
+            flagType: mapFlagType(f.flag_type),
+            description: f.description,
+            riskScore: severityToRiskScore(f.severity),
+          }))
+        );
+
+        // Map AI anomalies
+        setAnomalies(
+          focus.ai_anomalies.map((a: AIAnomalyItem) => ({
+            id: a.id,
+            title: a.type,
+            description: a.description,
+            severity: (a.severity === 'critical' ? 'high' : a.severity) as Anomaly['severity'],
+            trend: 'up' as const,
+            metric: '',
+            detectedAt: a.detected_at ? new Date(a.detected_at).toLocaleString() : '',
+          }))
+        );
+
+        // Use agenda from focus data if separate call failed
+        if (aiAgenda.status !== 'fulfilled') {
+          setAgendaItems(
+            focus.ai_agenda.map((a: APIAgendaItem) => ({
+              id: a.id,
+              title: a.title,
+              priority: priorityToNumber(a.priority),
+              rationale: a.ai_rationale || a.description,
+              category: a.category,
+              estimatedMinutes: 30,
+              actionUrl: a.action_url,
+            }))
+          );
+        }
+      }
+
+      // --- Process AI agenda from dedicated endpoint ---
+      if (aiAgenda.status === 'fulfilled') {
+        setAgendaItems(
+          aiAgenda.value.map((a: APIAgendaItem) => ({
+            id: a.id,
+            title: a.title,
+            priority: priorityToNumber(a.priority),
+            rationale: a.ai_rationale || a.description,
+            category: a.category,
+            estimatedMinutes: 30,
+            actionUrl: a.action_url,
+          }))
+        );
+      }
+
+      // If all three requests failed, show an error
+      if (
+        focusData.status === 'rejected' &&
+        dashboardStats.status === 'rejected' &&
+        aiAgenda.status === 'rejected'
+      ) {
+        throw new Error(
+          (focusData.reason as Error)?.message || 'Failed to load dashboard data'
+        );
+      }
+    } catch (err) {
+      console.error('Dashboard load error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
+    } finally {
       setIsLoading(false);
-    }, 800);
-    return () => clearTimeout(timer);
-  }, []);
+    }
+  }, [updateCounters]);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   if (isLoading) {
     return (
@@ -144,6 +319,32 @@ const StaffDashboardPage: React.FC = () => {
           {[...Array(6)].map((_, i) => (
             <div key={i} className={`h-64 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] animate-pulse ${i === 2 ? 'lg:col-span-2' : ''}`} />
           ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">My Focus</h1>
+            <p className="text-sm text-gray-500 dark:text-white/50 mt-1">
+              Welcome back. Here is what needs your attention today.
+            </p>
+          </div>
+          <ViewToggle />
+        </div>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
+          <p className="text-red-600 dark:text-red-400 font-medium mb-2">Failed to load dashboard</p>
+          <p className="text-sm text-red-500 dark:text-red-400/70 mb-4">{error}</p>
+          <button
+            onClick={loadDashboardData}
+            className="px-4 py-2 bg-[#E40000] text-white text-sm font-medium rounded-lg hover:bg-[#C00] transition-colors"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -190,7 +391,7 @@ const StaffDashboardPage: React.FC = () => {
             Welcome back. Here is what needs your attention today.
           </p>
         </div>
-        <ViewToggle activeView={viewMode} onViewChange={setViewMode} />
+        <ViewToggle />
       </div>
 
       {/* Stats Row */}
@@ -215,9 +416,9 @@ const StaffDashboardPage: React.FC = () => {
       </div>
 
       {/* Bento Grid */}
-      <StaffBentoGrid viewMode={viewMode}>
+      <StaffBentoGrid>
         <UrgentTicketsCard tickets={urgentTickets} />
-        <ModerationQueueCard items={moderationQueue} />
+        <ModerationQueueCard items={moderationQueue} totalPending={moderationQueue.length} />
         <AIAgendaCard items={agendaItems} />
         <TasksDeadlinesCard tasks={tasks} />
         <StudentFlagsCard flags={studentFlags} />

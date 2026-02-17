@@ -1,3 +1,5 @@
+// BecomeInstructorPage - Public page at /become-instructor. Presents the instructor program
+// benefits, requirements, application form, and testimonials to attract new educators.
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {

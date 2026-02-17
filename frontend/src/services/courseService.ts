@@ -9,7 +9,7 @@
  * - Course ratings and reviews
  */
 
-import axios from 'axios';
+import apiClient from './api';
 import type {
   Course,
   CourseWithDetails,
@@ -18,36 +18,10 @@ import type {
   CourseListResponse,
   CourseFilterParams,
   Enrollment,
-  EnrollmentCreate,
   LessonCompletionRequest,
   EnrollmentRatingRequest,
   EnrollmentFilterParams,
-  EnrollmentWithCourse,
 } from '../types/course';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const API_V1_PREFIX = '/api/v1';
-
-// ============================================================================
-// API Client Configuration
-// ============================================================================
-
-const apiClient = axios.create({
-  baseURL: `${API_BASE_URL}${API_V1_PREFIX}`,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 30000,
-});
-
-// Add auth token to requests
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
-  if (token && config.headers) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
 
 // ============================================================================
 // Course Service

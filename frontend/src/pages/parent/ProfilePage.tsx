@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { User, Save, Loader } from 'lucide-react';
+import { User, Save, Loader, AlertCircle } from 'lucide-react';
 import { getParentProfile, updateParentProfile } from '../../services/parentSettingsService';
 
 const fadeUp = {
@@ -18,6 +18,7 @@ const ProfilePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
     full_name: '',
     phone_number: '',
@@ -49,14 +50,24 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleSave = async () => {
+    // Validate full_name
+    if (!form.full_name || form.full_name.trim().length === 0) {
+      setError('Full name is required');
+      setTimeout(() => setError(null), 3000);
+      return;
+    }
+
     try {
       setSaving(true);
       setSuccess(false);
+      setError(null);
       await updateParentProfile(form);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
       console.error('Failed to update profile:', error);
+      setError('Failed to update profile. Please try again.');
+      setTimeout(() => setError(null), 5000);
     } finally {
       setSaving(false);
     }
@@ -156,6 +167,14 @@ const ProfilePage: React.FC = () => {
             {success && (
               <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
                 <p className="text-sm text-green-400">Profile updated successfully!</p>
+              </div>
+            )}
+
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                <p className="text-sm text-red-400">{error}</p>
               </div>
             )}
 

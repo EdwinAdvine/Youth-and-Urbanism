@@ -13,6 +13,15 @@ from app.database import Base
 
 
 class SupportTicket(Base):
+    """
+    A user-submitted support ticket with SLA tracking.
+
+    Tickets have a unique ticket_number, category, priority (critical/high/
+    medium/low), and status (open -> in_progress -> escalated -> resolved ->
+    closed). Each ticket records the reporter, assignee, SLA deadline, and
+    resolution timestamp. Composite indexes optimize the admin queue views.
+    """
+
     __tablename__ = "support_tickets"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -39,6 +48,15 @@ class SupportTicket(Base):
 
 
 class ModerationItem(Base):
+    """
+    A piece of user-generated content flagged for admin review.
+
+    Items are flagged either automatically by the AI content filter or via
+    user reports. Each item includes a preview snippet, the flag reason,
+    severity, and the original author. Status moves from pending_review to
+    approved (safe), removed, or escalated for further investigation.
+    """
+
     __tablename__ = "moderation_items"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -63,6 +81,15 @@ class ModerationItem(Base):
 
 
 class SystemConfig(Base):
+    """
+    A key-value system configuration entry.
+
+    Stores platform-wide settings (e.g. maintenance mode, feature flags,
+    rate limits) as JSONB values. Settings are grouped by category and can
+    be marked as non-editable to protect critical values. All changes are
+    tracked with last_modified_by and timestamp.
+    """
+
     __tablename__ = "system_configs"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -80,6 +107,15 @@ class SystemConfig(Base):
 
 
 class SystemConfigChangeRequest(Base):
+    """
+    A maker-checker request to change a system configuration value.
+
+    One admin proposes a change (maker) and another admin approves or
+    rejects it (checker). This prevents unilateral changes to sensitive
+    settings. The requested_value stores the proposed JSONB, and the
+    status transitions from pending -> approved/rejected.
+    """
+
     __tablename__ = "system_config_change_requests"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -97,6 +133,15 @@ class SystemConfigChangeRequest(Base):
 
 
 class KeywordFilter(Base):
+    """
+    A keyword or phrase blocked by the content moderation system.
+
+    Keywords are categorized (profanity, hate_speech, adult, custom) and
+    assigned a severity level. The AI filter and user-input validators check
+    incoming text against active keyword entries. Admins can add, deactivate,
+    or recategorize entries as moderation policies evolve.
+    """
+
     __tablename__ = "keyword_filters"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

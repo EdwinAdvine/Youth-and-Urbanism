@@ -3,21 +3,16 @@
  * API calls for partner dashboard overview and AI highlights
  */
 
-import axios from 'axios';
+import apiClient from '../api';
 import type { PartnerDashboardOverview } from '../../types/partner';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const BASE_PATH = `${API_URL}/api/v1/partner/dashboard`;
+const BASE_PATH = `/api/v1/partner/dashboard`;
 
 /**
  * Get partner dashboard overview with aggregated stats
  */
 export const getPartnerDashboardOverview = async (): Promise<PartnerDashboardOverview> => {
-  const response = await axios.get(`${BASE_PATH}/overview`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-    },
-  });
+  const response = await apiClient.get(`${BASE_PATH}/overview`);
   return response.data;
 };
 
@@ -38,11 +33,7 @@ export const getPartnerAIHighlights = async (): Promise<{
     created_at: string;
   }>;
 }> => {
-  const response = await axios.get(`${BASE_PATH}/ai-highlights`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-    },
-  });
+  const response = await apiClient.get(`${BASE_PATH}/ai-highlights`);
   return response.data;
 };
 

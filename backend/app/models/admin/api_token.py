@@ -13,6 +13,15 @@ from app.database import Base
 
 
 class APIToken(Base):
+    """
+    A developer API token for external integrations.
+
+    Tokens are stored as bcrypt hashes (token_hash) so the plaintext is only
+    shown once at creation time. Each token is scoped to a set of permissions
+    (JSONB array), can be deactivated, and optionally expires. The last_used_at
+    timestamp helps admins identify stale tokens.
+    """
+
     __tablename__ = "api_tokens"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

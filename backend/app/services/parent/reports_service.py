@@ -4,11 +4,14 @@ Parent Reports Service
 Business logic for reports generation and portfolio exports.
 """
 
+from sqlalchemy import select, and_, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 from uuid import UUID, uuid4
 from datetime import datetime
 
+from app.models.parent.parent_report import ParentReport
+from app.models import Student
 from app.schemas.parent.reports_schemas import (
     ReportsListResponse, ReportSummary, GenerateReportRequest,
     ReportDetailResponse, TermSummaryResponse, TranscriptResponse,
@@ -28,10 +31,48 @@ class ParentReportsService:
     ) -> ReportsListResponse:
         """Get list of generated reports"""
 
-        # Placeholder - would query actual reports
+        filters = [ParentReport.parent_id == parent_id]
+        if child_id:
+            filters.append(ParentReport.child_id == child_id)
+        if report_type:
+            filters.append(ParentReport.report_type == report_type)
+
+        result = await db.execute(
+            select(ParentReport)
+            .where(and_(*filters))
+            .order_by(desc(ParentReport.created_at))
+        )
+        reports = result.scalars().all()
+
+        report_summaries = []
+        for report in reports:
+            # Get child name
+            child_name = None
+            if report.child_id:
+                child_result = await db.execute(
+                    select(Student).where(Student.id == report.child_id)
+                )
+                child = child_result.scalar_one_or_none()
+                if child and child.user:
+                    child_name = child.user.profile_data.get('full_name', 'Unknown')
+
+            report_summaries.append(ReportSummary(
+                id=report.id,
+                child_id=report.child_id,
+                child_name=child_name,
+                report_type=report.report_type,
+                title=report.title,
+                period_start=report.period_start,
+                period_end=report.period_end,
+                status=report.status,
+                ai_summary=report.ai_summary,
+                pdf_url=report.pdf_url,
+                created_at=report.created_at
+            ))
+
         return ReportsListResponse(
-            reports=[],
-            total_count=0
+            reports=report_summaries,
+            total_count=len(report_summaries)
         )
 
     async def generate_report(

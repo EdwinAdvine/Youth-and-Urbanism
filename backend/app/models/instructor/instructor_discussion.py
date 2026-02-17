@@ -23,7 +23,14 @@ class PostType(str, enum.Enum):
 
 
 class InstructorForumPost(Base):
-    """Forum posts in the instructor community"""
+    """
+    A discussion post in the instructor community forum.
+
+    Posts can be discussions, announcements, or questions. Admins can pin
+    important posts. The AI runs sentiment analysis on each post (score
+    from -100 to +100) and flags posts for moderation if needed. Posts
+    support threaded replies via the InstructorForumReply relationship.
+    """
 
     __tablename__ = "instructor_forum_posts"
 
@@ -58,7 +65,14 @@ class InstructorForumPost(Base):
 
 
 class InstructorForumReply(Base):
-    """Replies to instructor forum posts"""
+    """
+    A reply to an instructor forum post.
+
+    Each reply has content text, an AI-generated sentiment score, and
+    timestamps. Replies are linked to both the parent post and the author.
+    The sentiment score helps moderators quickly identify negative or
+    heated discussions in the instructor community.
+    """
 
     __tablename__ = "instructor_forum_replies"
 

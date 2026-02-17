@@ -1,3 +1,5 @@
+// PricingPage - Public page at /pricing. Displays subscription plans with monthly/annual
+// toggle, feature comparison, and FAQ section for prospective subscribers.
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -205,7 +207,7 @@ const sectionVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: 'easeOut' },
+    transition: { duration: 0.6, ease: 'easeOut' as const },
   },
 };
 
@@ -214,13 +216,13 @@ const cardVariants = {
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.12, duration: 0.5, ease: 'easeOut' },
+    transition: { delay: i * 0.12, duration: 0.5, ease: 'easeOut' as const },
   }),
 };
 
 const faqContentVariants = {
   collapsed: { height: 0, opacity: 0 },
-  expanded: { height: 'auto', opacity: 1, transition: { duration: 0.3, ease: 'easeOut' } },
+  expanded: { height: 'auto', opacity: 1, transition: { duration: 0.3, ease: 'easeOut' as const } },
 };
 
 /* ──────────────────────────────────────────────

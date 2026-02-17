@@ -1,19 +1,15 @@
 /**
  * Student Wallet & Payment Service
  */
-import axios from 'axios';
+import apiClient from '../api';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const API_PREFIX = '/api/v1/student/wallet';
 
 /**
  * Get wallet balance
  */
 export const getWalletBalance = async () => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/balance`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/balance`);
   return response.data;
 };
 
@@ -21,24 +17,17 @@ export const getWalletBalance = async () => {
  * Get transaction history
  */
 export const getTransactionHistory = async (limit: number = 20, offset: number = 0) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(
-    `${API_BASE}${API_PREFIX}/transactions?limit=${limit}&offset=${offset}`,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const response = await apiClient.get(`${API_PREFIX}/transactions`, {
+    params: { limit, offset },
+  });
   return response.data;
 };
 
 /**
  * Initiate Paystack payment
  */
-export const initiatePaystackPayment = async (amount: number, metadata?: any) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.post(
-    `${API_BASE}${API_PREFIX}/topup/paystack`,
-    { amount, metadata },
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+export const initiatePaystackPayment = async (amount: number, metadata?: unknown) => {
+  const response = await apiClient.post(`${API_PREFIX}/topup/paystack`, { amount, metadata });
   return response.data;
 };
 
@@ -46,10 +35,7 @@ export const initiatePaystackPayment = async (amount: number, metadata?: any) =>
  * Verify Paystack payment
  */
 export const verifyPaystackPayment = async (reference: string) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/payment/verify/${reference}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/payment/verify/${reference}`);
   return response.data;
 };
 
@@ -57,10 +43,7 @@ export const verifyPaystackPayment = async (reference: string) => {
  * Get payment methods
  */
 export const getPaymentMethods = async () => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/payment-methods`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/payment-methods`);
   return response.data;
 };
 
@@ -75,11 +58,7 @@ export const savePaymentMethod = async (data: {
   exp_year: string;
   bank?: string;
 }) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.post(`${API_BASE}${API_PREFIX}/payment-methods`,
-    data,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const response = await apiClient.post(`${API_PREFIX}/payment-methods`, data);
   return response.data;
 };
 
@@ -87,10 +66,7 @@ export const savePaymentMethod = async (data: {
  * Get subscription info
  */
 export const getSubscriptionInfo = async () => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/subscription`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/subscription`);
   return response.data;
 };
 
@@ -98,9 +74,6 @@ export const getSubscriptionInfo = async () => {
  * Get AI fund advisor
  */
 export const getAIFundAdvisor = async () => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/ai-advisor`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/ai-advisor`);
   return response.data;
 };

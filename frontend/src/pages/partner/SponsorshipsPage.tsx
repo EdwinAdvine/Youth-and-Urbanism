@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   Plus,
@@ -15,7 +15,10 @@ import {
   Clock,
   AlertCircle,
   PlayCircle,
+  X,
+  Download,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { getSponsorshipPrograms } from '../../services/partner/sponsorshipService';
 
 const fadeUp = {
@@ -106,12 +109,17 @@ const hardcodedPrograms: SponsorshipProgram[] = [
 ];
 
 const SponsorshipsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedPrograms, setSelectedPrograms] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [programs, setPrograms] = useState<SponsorshipProgram[]>([]);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  const [showBulkMenu, setShowBulkMenu] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchPrograms = async () => {
@@ -235,7 +243,10 @@ const SponsorshipsPage: React.FC = () => {
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Sponsorship Programs</h1>
               <p className="text-gray-500 dark:text-white/60">Manage and monitor all your sponsorship initiatives</p>
             </div>
-            <button className="flex items-center gap-2 px-4 py-2.5 bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#FF4444] transition-colors">
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#FF4444] transition-colors"
+            >
               <Plus className="w-5 h-5" />
               New Program
             </button>
@@ -294,11 +305,30 @@ const SponsorshipsPage: React.FC = () => {
                   </select>
                 </div>
                 {selectedPrograms.length > 0 && (
-                  <div className="flex items-center gap-2 px-4 py-2 bg-[#E40000]/20 border border-[#E40000]/30 rounded-lg">
+                  <div className="relative flex items-center gap-2 px-4 py-2 bg-[#E40000]/20 border border-[#E40000]/30 rounded-lg">
                     <span className="text-sm text-gray-900 dark:text-white">{selectedPrograms.length} selected</span>
-                    <button className="text-xs text-[#E40000] hover:text-[#FF4444]">
+                    <button
+                      onClick={() => setShowBulkMenu(!showBulkMenu)}
+                      className="text-xs text-[#E40000] hover:text-[#FF4444]"
+                    >
                       Bulk Action
                     </button>
+                    {showBulkMenu && (
+                      <div className="absolute top-full right-0 mt-1 w-48 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg shadow-lg z-10 py-1">
+                        <button
+                          onClick={() => { setShowBulkMenu(false); alert('Export CSV coming soon'); }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] flex items-center gap-2"
+                        >
+                          <Download className="w-4 h-4" /> Export CSV
+                        </button>
+                        <button
+                          onClick={() => { setShowBulkMenu(false); alert('Archive selected coming soon'); }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] flex items-center gap-2"
+                        >
+                          <Archive className="w-4 h-4" /> Archive Selected
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -336,9 +366,39 @@ const SponsorshipsPage: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   {getStatusBadge(program.status)}
-                  <button className="p-2 hover:bg-gray-100 dark:hover:bg-[#22272B] rounded-lg transition-colors">
-                    <MoreVertical className="w-4 h-4 text-gray-500 dark:text-white/60" />
-                  </button>
+                  <div className="relative" ref={dropdownRef}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenDropdownId(openDropdownId === program.id ? null : program.id);
+                      }}
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-[#22272B] rounded-lg transition-colors"
+                    >
+                      <MoreVertical className="w-4 h-4 text-gray-500 dark:text-white/60" />
+                    </button>
+                    {openDropdownId === program.id && (
+                      <div className="absolute top-full right-0 mt-1 w-44 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg shadow-lg z-10 py-1">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setOpenDropdownId(null); navigate(`/dashboard/partner/sponsored-children`); }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] flex items-center gap-2"
+                        >
+                          <Eye className="w-4 h-4" /> View Details
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setOpenDropdownId(null); alert('Edit modal coming soon'); }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-[#22272B] flex items-center gap-2"
+                        >
+                          <Edit className="w-4 h-4" /> Edit Program
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setOpenDropdownId(null); alert('Archive coming soon'); }}
+                          className="w-full text-left px-4 py-2 text-sm text-orange-400 hover:bg-gray-100 dark:hover:bg-[#22272B] flex items-center gap-2"
+                        >
+                          <Archive className="w-4 h-4" /> Archive
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -382,11 +442,17 @@ const SponsorshipsPage: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-2">
-                <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 dark:bg-[#22272B] text-gray-900 dark:text-white rounded-lg hover:bg-[#2A2F34] transition-colors">
+                <button
+                  onClick={() => navigate('/dashboard/partner/sponsored-children')}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 dark:bg-[#22272B] text-gray-900 dark:text-white rounded-lg hover:bg-[#2A2F34] transition-colors"
+                >
                   <Eye className="w-4 h-4" />
                   View Details
                 </button>
-                <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#E40000]/20 text-[#E40000] rounded-lg hover:bg-[#E40000]/30 transition-colors">
+                <button
+                  onClick={() => alert('Edit program modal coming soon')}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#E40000]/20 text-[#E40000] rounded-lg hover:bg-[#E40000]/30 transition-colors"
+                >
                   <Edit className="w-4 h-4" />
                   Edit
                 </button>
@@ -405,6 +471,61 @@ const SponsorshipsPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Create Program Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl w-full max-w-lg p-6"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">New Sponsorship Program</h2>
+              <button onClick={() => setShowCreateModal(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-[#22272B] rounded-lg">
+                <X className="w-5 h-5 text-gray-500 dark:text-white/60" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-gray-500 dark:text-white/50 block mb-1.5">Program Name</label>
+                <input type="text" placeholder="e.g. STEM Excellence Program" className="w-full bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#E40000]/50" />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 dark:text-white/50 block mb-1.5">Description</label>
+                <textarea rows={3} placeholder="Describe the program goals..." className="w-full bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#E40000]/50 resize-none" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs text-gray-500 dark:text-white/50 block mb-1.5">Type</label>
+                  <select className="w-full bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#E40000]/50">
+                    <option>Academic</option>
+                    <option>Foundation</option>
+                    <option>Specialized</option>
+                    <option>Community</option>
+                    <option>Enrichment</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 dark:text-white/50 block mb-1.5">Monthly Budget (KSh)</label>
+                  <input type="number" placeholder="e.g. 225000" className="w-full bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#E40000]/50" />
+                </div>
+              </div>
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  onClick={() => { setShowCreateModal(false); alert('Program creation submitted'); }}
+                  className="px-6 py-2.5 bg-[#E40000] text-white rounded-lg hover:bg-[#FF4444] transition-colors"
+                >
+                  Create Program
+                </button>
+                <button onClick={() => setShowCreateModal(false)} className="px-6 py-2.5 bg-gray-100 dark:bg-[#22272B] text-gray-900 dark:text-white rounded-lg hover:bg-[#2A2F34] transition-colors">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

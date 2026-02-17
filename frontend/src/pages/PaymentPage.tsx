@@ -1,3 +1,10 @@
+// PaymentPage - Authenticated page at /payment. Handles course payment processing with
+// M-Pesa and card payment methods, order summary, and transaction confirmation.
+//
+// SECURITY TODO: The card payment form below collects raw card data in React state.
+// Before accepting real card payments, replace the custom card fields with Stripe Elements
+// (@stripe/react-stripe-js) or PayPal JS SDK so card data never touches our frontend code.
+// See: https://stripe.com/docs/stripe-js/react
 import React, { useState, useEffect } from 'react';
 import {
   CreditCard,
@@ -59,7 +66,7 @@ interface ValidationErrors {
 }
 
 const PaymentPage: React.FC = () => {
-  const { user } = useAuthStore();
+  useAuthStore();
   const [selectedGateway, setSelectedGateway] = useState<PaymentGateway>('mpesa');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -243,7 +250,15 @@ const PaymentPage: React.FC = () => {
       } else if (selectedGateway === 'paypal') {
         result = await initiatePayPalPayment(amount, 'USD', formData.purpose);
         if (result.checkoutUrl) {
-          window.open(result.checkoutUrl, '_blank');
+          // Validate URL protocol before opening
+          try {
+            const url = new URL(result.checkoutUrl);
+            if (url.protocol === 'https:' || url.protocol === 'http:') {
+              window.open(result.checkoutUrl, '_blank', 'noopener,noreferrer');
+            }
+          } catch {
+            // Invalid URL — do not open
+          }
         }
       } else {
         result = await initiateStripePayment(amount, undefined, 'USD', formData.purpose);

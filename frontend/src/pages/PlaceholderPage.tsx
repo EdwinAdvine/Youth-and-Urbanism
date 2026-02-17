@@ -1,3 +1,5 @@
+// PlaceholderPage - Generic placeholder used for routes under construction.
+// Displays a "coming soon" message with a link back to the dashboard.
 import React from 'react';
 import { Link } from 'react-router-dom';
 

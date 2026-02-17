@@ -333,7 +333,7 @@ const PartnerDashboardPage: React.FC = () => {
       icon: TrendingUp,
       color: 'from-orange-500/20 to-red-500/20',
       borderColor: 'border-orange-500/30',
-      onClick: () => {},
+      onClick: () => navigate('/dashboard/partner/roi-metrics'),
     },
   ];
 
@@ -468,7 +468,10 @@ const PartnerDashboardPage: React.FC = () => {
             <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6 h-full">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Recent Activity</h2>
-                <button className="text-[#E40000] text-sm font-medium hover:text-[#FF4444] transition-colors">
+                <button
+                  onClick={() => navigate('/dashboard/partner/notifications')}
+                  className="text-[#E40000] text-sm font-medium hover:text-[#FF4444] transition-colors"
+                >
                   View all
                 </button>
               </div>
@@ -503,7 +506,10 @@ const PartnerDashboardPage: React.FC = () => {
           <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Upcoming Meetings</h2>
-              <button className="text-[#E40000] text-sm font-medium hover:text-[#FF4444] transition-colors flex items-center gap-2">
+              <button
+                onClick={() => navigate('/dashboard/partner/collaboration')}
+                className="text-[#E40000] text-sm font-medium hover:text-[#FF4444] transition-colors flex items-center gap-2"
+              >
                 View calendar <Calendar className="w-4 h-4" />
               </button>
             </div>

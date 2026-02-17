@@ -128,22 +128,20 @@ class AuditMiddleware(BaseHTTPMiddleware):
         client_ip = _get_client_ip(request)
         user_agent = request.headers.get("User-Agent", "unknown")
 
-        # Try to read request body for details (for POST/PUT/PATCH)
-        request_body = None
-        if method in {"POST", "PUT", "PATCH"}:
-            try:
-                body_bytes = await request.body()
-                if body_bytes:
-                    request_body = json.loads(body_bytes)
-                    # Sanitize sensitive fields
-                    for field in ("password", "secret", "token", "api_key", "secret_key"):
-                        if field in request_body:
-                            request_body[field] = "***REDACTED***"
-            except (json.JSONDecodeError, Exception):
-                request_body = None
-
         # Process the request
         response = await call_next(request)
+
+        # Try to get cached request body after processing (avoid consuming body before call_next)
+        request_body = None
+        if method in {"POST", "PUT", "PATCH"} and hasattr(request, "_body"):
+            try:
+                request_body = json.loads(request._body)
+                # Sanitize sensitive fields
+                for field in ("password", "secret", "token", "api_key", "secret_key"):
+                    if field in request_body:
+                        request_body[field] = "***REDACTED***"
+            except (json.JSONDecodeError, Exception):
+                request_body = None
 
         # Extract actor info from request state (set by auth middleware)
         actor_id = getattr(request.state, "user_id", None) if hasattr(request, "state") else None

@@ -537,14 +537,7 @@ async def confirm_password_reset(
     """
     try:
         # Verify reset token
-        payload = verify_token(reset_token, token_type="access")
-
-        # Check if this is a password reset token
-        if payload.get("type") != "password_reset":
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid reset token"
-            )
+        payload = verify_token(reset_token, token_type="password_reset")
 
         user_id_str: str = payload.get("sub")
         if user_id_str is None:

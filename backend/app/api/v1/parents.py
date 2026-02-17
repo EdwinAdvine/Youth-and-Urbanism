@@ -46,6 +46,7 @@ async def link_student(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> ChildSummary:
+    """Link a student to the current parent using the student's admission number."""
     _require_parent(current_user)
 
     student = await parent_service.link_student_to_parent(
@@ -84,6 +85,7 @@ async def unlink_student(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> None:
+    """Remove the parent-student link for the given student."""
     _require_parent(current_user)
 
     await parent_service.unlink_student_from_parent(
@@ -104,6 +106,7 @@ async def list_children(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> ParentChildrenResponse:
+    """List all students currently linked to the authenticated parent."""
     _require_parent(current_user)
 
     children = await parent_service.get_children(
@@ -129,6 +132,7 @@ async def get_child_progress(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> ChildProgressResponse:
+    """Get detailed learning progress and course enrollment data for a linked child."""
     _require_parent(current_user)
 
     progress = await parent_service.get_child_progress(

@@ -1,3 +1,5 @@
+// DashboardInstructor - Instructor role dashboard at /dashboard. Shows course management,
+// student enrollment stats, earnings, sessions, messages, and AI intervention alerts.
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';

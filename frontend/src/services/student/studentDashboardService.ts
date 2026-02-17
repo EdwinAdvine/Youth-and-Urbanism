@@ -1,10 +1,9 @@
 /**
  * Student Dashboard Service - API calls for dashboard data
  */
-import axios from 'axios';
+import apiClient from '../api';
 import type { DailyPlan, MoodType, DailyQuote, UrgentItem } from '../../types/student';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const API_PREFIX = '/api/v1/student/dashboard';
 
 /**
@@ -21,12 +20,7 @@ export const getTodayDashboard = async (): Promise<{
   xp_data: { current_xp: number; level: number; next_level_xp: number; progress_to_next_level: number };
   timestamp: Date;
 }> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/today`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/today`);
   return response.data;
 };
 
@@ -45,12 +39,7 @@ export const submitMoodCheckIn = async (data: {
   timestamp: Date;
   message: string;
 }> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.post(`${API_BASE}${API_PREFIX}/mood`, data, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await apiClient.post(`${API_PREFIX}/mood`, data);
   return response.data;
 };
 
@@ -63,12 +52,7 @@ export const getTeacherSyncNotes = async (): Promise<Array<{
   teacher_name: string;
   created_at: Date;
 }>> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/teacher-sync`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/teacher-sync`);
   return response.data;
 };
 
@@ -76,12 +60,7 @@ export const getTeacherSyncNotes = async (): Promise<Array<{
  * Get daily quote/micro-lesson
  */
 export const getDailyQuote = async (): Promise<DailyQuote> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/quote`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/quote`);
   return response.data;
 };
 
@@ -94,11 +73,6 @@ export const updateDailyPlan = async (items: Array<any>): Promise<{
   manually_edited: boolean;
   message: string;
 }> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.put(`${API_BASE}${API_PREFIX}/daily-plan`, { items }, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await apiClient.put(`${API_PREFIX}/daily-plan`, { items });
   return response.data;
 };

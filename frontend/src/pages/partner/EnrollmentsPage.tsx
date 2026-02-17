@@ -12,6 +12,8 @@ import {
   Search,
   Filter,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { requestConsent } from '../../services/partner/sponsorshipService';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } };
@@ -67,8 +69,10 @@ const borderColor: Record<ConsentStatus, string> = {
 };
 
 const EnrollmentsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabKey>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [sendingReminder, setSendingReminder] = useState<string | null>(null);
 
   const filteredEnrollments = mockEnrollments.filter((e) => {
     const matchesSearch =
@@ -85,6 +89,18 @@ const EnrollmentsPage: React.FC = () => {
     }
     return true;
   });
+
+  const handleSendReminder = async (enrollmentId: string) => {
+    try {
+      setSendingReminder(enrollmentId);
+      await requestConsent(enrollmentId);
+      alert('Consent reminder sent successfully!');
+    } catch {
+      alert('Failed to send reminder. Please try again.');
+    } finally {
+      setSendingReminder(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0F1112] p-6">
@@ -209,14 +225,21 @@ const EnrollmentsPage: React.FC = () => {
 
               {/* Actions */}
               <div className="col-span-2 flex items-center justify-end gap-2">
-                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-white/70 bg-gray-100 dark:bg-[#22272B] hover:bg-[#2a3035] transition-colors">
+                <button
+                  onClick={() => navigate(`/dashboard/partner/sponsored-children/${enrollment.id}`)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-white/70 bg-gray-100 dark:bg-[#22272B] hover:bg-[#2a3035] transition-colors"
+                >
                   <Eye className="w-3.5 h-3.5" />
                   View
                 </button>
                 {enrollment.consentStatus === 'pending' && (
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors">
+                  <button
+                    onClick={() => handleSendReminder(enrollment.id)}
+                    disabled={sendingReminder === enrollment.id}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                  >
                     <Bell className="w-3.5 h-3.5" />
-                    Send Reminder
+                    {sendingReminder === enrollment.id ? 'Sending...' : 'Send Reminder'}
                   </button>
                 )}
               </div>

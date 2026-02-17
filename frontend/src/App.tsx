@@ -1,6 +1,8 @@
 import React, { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
+import GlobalErrorBoundary from './components/error/GlobalErrorBoundary';
+import ScrollToTopOnNavigate from './components/layout/ScrollToTopOnNavigate';
 import './App.css';
 
 // Layouts
@@ -23,6 +25,33 @@ import PublicForumPage from './pages/PublicForumPage';
 import CourseCatalogPage from './pages/CourseCatalogPage';
 import CourseDetailsPage from './pages/CourseDetailsPage';
 const SearchResultsPage = lazy(() => import('./pages/SearchResultsPage'));
+
+// Documentation Pages (lazy-loaded)
+const DocsLayout = lazy(() => import('./pages/docs/DocsLayout'));
+const DocsHomePage = lazy(() => import('./pages/docs/DocsHomePage'));
+const GettingStartedPage = lazy(() => import('./pages/docs/GettingStartedPage'));
+const ChangelogPage = lazy(() => import('./pages/docs/ChangelogPage'));
+const StudentGuidePage = lazy(() => import('./pages/docs/uhs/StudentGuidePage'));
+const ParentGuidePage = lazy(() => import('./pages/docs/uhs/ParentGuidePage'));
+const InstructorGuidePage = lazy(() => import('./pages/docs/uhs/InstructorGuidePage'));
+const PartnerGuidePage = lazy(() => import('./pages/docs/uhs/PartnerGuidePage'));
+const CoursesGuidePage = lazy(() => import('./pages/docs/uhs/CoursesGuidePage'));
+const AssessmentsGuidePage = lazy(() => import('./pages/docs/uhs/AssessmentsGuidePage'));
+const PaymentsGuidePage = lazy(() => import('./pages/docs/uhs/PaymentsGuidePage'));
+const ForumGuidePage = lazy(() => import('./pages/docs/uhs/ForumGuidePage'));
+const StoreGuidePage = lazy(() => import('./pages/docs/uhs/StoreGuidePage'));
+const CertificatesGuidePage = lazy(() => import('./pages/docs/uhs/CertificatesGuidePage'));
+const AITutorGuidePage = lazy(() => import('./pages/docs/bird/AITutorGuidePage'));
+const CoPilotGuidePage = lazy(() => import('./pages/docs/bird/CoPilotGuidePage'));
+const VoiceModeGuidePage = lazy(() => import('./pages/docs/bird/VoiceModeGuidePage'));
+const LearningPathsGuidePage = lazy(() => import('./pages/docs/bird/LearningPathsGuidePage'));
+const ApiOverviewPage = lazy(() => import('./pages/docs/api/ApiOverviewPage'));
+const AuthApiPage = lazy(() => import('./pages/docs/api/AuthApiPage'));
+const CoursesApiPage = lazy(() => import('./pages/docs/api/CoursesApiPage'));
+const AITutorApiPage = lazy(() => import('./pages/docs/api/AITutorApiPage'));
+const PaymentsApiPage = lazy(() => import('./pages/docs/api/PaymentsApiPage'));
+const MoreApisPage = lazy(() => import('./pages/docs/api/MoreApisPage'));
+const DocsFAQPage = lazy(() => import('./pages/docs/FAQPage'));
 
 // Protected Pages
 import ProtectedRoute from './components/ProtectedRoute';
@@ -132,6 +161,7 @@ const AuditLogsPage = lazy(() => import('./pages/admin/AuditLogsPage'));
 const AdminNotificationsPage = lazy(() => import('./pages/admin/AdminNotificationsPage'));
 const AdminProfilePage = lazy(() => import('./pages/admin/AdminProfilePage'));
 const AdminPreferencesPage = lazy(() => import('./pages/admin/AdminPreferencesPage'));
+const SystemHealthPage = lazy(() => import('./pages/admin/SystemHealthPage'));
 
 // Non-admin pages
 import ProfilePage from './pages/ProfilePage';
@@ -351,16 +381,24 @@ const AppContent: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, user } = useAuthStore();
+  const wasAuthenticated = React.useRef(isAuthenticated);
 
-  // Redirect authenticated users from home to their dashboard
+  // Redirect authenticated users from public pages to their dashboard
   useEffect(() => {
-    if (isAuthenticated && user?.role && location.pathname === '/') {
-      navigate(`/dashboard/${user.role}`, { replace: true });
+    if (isAuthenticated && user?.role) {
+      const onPublicPage = !location.pathname.startsWith('/dashboard/');
+      const justLoggedIn = !wasAuthenticated.current;
+
+      if (onPublicPage && (justLoggedIn || location.pathname === '/')) {
+        navigate(`/dashboard/${user.role}`, { replace: true });
+      }
     }
+    wasAuthenticated.current = isAuthenticated;
   }, [isAuthenticated, user, location.pathname, navigate]);
 
   return (
     <>
+    <ScrollToTopOnNavigate />
     <CartDrawer />
     <Routes>
       {/* Public pages with shared header/footer */}
@@ -378,6 +416,37 @@ const AppContent: React.FC = () => {
         <Route path="/become-instructor" element={<BecomeInstructorPage />} />
         <Route path="/categories/:slug" element={<PlaceholderPage title="Category" />} />
         <Route path="/forum" element={<PublicForumPage />} />
+
+        {/* Documentation Pages */}
+        <Route path="/docs" element={<S><DocsLayout /></S>}>
+          <Route index element={<S><DocsHomePage /></S>} />
+          <Route path="getting-started" element={<S><GettingStartedPage /></S>} />
+          <Route path="changelog" element={<S><ChangelogPage /></S>} />
+          {/* Urban Home School v1 Guides */}
+          <Route path="student-guide" element={<S><StudentGuidePage /></S>} />
+          <Route path="parent-guide" element={<S><ParentGuidePage /></S>} />
+          <Route path="instructor-guide" element={<S><InstructorGuidePage /></S>} />
+          <Route path="partner-guide" element={<S><PartnerGuidePage /></S>} />
+          <Route path="courses" element={<S><CoursesGuidePage /></S>} />
+          <Route path="assessments" element={<S><AssessmentsGuidePage /></S>} />
+          <Route path="payments" element={<S><PaymentsGuidePage /></S>} />
+          <Route path="forum" element={<S><ForumGuidePage /></S>} />
+          <Route path="store" element={<S><StoreGuidePage /></S>} />
+          <Route path="certificates" element={<S><CertificatesGuidePage /></S>} />
+          {/* Urban Bird v1 Guides */}
+          <Route path="ai-tutor" element={<S><AITutorGuidePage /></S>} />
+          <Route path="copilot" element={<S><CoPilotGuidePage /></S>} />
+          <Route path="voice-mode" element={<S><VoiceModeGuidePage /></S>} />
+          <Route path="learning-paths" element={<S><LearningPathsGuidePage /></S>} />
+          {/* API Reference */}
+          <Route path="api" element={<S><ApiOverviewPage /></S>} />
+          <Route path="api/auth" element={<S><AuthApiPage /></S>} />
+          <Route path="api/courses" element={<S><CoursesApiPage /></S>} />
+          <Route path="api/ai-tutor" element={<S><AITutorApiPage /></S>} />
+          <Route path="api/payments" element={<S><PaymentsApiPage /></S>} />
+          <Route path="api/more" element={<S><MoreApisPage /></S>} />
+          <Route path="faq" element={<S><DocsFAQPage /></S>} />
+        </Route>
       </Route>
 
       {/* The Bird AI - full screen, no shared layout */}
@@ -551,14 +620,22 @@ const AppContent: React.FC = () => {
         <Route index element={<S><DashboardInstructor /></S>} />
         <Route path="insights" element={<S><AIInsightsPage /></S>} />
         <Route path="courses" element={<S><MyCoursesInstructorPage /></S>} />
+        <Route path="courses/create" element={<S><CourseEditorPage /></S>} />
         <Route path="courses/editor" element={<S><CourseEditorPage /></S>} />
+        <Route path="courses/:courseId/edit" element={<S><CourseEditorPage /></S>} />
         <Route path="courses/:courseId/modules" element={<S><ModulesEditorPage /></S>} />
         <Route path="courses/:courseId/cbc-alignment" element={<S><CBCAlignmentInstructorPage /></S>} />
+        <Route path="modules" element={<S><ModulesEditorPage /></S>} />
+        <Route path="cbc-alignment" element={<S><CBCAlignmentInstructorPage /></S>} />
         <Route path="assessments" element={<S><AssessmentsInstructorPage /></S>} />
+        <Route path="assessments/create" element={<S><AssessmentEditorPage /></S>} />
         <Route path="assessments/editor" element={<S><AssessmentEditorPage /></S>} />
+        <Route path="assessments/:assessmentId/edit" element={<S><AssessmentEditorPage /></S>} />
         <Route path="submissions" element={<S><SubmissionsPage /></S>} />
+        <Route path="submissions/:submissionId" element={<S><SubmissionsPage /></S>} />
         <Route path="resources" element={<S><ResourcesInstructorPage /></S>} />
         <Route path="sessions" element={<S><SessionsInstructorPage /></S>} />
+        <Route path="sessions/create" element={<S><SessionDetailInstructorPage /></S>} />
         <Route path="sessions/:sessionId" element={<S><SessionDetailInstructorPage /></S>} />
         <Route path="sessions/:sessionId/live" element={<S><LiveSessionPage /></S>} />
         <Route path="messages" element={<S><MessagesPage /></S>} />
@@ -566,6 +643,8 @@ const AppContent: React.FC = () => {
         <Route path="progress-pulse" element={<S><ProgressPulsePage /></S>} />
         <Route path="interventions" element={<S><InterventionsPage /></S>} />
         <Route path="discussions" element={<S><DiscussionsPage /></S>} />
+        <Route path="discussions/create" element={<S><DiscussionsPage /></S>} />
+        <Route path="discussions/:postId" element={<S><DiscussionsPage /></S>} />
         <Route path="feedback" element={<S><FeedbackPage /></S>} />
         <Route path="feedback/sentiment" element={<S><SentimentAnalysisPage /></S>} />
         <Route path="performance" element={<S><PerformancePage /></S>} />
@@ -720,6 +799,7 @@ const AppContent: React.FC = () => {
         <Route path="moderation" element={<S><ModerationPage /></S>} />
         <Route path="config" element={<S><SystemConfigPage /></S>} />
         <Route path="audit-logs" element={<S><AuditLogsPage /></S>} />
+        <Route path="system-health" element={<S><SystemHealthPage /></S>} />
         {/* Account */}
         <Route path="notifications" element={<S><AdminNotificationsPage /></S>} />
         <Route path="profile" element={<S><AdminProfilePage /></S>} />
@@ -757,9 +837,11 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <GlobalErrorBoundary>
+      <Router>
+        <AppContent />
+      </Router>
+    </GlobalErrorBoundary>
   );
 };
 

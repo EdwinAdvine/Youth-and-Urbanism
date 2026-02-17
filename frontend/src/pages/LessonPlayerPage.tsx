@@ -84,7 +84,7 @@ export default function LessonPlayerPage() {
 
     try {
       setMarkingComplete(true);
-      await courseService.completeLesson(enrollment.id, {
+      await courseService.completLesson(enrollment.id, {
         lesson_id: currentLesson.id,
         time_spent_minutes: 0, // TODO: Track actual time spent
       });

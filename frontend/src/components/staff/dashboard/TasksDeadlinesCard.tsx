@@ -1,5 +1,6 @@
-import React from 'react';
-import { ListChecks, Calendar, CheckCircle2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ListChecks, Calendar, CheckCircle2, Circle } from 'lucide-react';
 
 interface Task {
   id: string;
@@ -15,7 +16,40 @@ interface TasksDeadlinesCardProps {
   isLoading?: boolean;
 }
 
-const TasksDeadlinesCard: React.FC<TasksDeadlinesCardProps> = ({ tasks, isLoading }) => {
+/** Determine the navigation route based on task type. */
+function getTaskRoute(task: Task): string {
+  switch (task.type) {
+    case 'review':
+      return '/dashboard/staff/moderation/review';
+    case 'ticket':
+      return '/dashboard/staff/support/tickets';
+    case 'session':
+      return '/dashboard/staff/learning/sessions';
+    case 'content':
+      return '/dashboard/staff/learning/content';
+    case 'assessment':
+      return '/dashboard/staff/learning/assessments';
+    default:
+      return '/dashboard/staff';
+  }
+}
+
+const TasksDeadlinesCard: React.FC<TasksDeadlinesCardProps> = ({ tasks: initialTasks, isLoading }) => {
+  const navigate = useNavigate();
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+
+  // Sync when parent re-renders with new tasks
+  React.useEffect(() => {
+    setTasks(initialTasks);
+  }, [initialTasks]);
+
+  const toggleTaskCompletion = (taskId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, isCompleted: !t.isCompleted } : t))
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5 animate-pulse">
@@ -58,9 +92,24 @@ const TasksDeadlinesCard: React.FC<TasksDeadlinesCardProps> = ({ tasks, isLoadin
           pending.slice(0, 5).map((task) => (
             <div
               key={task.id}
-              className="flex items-center gap-3 p-2.5 rounded-lg bg-gray-100 dark:bg-[#22272B]/50"
+              onClick={() => navigate(getTaskRoute(task))}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  navigate(getTaskRoute(task));
+                }
+              }}
+              className="flex items-center gap-3 p-2.5 rounded-lg bg-gray-100 dark:bg-[#22272B]/50 cursor-pointer hover:bg-gray-200 dark:hover:bg-[#22272B] transition-colors"
             >
-              <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${task.isOverdue ? 'bg-red-400' : 'bg-green-400'}`} />
+              <button
+                onClick={(e) => toggleTaskCompletion(task.id, e)}
+                className="flex-shrink-0 text-gray-400 dark:text-white/40 hover:text-green-400 dark:hover:text-green-400 transition-colors"
+                title="Mark as complete"
+              >
+                <Circle className="w-4 h-4" />
+              </button>
               <div className="min-w-0 flex-1">
                 <p className="text-sm text-gray-900 dark:text-white truncate">{task.title}</p>
                 <div className="flex items-center gap-2 mt-0.5">
@@ -71,6 +120,11 @@ const TasksDeadlinesCard: React.FC<TasksDeadlinesCardProps> = ({ tasks, isLoadin
                   </span>
                 </div>
               </div>
+              {task.isOverdue && (
+                <span className="text-[10px] px-1.5 py-0.5 bg-red-500/20 text-red-400 rounded-full flex-shrink-0">
+                  Overdue
+                </span>
+              )}
             </div>
           ))
         )}

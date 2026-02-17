@@ -470,6 +470,18 @@ const FamiliesPage: React.FC = () => {
                                 </>
                               )}
                               <button
+                                onClick={() => {
+                                  alert(
+                                    `Enrollment Details\n\n` +
+                                    `Student: ${enrollment.student_name}\n` +
+                                    `Parent: ${enrollment.parent_name}\n` +
+                                    `Grade: ${enrollment.grade_level}\n` +
+                                    `Status: ${enrollment.status.charAt(0).toUpperCase() + enrollment.status.slice(1)}\n` +
+                                    `Documents: ${enrollment.documents_submitted ? 'Submitted' : 'Pending'}\n` +
+                                    `Requested: ${enrollment.requested_at.toLocaleDateString('en-KE', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}\n` +
+                                    `Notes: ${enrollment.notes}`
+                                  );
+                                }}
                                 className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                                 title="View details"
                               >

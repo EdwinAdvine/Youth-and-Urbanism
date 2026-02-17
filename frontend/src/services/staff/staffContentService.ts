@@ -12,26 +12,7 @@ import type {
   ContentVersion,
   CollabSession,
 } from '../../types/staff';
-
-const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/staff`;
-
-function getAuthHeaders(): HeadersInit {
-  const token =
-    localStorage.getItem('access_token') ||
-    JSON.parse(localStorage.getItem('auth-store') || '{}')?.state?.token;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
-
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Request failed' }));
-    throw new Error(error.detail || `HTTP ${response.status}`);
-  }
-  return response.json();
-}
+import apiClient from '../api';
 
 // ---------------------------------------------------------------------------
 // Types local to this service
@@ -73,68 +54,52 @@ export interface UpdateContentPayload {
 export async function getContentItems(
   params: ContentListParams = {},
 ): Promise<PaginatedResponse<ContentItem>> {
-  const qs = new URLSearchParams();
-  if (params.page != null) qs.set('page', String(params.page));
-  if (params.page_size != null) qs.set('page_size', String(params.page_size));
-  if (params.status) qs.set('status', params.status);
-  if (params.content_type) qs.set('content_type', params.content_type);
-
-  const response = await fetch(`${API_BASE}/content/items?${qs.toString()}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<PaginatedResponse<ContentItem>>(response);
+  const { data } = await apiClient.get<PaginatedResponse<ContentItem>>(
+    '/api/v1/staff/content/items',
+    { params },
+  );
+  return data;
 }
 
 /** Fetch a single content item by ID. */
 export async function getContentItem(contentId: string): Promise<ContentItem> {
-  const response = await fetch(`${API_BASE}/content/items/${contentId}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<ContentItem>(response);
+  const { data } = await apiClient.get<ContentItem>(`/api/v1/staff/content/items/${contentId}`);
+  return data;
 }
 
 /** Create a new content item. */
 export async function createContent(
-  data: CreateContentPayload,
+  payload: CreateContentPayload,
 ): Promise<ContentItem> {
-  const response = await fetch(`${API_BASE}/content/items`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<ContentItem>(response);
+  const { data } = await apiClient.post<ContentItem>('/api/v1/staff/content/items', payload);
+  return data;
 }
 
 /** Update an existing content item. */
 export async function updateContent(
   contentId: string,
-  data: UpdateContentPayload,
+  payload: UpdateContentPayload,
 ): Promise<ContentItem> {
-  const response = await fetch(`${API_BASE}/content/items/${contentId}`, {
-    method: 'PATCH',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<ContentItem>(response);
+  const { data } = await apiClient.patch<ContentItem>(
+    `/api/v1/staff/content/items/${contentId}`,
+    payload,
+  );
+  return data;
 }
 
 /** Publish a content item (transitions status to published). */
 export async function publishContent(contentId: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/content/items/${contentId}/publish`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<void>(response);
+  await apiClient.post(`/api/v1/staff/content/items/${contentId}/publish`);
 }
 
 /** Fetch the version history for a content item. */
 export async function getVersionHistory(
   contentId: string,
 ): Promise<ContentVersion[]> {
-  const response = await fetch(`${API_BASE}/content/items/${contentId}/versions`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<ContentVersion[]>(response);
+  const { data } = await apiClient.get<ContentVersion[]>(
+    `/api/v1/staff/content/items/${contentId}/versions`,
+  );
+  return data;
 }
 
 /** Rollback a content item to a specific version number. */
@@ -142,23 +107,17 @@ export async function rollbackVersion(
   contentId: string,
   versionNumber: number,
 ): Promise<void> {
-  const response = await fetch(
-    `${API_BASE}/content/items/${contentId}/rollback/${versionNumber}`,
-    {
-      method: 'POST',
-      headers: getAuthHeaders(),
-    },
+  await apiClient.post(
+    `/api/v1/staff/content/items/${contentId}/rollback/${versionNumber}`,
   );
-  return handleResponse<void>(response);
 }
 
 /** Start a real-time collaborative editing session for a content item. */
 export async function startCollabSession(
   contentId: string,
 ): Promise<CollabSession> {
-  const response = await fetch(`${API_BASE}/content/collab/start/${contentId}`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<CollabSession>(response);
+  const { data } = await apiClient.post<CollabSession>(
+    `/api/v1/staff/content/collab/start/${contentId}`,
+  );
+  return data;
 }

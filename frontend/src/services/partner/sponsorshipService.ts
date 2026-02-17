@@ -3,11 +3,10 @@
  * API calls for managing sponsorship programs, children, and consents
  */
 
-import axios from 'axios';
+import apiClient from '../api';
 import type {
   SponsorshipProgram,
   SponsoredChild,
-  SponsorshipConsent,
   ChildLearningJourney,
   ChildActivity,
   ChildAchievement,
@@ -16,12 +15,7 @@ import type {
   PaginatedResponse,
 } from '../../types/partner';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const BASE_PATH = `${API_URL}/api/v1/partner/sponsorships`;
-
-const getAuthHeaders = () => ({
-  Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-});
+const BASE_PATH = `/api/v1/partner/sponsorships`;
 
 /**
  * Get all sponsorship programs
@@ -34,10 +28,7 @@ export const getSponsorshipPrograms = async (
     limit?: number;
   }
 ): Promise<PaginatedResponse<SponsorshipProgram>> => {
-  const response = await axios.get(`${BASE_PATH}/programs`, {
-    headers: getAuthHeaders(),
-    params,
-  });
+  const response = await apiClient.get(`${BASE_PATH}/programs`, { params });
   return response.data;
 };
 
@@ -45,9 +36,7 @@ export const getSponsorshipPrograms = async (
  * Get single program detail
  */
 export const getSponsorshipProgram = async (programId: string): Promise<SponsorshipProgram> => {
-  const response = await axios.get(`${BASE_PATH}/programs/${programId}`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.get(`${BASE_PATH}/programs/${programId}`);
   return response.data;
 };
 
@@ -57,9 +46,7 @@ export const getSponsorshipProgram = async (programId: string): Promise<Sponsors
 export const createSponsorshipProgram = async (
   data: Partial<SponsorshipProgram>
 ): Promise<SponsorshipProgram> => {
-  const response = await axios.post(`${BASE_PATH}/programs`, data, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.post(`${BASE_PATH}/programs`, data);
   return response.data;
 };
 
@@ -70,9 +57,7 @@ export const updateSponsorshipProgram = async (
   programId: string,
   data: Partial<SponsorshipProgram>
 ): Promise<SponsorshipProgram> => {
-  const response = await axios.put(`${BASE_PATH}/programs/${programId}`, data, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.put(`${BASE_PATH}/programs/${programId}`, data);
   return response.data;
 };
 
@@ -82,11 +67,10 @@ export const updateSponsorshipProgram = async (
 export const addChildrenToProgram = async (
   programId: string,
   studentIds: string[]
-): Promise<{ added: SponsoredChild[]; errors: any[] }> => {
-  const response = await axios.post(
+): Promise<{ added: SponsoredChild[]; errors: unknown[] }> => {
+  const response = await apiClient.post(
     `${BASE_PATH}/programs/${programId}/children`,
-    { student_ids: studentIds },
-    { headers: getAuthHeaders() }
+    { student_ids: studentIds }
   );
   return response.data;
 };
@@ -98,9 +82,8 @@ export const removeChildFromProgram = async (
   programId: string,
   studentId: string
 ): Promise<{ success: boolean; message: string }> => {
-  const response = await axios.delete(
-    `${BASE_PATH}/programs/${programId}/children/${studentId}`,
-    { headers: getAuthHeaders() }
+  const response = await apiClient.delete(
+    `${BASE_PATH}/programs/${programId}/children/${studentId}`
   );
   return response.data;
 };
@@ -117,10 +100,7 @@ export const getSponsoredChildren = async (
     limit?: number;
   }
 ): Promise<PaginatedResponse<SponsoredChild>> => {
-  const response = await axios.get(`${BASE_PATH}/children`, {
-    headers: getAuthHeaders(),
-    params,
-  });
+  const response = await apiClient.get(`${BASE_PATH}/children`, { params });
   return response.data;
 };
 
@@ -128,9 +108,7 @@ export const getSponsoredChildren = async (
  * Get child progress / learning journey
  */
 export const getChildProgress = async (childId: string): Promise<ChildLearningJourney> => {
-  const response = await axios.get(`${BASE_PATH}/children/${childId}/progress`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.get(`${BASE_PATH}/children/${childId}/progress`);
   return response.data;
 };
 
@@ -141,8 +119,7 @@ export const getChildActivity = async (
   childId: string,
   period: 'week' | 'month' | 'term' = 'week'
 ): Promise<ChildActivity> => {
-  const response = await axios.get(`${BASE_PATH}/children/${childId}/activity`, {
-    headers: getAuthHeaders(),
+  const response = await apiClient.get(`${BASE_PATH}/children/${childId}/activity`, {
     params: { period },
   });
   return response.data;
@@ -152,9 +129,7 @@ export const getChildActivity = async (
  * Get child achievements
  */
 export const getChildAchievements = async (childId: string): Promise<ChildAchievement[]> => {
-  const response = await axios.get(`${BASE_PATH}/children/${childId}/achievements`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.get(`${BASE_PATH}/children/${childId}/achievements`);
   return response.data;
 };
 
@@ -162,9 +137,7 @@ export const getChildAchievements = async (childId: string): Promise<ChildAchiev
  * Get child goals
  */
 export const getChildGoals = async (childId: string): Promise<ChildGoal[]> => {
-  const response = await axios.get(`${BASE_PATH}/children/${childId}/goals`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.get(`${BASE_PATH}/children/${childId}/goals`);
   return response.data;
 };
 
@@ -172,9 +145,7 @@ export const getChildGoals = async (childId: string): Promise<ChildGoal[]> => {
  * Get AI insights for child
  */
 export const getChildAIInsights = async (childId: string): Promise<ChildAIInsight> => {
-  const response = await axios.get(`${BASE_PATH}/children/${childId}/ai-insights`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.get(`${BASE_PATH}/children/${childId}/ai-insights`);
   return response.data;
 };
 
@@ -184,10 +155,9 @@ export const getChildAIInsights = async (childId: string): Promise<ChildAIInsigh
 export const requestConsent = async (
   sponsoredChildId: string
 ): Promise<{ success: boolean; consent_id: string }> => {
-  const response = await axios.post(
+  const response = await apiClient.post(
     `${BASE_PATH}/consent/request`,
-    { sponsored_child_id: sponsoredChildId },
-    { headers: getAuthHeaders() }
+    { sponsored_child_id: sponsoredChildId }
   );
   return response.data;
 };
@@ -203,9 +173,7 @@ export const getConsentStatus = async (): Promise<
     pending: boolean;
   }>
 > => {
-  const response = await axios.get(`${BASE_PATH}/consent/status`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.get(`${BASE_PATH}/consent/status`);
   return response.data;
 };
 

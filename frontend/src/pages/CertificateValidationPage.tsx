@@ -1,3 +1,5 @@
+// CertificateValidationPage - Public page at /validate-certificate. Allows anyone to verify
+// the authenticity of a certificate by entering its validation code.
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {

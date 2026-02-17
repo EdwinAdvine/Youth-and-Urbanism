@@ -233,12 +233,91 @@ class ParentCommunicationsService:
         parent_id: UUID,
         channel: Optional[str] = None
     ) -> ConversationsListResponse:
-        """Get list of conversations"""
+        """Get list of conversations grouped by conversation_id"""
 
-        # Placeholder - will be implemented with full messaging system
+        # Build filters
+        filters = [
+            or_(
+                ParentMessage.sender_id == parent_id,
+                ParentMessage.recipient_id == parent_id
+            )
+        ]
+        if channel:
+            filters.append(ParentMessage.channel == channel)
+        # Exclude support ticket messages from general conversations
+        if not channel:
+            filters.append(ParentMessage.channel != 'support')
+
+        # Get all messages for parent
+        result = await db.execute(
+            select(ParentMessage)
+            .where(and_(*filters))
+            .order_by(desc(ParentMessage.created_at))
+        )
+        messages = result.scalars().all()
+
+        # Group by conversation_id
+        conversations_map = {}
+        for msg in messages:
+            conv_id = str(msg.conversation_id)
+            if conv_id not in conversations_map:
+                conversations_map[conv_id] = {
+                    'messages': [],
+                    'channel': msg.channel,
+                    'last_message': msg,
+                    'unread': 0,
+                }
+            conversations_map[conv_id]['messages'].append(msg)
+            if not msg.is_read and msg.recipient_id == parent_id:
+                conversations_map[conv_id]['unread'] += 1
+
+        # Build conversation summaries
+        conversation_summaries = []
+        for conv_id, conv_data in conversations_map.items():
+            last_msg = conv_data['last_message']
+
+            # Get other participant
+            other_id = last_msg.recipient_id if last_msg.sender_id == parent_id else last_msg.sender_id
+            other_name = "Platform"
+            other_role = "system"
+            if other_id:
+                other_result = await db.execute(
+                    select(User).where(User.id == other_id)
+                )
+                other_user = other_result.scalar_one_or_none()
+                if other_user:
+                    other_name = other_user.profile_data.get('full_name', 'Unknown') if other_user.profile_data else 'Unknown'
+                    other_role = other_user.role
+
+            # Get child name if applicable
+            child_name = None
+            if last_msg.child_id:
+                child_result = await db.execute(
+                    select(Student).where(Student.id == last_msg.child_id)
+                )
+                child = child_result.scalar_one_or_none()
+                if child and child.user:
+                    child_name = child.user.profile_data.get('full_name', 'Unknown')
+
+            conversation_summaries.append(ConversationSummary(
+                conversation_id=last_msg.conversation_id,
+                channel=conv_data['channel'],
+                other_participant=MessageParticipant(
+                    user_id=other_id or parent_id,
+                    full_name=other_name,
+                    role=other_role,
+                    avatar_url=None,
+                ),
+                child_name=child_name,
+                last_message_preview=last_msg.content[:100] if last_msg.content else '',
+                last_message_at=last_msg.created_at,
+                unread_count=conv_data['unread'],
+                total_messages=len(conv_data['messages']),
+            ))
+
         return ConversationsListResponse(
-            conversations=[],
-            total_count=0
+            conversations=conversation_summaries,
+            total_count=len(conversation_summaries)
         )
 
     async def get_conversation_messages(
@@ -249,13 +328,63 @@ class ParentCommunicationsService:
     ) -> ConversationMessagesResponse:
         """Get messages in a conversation"""
 
-        # Placeholder - will be implemented with full messaging system
+        result = await db.execute(
+            select(ParentMessage)
+            .where(ParentMessage.conversation_id == conversation_id)
+            .order_by(ParentMessage.created_at)
+        )
+        messages = result.scalars().all()
+
+        channel = messages[0].channel if messages else "ai_tutor"
+
+        # Build participant set
+        participant_ids = set()
+        for msg in messages:
+            participant_ids.add(msg.sender_id)
+            if msg.recipient_id:
+                participant_ids.add(msg.recipient_id)
+
+        participants = []
+        for pid in participant_ids:
+            user_result = await db.execute(select(User).where(User.id == pid))
+            user = user_result.scalar_one_or_none()
+            if user:
+                participants.append(MessageParticipant(
+                    user_id=user.id,
+                    full_name=user.profile_data.get('full_name', 'Unknown') if user.profile_data else 'Unknown',
+                    role=user.role,
+                    avatar_url=None,
+                ))
+
+        # Build message responses
+        msg_responses = []
+        for msg in messages:
+            sender_result = await db.execute(select(User).where(User.id == msg.sender_id))
+            sender = sender_result.scalar_one_or_none()
+            sender_info = MessageParticipant(
+                user_id=msg.sender_id,
+                full_name=sender.profile_data.get('full_name', 'Unknown') if sender and sender.profile_data else 'Unknown',
+                role=sender.role if sender else 'parent',
+                avatar_url=None,
+            )
+            msg_responses.append(ParentMessageResponse(
+                id=msg.id,
+                conversation_id=msg.conversation_id,
+                sender=sender_info,
+                content=msg.content,
+                message_type=msg.message_type,
+                is_read=msg.is_read,
+                read_at=msg.read_at,
+                metadata_=msg.metadata_,
+                created_at=msg.created_at,
+            ))
+
         return ConversationMessagesResponse(
             conversation_id=conversation_id,
-            channel="ai_tutor",
-            participants=[],
-            messages=[],
-            total_count=0
+            channel=channel,
+            participants=participants,
+            messages=msg_responses,
+            total_count=len(msg_responses)
         )
 
     async def send_message(
@@ -337,10 +466,55 @@ class ParentCommunicationsService:
     ) -> SupportArticlesResponse:
         """Get help articles"""
 
-        # Placeholder - will be populated with actual help content
+        # Static support articles
+        all_articles = [
+            SupportArticle(
+                id="sa-1", title="Getting Started with Urban Home School",
+                category="Getting Started", content="Learn how to set up your family account, add children, and explore the platform features.",
+                helpful_count=42, created_at=datetime.utcnow()
+            ),
+            SupportArticle(
+                id="sa-2", title="How AI Tutoring Works",
+                category="Features", content="Your child gets a personalized AI companion that adapts to their learning style, pace, and interests.",
+                helpful_count=38, created_at=datetime.utcnow()
+            ),
+            SupportArticle(
+                id="sa-3", title="Understanding CBC Competencies",
+                category="Features", content="The platform tracks seven CBC competencies: Communication, Critical Thinking, Creativity, Collaboration, Citizenship, Digital Literacy, and Learning to Learn.",
+                helpful_count=35, created_at=datetime.utcnow()
+            ),
+            SupportArticle(
+                id="sa-4", title="Managing Subscription & Billing",
+                category="Billing", content="View your subscription plan, payment history, and manage add-ons from the Finance section of your dashboard.",
+                helpful_count=30, created_at=datetime.utcnow()
+            ),
+            SupportArticle(
+                id="sa-5", title="Setting Data Consent Preferences",
+                category="Account", content="Control what data is collected and shared for each child through the Consent Matrix in Settings.",
+                helpful_count=25, created_at=datetime.utcnow()
+            ),
+            SupportArticle(
+                id="sa-6", title="Troubleshooting Login Issues",
+                category="Technical", content="If you're having trouble logging in, try resetting your password or clearing your browser cache.",
+                helpful_count=22, created_at=datetime.utcnow()
+            ),
+        ]
+
+        # Filter by category
+        if category:
+            all_articles = [a for a in all_articles if a.category == category]
+
+        # Filter by search
+        if search:
+            search_lower = search.lower()
+            all_articles = [
+                a for a in all_articles
+                if search_lower in a.title.lower() or search_lower in a.content.lower()
+            ]
+
         return SupportArticlesResponse(
-            articles=[],
-            total_count=0,
+            articles=all_articles,
+            total_count=len(all_articles),
             categories=["Getting Started", "Account", "Billing", "Technical", "Features"]
         )
 
@@ -350,14 +524,110 @@ class ParentCommunicationsService:
         parent_id: UUID,
         status: Optional[str] = None
     ) -> SupportTicketsListResponse:
-        """Get support tickets"""
+        """Get support tickets (stored as ParentMessage with channel='support' and metadata ticket=True)"""
 
-        # Placeholder - will be implemented with ticket system
+        # Find ticket messages (initial messages with ticket metadata)
+        filters = [
+            ParentMessage.sender_id == parent_id,
+            ParentMessage.channel == 'support',
+        ]
+
+        result = await db.execute(
+            select(ParentMessage)
+            .where(and_(*filters))
+            .order_by(desc(ParentMessage.created_at))
+        )
+        all_support_msgs = result.scalars().all()
+
+        # Group: ticket root messages have metadata_.ticket = True
+        ticket_roots = [m for m in all_support_msgs if m.metadata_ and m.metadata_.get('ticket')]
+
+        if status:
+            ticket_roots = [
+                t for t in ticket_roots
+                if t.metadata_.get('status') == status
+            ]
+
+        tickets = []
+        open_count = 0
+        resolved_count = 0
+
+        for ticket_msg in ticket_roots:
+            meta = ticket_msg.metadata_ or {}
+            ticket_status = meta.get('status', 'open')
+
+            if ticket_status == 'open':
+                open_count += 1
+            elif ticket_status == 'resolved':
+                resolved_count += 1
+
+            # Get child name if applicable
+            child_name = None
+            if ticket_msg.child_id:
+                child_result = await db.execute(
+                    select(Student).where(Student.id == ticket_msg.child_id)
+                )
+                child = child_result.scalar_one_or_none()
+                if child and child.user:
+                    child_name = child.user.profile_data.get('full_name', 'Unknown')
+
+            # Get replies for this ticket
+            reply_result = await db.execute(
+                select(ParentMessage).where(
+                    and_(
+                        ParentMessage.conversation_id == ticket_msg.conversation_id,
+                        ParentMessage.id != ticket_msg.id,
+                    )
+                ).order_by(ParentMessage.created_at)
+            )
+            replies = reply_result.scalars().all()
+
+            reply_messages = []
+            for reply in replies:
+                sender_result = await db.execute(
+                    select(User).where(User.id == reply.sender_id)
+                )
+                sender_user = sender_result.scalar_one_or_none()
+                sender_info = MessageParticipant(
+                    user_id=reply.sender_id,
+                    full_name=sender_user.profile_data.get('full_name', 'Unknown') if sender_user and sender_user.profile_data else 'Unknown',
+                    role=sender_user.role if sender_user else 'parent',
+                    avatar_url=None,
+                )
+                reply_messages.append(ParentMessageResponse(
+                    id=reply.id,
+                    conversation_id=reply.conversation_id,
+                    sender=sender_info,
+                    content=reply.content,
+                    message_type=reply.message_type,
+                    is_read=reply.is_read,
+                    read_at=reply.read_at,
+                    metadata_=reply.metadata_,
+                    created_at=reply.created_at,
+                ))
+
+            tickets.append(SupportTicketResponse(
+                id=ticket_msg.id,
+                parent_id=parent_id,
+                child_id=ticket_msg.child_id,
+                child_name=child_name,
+                title=meta.get('subject', 'Support Request'),
+                description=ticket_msg.content,
+                category=meta.get('category', 'general'),
+                priority=meta.get('priority', 'medium'),
+                status=ticket_status,
+                assigned_to=meta.get('assigned_to'),
+                messages=reply_messages,
+                created_at=ticket_msg.created_at,
+                updated_at=ticket_msg.created_at,
+                resolved_at=None,
+            ))
+
         return SupportTicketsListResponse(
-            tickets=[],
-            total_count=0,
-            open_count=0,
-            resolved_count=0
+            tickets=tickets,
+            total_count=len(tickets),
+            open_count=open_count,
+            resolved_count=resolved_count
         )
 
     async def create_support_ticket(

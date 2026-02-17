@@ -1,5 +1,11 @@
 """
-Student Account & Privacy Models - COPPA Consent, Teacher Access
+Student Account and Privacy Models
+
+Models for COPPA-compliant consent tracking and student-controlled teacher
+access permissions. These tables ensure the platform meets child data
+protection requirements by recording explicit parental consent for each
+data-use category and allowing students to control what information their
+teachers can see.
 """
 from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID
@@ -22,7 +28,14 @@ class ConsentType(str, enum.Enum):
 
 
 class StudentConsentRecord(Base):
-    """COPPA-compliant consent records"""
+    """
+    A COPPA-compliant parental consent record for a specific data-use category.
+
+    Each row represents a parent's consent decision (granted or denied) for
+    one category of data processing (e.g. AI interaction, community features,
+    third-party sharing). The IP address and user agent are captured at the
+    time of consent for legal audit purposes. Consents can optionally expire.
+    """
     __tablename__ = "student_consent_records"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -51,7 +64,14 @@ class StudentConsentRecord(Base):
 
 
 class StudentTeacherAccess(Base):
-    """Student control over teacher access to their data"""
+    """
+    Fine-grained permissions a student grants to a specific teacher.
+
+    Each row defines what one teacher can see or do for one student:
+    view progress, view mood data, view AI chat transcripts, view journal
+    entries, send messages, and view community activity. Students can
+    toggle individual permissions at any time from their privacy settings.
+    """
     __tablename__ = "student_teacher_access"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

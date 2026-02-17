@@ -1,5 +1,5 @@
 import React from 'react';
-import { DollarSign, TrendingUp, ArrowRight } from 'lucide-react';
+import { DollarSign, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface EarningsSnapshotCardProps {

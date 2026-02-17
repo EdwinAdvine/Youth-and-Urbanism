@@ -9,7 +9,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, BookOpen, Heart, Lightbulb, Zap,
-  Star, ExternalLink,
+  Star, ExternalLink, AlertCircle,
   Users } from 'lucide-react';
 import { useParentStore } from '../../store/parentStore';
 import { getSupportTips } from '../../services/parentAIService';
@@ -28,6 +28,7 @@ const AISupportTipsPage: React.FC = () => {
 
   const [tips, setTips] = useState<SupportTipsResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (effectiveChildId) {
@@ -42,10 +43,12 @@ const AISupportTipsPage: React.FC = () => {
 
     try {
       setLoading(true);
+      setError(null);
       const data = await getSupportTips(effectiveChildId);
       setTips(data);
     } catch (error) {
       console.error('Failed to load support tips:', error);
+      setError('Failed to load support tips. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -86,6 +89,24 @@ const AISupportTipsPage: React.FC = () => {
       <>
         <div className="flex items-center justify-center h-96">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#E40000]" />
+        </div>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <div className="text-center py-12">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <p className="text-gray-900 dark:text-white font-medium mb-2">Something went wrong</p>
+          <p className="text-gray-500 dark:text-white/60 mb-4">{error}</p>
+          <button
+            onClick={loadTips}
+            className="px-6 py-2 bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#FF0000] transition-colors"
+          >
+            Try Again
+          </button>
         </div>
       </>
     );

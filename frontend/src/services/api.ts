@@ -1,10 +1,19 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { reportApiError } from './errorReporterService';
 
 // ============================================================================
 // API Configuration
 // ============================================================================
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+// ============================================================================
+// Token Refresh Mutex
+// ============================================================================
+
+// Prevents multiple concurrent 401 responses from triggering parallel refresh calls.
+// The first 401 triggers the refresh; subsequent 401s wait for it to finish.
+let refreshPromise: Promise<void> | null = null;
 
 // ============================================================================
 // Type Definitions
@@ -32,7 +41,7 @@ const apiClient: AxiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
   timeout: 30000, // 30 seconds
-  withCredentials: false, // Set to true if using cookies for auth
+  withCredentials: true, // Send httpOnly cookies with every request
 });
 
 // ============================================================================
@@ -41,16 +50,11 @@ const apiClient: AxiosInstance = axios.create({
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Add JWT token to request headers if available
-    const token = localStorage.getItem('access_token');
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    // Cookies are sent automatically via withCredentials: true.
+    // No need to manually attach Authorization header for browser clients.
     return config;
   },
   (error) => {
-    // Handle request errors
-    console.error('Request error:', error);
     return Promise.reject(error);
   }
 );
@@ -72,54 +76,47 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Handle 401 Unauthorized errors
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Handle 401/403 auth errors — attempt silent refresh via cookie.
+    // HTTPBearer returns 401 (with auto_error=False) when token is missing or invalid.
+    const status = error.response?.status;
+    if ((status === 401 || status === 403) && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      const refreshToken = localStorage.getItem('refresh_token');
-
-      if (refreshToken) {
-        try {
-          // Attempt to refresh the access token
-          const response = await axios.post(`${API_BASE_URL}/api/v1/auth/refresh`, {
-            refresh_token: refreshToken,
+      // Use a mutex so only one refresh runs at a time; other errors wait for it
+      if (!refreshPromise) {
+        refreshPromise = axios
+          .post(`${API_BASE_URL}/api/v1/auth/refresh`, {}, { withCredentials: true })
+          .then(() => {})
+          .catch((refreshError) => {
+            // Refresh failed — clear auth state and let ProtectedRoute handle redirect.
+            // Avoid window.location.href which causes a full page reload and destroys
+            // React state, making it impossible for the app to handle the transition.
+            localStorage.removeItem('user');
+            localStorage.removeItem('auth-storage');
+            throw refreshError;
+          })
+          .finally(() => {
+            refreshPromise = null;
           });
-
-          const { access_token, refresh_token: newRefreshToken } = response.data;
-
-          // Store new tokens
-          localStorage.setItem('access_token', access_token);
-          if (newRefreshToken) {
-            localStorage.setItem('refresh_token', newRefreshToken);
-          }
-
-          // Retry original request with new token
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${access_token}`;
-          }
-
-          return apiClient(originalRequest);
-        } catch (refreshError) {
-          // Refresh failed - clear auth data and redirect to login
-          console.error('Token refresh failed:', refreshError);
-
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
-          localStorage.removeItem('user');
-
-          // Redirect to login page
-          window.location.href = '/';
-
-          return Promise.reject(refreshError);
-        }
-      } else {
-        // No refresh token available - clear auth data and redirect
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('user');
-
-        window.location.href = '/';
       }
+
+      try {
+        await refreshPromise;
+        // Retry original request — new access_token cookie is set by the refresh response
+        return apiClient(originalRequest);
+      } catch (refreshError) {
+        return Promise.reject(refreshError);
+      }
+    }
+
+    // Report 5xx server errors to the error reporter
+    if (error.response && error.response.status >= 500) {
+      reportApiError(
+        error.response.status,
+        error.config?.url || 'unknown',
+        error.config?.method || 'unknown',
+        error.response.data,
+      );
     }
 
     // Handle other errors

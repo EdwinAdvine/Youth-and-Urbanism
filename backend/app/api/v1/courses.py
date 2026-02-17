@@ -16,11 +16,14 @@ Features:
 - Progress tracking and completion certificates
 """
 
+import logging
 from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 from app.database import get_db
 from app.models.user import User
@@ -162,9 +165,10 @@ async def list_courses(
         }
 
     except Exception as e:
+        logger.error(f"Failed to list courses: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to list courses: {str(e)}"
+            detail="Failed to list courses"
         )
 
 
@@ -509,9 +513,10 @@ async def complete_lesson(
         return EnrollmentResponse.model_validate(enrollment)
 
     except Exception as e:
+        logger.error(f"Failed to update enrollment progress for enrollment {enrollment_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update progress: {str(e)}"
+            detail="Failed to update progress"
         )
 
 

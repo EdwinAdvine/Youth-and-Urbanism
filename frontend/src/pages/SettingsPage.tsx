@@ -1,3 +1,5 @@
+// SettingsPage - Authenticated page at /settings. Provides theme, notification, privacy,
+// and accessibility preferences for all user roles.
 import React, { useState, useEffect } from 'react';
 import {
   Save,
@@ -5,7 +7,6 @@ import {
   Sun,
   Moon,
   Monitor,
-  Globe,
   Bell,
   Lock,
   Eye,
@@ -17,7 +18,6 @@ import {
   Activity,
   Sparkles,
   Shield,
-  Clock,
   Volume2,
   Video,
   Type,

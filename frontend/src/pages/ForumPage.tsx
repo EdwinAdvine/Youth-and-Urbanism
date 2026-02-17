@@ -1,5 +1,6 @@
+// ForumPage - Authenticated page at /forum. Community discussion board where users can
+// create posts, reply to threads, search topics, and pin/resolve discussions.
 import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   MessageSquare,
   Plus,
@@ -10,10 +11,7 @@ import {
   CheckCircle,
   X,
   Send,
-  MoreVertical,
-  Filter,
   Clock,
-  TrendingUp,
   MessageCircle,
   User
 } from 'lucide-react';
@@ -572,7 +570,6 @@ const mockReplies: ForumReply[] = [
 ];
 
 const ForumPage: React.FC = () => {
-  const navigate = useNavigate();
   const { user } = useAuthStore();
 
   // State
@@ -699,9 +696,9 @@ const ForumPage: React.FC = () => {
       tags: newPostTags,
       author: {
         id: user?.id || 'demo-user',
-        name: user?.name || 'Demo User',
+        name: user?.full_name || 'Demo User',
         role: user?.role || 'student',
-        avatar: user?.avatar
+        avatar: user?.profile_data?.avatar as string | undefined
       },
       stats: {
         views: 0,
@@ -756,9 +753,9 @@ const ForumPage: React.FC = () => {
       content: replyContent,
       author: {
         id: user?.id || 'demo-user',
-        name: user?.name || 'Demo User',
+        name: user?.full_name || 'Demo User',
         role: user?.role || 'student',
-        avatar: user?.avatar
+        avatar: user?.profile_data?.avatar as string | undefined
       },
       timestamp: new Date(),
       likes: 0,

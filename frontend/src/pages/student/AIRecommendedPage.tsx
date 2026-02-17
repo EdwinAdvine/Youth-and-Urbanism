@@ -1,3 +1,5 @@
+// AIRecommendedPage - Student page at /dashboard/student/ai-recommended. Shows AI-curated
+// course recommendations based on the student's interests, progress, and learning patterns.
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';

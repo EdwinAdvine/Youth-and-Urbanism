@@ -133,6 +133,12 @@ const CoverageBadge: React.FC<{ percent: number }> = ({ percent }) => {
 const CBCAlignmentPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [strandFilter, setStrandFilter] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 800);
+  };
 
   const filteredCompetencies = MOCK_COMPETENCIES.filter((c) => {
     if (search && !c.tag_name.toLowerCase().includes(search.toLowerCase()) && !c.cbc_strand.toLowerCase().includes(search.toLowerCase())) return false;
@@ -173,8 +179,12 @@ const CBCAlignmentPage: React.FC = () => {
             { label: 'CBC Alignment' },
           ]}
           actions={
-            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors">
-              <RefreshCw className="w-4 h-4" />
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
             </button>
           }

@@ -2,6 +2,15 @@
 Assessment Service - Business Logic for Assessments and Submissions
 
 Handles quiz/assignment CRUD, student submissions, and auto-grading.
+
+This module provides functions for:
+- Listing and retrieving assessments with pagination and filtering
+- Creating new assessments (quizzes, assignments, projects, exams)
+- Submitting student answers with automatic grading for supported types
+- Retrieving student submission history
+- Auto-grading logic for multiple choice, true/false, and short answer questions
+
+All database operations are async and accept an AsyncSession.
 """
 
 import logging
@@ -25,7 +34,19 @@ async def list_assessments(
     skip: int = 0,
     limit: int = 20,
 ) -> Dict[str, Any]:
-    """List assessments with optional filtering."""
+    """
+    List published assessments with optional filtering and pagination.
+
+    Accepts optional course_id and assessment_type to narrow down results.
+    Returns a dictionary with the assessments list, total count, current page,
+    and page size. Only published assessments are returned.
+
+    The db session is the async database connection. course_id filters by
+    course, assessment_type filters by type (quiz, assignment, etc.). skip
+    and limit control pagination.
+
+    Returns a dict with keys: assessments, total, page, page_size.
+    """
     query = select(Assessment).where(Assessment.is_published == True)
 
     if course_id:
@@ -52,7 +73,13 @@ async def list_assessments(
 
 
 async def get_assessment(db: AsyncSession, assessment_id: UUID) -> Optional[Assessment]:
-    """Get a single assessment by ID."""
+    """
+    Get a single assessment by its UUID.
+
+    Accepts a database session and the assessment UUID. Returns the
+    Assessment model instance if found, or None if no assessment
+    matches the given ID.
+    """
     result = await db.execute(
         select(Assessment).where(Assessment.id == assessment_id)
     )
@@ -64,7 +91,18 @@ async def create_assessment(
     creator_id: UUID,
     data: Dict[str, Any],
 ) -> Assessment:
-    """Create a new assessment."""
+    """
+    Create a new assessment record in the database.
+
+    Accepts a database session, the creator's user UUID, and a data dict
+    containing fields like course_id, title, description, assessment_type,
+    questions (as a JSON list), total_points, passing_score, etc.
+
+    Defaults to quiz type, 100 total points, 50 passing score, auto-gradable,
+    and 1 max attempt if not specified. The assessment starts unpublished.
+
+    Returns the newly created Assessment instance with its generated UUID.
+    """
     assessment = Assessment(
         course_id=data["course_id"],
         creator_id=creator_id,
@@ -93,7 +131,21 @@ async def submit_assessment(
     student_id: UUID,
     answers: Dict[str, Any],
 ) -> AssessmentSubmission:
-    """Submit answers for an assessment and auto-grade if applicable."""
+    """
+    Submit answers for an assessment and auto-grade if applicable.
+
+    Accepts the database session, assessment UUID, student UUID, and an
+    answers dict mapping question IDs to student responses.
+
+    Checks that the assessment exists and that the student has not exceeded
+    the maximum allowed attempts. If the assessment is auto-gradable and has
+    questions defined, scores the submission immediately using _auto_grade().
+
+    Returns the created AssessmentSubmission instance.
+
+    Raises ValueError if the assessment is not found or if the student has
+    already used all allowed attempts.
+    """
     # Get the assessment
     assessment = await get_assessment(db, assessment_id)
     if not assessment:
@@ -146,7 +198,15 @@ async def get_student_submissions(
     skip: int = 0,
     limit: int = 20,
 ) -> List[AssessmentSubmission]:
-    """Get a student's submissions, optionally filtered by assessment."""
+    """
+    Get a student's assessment submissions with optional filtering.
+
+    Accepts the database session, student UUID, and an optional assessment
+    UUID to filter results for a specific assessment. Uses skip and limit
+    for pagination. Results are ordered by creation date, newest first.
+
+    Returns a list of AssessmentSubmission instances.
+    """
     query = select(AssessmentSubmission).where(
         AssessmentSubmission.student_id == student_id
     )
@@ -159,7 +219,19 @@ async def get_student_submissions(
 
 
 def _auto_grade(questions: list, answers: Dict[str, Any]) -> int:
-    """Auto-grade answers against questions. Returns total score."""
+    """
+    Auto-grade student answers against the assessment questions.
+
+    Iterates through each question and compares the student's answer to the
+    correct answer. Supports multiple_choice, true_false, and short_answer
+    question types with case-insensitive string comparison. Essay questions
+    are skipped since they require manual grading.
+
+    Accepts the questions list (from the assessment JSONB column) and the
+    answers dict mapping question IDs to student responses.
+
+    Returns the total score as an integer sum of points earned.
+    """
     total_score = 0
 
     for question in questions:

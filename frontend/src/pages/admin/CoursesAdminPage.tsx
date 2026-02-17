@@ -93,8 +93,65 @@ const CoursesAdminPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('all');
   const [search, setSearch] = useState('');
   const [gradeFilter, setGradeFilter] = useState('');
+  const [courses, setCourses] = useState<Course[]>(MOCK_COURSES);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  const filteredCourses = MOCK_COURSES.filter((c) => {
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  /* -- Button handlers ------------------------------------------------- */
+
+  const handleAddCourse = () => {
+    alert('Create course flow coming soon');
+  };
+
+  const handleExport = () => {
+    const headers = ['Title', 'Instructor', 'Grade Level', 'Students Enrolled', 'Status', 'Created'];
+    const rows = filteredCourses.map((c) =>
+      [c.title, c.instructor, c.grade_level, c.students_enrolled, c.status, c.created_at].join(',')
+    );
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'courses_export.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Courses exported successfully');
+  };
+
+  const handleViewCourse = (course: Course) => {
+    alert(
+      `Course Details\n\nTitle: ${course.title}\nInstructor: ${course.instructor}\nGrade: ${course.grade_level}\nStatus: ${course.status}\nStudents Enrolled: ${course.students_enrolled}\nCreated: ${course.created_at}`
+    );
+  };
+
+  const handleApproveCourse = (courseId: string) => {
+    setCourses((prev) =>
+      prev.map((c) => (c.id === courseId ? { ...c, status: 'published' as CourseStatus } : c))
+    );
+    showToast('Course approved and published successfully');
+  };
+
+  const handleRejectCourse = (courseId: string, title: string) => {
+    const reason = prompt(`Provide a reason for rejecting "${title}":`);
+    if (reason === null) return;
+    setCourses((prev) =>
+      prev.map((c) => (c.id === courseId ? { ...c, status: 'draft' as CourseStatus } : c))
+    );
+    showToast(`Course rejected: ${reason || 'No reason provided'}`);
+  };
+
+  const handleMoreOptions = () => {
+    alert('More options coming soon');
+  };
+
+  /* ------------------------------------------------------------------- */
+
+  const filteredCourses = courses.filter((c) => {
     // Tab filter
     if (activeTab === 'pending' && c.status !== 'pending') return false;
     if (activeTab === 'archived' && c.status !== 'archived') return false;
@@ -105,10 +162,10 @@ const CoursesAdminPage: React.FC = () => {
     return true;
   });
 
-  const totalCourses = MOCK_COURSES.length;
-  const pendingReview = MOCK_COURSES.filter((c) => c.status === 'pending').length;
-  const published = MOCK_COURSES.filter((c) => c.status === 'published').length;
-  const archived = MOCK_COURSES.filter((c) => c.status === 'archived').length;
+  const totalCourses = courses.length;
+  const pendingReview = courses.filter((c) => c.status === 'pending').length;
+  const published = courses.filter((c) => c.status === 'published').length;
+  const archived = courses.filter((c) => c.status === 'archived').length;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -137,7 +194,10 @@ const CoursesAdminPage: React.FC = () => {
             { label: 'Courses' },
           ]}
           actions={
-            <button className="flex items-center gap-2 px-4 py-2 text-sm bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#C00] transition-colors">
+            <button
+              onClick={handleAddCourse}
+              className="flex items-center gap-2 px-4 py-2 text-sm bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#C00] transition-colors"
+            >
               <Plus className="w-4 h-4" />
               Add Course
             </button>
@@ -219,7 +279,10 @@ const CoursesAdminPage: React.FC = () => {
               ))}
             </select>
           </div>
-          <button className="flex items-center gap-2 px-3 py-2.5 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors">
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-2 px-3 py-2.5 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors"
+          >
             <Download className="w-4 h-4" />
             Export
           </button>
@@ -272,6 +335,7 @@ const CoursesAdminPage: React.FC = () => {
                         <div className="flex items-center justify-end gap-1">
                           <button
                             title="View"
+                            onClick={() => handleViewCourse(course)}
                             className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                           >
                             <Eye className="w-4 h-4" />
@@ -280,12 +344,14 @@ const CoursesAdminPage: React.FC = () => {
                             <>
                               <button
                                 title="Approve"
+                                onClick={() => handleApproveCourse(course.id)}
                                 className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-gray-500 dark:text-white/50 hover:text-emerald-400 transition-colors"
                               >
                                 <ThumbsUp className="w-4 h-4" />
                               </button>
                               <button
                                 title="Reject"
+                                onClick={() => handleRejectCourse(course.id, course.title)}
                                 className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 dark:text-white/50 hover:text-red-400 transition-colors"
                               >
                                 <ThumbsDown className="w-4 h-4" />
@@ -294,6 +360,7 @@ const CoursesAdminPage: React.FC = () => {
                           )}
                           <button
                             title="More"
+                            onClick={handleMoreOptions}
                             className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                           >
                             <MoreHorizontal className="w-4 h-4" />
@@ -311,12 +378,23 @@ const CoursesAdminPage: React.FC = () => {
           {filteredCourses.length > 0 && (
             <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-[#22272B]">
               <p className="text-xs text-gray-400 dark:text-white/40">
-                Showing {filteredCourses.length} of {MOCK_COURSES.length} courses
+                Showing {filteredCourses.length} of {courses.length} courses
               </p>
             </div>
           )}
         </motion.div>
       </motion.div>
+
+      {/* Toast notification */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
+            toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+          }`}>
+            <p className="text-sm font-medium">{toast.message}</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };

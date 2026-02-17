@@ -5,45 +5,9 @@
  * payout management, partner listing, invoices, and subscription plans.
  */
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const BASE = `${API_URL}/api/v1/admin`;
+import apiClient from '../api';
 
-function getAuthHeaders(): Record<string, string> {
-  let jwt = '';
-  const stored = localStorage.getItem('auth-store');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      jwt = parsed?.state?.token || parsed?.token || '';
-    } catch {
-      jwt = stored;
-    }
-  }
-  return {
-    Authorization: `Bearer ${jwt}`,
-    'Content-Type': 'application/json',
-  };
-}
-
-async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(url, {
-    headers: getAuthHeaders(),
-    ...options,
-  });
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status} ${response.statusText}`);
-  }
-  const json = await response.json();
-  return json.data ?? json;
-}
-
-function buildQuery(params: Record<string, string | number | undefined>): string {
-  const qs = Object.entries(params)
-    .filter(([, v]) => v !== undefined && v !== '' && v !== null)
-    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
-    .join('&');
-  return qs ? `?${qs}` : '';
-}
+const BASE = `/api/v1/admin`;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -172,67 +136,54 @@ export interface TransactionListParams {
 // ---------------------------------------------------------------------------
 
 const adminFinanceService = {
-  listTransactions: (params: TransactionListParams = {}): Promise<TransactionListResponse> =>
-    fetchJson<TransactionListResponse>(
-      `${BASE}/finance/transactions${buildQuery({
-        page: params.page,
-        page_size: params.page_size,
-        status: params.status,
-        payment_method: params.payment_method,
-        search: params.search,
-      })}`,
-    ),
-
-  getRefundQueue: (status?: string): Promise<{ items: RefundRequest[]; total: number }> => {
-    let url = `${BASE}/finance/refunds`;
-    if (status) url += `?status=${status}`;
-    return fetchJson(url);
+  listTransactions: async (params: TransactionListParams = {}): Promise<TransactionListResponse> => {
+    const r = await apiClient.get(`${BASE}/finance/transactions`, { params });
+    return r.data.data ?? r.data;
   },
 
-  processRefund: (refundId: string, decision: 'approved' | 'rejected'): Promise<{ success: boolean }> =>
-    fetchJson(`${BASE}/finance/refunds/${refundId}`, {
-      method: 'PUT',
-      body: JSON.stringify({ decision }),
-    }),
-
-  getPayoutQueue: (status?: string): Promise<{ items: PayoutItem[]; total: number }> => {
-    let url = `${BASE}/finance/payouts`;
-    if (status) url += `?status=${status}`;
-    return fetchJson(url);
+  getRefundQueue: async (status?: string): Promise<{ items: RefundRequest[]; total: number }> => {
+    const params = status ? { status } : undefined;
+    const r = await apiClient.get(`${BASE}/finance/refunds`, { params });
+    return r.data.data ?? r.data;
   },
 
-  listPartners: (
+  processRefund: async (refundId: string, decision: 'approved' | 'rejected'): Promise<{ success: boolean }> => {
+    const r = await apiClient.put(`${BASE}/finance/refunds/${refundId}`, { decision });
+    return r.data.data ?? r.data;
+  },
+
+  getPayoutQueue: async (status?: string): Promise<{ items: PayoutItem[]; total: number }> => {
+    const params = status ? { status } : undefined;
+    const r = await apiClient.get(`${BASE}/finance/payouts`, { params });
+    return r.data.data ?? r.data;
+  },
+
+  listPartners: async (
     page = 1,
     pageSize = 20,
     typeFilter?: string,
   ): Promise<PartnerListResponse> => {
-    const params: Record<string, string | number | undefined> = {
-      page,
-      page_size: pageSize,
-    };
+    const params: Record<string, string | number> = { page, page_size: pageSize };
     if (typeFilter) params.type = typeFilter;
-    return fetchJson<PartnerListResponse>(
-      `${BASE}/finance/partners${buildQuery(params)}`,
-    );
+    const r = await apiClient.get(`${BASE}/finance/partners`, { params });
+    return r.data.data ?? r.data;
   },
 
-  listInvoices: (
+  listInvoices: async (
     page = 1,
     pageSize = 20,
     status?: string,
   ): Promise<InvoiceListResponse> => {
-    const params: Record<string, string | number | undefined> = {
-      page,
-      page_size: pageSize,
-    };
+    const params: Record<string, string | number> = { page, page_size: pageSize };
     if (status) params.status = status;
-    return fetchJson<InvoiceListResponse>(
-      `${BASE}/finance/invoices${buildQuery(params)}`,
-    );
+    const r = await apiClient.get(`${BASE}/finance/invoices`, { params });
+    return r.data.data ?? r.data;
   },
 
-  getSubscriptionPlans: (): Promise<{ items: SubscriptionPlan[]; total: number }> =>
-    fetchJson(`${BASE}/finance/plans`),
+  getSubscriptionPlans: async (): Promise<{ items: SubscriptionPlan[]; total: number }> => {
+    const r = await apiClient.get(`${BASE}/finance/plans`);
+    return r.data.data ?? r.data;
+  },
 };
 
 export default adminFinanceService;

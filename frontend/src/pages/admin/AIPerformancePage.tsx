@@ -288,6 +288,21 @@ const formatLatency = (ms: number): string => {
 // ------------------------------------------------------------------
 const AIPerformancePage: React.FC = () => {
   const [selectedTimeRange, setSelectedTimeRange] = useState<string>('24h');
+  const [refreshing, setRefreshing] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+      showToast('Performance data refreshed', 'success');
+    }, 1200);
+  };
 
   const timeRanges = [
     { value: '1h', label: '1H' },
@@ -314,8 +329,12 @@ const AIPerformancePage: React.FC = () => {
             { label: 'Performance' },
           ]}
           actions={
-            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors">
-              <RefreshCw className="w-4 h-4" />
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
             </button>
           }
@@ -513,6 +532,19 @@ const AIPerformancePage: React.FC = () => {
                       <div className="flex items-center justify-end">
                         <button
                           title="View Details"
+                          onClick={() => {
+                            alert(
+                              `Provider: ${provider.provider}\n\n` +
+                              `Status: ${provider.status.charAt(0).toUpperCase() + provider.status.slice(1)}\n` +
+                              `Avg Latency: ${formatLatency(provider.avg_latency_ms)}\n` +
+                              `P95 Latency: ${formatLatency(provider.p95_latency_ms)}\n` +
+                              `Error Rate: ${provider.error_rate}%\n` +
+                              `Satisfaction: ${provider.satisfaction}/5\n` +
+                              `Requests Today: ${provider.total_requests_today.toLocaleString()}\n` +
+                              `Last Checked: ${formatDate(provider.last_checked)}\n` +
+                              `Last Error: ${provider.last_error ?? 'None'}`
+                            );
+                          }}
                           className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                         >
                           <Eye className="w-4 h-4" />
@@ -570,6 +602,16 @@ const AIPerformancePage: React.FC = () => {
             ))}
           </div>
         </div>
+        {/* Toast */}
+        {toast && (
+          <div className="fixed bottom-6 right-6 z-50">
+            <div className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
+              toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+            }`}>
+              <p className="text-sm font-medium">{toast.message}</p>
+            </div>
+          </div>
+        )}
       </motion.div>
     </>
   );
