@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
 
 class UserBase(BaseModel):
@@ -22,7 +22,6 @@ class UserBase(BaseModel):
     email: EmailStr = Field(..., description="User's email address")
     role: str = Field(
         ...,
-        pattern="^(student|parent|instructor|admin|partner|staff)$",
         description="User role in the system"
     )
 
@@ -32,6 +31,7 @@ class UserCreate(UserBase):
     Schema for user registration.
 
     Includes password field with strength validation and optional profile data.
+    Only allows self-registration for student, parent, and instructor roles.
     """
     password: str = Field(
         ...,
@@ -43,6 +43,32 @@ class UserCreate(UserBase):
         default_factory=dict,
         description="Additional profile information stored as JSON"
     )
+
+    @field_validator('role')
+    @classmethod
+    def validate_role(cls, v: str) -> str:
+        """
+        Validate that only allowed roles can self-register.
+
+        Allowed roles: student, parent, instructor
+        Restricted roles: admin, staff, partner (must be created by existing admin)
+
+        Args:
+            v: Role string to validate
+
+        Returns:
+            The validated role string
+
+        Raises:
+            ValueError: If role is not in the allowed whitelist
+        """
+        allowed_roles = ['student', 'parent', 'instructor']
+        if v not in allowed_roles:
+            raise ValueError(
+                f'Invalid role for self-registration. Allowed roles: {", ".join(allowed_roles)}. '
+                f'Contact an administrator to create {v} accounts.'
+            )
+        return v
 
     @field_validator('password')
     @classmethod
@@ -112,11 +138,19 @@ class UserResponse(BaseModel):
     id: UUID = Field(..., description="Unique user identifier")
     email: EmailStr = Field(..., description="User's email address")
     role: str = Field(..., description="User role in the system")
+    full_name: Optional[str] = Field(None, description="User's full name")
     is_active: bool = Field(..., description="Whether the user account is active")
     is_verified: bool = Field(..., description="Whether the user's email has been verified")
     profile_data: dict = Field(default_factory=dict, description="Additional profile information")
     created_at: datetime = Field(..., description="Account creation timestamp")
     last_login: Optional[datetime] = Field(None, description="Last login timestamp")
+
+    @model_validator(mode='after')
+    def extract_full_name(self) -> 'UserResponse':
+        """Extract full_name from profile_data if not set at model level."""
+        if not self.full_name and self.profile_data:
+            self.full_name = self.profile_data.get('full_name')
+        return self
 
     class Config:
         """Pydantic configuration."""

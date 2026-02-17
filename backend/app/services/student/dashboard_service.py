@@ -1,5 +1,16 @@
 """
 Student Dashboard Service - Daily plans, mood tracking, streaks, urgent items
+
+Provides the main student dashboard data aggregation including:
+- Time-adaptive greetings and daily motivational quotes
+- AI-generated daily learning plans with course and assignment scheduling
+- Mood check-in submission and tracking
+- Learning streak calculation and management
+- Urgent/overdue assignment detection
+- XP and level data via the gamification service
+- Daily plan manual editing support
+
+All methods are async and require a student UUID for personalization.
 """
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
@@ -23,7 +34,14 @@ from app.services.student.gamification_service import GamificationService
 
 
 class DashboardService:
-    """Service for student dashboard operations"""
+    """
+    Service for student dashboard operations.
+
+    Aggregates data from multiple sources (enrollments, assessments,
+    mood entries, streaks, gamification) to build the student's daily
+    dashboard view. Uses the AI orchestrator for generating daily
+    learning plans and motivational content.
+    """
 
     def __init__(self, db: AsyncSession):
         self.db = db

@@ -13,6 +13,15 @@ from app.database import Base
 
 
 class Permission(Base):
+    """
+    A named permission granting access to a specific resource and action.
+
+    Each permission is scoped to one resource (e.g. 'users', 'courses') and
+    one action (e.g. 'read', 'write', 'delete'). Optional field_restrictions
+    (JSONB) limit which columns a holder may view or edit, enabling field-level
+    access control beyond simple CRUD.
+    """
+
     __tablename__ = "permissions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -29,6 +38,14 @@ class Permission(Base):
 
 
 class RolePermission(Base):
+    """
+    Maps a user role to a permission, optionally with an expiry date.
+
+    When a role (e.g. 'admin', 'staff') is linked here, every user with that
+    role inherits the permission. The granted_by field tracks which admin
+    created the mapping. An optional expires_at allows temporary elevations.
+    """
+
     __tablename__ = "role_permissions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -43,6 +60,15 @@ class RolePermission(Base):
 
 
 class UserPermissionOverride(Base):
+    """
+    Per-user permission grant or denial that overrides the role-based defaults.
+
+    Used when a specific user needs an extra permission their role does not
+    include (granted=True) or should be blocked from a permission their role
+    normally provides (granted=False). Includes a reason for audit purposes
+    and an optional expires_at for time-limited overrides.
+    """
+
     __tablename__ = "user_permission_overrides"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

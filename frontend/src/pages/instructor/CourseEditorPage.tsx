@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Save, ArrowLeft, Sparkles, Eye, X } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface CourseFormData {
   title: string;
@@ -51,6 +50,7 @@ export const CourseEditorPage: React.FC = () => {
     tags: [],
   });
   const [tagInput, setTagInput] = useState('');
+  const [generatingSuggestions, setGeneratingSuggestions] = useState(false);
 
   useEffect(() => {
     if (courseId && courseId !== 'create') {
@@ -61,10 +61,7 @@ export const CourseEditorPage: React.FC = () => {
   const fetchCourse = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_URL}/api/v1/instructor/courses/${courseId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get(`/api/v1/instructor/courses/${courseId}`);
 
       if (response.data) {
         setFormData(response.data);
@@ -85,17 +82,12 @@ export const CourseEditorPage: React.FC = () => {
 
     try {
       setSaving(true);
-      const token = localStorage.getItem('access_token');
       const dataToSave = { ...formData, status };
 
       if (courseId && courseId !== 'create') {
-        await axios.put(`${API_URL}/api/v1/instructor/courses/${courseId}`, dataToSave, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await apiClient.put(`/api/v1/instructor/courses/${courseId}`, dataToSave);
       } else {
-        await axios.post(`${API_URL}/api/v1/instructor/courses`, dataToSave, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await apiClient.post('/api/v1/instructor/courses', dataToSave);
       }
 
       alert(`Course ${status === 'published' ? 'published' : 'saved'} successfully!`);
@@ -132,6 +124,42 @@ export const CourseEditorPage: React.FC = () => {
       ...prev,
       tags: prev.tags.filter((t) => t !== tag),
     }));
+  };
+
+  const handleGenerateSuggestions = async () => {
+    if (!formData.title && !formData.learning_area) {
+      alert('Please enter a course title or select a learning area first');
+      return;
+    }
+
+    try {
+      setGeneratingSuggestions(true);
+      const response = await apiClient.post(
+        '/api/v1/instructor/insights/course-suggestions',
+        {
+          title: formData.title,
+          learning_area: formData.learning_area,
+          grade_levels: formData.grade_levels,
+          current_description: formData.description,
+        }
+      );
+
+      if (response.data) {
+        const suggestions = response.data;
+        setFormData((prev) => ({
+          ...prev,
+          description: suggestions.description || prev.description,
+          short_description: suggestions.short_description || prev.short_description,
+          tags: suggestions.tags?.length ? suggestions.tags : prev.tags,
+        }));
+        alert('AI suggestions applied! Review and edit as needed.');
+      }
+    } catch (error) {
+      console.error('Error generating suggestions:', error);
+      alert('Failed to generate suggestions. The AI service may be unavailable.');
+    } finally {
+      setGeneratingSuggestions(false);
+    }
   };
 
   if (loading) {
@@ -383,8 +411,12 @@ export const CourseEditorPage: React.FC = () => {
               Get AI-powered suggestions for your course description, learning objectives, and
               content structure
             </p>
-            <button className="w-full px-4 py-2 bg-purple-500 hover:bg-purple-600 text-gray-900 dark:text-white rounded-lg transition-colors font-medium">
-              Generate Suggestions
+            <button
+              onClick={handleGenerateSuggestions}
+              disabled={generatingSuggestions}
+              className="w-full px-4 py-2 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 disabled:cursor-not-allowed text-gray-900 dark:text-white rounded-lg transition-colors font-medium"
+            >
+              {generatingSuggestions ? 'Generating...' : 'Generate Suggestions'}
             </button>
           </div>
         </div>

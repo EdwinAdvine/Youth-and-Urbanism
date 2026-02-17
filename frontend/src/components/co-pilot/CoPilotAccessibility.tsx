@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { useCoPilotStore } from '../../store';
 
 interface CoPilotAccessibilityProps {
   isExpanded: boolean;

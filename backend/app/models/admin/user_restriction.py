@@ -13,6 +13,16 @@ from app.database import Base
 
 
 class UserRestriction(Base):
+    """
+    A restriction applied to a user account (suspension, ban, feature lock, or warning).
+
+    Admins create these to discipline or protect users. Each restriction has
+    a type, an optional duration, and a list of affected features. Users may
+    appeal restrictions, and the appeal workflow tracks the decision and
+    deciding admin. Active restrictions are checked at login and on
+    feature-gated endpoints.
+    """
+
     __tablename__ = "user_restrictions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

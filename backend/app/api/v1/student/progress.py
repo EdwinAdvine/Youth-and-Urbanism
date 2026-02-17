@@ -1,5 +1,8 @@
 """
 Student Progress & Gamification API Routes
+
+Endpoints for XP/level data, badges, leaderboards, learning goals,
+and AI-powered weekly progress reports.
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,9 +22,10 @@ router = APIRouter(prefix="/student/progress", tags=["Student Progress"])
 
 # Pydantic schemas
 class CreateGoalRequest(BaseModel):
+    """Request body for creating a new learning goal."""
     title: str
     target: int
-    unit: str = "lessons"
+    unit: str = "lessons"  # e.g. lessons, hours, assignments
     deadline: Optional[datetime] = None
 
 

@@ -1,5 +1,11 @@
 """
-Student Community Models - Friends, Study Groups, Shoutouts, Teacher Q&A
+Student Community Models
+
+Models for the student social and collaboration features: friend requests
+and connections, study groups, peer-to-peer shoutouts (encouragement),
+and student-to-teacher Q&A with AI-generated question summaries. These
+tables power the community tab in the student dashboard and support
+moderated, age-appropriate social interaction.
 """
 from sqlalchemy import Column, String, Integer, DateTime, Boolean, Text, ForeignKey, Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID, JSONB
@@ -19,7 +25,15 @@ class FriendshipStatus(str, enum.Enum):
 
 
 class StudentFriendship(Base):
-    """Student friendships and friend requests"""
+    """
+    A friendship connection or pending request between two students.
+
+    When a student sends a friend request, a row is created with status
+    PENDING. The recipient can accept (ACCEPTED) or block (BLOCKED) the
+    request. Both directions are tracked: student_id is the sender and
+    friend_id is the recipient. Friendships unlock collaboration features
+    like study groups and direct shoutouts.
+    """
     __tablename__ = "student_friendships"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -40,7 +54,14 @@ class StudentFriendship(Base):
 
 
 class StudentStudyGroup(Base):
-    """Study groups created by students"""
+    """
+    A student-created study group for collaborative learning.
+
+    Groups have a name, optional subject, and a maximum member count.
+    Members are stored as a JSONB array of student UUIDs. Groups can be
+    public (discoverable) or private (invite-only). The creator is tracked
+    via created_by for moderation purposes.
+    """
     __tablename__ = "student_study_groups"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -73,7 +94,14 @@ class ShoutoutCategory(str, enum.Enum):
 
 
 class StudentShoutout(Base):
-    """Student-to-student shoutouts and encouragement"""
+    """
+    A peer recognition message from one student to another.
+
+    Shoutouts are categorized (encouragement, help, achievement, thanks)
+    and can be posted anonymously. Public shoutouts appear on the class
+    wall; private ones are only visible to the recipient. This feature
+    promotes a positive, supportive learning community.
+    """
     __tablename__ = "student_shoutouts"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -96,7 +124,14 @@ class StudentShoutout(Base):
 
 
 class StudentTeacherQA(Base):
-    """Student questions to teachers with AI summaries"""
+    """
+    A question submitted by a student to a teacher.
+
+    The AI generates a summary of the question to help teachers quickly
+    triage their Q&A queue. Questions go through moderation before
+    being delivered. Once answered, the response can optionally be made
+    public so other students benefit from the explanation.
+    """
     __tablename__ = "student_teacher_qa"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

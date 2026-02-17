@@ -125,6 +125,7 @@ export interface GoalCreate {
 export interface GoalUpdate {
   title?: string;
   description?: string;
+  category?: string;
   progress_percentage?: number;
   status?: string;
   target_date?: string;

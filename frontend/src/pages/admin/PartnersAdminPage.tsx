@@ -93,6 +93,13 @@ const PartnersAdminPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 600);
@@ -101,12 +108,39 @@ const PartnersAdminPage: React.FC = () => {
 
   const handleRefresh = () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 800);
+    setTimeout(() => {
+      setRefreshing(false);
+      showToast('Data refreshed');
+    }, 800);
+  };
+
+  const handleAddPartner = () => {
+    showToast('Add partner flow coming soon');
+  };
+
+  const handleViewPartner = (partner: Partner) => {
+    alert(
+      `Partner Details\n\n` +
+      `Name: ${partner.name}\n` +
+      `Type: ${partner.type}\n` +
+      `Email: ${partner.contact_email}\n` +
+      `Status: ${partner.status}\n` +
+      `Revenue Share: ${partner.revenue_share > 0 ? `${partner.revenue_share}%` : 'N/A'}\n` +
+      `Total Revenue: KES ${partner.total_revenue.toLocaleString()}\n` +
+      `Joined: ${partner.joined_at}\n` +
+      (partner.courses_count !== undefined ? `Courses: ${partner.courses_count}\n` : '') +
+      (partner.contract_end ? `Contract End: ${partner.contract_end}` : '')
+    );
+  };
+
+  const handleEditPartner = (partner: Partner) => {
+    showToast(`Edit partner flow for "${partner.name}" coming soon`);
   };
 
   const filteredPartners = MOCK_PARTNERS.filter(
     (p) =>
       p.type === activeTab &&
+      (!statusFilter || p.status === statusFilter) &&
       (!search || p.name.toLowerCase().includes(search.toLowerCase()) || p.contact_email.toLowerCase().includes(search.toLowerCase()))
   );
 
@@ -160,7 +194,10 @@ const PartnersAdminPage: React.FC = () => {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-[#E40000] rounded-lg text-gray-900 dark:text-white hover:bg-[#C00] transition-colors">
+            <button
+              onClick={handleAddPartner}
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-[#E40000] rounded-lg text-gray-900 dark:text-white hover:bg-[#C00] transition-colors"
+            >
               <Plus className="w-4 h-4" />
               Add Partner
             </button>
@@ -236,11 +273,16 @@ const PartnersAdminPage: React.FC = () => {
         </div>
         <div className="relative">
           <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
-          <select className="pl-10 pr-8 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[140px]">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="pl-10 pr-8 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[140px]"
+          >
             <option value="">All Status</option>
             <option value="active">Active</option>
             <option value="pending">Pending</option>
             <option value="suspended">Suspended</option>
+            <option value="expired">Expired</option>
           </select>
         </div>
       </motion.div>
@@ -301,12 +343,14 @@ const PartnersAdminPage: React.FC = () => {
                       <div className="flex items-center justify-end gap-1">
                         <button
                           title="View"
+                          onClick={() => handleViewPartner(partner)}
                           className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
                           title="Edit"
+                          onClick={() => handleEditPartner(partner)}
                           className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                         >
                           <Edit3 className="w-4 h-4" />
@@ -320,6 +364,17 @@ const PartnersAdminPage: React.FC = () => {
           </table>
         </div>
       </motion.div>
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
+            toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+          }`}>
+            <p className="text-sm font-medium">{toast.message}</p>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };

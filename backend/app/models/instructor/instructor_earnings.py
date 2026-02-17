@@ -49,7 +49,15 @@ class PayoutStatus(str, enum.Enum):
 
 
 class InstructorEarning(Base):
-    """Individual earning records for instructors"""
+    """
+    A single earning event for an instructor.
+
+    Records the gross amount, platform and partner fee percentages, and
+    the resulting net amount the instructor receives. Earning types include
+    course sales, session fees, bonuses, and referrals. Status transitions
+    through pending -> confirmed -> paid/reversed. Linked to the source
+    course or session for traceability.
+    """
 
     __tablename__ = "instructor_earnings"
 

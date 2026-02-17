@@ -1,5 +1,17 @@
 """
 Student Gamification Service - XP, Levels, Badges, Achievements, Leaderboards
+
+Manages the student gamification system including:
+- XP awarding with configurable sources and multipliers
+- Level progression using an exponential XP curve
+- Badge awarding based on achievement milestones
+- Leaderboard generation (class, grade, or school scope)
+- AI-powered weekly learning reports with narrative summaries
+- Learning goal creation and tracking
+- Skill node progression (skill tree)
+
+XP rewards and badge definitions are configured as class constants.
+Level XP requirements follow an exponential curve: base * multiplier^(level-1).
 """
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional

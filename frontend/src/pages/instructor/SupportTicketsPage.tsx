@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { LifeBuoy, Plus, Filter, Search, X, Send, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface SupportTicket {
   id: string;
@@ -61,12 +60,10 @@ export const SupportTicketsPage: React.FC = () => {
   const fetchTickets = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
       const params: Record<string, string> = {};
       if (statusFilter !== 'all') params.status = statusFilter;
 
-      const response = await axios.get(`${API_URL}/api/v1/instructor/hub/support/tickets`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await apiClient.get('/api/v1/instructor/hub/support/tickets', {
         params,
       });
 
@@ -127,18 +124,14 @@ export const SupportTicketsPage: React.FC = () => {
     try {
       setSubmitting(true);
       setFeedback(null);
-      const token = localStorage.getItem('access_token');
 
-      await axios.post(
-        `${API_URL}/api/v1/instructor/hub/support/tickets`,
+      await apiClient.post(
+        '/api/v1/instructor/hub/support/tickets',
         {
           title: newTicket.title.trim(),
           description: newTicket.description.trim(),
           category: newTicket.category,
           priority: newTicket.priority,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
         }
       );
 

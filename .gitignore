@@ -14,10 +14,19 @@ build/
 
 # Environment variables
 .env
+.env.*
 .env.local
+.env.development
 .env.development.local
 .env.test.local
+.env.production
 .env.production.local
+
+# Secrets and credentials
+*.pem
+*.key
+*.crt
+livekit-config.yaml
 
 # IDE and editor files
 .vscode/

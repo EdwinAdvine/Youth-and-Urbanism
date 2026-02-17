@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import {
   Users,
   Clock,
-  Brain,
   Activity,
   Calendar,
 } from 'lucide-react';

@@ -48,6 +48,7 @@ export const updateNotificationPreference = (data: {
   channel_sms?: boolean;
   channel_push?: boolean;
   channel_in_app?: boolean;
+  severity_threshold?: string;
   is_enabled?: boolean;
 }) =>
   api.put('/api/v1/parent/settings/notifications', data).then((r) => r.data);

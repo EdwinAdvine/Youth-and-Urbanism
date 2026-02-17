@@ -141,7 +141,7 @@ class Settings(BaseSettings):
         description="Allowed HTTP methods for CORS"
     )
     cors_allow_headers: List[str] = Field(
-        default=["*"],
+        default=["Content-Type", "Authorization", "X-Requested-With", "X-CSRF-Token", "Accept", "Origin"],
         description="Allowed headers for CORS"
     )
 
@@ -161,6 +161,14 @@ class Settings(BaseSettings):
     grok_api_key: Optional[str] = Field(
         default=None,
         description="X.AI Grok API key (optional)"
+    )
+    groq_api_key: Optional[str] = Field(
+        default=None,
+        description="Groq API key for fast inference (optional)"
+    )
+    openrouter_api_key: Optional[str] = Field(
+        default=None,
+        description="OpenRouter API key for multi-model access (optional)"
     )
     elevenlabs_api_key: Optional[str] = Field(
         default=None,
@@ -199,6 +207,14 @@ class Settings(BaseSettings):
     mpesa_timeout_url: Optional[str] = Field(
         default=None,
         description="M-Pesa timeout URL"
+    )
+    mpesa_initiator_password: Optional[str] = Field(
+        default=None,
+        description="M-Pesa B2C initiator password (required for B2C transactions)"
+    )
+    mpesa_certificate_path: Optional[str] = Field(
+        default=None,
+        description="Path to Safaricom public certificate for production RSA encryption"
     )
 
     # Flutterwave Payment Configuration
@@ -526,6 +542,19 @@ class Settings(BaseSettings):
         if not self.gemini_api_key:
             errors.append("GEMINI_API_KEY is required in production")
 
+        # Check LiveKit secrets are not defaults
+        if self.livekit_api_secret in ("secret", "changeme-generate-a-strong-secret"):
+            errors.append("LIVEKIT_API_SECRET must be changed from default in production")
+
+        # Check session cookie SameSite is strict in production
+        if self.session_cookie_samesite != "strict":
+            errors.append("SESSION_COOKIE_SAMESITE should be 'strict' in production")
+
+        # Validate CORS origins don't contain localhost in production
+        cors_origins_lower = self.cors_origins.lower()
+        if "localhost" in cors_origins_lower or "127.0.0.1" in cors_origins_lower:
+            errors.append("CORS_ORIGINS must not contain localhost or 127.0.0.1 in production")
+
         # Validate at least one payment gateway
         has_mpesa = self.mpesa_consumer_key and self.mpesa_consumer_secret
         has_stripe = self.stripe_secret_key
@@ -587,11 +616,11 @@ class Settings(BaseSettings):
     )
     livekit_api_key: str = Field(
         default="devkey",
-        description="LiveKit API key"
+        description="LiveKit API key (override via LIVEKIT_API_KEY env var in production)"
     )
     livekit_api_secret: str = Field(
-        default="secret",
-        description="LiveKit API secret"
+        default="changeme-generate-a-strong-secret",
+        description="LiveKit API secret (override via LIVEKIT_API_SECRET env var in production)"
     )
 
     # VAPID Configuration (for push notifications)

@@ -17,7 +17,7 @@ from unittest.mock import patch, MagicMock
 from decimal import Decimal
 
 from app.services.payment_service import PaymentService
-from app.models.payment import Payment, Wallet
+from app.models.payment import Transaction, Wallet
 from tests.factories import UserFactory
 
 

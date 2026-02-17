@@ -148,12 +148,12 @@ export default function AIProviderList({
               </div>
             </th>
             <th
-              onClick={() => handleSort('type')}
+              onClick={() => handleSort('provider_type')}
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               <div className="flex items-center space-x-1">
                 <span>Type</span>
-                {sortColumn === 'type' && (
+                {sortColumn === 'provider_type' && (
                   <span className="text-gray-400">
                     {sortDirection === 'asc' ? '↑' : '↓'}
                   </span>
@@ -214,20 +214,20 @@ export default function AIProviderList({
                 <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   {provider.name}
                 </div>
-                {provider.model_name && (
+                {provider.configuration?.model && (
                   <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {provider.model_name}
+                    {provider.configuration.model}
                   </div>
                 )}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                  {formatType(provider.type)}
+                  {formatType(provider.provider_type)}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                  {formatSpecialization(provider.specialization)}
+                  {formatSpecialization(provider.specialization || 'general')}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
@@ -242,7 +242,7 @@ export default function AIProviderList({
                 )}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                {formatCurrency(provider.cost_per_request)}
+                {formatCurrency(provider.cost_per_request ?? 0)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div className="flex items-center space-x-2">

@@ -28,6 +28,12 @@ logger = logging.getLogger(__name__)
 async def get_dashboard_summary(db: AsyncSession) -> dict:
     """
     Get admin dashboard summary with key platform metrics.
+
+    Aggregates counts of users (total and by role), courses (total and
+    published), enrollments, total completed revenue, and new user
+    registrations in the last 7 days.
+
+    Returns a nested dict with users, courses, enrollments, and revenue sections.
     """
     # Total users by role
     total_users = (await db.execute(
@@ -104,9 +110,15 @@ async def get_revenue_metrics(
     end_date: Optional[date] = None,
 ) -> dict:
     """
-    Get revenue time series data from RevenueMetrics table.
+    Get revenue time series data for a date range.
 
-    Falls back to raw transaction aggregation if no pre-computed metrics exist.
+    First tries pre-computed data from the RevenueMetrics table. If no
+    pre-computed metrics exist, falls back to aggregating directly from
+    the Transaction table (completed transactions only).
+
+    Defaults to the last 30 days if no date range is specified. Returns
+    a dict with the period and a list of daily data points containing
+    gross revenue, net revenue, transaction counts, and currency.
     """
     if not start_date:
         start_date = date.today() - timedelta(days=30)
@@ -179,7 +191,16 @@ async def get_user_growth(
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
 ) -> dict:
-    """Get user registration trends over time."""
+    """
+    Get user registration trends over a date range.
+
+    Aggregates daily registration counts and provides a role-based
+    breakdown for the specified period. Defaults to the last 30 days
+    if no date range is specified.
+
+    Returns a dict with the period, daily_registrations time series,
+    and a by_role dict mapping role names to counts.
+    """
     if not start_date:
         start_date = date.today() - timedelta(days=30)
     if not end_date:
@@ -224,7 +245,13 @@ async def get_user_growth(
 
 
 async def get_course_performance(db: AsyncSession) -> dict:
-    """Get course performance metrics."""
+    """
+    Get course performance metrics for the admin dashboard.
+
+    Returns the top 10 courses ranked by enrollment count and the
+    platform-wide average enrollment progress percentage. Useful for
+    identifying popular courses and overall completion trends.
+    """
     # Top courses by enrollment
     top_enrolled = await db.execute(
         select(

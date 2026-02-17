@@ -15,6 +15,7 @@ router = APIRouter()
 
 
 class AgentProfileResponse(BaseModel):
+    """Response schema for a user's AI agent profile settings."""
     agent_name: str = "The Bird AI"
     avatar_url: Optional[str] = None
     persona: str = "A helpful, encouraging AI tutor for Kenyan students."
@@ -28,6 +29,7 @@ class AgentProfileResponse(BaseModel):
 
 
 class AgentProfileUpdate(BaseModel):
+    """Request schema for updating AI agent profile fields (all optional)."""
     agent_name: Optional[str] = Field(None, max_length=100)
     avatar_url: Optional[str] = Field(None, max_length=500)
     persona: Optional[str] = Field(None, max_length=2000)

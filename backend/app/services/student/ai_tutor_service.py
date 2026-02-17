@@ -1,5 +1,14 @@
 """
 Student AI Tutor Service - Enhanced AI interactions with student context
+
+Provides personalized AI tutoring by enriching queries with student-specific
+data such as grade level, learning style, current mood, and energy level.
+Manages conversation history per student, generates learning paths, creates
+AI-analyzed journal entries, explains concepts at grade-appropriate levels,
+facilitates teacher Q&A with AI summaries, and handles voice response
+generation via ElevenLabs TTS.
+
+All methods require a student UUID and use the AIOrchestrator for AI calls.
 """
 from datetime import datetime
 from typing import Dict, List, Optional
@@ -16,7 +25,13 @@ from app.services.ai_orchestrator import AIOrchestrator
 
 
 class AITutorService:
-    """Service for student AI tutor interactions"""
+    """
+    Service for student AI tutor interactions.
+
+    Wraps the AIOrchestrator with student-specific context including grade
+    level, mood, energy, and conversation history. Manages persistent AI
+    tutor instances per student in the database.
+    """
 
     def __init__(self, db: AsyncSession):
         self.db = db
@@ -116,7 +131,13 @@ Adapt your teaching style to be engaging and appropriate for their grade level a
         }
 
     async def get_learning_path(self, student_id: UUID) -> Dict:
-        """Get AI-generated daily learning path"""
+        """
+        Get an AI-generated daily learning path for the student.
+
+        Uses the student's grade level to generate 3-5 personalized learning
+        activities with topics, durations, difficulty levels, and objectives.
+        Raises ValueError if the student is not found.
+        """
         # Get student info
         student_result = await self.db.execute(
             select(Student).where(Student.id == student_id)
@@ -152,7 +173,13 @@ Include 3-5 learning activities, each with:
         content: str,
         mood_tag: Optional[MoodType] = None
     ) -> StudentJournalEntry:
-        """Create journal entry with AI insights"""
+        """
+        Create a journal entry and generate AI insights from its content.
+
+        The AI analyzes the entry for key themes, learning insights, and
+        suggested next steps. Returns the saved StudentJournalEntry with
+        AI insights stored in its ai_insights JSONB column.
+        """
         # Generate AI insights from journal content
         insight_prompt = f"""Analyze this student's journal entry and provide:
 1. Key themes
@@ -186,7 +213,7 @@ Journal entry: {content}"""
         return journal_entry
 
     async def get_journal_entries(self, student_id: UUID, limit: int = 10) -> List[StudentJournalEntry]:
-        """Get student's journal entries"""
+        """Get the student's most recent journal entries, ordered newest first."""
         result = await self.db.execute(
             select(StudentJournalEntry)
             .where(StudentJournalEntry.student_id == student_id)
@@ -201,7 +228,13 @@ Journal entry: {content}"""
         concept: str,
         context: Optional[str] = None
     ) -> Dict:
-        """Help student understand a concept"""
+        """
+        Generate a grade-appropriate explanation of a concept for the student.
+
+        Uses the student's grade level to tailor the language and examples.
+        Accepts an optional context string for additional background.
+        Raises ValueError if the student is not found.
+        """
         # Get student grade for age-appropriate explanation
         student_result = await self.db.execute(
             select(Student).where(Student.id == student_id)
@@ -234,7 +267,13 @@ Journal entry: {content}"""
         teacher_id: UUID,
         question: str
     ) -> StudentTeacherQA:
-        """Send question to teacher with AI summary"""
+        """
+        Send a question to a teacher, with an AI-generated one-sentence summary.
+
+        Creates a StudentTeacherQA record linking the student and teacher,
+        storing both the full question and the AI summary. The record starts
+        as unmoderated and unanswered.
+        """
         # Generate AI summary of the question
         summary_prompt = f"Summarize this student question in one sentence: {question}"
 
@@ -261,7 +300,12 @@ Journal entry: {content}"""
         return qa_record
 
     async def get_teacher_responses(self, student_id: UUID) -> List[Dict]:
-        """Get AI-summarized teacher responses"""
+        """
+        Get answered teacher Q&A threads for the student.
+
+        Returns the 20 most recent answered questions with their AI summaries,
+        teacher answers, and timestamps.
+        """
         result = await self.db.execute(
             select(StudentTeacherQA)
             .where(

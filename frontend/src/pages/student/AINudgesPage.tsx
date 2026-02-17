@@ -1,3 +1,5 @@
+// AINudgesPage - Student page at /dashboard/student/ai-nudges. Displays AI-generated
+// motivational nudges including celebrations, suggestions, reminders, and goal progress alerts.
 import React from 'react';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';
 import { Sparkles, Trophy, Target, Clock, Lightbulb } from 'lucide-react';

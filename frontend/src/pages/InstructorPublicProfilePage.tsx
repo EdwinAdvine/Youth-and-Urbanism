@@ -1,3 +1,5 @@
+// InstructorPublicProfilePage - Public page at /instructors/:id. Displays an instructor's
+// public profile including bio, specializations, courses, ratings, and reviews.
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Star, Award, Users, BookOpen, MessageSquare } from 'lucide-react';

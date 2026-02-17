@@ -10,26 +10,7 @@ import type {
   StaffTicket,
   TicketMessage,
 } from '../../types/staff';
-
-const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/staff`;
-
-function getAuthHeaders(): HeadersInit {
-  const token =
-    localStorage.getItem('access_token') ||
-    JSON.parse(localStorage.getItem('auth-store') || '{}')?.state?.token;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
-
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Request failed' }));
-    throw new Error(error.detail || `HTTP ${response.status}`);
-  }
-  return response.json();
-}
+import apiClient from '../api';
 
 // ---------------------------------------------------------------------------
 // Types local to this service
@@ -84,61 +65,52 @@ export interface SLADashboardStats {
 export async function getTickets(
   params: TicketListParams = {},
 ): Promise<PaginatedResponse<StaffTicket>> {
-  const qs = new URLSearchParams();
-  if (params.page != null) qs.set('page', String(params.page));
-  if (params.page_size != null) qs.set('page_size', String(params.page_size));
-  if (params.status) qs.set('status', params.status);
-  if (params.priority) qs.set('priority', params.priority);
-  if (params.assigned_to) qs.set('assigned_to', params.assigned_to);
-
-  const response = await fetch(`${API_BASE}/support/tickets?${qs.toString()}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<PaginatedResponse<StaffTicket>>(response);
+  const { data } = await apiClient.get<PaginatedResponse<StaffTicket>>(
+    '/api/v1/staff/support/tickets',
+    { params },
+  );
+  return data;
 }
 
 /** Fetch a single ticket by ID. */
 export async function getTicket(ticketId: string): Promise<StaffTicket> {
-  const response = await fetch(`${API_BASE}/support/tickets/${ticketId}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<StaffTicket>(response);
+  const { data } = await apiClient.get<StaffTicket>(
+    `/api/v1/staff/support/tickets/${ticketId}`,
+  );
+  return data;
 }
 
 /** Create a new support ticket. */
-export async function createTicket(data: CreateTicketPayload): Promise<StaffTicket> {
-  const response = await fetch(`${API_BASE}/support/tickets`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<StaffTicket>(response);
+export async function createTicket(payload: CreateTicketPayload): Promise<StaffTicket> {
+  const { data } = await apiClient.post<StaffTicket>(
+    '/api/v1/staff/support/tickets',
+    payload,
+  );
+  return data;
 }
 
 /** Update an existing ticket. */
 export async function updateTicket(
   ticketId: string,
-  data: UpdateTicketPayload,
+  payload: UpdateTicketPayload,
 ): Promise<StaffTicket> {
-  const response = await fetch(`${API_BASE}/support/tickets/${ticketId}`, {
-    method: 'PATCH',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<StaffTicket>(response);
+  const { data } = await apiClient.patch<StaffTicket>(
+    `/api/v1/staff/support/tickets/${ticketId}`,
+    payload,
+  );
+  return data;
 }
 
 /** Add a message (reply or internal note) to a ticket. */
 export async function addMessage(
   ticketId: string,
-  data: AddMessagePayload,
+  payload: AddMessagePayload,
 ): Promise<TicketMessage> {
-  const response = await fetch(`${API_BASE}/support/tickets/${ticketId}/messages`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<TicketMessage>(response);
+  const { data } = await apiClient.post<TicketMessage>(
+    `/api/v1/staff/support/tickets/${ticketId}/messages`,
+    payload,
+  );
+  return data;
 }
 
 /** Assign a ticket to a staff member. */
@@ -146,12 +118,9 @@ export async function assignTicket(
   ticketId: string,
   assignedTo: string,
 ): Promise<void> {
-  const response = await fetch(`${API_BASE}/support/tickets/${ticketId}/assign`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ assigned_to: assignedTo }),
+  await apiClient.post(`/api/v1/staff/support/tickets/${ticketId}/assign`, {
+    assigned_to: assignedTo,
   });
-  return handleResponse<void>(response);
 }
 
 /** Escalate a ticket with a reason. */
@@ -159,18 +128,15 @@ export async function escalateTicket(
   ticketId: string,
   reason: string,
 ): Promise<void> {
-  const response = await fetch(`${API_BASE}/support/tickets/${ticketId}/escalate`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ reason }),
+  await apiClient.post(`/api/v1/staff/support/tickets/${ticketId}/escalate`, {
+    reason,
   });
-  return handleResponse<void>(response);
 }
 
 /** Fetch SLA compliance dashboard statistics. */
 export async function getSLAStatus(): Promise<SLADashboardStats> {
-  const response = await fetch(`${API_BASE}/support/sla/status`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<SLADashboardStats>(response);
+  const { data } = await apiClient.get<SLADashboardStats>(
+    '/api/v1/staff/support/sla/status',
+  );
+  return data;
 }

@@ -14,9 +14,8 @@ import {
 } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { format } from 'date-fns';
-import axios from 'axios';
+import apiClient from '../../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface LoginRecord {
   id: string;
@@ -116,12 +115,9 @@ export const LoginHistoryPage: React.FC = () => {
           setLoading(true);
         }
         setError(null);
-
-        const token = localStorage.getItem('access_token');
-        const response = await axios.get(
-          `${API_URL}/api/v1/instructor/account/login-history`,
+        const response = await apiClient.get(
+          '/api/v1/instructor/account/login-history',
           {
-            headers: { Authorization: `Bearer ${token}` },
             params: { limit: PAGE_SIZE * pageNum },
           }
         );

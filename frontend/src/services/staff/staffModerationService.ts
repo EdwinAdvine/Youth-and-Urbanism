@@ -11,26 +11,7 @@ import type {
   ModerationItem,
   BulkActionResult,
 } from '../../types/staff';
-
-const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/staff`;
-
-function getAuthHeaders(): HeadersInit {
-  const token =
-    localStorage.getItem('access_token') ||
-    JSON.parse(localStorage.getItem('auth-store') || '{}')?.state?.token;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
-
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Request failed' }));
-    throw new Error(error.detail || `HTTP ${response.status}`);
-  }
-  return response.json();
-}
+import apiClient from '../api';
 
 // ---------------------------------------------------------------------------
 // Types local to this service
@@ -90,25 +71,19 @@ export interface SafetyFlagParams {
 export async function getModerationQueue(
   params: ModerationQueueParams = {},
 ): Promise<PaginatedResponse<ModerationItem>> {
-  const qs = new URLSearchParams();
-  if (params.page != null) qs.set('page', String(params.page));
-  if (params.page_size != null) qs.set('page_size', String(params.page_size));
-  if (params.content_type) qs.set('content_type', params.content_type);
-  if (params.priority) qs.set('priority', params.priority);
-  if (params.status) qs.set('status', params.status);
-
-  const response = await fetch(`${API_BASE}/moderation/queue?${qs.toString()}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<PaginatedResponse<ModerationItem>>(response);
+  const { data } = await apiClient.get<PaginatedResponse<ModerationItem>>(
+    '/api/v1/staff/moderation/queue',
+    { params },
+  );
+  return data;
 }
 
 /** Fetch a single moderation item by ID. */
 export async function getModerationItem(itemId: string): Promise<ModerationItem> {
-  const response = await fetch(`${API_BASE}/moderation/queue/${itemId}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<ModerationItem>(response);
+  const { data } = await apiClient.get<ModerationItem>(
+    `/api/v1/staff/moderation/queue/${itemId}`,
+  );
+  return data;
 }
 
 /** Submit a review decision for a moderation item. */
@@ -116,45 +91,35 @@ export async function submitReview(
   itemId: string,
   decision: ReviewDecisionPayload,
 ): Promise<void> {
-  const response = await fetch(`${API_BASE}/moderation/queue/${itemId}/review`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(decision),
-  });
-  return handleResponse<void>(response);
+  await apiClient.post(`/api/v1/staff/moderation/queue/${itemId}/review`, decision);
 }
 
 /** Perform a bulk moderation action on multiple items. */
 export async function bulkModerate(
   action: BulkModerationPayload,
 ): Promise<BulkActionResult> {
-  const response = await fetch(`${API_BASE}/moderation/queue/bulk`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(action),
-  });
-  return handleResponse<BulkActionResult>(response);
+  const { data } = await apiClient.post<BulkActionResult>(
+    '/api/v1/staff/moderation/queue/bulk',
+    action,
+  );
+  return data;
 }
 
 /** Get CBC alignment analysis for a specific piece of content. */
 export async function getCBCAlignment(contentId: string): Promise<CBCAlignmentResult> {
-  const response = await fetch(
-    `${API_BASE}/moderation/cbc-alignment/${contentId}`,
-    { headers: getAuthHeaders() },
+  const { data } = await apiClient.get<CBCAlignmentResult>(
+    `/api/v1/staff/moderation/cbc-alignment/${contentId}`,
   );
-  return handleResponse<CBCAlignmentResult>(response);
+  return data;
 }
 
 /** Fetch paginated safety flags raised by the AI moderation pipeline. */
 export async function getSafetyFlags(
   params: SafetyFlagParams = {},
 ): Promise<PaginatedResponse<SafetyFlag>> {
-  const qs = new URLSearchParams();
-  if (params.page != null) qs.set('page', String(params.page));
-  if (params.page_size != null) qs.set('page_size', String(params.page_size));
-
-  const response = await fetch(`${API_BASE}/moderation/safety-flags?${qs.toString()}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<PaginatedResponse<SafetyFlag>>(response);
+  const { data } = await apiClient.get<PaginatedResponse<SafetyFlag>>(
+    '/api/v1/staff/moderation/safety-flags',
+    { params },
+  );
+  return data;
 }

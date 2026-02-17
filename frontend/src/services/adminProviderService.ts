@@ -54,7 +54,7 @@ export interface AIProviderUpdate {
  * Response format for list providers endpoint
  */
 export interface AIProviderListResponse {
-  items: AIProvider[];
+  providers: AIProvider[];
   total: number;
 }
 

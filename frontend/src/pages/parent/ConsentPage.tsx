@@ -6,8 +6,9 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Shield, ChevronDown, Clock, Check, X } from 'lucide-react';
+import { Shield, ChevronDown, Clock, Check, X, Users } from 'lucide-react';
 import { useParentStore } from '../../store/parentStore';
 import {
   getConsentMatrix,
@@ -66,6 +67,7 @@ const RECIPIENT_LABELS: Record<string, string> = {
 };
 
 const ConsentPage: React.FC = () => {
+  const navigate = useNavigate();
   const { selectedChildId, children } = useParentStore();
 
   const [activeChildId, setActiveChildId] = useState<string | null>(
@@ -181,6 +183,24 @@ const ConsentPage: React.FC = () => {
       <>
         <div className="flex items-center justify-center h-96">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#E40000]" />
+        </div>
+      </>
+    );
+  }
+
+  if (children.length === 0) {
+    return (
+      <>
+        <div className="text-center py-12">
+          <Users className="w-12 h-12 text-gray-400 dark:text-white/30 mx-auto mb-4" />
+          <p className="text-gray-900 dark:text-white font-medium mb-2">No children linked to your account</p>
+          <p className="text-gray-500 dark:text-white/60 mb-4">Add your children to manage consent and permissions</p>
+          <button
+            onClick={() => navigate('/dashboard/parent/children')}
+            className="px-6 py-2 bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#FF0000] transition-colors"
+          >
+            Manage Children
+          </button>
         </div>
       </>
     );

@@ -1,3 +1,5 @@
+// AskCommunityPage - Student page at /dashboard/student/ask-community. Forum-style page
+// where students post questions, browse peer discussions, and get help from the community.
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';

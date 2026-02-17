@@ -271,8 +271,80 @@ const AIMonitoringPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [severityFilter, setSeverityFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+  const [flaggedConversations, setFlaggedConversations] = useState<FlaggedConversation[]>(mockFlaggedConversations);
+  const [safetyIncidents, setSafetyIncidents] = useState<SafetyIncident[]>(mockSafetyIncidents);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  const filteredConversations = mockFlaggedConversations.filter((conv) => {
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+      showToast('Monitoring data refreshed');
+    }, 1200);
+  };
+
+  const handleMarkReviewed = (id: string) => {
+    setFlaggedConversations((prev) =>
+      prev.map((conv) =>
+        conv.id === id ? { ...conv, status: 'reviewed' as FlagStatus } : conv
+      )
+    );
+    showToast('Flag marked as reviewed');
+  };
+
+  const handleEscalate = (id: string) => {
+    if (!window.confirm('Are you sure you want to escalate this to the safety team?')) return;
+    setFlaggedConversations((prev) =>
+      prev.map((conv) =>
+        conv.id === id ? { ...conv, status: 'escalated' as FlagStatus } : conv
+      )
+    );
+    showToast('Escalated to safety team');
+  };
+
+  const handleMarkResolved = (id: string) => {
+    setSafetyIncidents((prev) =>
+      prev.map((incident) =>
+        incident.id === id ? { ...incident, resolved: true } : incident
+      )
+    );
+    showToast('Incident marked as resolved');
+  };
+
+  const handleViewFlagDetails = (conv: FlaggedConversation) => {
+    alert(
+      `Flagged Conversation Details\n\n` +
+      `ID: ${conv.id}\n` +
+      `Student: ${conv.student_name} (${conv.student_grade})\n` +
+      `Flag Type: ${flagTypeLabels[conv.flag_type]}\n` +
+      `Severity: ${conv.severity}\n` +
+      `AI Model: ${conv.ai_model}\n` +
+      `Status: ${conv.status}\n` +
+      `Flagged At: ${formatDate(conv.flagged_at)}\n\n` +
+      `Snippet:\n${conv.snippet}`
+    );
+  };
+
+  const handleViewIncidentDetails = (incident: SafetyIncident) => {
+    alert(
+      `Safety Incident Details\n\n` +
+      `ID: ${incident.id}\n` +
+      `Type: ${incident.incident_type}\n` +
+      `Severity: ${incident.severity}\n` +
+      `Affected Students: ${incident.affected_students}\n` +
+      `Resolved: ${incident.resolved ? 'Yes' : 'No'}\n` +
+      `Occurred At: ${formatDate(incident.occurred_at)}\n\n` +
+      `Description:\n${incident.description}`
+    );
+  };
+
+  const filteredConversations = flaggedConversations.filter((conv) => {
     const matchesSearch =
       !search ||
       conv.student_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -284,8 +356,8 @@ const AIMonitoringPage: React.FC = () => {
 
   const tabs: { key: TabType; label: string; count?: number }[] = [
     { key: 'dashboard', label: 'Dashboard' },
-    { key: 'flagged', label: 'Flagged Conversations', count: mockFlaggedConversations.filter(c => c.status === 'pending').length },
-    { key: 'safety', label: 'Safety Incidents', count: mockSafetyIncidents.filter(i => !i.resolved).length },
+    { key: 'flagged', label: 'Flagged Conversations', count: flaggedConversations.filter(c => c.status === 'pending').length },
+    { key: 'safety', label: 'Safety Incidents', count: safetyIncidents.filter(i => !i.resolved).length },
   ];
 
   return (
@@ -305,8 +377,12 @@ const AIMonitoringPage: React.FC = () => {
             { label: 'Monitoring' },
           ]}
           actions={
-            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors">
-              <RefreshCw className="w-4 h-4" />
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
             </button>
           }
@@ -383,7 +459,7 @@ const AIMonitoringPage: React.FC = () => {
             <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Flagged Interactions</h3>
               <div className="space-y-3">
-                {mockFlaggedConversations.slice(0, 4).map((conv) => (
+                {flaggedConversations.slice(0, 4).map((conv) => (
                   <div
                     key={conv.id}
                     className="flex items-center justify-between p-3 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg"
@@ -529,6 +605,7 @@ const AIMonitoringPage: React.FC = () => {
                             <div className="flex items-center justify-end gap-1">
                               <button
                                 title="View Details"
+                                onClick={() => handleViewFlagDetails(conv)}
                                 className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                               >
                                 <Eye className="w-4 h-4" />
@@ -537,12 +614,14 @@ const AIMonitoringPage: React.FC = () => {
                                 <>
                                   <button
                                     title="Mark Reviewed"
+                                    onClick={() => handleMarkReviewed(conv.id)}
                                     className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-gray-500 dark:text-white/50 hover:text-emerald-400 transition-colors"
                                   >
                                     <CheckCircle className="w-4 h-4" />
                                   </button>
                                   <button
                                     title="Escalate"
+                                    onClick={() => handleEscalate(conv.id)}
                                     className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 dark:text-white/50 hover:text-red-400 transition-colors"
                                   >
                                     <ShieldAlert className="w-4 h-4" />
@@ -567,7 +646,7 @@ const AIMonitoringPage: React.FC = () => {
             animate={{ opacity: 1 }}
             className="space-y-4"
           >
-            {mockSafetyIncidents.map((incident) => (
+            {safetyIncidents.map((incident) => (
               <div
                 key={incident.id}
                 className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6"
@@ -610,6 +689,7 @@ const AIMonitoringPage: React.FC = () => {
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <button
                       title="View Details"
+                      onClick={() => handleViewIncidentDetails(incident)}
                       className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                     >
                       <Eye className="w-4 h-4" />
@@ -617,6 +697,7 @@ const AIMonitoringPage: React.FC = () => {
                     {!incident.resolved && (
                       <button
                         title="Mark Resolved"
+                        onClick={() => handleMarkResolved(incident.id)}
                         className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-gray-500 dark:text-white/50 hover:text-emerald-400 transition-colors"
                       >
                         <CheckCircle className="w-4 h-4" />
@@ -629,6 +710,17 @@ const AIMonitoringPage: React.FC = () => {
           </motion.div>
         )}
       </motion.div>
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
+            toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+          }`}>
+            <p className="text-sm font-medium">{toast.message}</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };

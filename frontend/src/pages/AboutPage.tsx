@@ -1,3 +1,5 @@
+// AboutPage - Public page at /about. Presents the platform mission, values,
+// team information, and educational philosophy of Urban Home School.
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';

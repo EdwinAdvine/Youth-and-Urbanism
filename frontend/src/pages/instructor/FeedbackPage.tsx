@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Star, MessageSquare, ThumbsUp, Filter, Send } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { format } from 'date-fns';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Feedback {
   id: string;
@@ -36,13 +35,11 @@ export const FeedbackPage: React.FC = () => {
   const fetchFeedback = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
       const params: any = {};
       if (ratingFilter !== 'all') params.rating = ratingFilter;
       if (statusFilter !== 'all') params.status = statusFilter;
 
-      const response = await axios.get(`${API_URL}/api/v1/instructor/feedback`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await apiClient.get('/api/v1/instructor/feedback', {
         params,
       });
 
@@ -132,11 +129,9 @@ export const FeedbackPage: React.FC = () => {
 
     try {
       setSubmittingReply(true);
-      const token = localStorage.getItem('access_token');
-      await axios.post(
-        `${API_URL}/api/v1/instructor/feedback/${feedbackId}/reply`,
-        { reply: replyText.trim() },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await apiClient.post(
+        `/api/v1/instructor/feedback/${feedbackId}/reply`,
+        { reply: replyText.trim() }
       );
 
       // Update local state

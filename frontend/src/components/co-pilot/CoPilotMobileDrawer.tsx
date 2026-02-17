@@ -1,19 +1,14 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCoPilotStore, useThemeStore } from '../../store';
-import { 
-  Bot, 
-  X, 
-  Plus, 
-  BookOpen, 
-  Star, 
-  MessageCircle, 
-  Brain, 
-  Sparkles, 
-  Wifi, 
-  WifiOff,
-  Sun,
-  Moon
+import {
+  Bot,
+  X,
+  BookOpen,
+  Star,
+  MessageCircle,
+  Brain,
+  Sparkles
 } from 'lucide-react';
 
 interface CoPilotMobileDrawerProps {
@@ -28,7 +23,7 @@ const CoPilotMobileDrawer: React.FC<CoPilotMobileDrawerProps> = ({ isOpen, onClo
   const roleConfig = {
     student: { color: 'from-blue-500 to-cyan-500', icon: <BookOpen className="w-6 h-6" /> },
     parent: { color: 'from-green-500 to-emerald-500', icon: <Bot className="w-6 h-6" /> },
-    teacher: { color: 'from-purple-500 to-pink-500', icon: <Bot className="w-6 h-6" /> },
+    instructor: { color: 'from-purple-500 to-pink-500', icon: <Bot className="w-6 h-6" /> },
     admin: { color: 'from-orange-500 to-red-500', icon: <Bot className="w-6 h-6" /> },
     partner: { color: 'from-teal-500 to-blue-500', icon: <Bot className="w-6 h-6" /> },
     staff: { color: 'from-blue-500 to-indigo-500', icon: <Bot className="w-6 h-6" /> },
@@ -36,7 +31,7 @@ const CoPilotMobileDrawer: React.FC<CoPilotMobileDrawerProps> = ({ isOpen, onClo
 
   const currentConfig = roleConfig[activeRole];
 
-  const handleQuickAction = (action: string) => {
+  const handleQuickAction = (_action: string) => {
     onClose();
   };
 

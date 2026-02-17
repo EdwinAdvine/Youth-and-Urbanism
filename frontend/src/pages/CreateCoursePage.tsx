@@ -19,7 +19,6 @@ import {
   ArrowRightIcon,
   PlusIcon,
   TrashIcon,
-  EyeIcon,
   CheckIcon,
 } from '@heroicons/react/24/outline';
 
@@ -30,7 +29,6 @@ import type {
   GradeLevel,
   Lesson,
   Syllabus,
-  SyllabusModule,
 } from '../types/course';
 
 type FormStep = 'basic' | 'syllabus' | 'lessons' | 'pricing' | 'review';
@@ -410,8 +408,10 @@ function BasicInfoStep({ formData, setFormData }: StepProps) {
 }
 
 function SyllabusStep({ formData, setFormData }: StepProps) {
+  const defaultSyllabus: Syllabus = { overview: '', learning_outcomes: [], modules: [] };
+
   const addLearningOutcome = () => {
-    const syllabus = formData.syllabus || { learning_outcomes: [] };
+    const syllabus = formData.syllabus || defaultSyllabus;
     setFormData({
       ...formData,
       syllabus: {
@@ -422,7 +422,7 @@ function SyllabusStep({ formData, setFormData }: StepProps) {
   };
 
   const updateLearningOutcome = (index: number, value: string) => {
-    const syllabus = formData.syllabus || { learning_outcomes: [] };
+    const syllabus = formData.syllabus || defaultSyllabus;
     const outcomes = [...(syllabus.learning_outcomes || [])];
     outcomes[index] = value;
     setFormData({
@@ -432,7 +432,7 @@ function SyllabusStep({ formData, setFormData }: StepProps) {
   };
 
   const removeLearningOutcome = (index: number) => {
-    const syllabus = formData.syllabus || { learning_outcomes: [] };
+    const syllabus = formData.syllabus || defaultSyllabus;
     const outcomes = [...(syllabus.learning_outcomes || [])];
     outcomes.splice(index, 1);
     setFormData({
@@ -454,7 +454,7 @@ function SyllabusStep({ formData, setFormData }: StepProps) {
           onChange={(e) =>
             setFormData({
               ...formData,
-              syllabus: { ...(formData.syllabus || {}), overview: e.target.value },
+              syllabus: { ...(formData.syllabus || defaultSyllabus), overview: e.target.value },
             })
           }
           placeholder="Provide an overview of what this course covers..."
@@ -676,9 +676,9 @@ function PricingStep({ formData, setFormData }: StepProps) {
             <li>• Platform receives 30% for infrastructure</li>
             <li>• Partners receive 10% for referrals</li>
           </ul>
-          {formData.price > 0 && (
+          {(formData.price ?? 0) > 0 && (
             <p className="mt-3 text-sm font-semibold text-blue-900">
-              Your earnings per enrollment: KES {(formData.price * 0.6).toFixed(2)}
+              Your earnings per enrollment: KES {((formData.price ?? 0) * 0.6).toFixed(2)}
             </p>
           )}
         </div>
@@ -736,10 +736,10 @@ function ReviewStep({ formData }: { formData: CourseCreate }) {
         <div>
           <h3 className="font-semibold text-gray-900 mb-2">Pricing</h3>
           <p className="text-gray-700">
-            {formData.price === 0 ? (
+            {(formData.price ?? 0) === 0 ? (
               <span className="text-green-600 font-semibold">Free Course</span>
             ) : (
-              `${formData.currency} ${formData.price.toFixed(2)}`
+              `${formData.currency} ${(formData.price ?? 0).toFixed(2)}`
             )}
           </p>
         </div>

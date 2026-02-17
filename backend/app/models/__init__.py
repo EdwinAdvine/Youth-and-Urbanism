@@ -29,6 +29,8 @@ from app.models.user import User
 from app.models.student import Student
 from app.models.ai_provider import AIProvider
 from app.models.ai_tutor import AITutor
+from app.models.ai_agent_profile import AIAgentProfile
+from app.models.copilot_session import CopilotSession, CopilotMessage
 from app.models.course import Course
 from app.models.enrollment import Enrollment, EnrollmentStatus
 from app.models.assessment import Assessment, AssessmentSubmission
@@ -191,6 +193,9 @@ __all__ = [
     # AI system models (core feature)
     "AIProvider",
     "AITutor",
+    "AIAgentProfile",
+    "CopilotSession",
+    "CopilotMessage",
 
     # Course and assessment models
     "Course",

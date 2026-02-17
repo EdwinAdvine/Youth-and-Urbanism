@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Search, Sparkles, TrendingUp, MessageCircle, BookOpen, AlertCircle } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { format } from 'date-fns';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface AIConversation {
   id: string;
@@ -48,10 +47,7 @@ export const AIHandoffPage: React.FC = () => {
   const fetchConversations = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_URL}/api/v1/instructor/ai-handoff`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get('/api/v1/instructor/ai-handoff');
 
       // Mock data for development
       if (!response.data || response.data.length === 0) {
@@ -103,10 +99,8 @@ export const AIHandoffPage: React.FC = () => {
 
   const fetchConversationDetails = async (studentId: string) => {
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(
-        `${API_URL}/api/v1/instructor/ai-handoff/${studentId}/summary`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const response = await apiClient.get(
+        `/api/v1/instructor/ai-handoff/${studentId}/summary`
       );
 
       // Mock data for development

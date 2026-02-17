@@ -12,6 +12,15 @@ from app.database import Base
 
 
 class ComplianceIncident(Base):
+    """
+    A data-protection or child-safety compliance incident.
+
+    Types include DPA breaches, consent violations, data subject requests,
+    and child-safety flags. Each incident has a severity level and status
+    that progresses from open -> investigating -> resolved. The affected
+    users count helps admins prioritize response efforts.
+    """
+
     __tablename__ = "compliance_incidents"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -30,6 +39,15 @@ class ComplianceIncident(Base):
 
 
 class ScheduledReport(Base):
+    """
+    A recurring report scheduled via cron expression.
+
+    Admins configure report type, schedule, recipients (JSONB email list),
+    and parameters (filters, date ranges). The scheduler creates and emails
+    the report on each run, updating last_run_at and computing next_run_at.
+    Reports can be paused by setting is_active to False.
+    """
+
     __tablename__ = "scheduled_reports"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

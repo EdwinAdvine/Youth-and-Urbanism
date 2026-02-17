@@ -49,7 +49,7 @@ class TestMPesaPayment:
             }
         )
 
-        response = client.post("/api/v1/payments/mpesa/initiate",
+        response = await client.post("/api/v1/payments/mpesa/initiate",
             headers=auth_headers,
             json={
                 "phone_number": "254712345678",
@@ -63,7 +63,7 @@ class TestMPesaPayment:
         data = response.json()
         assert "checkout_request_id" in data or "CheckoutRequestID" in data
 
-    def test_initiate_mpesa_invalid_phone_fails(self, client, auth_headers):
+    async def test_initiate_mpesa_invalid_phone_fails(self, client, auth_headers):
         """Test M-Pesa payment with invalid phone number fails."""
         invalid_phones = [
             "123",  # Too short
@@ -73,7 +73,7 @@ class TestMPesaPayment:
         ]
 
         for phone in invalid_phones:
-            response = client.post("/api/v1/payments/mpesa/initiate",
+            response = await client.post("/api/v1/payments/mpesa/initiate",
                 headers=auth_headers,
                 json={
                     "phone_number": phone,
@@ -86,7 +86,7 @@ class TestMPesaPayment:
                 status.HTTP_400_BAD_REQUEST
             ], f"Invalid phone {phone} was accepted"
 
-    def test_initiate_mpesa_invalid_amount_fails(self, client, auth_headers):
+    async def test_initiate_mpesa_invalid_amount_fails(self, client, auth_headers):
         """Test M-Pesa payment with invalid amount fails."""
         invalid_amounts = [
             -100,  # Negative
@@ -96,7 +96,7 @@ class TestMPesaPayment:
         ]
 
         for amount in invalid_amounts:
-            response = client.post("/api/v1/payments/mpesa/initiate",
+            response = await client.post("/api/v1/payments/mpesa/initiate",
                 headers=auth_headers,
                 json={
                     "phone_number": "254712345678",
@@ -109,9 +109,9 @@ class TestMPesaPayment:
                 status.HTTP_400_BAD_REQUEST
             ], f"Invalid amount {amount} was accepted"
 
-    def test_mpesa_callback_success(self, client, db_session, mock_mpesa_callback):
+    async def test_mpesa_callback_success(self, client, db_session, mock_mpesa_callback):
         """Test M-Pesa webhook callback processing."""
-        response = client.post("/api/v1/payments/mpesa/callback",
+        response = await client.post("/api/v1/payments/mpesa/callback",
             json=mock_mpesa_callback
         )
 
@@ -122,7 +122,7 @@ class TestMPesaPayment:
             status.HTTP_202_ACCEPTED
         ]
 
-    def test_mpesa_callback_failed_transaction(self, client):
+    async def test_mpesa_callback_failed_transaction(self, client):
         """Test M-Pesa callback with failed transaction."""
         failed_callback = {
             "Body": {
@@ -135,7 +135,7 @@ class TestMPesaPayment:
             }
         }
 
-        response = client.post("/api/v1/payments/mpesa/callback",
+        response = await client.post("/api/v1/payments/mpesa/callback",
             json=failed_callback
         )
 
@@ -144,9 +144,9 @@ class TestMPesaPayment:
             status.HTTP_202_ACCEPTED
         ]
 
-    def test_mpesa_unauthorized_without_token(self, client):
+    async def test_mpesa_unauthorized_without_token(self, client):
         """Test M-Pesa payment requires authentication."""
-        response = client.post("/api/v1/payments/mpesa/initiate",
+        response = await client.post("/api/v1/payments/mpesa/initiate",
             json={
                 "phone_number": "254712345678",
                 "amount": 1000.0
@@ -174,7 +174,7 @@ class TestStripePayment:
             currency="kes"
         )
 
-        response = client.post("/api/v1/payments/stripe/create-intent",
+        response = await client.post("/api/v1/payments/stripe/create-intent",
             headers=auth_headers,
             json={
                 "amount": 10000,
@@ -199,7 +199,7 @@ class TestStripePayment:
             amount=10000
         )
 
-        response = client.post("/api/v1/payments/stripe/confirm",
+        response = await client.post("/api/v1/payments/stripe/confirm",
             headers=auth_headers,
             json={
                 "payment_intent_id": "pi_test_123",
@@ -213,7 +213,7 @@ class TestStripePayment:
             status.HTTP_404_NOT_FOUND  # If endpoint doesn't exist yet
         ]
 
-    def test_stripe_webhook_payment_succeeded(self, client, db_session):
+    async def test_stripe_webhook_payment_succeeded(self, client, db_session):
         """Test Stripe webhook for successful payment."""
         webhook_data = {
             "type": "payment_intent.succeeded",
@@ -231,7 +231,7 @@ class TestStripePayment:
             }
         }
 
-        response = client.post("/api/v1/payments/stripe/webhook",
+        response = await client.post("/api/v1/payments/stripe/webhook",
             json=webhook_data,
             headers={"Stripe-Signature": "test-signature"}
         )
@@ -242,9 +242,9 @@ class TestStripePayment:
             status.HTTP_404_NOT_FOUND
         ]
 
-    def test_stripe_invalid_amount_fails(self, client, auth_headers):
+    async def test_stripe_invalid_amount_fails(self, client, auth_headers):
         """Test Stripe payment with invalid amount fails."""
-        response = client.post("/api/v1/payments/stripe/create-intent",
+        response = await client.post("/api/v1/payments/stripe/create-intent",
             headers=auth_headers,
             json={
                 "amount": -5000,  # Negative amount
@@ -277,7 +277,7 @@ class TestPayPalPayment:
         ]
         mock_create.return_value = mock_payment
 
-        response = client.post("/api/v1/payments/paypal/create-order",
+        response = await client.post("/api/v1/payments/paypal/create-order",
             headers=auth_headers,
             json={
                 "amount": 50.00,
@@ -302,7 +302,7 @@ class TestPayPalPayment:
         mock_payment.state = "approved"
         mock_find.return_value = mock_payment
 
-        response = client.post("/api/v1/payments/paypal/execute",
+        response = await client.post("/api/v1/payments/paypal/execute",
             headers=auth_headers,
             json={
                 "payment_id": "PAYID-TEST123",
@@ -321,9 +321,9 @@ class TestPayPalPayment:
 class TestWalletOperations:
     """Test wallet operations (credit, debit, balance)."""
 
-    def test_get_wallet_balance_success(self, client, test_user, auth_headers):
+    async def test_get_wallet_balance_success(self, client, test_user, auth_headers):
         """Test getting user wallet balance."""
-        response = client.get("/api/v1/payments/wallet/balance",
+        response = await client.get("/api/v1/payments/wallet/balance",
             headers=auth_headers
         )
 
@@ -337,15 +337,15 @@ class TestWalletOperations:
             assert "balance" in data
             assert isinstance(data["balance"], (int, float))
 
-    def test_get_wallet_balance_unauthorized(self, client):
+    async def test_get_wallet_balance_unauthorized(self, client):
         """Test wallet balance requires authentication."""
-        response = client.get("/api/v1/payments/wallet/balance")
+        response = await client.get("/api/v1/payments/wallet/balance")
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     async def test_credit_wallet_success(self, client, test_user, auth_headers):
         """Test crediting user wallet."""
-        response = client.post("/api/v1/payments/wallet/credit",
+        response = await client.post("/api/v1/payments/wallet/credit",
             headers=auth_headers,
             json={
                 "amount": 5000.0,
@@ -363,13 +363,13 @@ class TestWalletOperations:
     async def test_debit_wallet_success(self, client, test_user, auth_headers):
         """Test debiting user wallet with sufficient balance."""
         # First credit wallet
-        client.post("/api/v1/payments/wallet/credit",
+        await client.post("/api/v1/payments/wallet/credit",
             headers=auth_headers,
             json={"amount": 10000.0, "reference": "initial-credit"}
         )
 
         # Then debit
-        response = client.post("/api/v1/payments/wallet/debit",
+        response = await client.post("/api/v1/payments/wallet/debit",
             headers=auth_headers,
             json={
                 "amount": 5000.0,
@@ -383,9 +383,9 @@ class TestWalletOperations:
             status.HTTP_404_NOT_FOUND
         ]
 
-    def test_debit_wallet_insufficient_funds_fails(self, client, auth_headers):
+    async def test_debit_wallet_insufficient_funds_fails(self, client, auth_headers):
         """Test debiting wallet with insufficient funds fails."""
-        response = client.post("/api/v1/payments/wallet/debit",
+        response = await client.post("/api/v1/payments/wallet/debit",
             headers=auth_headers,
             json={
                 "amount": 999999.0,  # Huge amount
@@ -401,9 +401,9 @@ class TestWalletOperations:
         if response.status_code == status.HTTP_400_BAD_REQUEST:
             assert "insufficient" in response.json()["detail"].lower()
 
-    def test_wallet_transaction_history_success(self, client, auth_headers):
+    async def test_wallet_transaction_history_success(self, client, auth_headers):
         """Test retrieving wallet transaction history."""
-        response = client.get("/api/v1/payments/wallet/transactions",
+        response = await client.get("/api/v1/payments/wallet/transactions",
             headers=auth_headers
         )
 
@@ -444,7 +444,7 @@ class TestPaymentIdempotency:
         idempotency_key = "test-idempotency-123"
 
         # First request
-        response1 = client.post("/api/v1/payments/mpesa/initiate",
+        response1 = await client.post("/api/v1/payments/mpesa/initiate",
             headers={**auth_headers, "Idempotency-Key": idempotency_key},
             json={
                 "phone_number": "254712345678",
@@ -454,7 +454,7 @@ class TestPaymentIdempotency:
         )
 
         # Duplicate request with same idempotency key
-        response2 = client.post("/api/v1/payments/mpesa/initiate",
+        response2 = await client.post("/api/v1/payments/mpesa/initiate",
             headers={**auth_headers, "Idempotency-Key": idempotency_key},
             json={
                 "phone_number": "254712345678",
@@ -471,15 +471,15 @@ class TestPaymentIdempotency:
         if response1.status_code == status.HTTP_200_OK and response2.status_code == status.HTTP_200_OK:
             assert response1.json() == response2.json()
 
-    def test_duplicate_webhook_callback_handled(self, client, mock_mpesa_callback):
+    async def test_duplicate_webhook_callback_handled(self, client, mock_mpesa_callback):
         """Test duplicate webhook callbacks are handled gracefully."""
         # First callback
-        response1 = client.post("/api/v1/payments/mpesa/callback",
+        response1 = await client.post("/api/v1/payments/mpesa/callback",
             json=mock_mpesa_callback
         )
 
         # Duplicate callback
-        response2 = client.post("/api/v1/payments/mpesa/callback",
+        response2 = await client.post("/api/v1/payments/mpesa/callback",
             json=mock_mpesa_callback
         )
 
@@ -493,7 +493,7 @@ class TestPaymentIdempotency:
 class TestPaymentSecurity:
     """Test payment security features."""
 
-    def test_payment_requires_authentication(self, client):
+    async def test_payment_requires_authentication(self, client):
         """Test all payment endpoints require authentication."""
         endpoints = [
             ("/api/v1/payments/mpesa/initiate", "POST", {"phone_number": "254712345678", "amount": 1000}),
@@ -504,16 +504,16 @@ class TestPaymentSecurity:
 
         for url, method, payload in endpoints:
             if method == "POST":
-                response = client.post(url, json=payload)
+                response = await client.post(url, json=payload)
             else:
-                response = client.get(url)
+                response = await client.get(url)
 
             assert response.status_code in [
                 status.HTTP_401_UNAUTHORIZED,
                 status.HTTP_404_NOT_FOUND  # If endpoint doesn't exist
             ], f"Endpoint {url} doesn't require auth"
 
-    def test_payment_amount_validation(self, client, auth_headers):
+    async def test_payment_amount_validation(self, client, auth_headers):
         """Test payment amount validation."""
         invalid_amounts = [
             {"amount": -100},  # Negative
@@ -522,7 +522,7 @@ class TestPaymentSecurity:
         ]
 
         for payload in invalid_amounts:
-            response = client.post("/api/v1/payments/mpesa/initiate",
+            response = await client.post("/api/v1/payments/mpesa/initiate",
                 headers=auth_headers,
                 json={**payload, "phone_number": "254712345678"}
             )
@@ -533,10 +533,10 @@ class TestPaymentSecurity:
                 status.HTTP_404_NOT_FOUND
             ]
 
-    def test_webhook_signature_verification(self, client):
+    async def test_webhook_signature_verification(self, client):
         """Test webhook callbacks verify signatures (security)."""
         # Send webhook without proper signature
-        response = client.post("/api/v1/payments/stripe/webhook",
+        response = await client.post("/api/v1/payments/stripe/webhook",
             json={"type": "payment_intent.succeeded"},
             headers={"Stripe-Signature": "invalid-signature"}
         )
@@ -556,9 +556,9 @@ class TestPaymentWorkflows:
     """Test complete payment workflows."""
 
     async def test_course_enrollment_payment_flow(self, client, test_user, auth_headers, db_session):
-        """Test complete flow: initiate payment → callback → enrollment created."""
+        """Test complete flow: initiate payment -> callback -> enrollment created."""
         # Step 1: Initiate payment
-        payment_response = client.post("/api/v1/payments/mpesa/initiate",
+        payment_response = await client.post("/api/v1/payments/mpesa/initiate",
             headers=auth_headers,
             json={
                 "phone_number": "254712345678",
@@ -575,10 +575,10 @@ class TestPaymentWorkflows:
             status.HTTP_404_NOT_FOUND
         ]
 
-    def test_refund_payment_workflow(self, client, auth_headers):
+    async def test_refund_payment_workflow(self, client, auth_headers):
         """Test payment refund workflow."""
         # Initiate refund
-        response = client.post("/api/v1/payments/refund",
+        response = await client.post("/api/v1/payments/refund",
             headers=auth_headers,
             json={
                 "payment_id": "test-payment-123",

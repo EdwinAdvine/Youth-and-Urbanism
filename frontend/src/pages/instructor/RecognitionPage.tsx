@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Heart, Send, Trophy, User, MessageSquare, Plus } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { format } from 'date-fns';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Kudo {
   id: string;
@@ -50,18 +49,11 @@ export const RecognitionPage: React.FC = () => {
   const fetchRecognitionData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
 
       const [receivedResponse, sentResponse, leaderboardResponse] = await Promise.all([
-        axios.get(`${API_URL}/api/v1/instructor/gamification/kudos/received`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        axios.get(`${API_URL}/api/v1/instructor/gamification/kudos/sent`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        axios.get(`${API_URL}/api/v1/instructor/gamification/leaderboard`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
+        apiClient.get('/api/v1/instructor/gamification/kudos/received'),
+        apiClient.get('/api/v1/instructor/gamification/kudos/sent'),
+        apiClient.get('/api/v1/instructor/gamification/leaderboard'),
       ]);
 
       // Mock data for development
@@ -225,11 +217,9 @@ export const RecognitionPage: React.FC = () => {
 
     try {
       setSubmittingKudo(true);
-      const token = localStorage.getItem('access_token');
-      await axios.post(
-        `${API_URL}/api/v1/instructor/gamification/kudos`,
-        kudoForm,
-        { headers: { Authorization: `Bearer ${token}` } }
+      await apiClient.post(
+        '/api/v1/instructor/gamification/kudos',
+        kudoForm
       );
 
       alert('Kudo sent successfully!');

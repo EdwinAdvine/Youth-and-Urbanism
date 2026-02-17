@@ -15,7 +15,6 @@ const BirdChatPage: React.FC = () => {
   // Store state
   const { user } = useAuthStore();
   const messages = useChatStore((state) => state.messages);
-  const currentInput = useChatStore((state) => state.currentInput);
   const addMessage = useChatStore((state) => state.addMessage);
   const updateCurrentInput = useChatStore((state) => state.updateCurrentInput);
   const clearChat = useChatStore((state) => state.clearChat);
@@ -92,15 +91,15 @@ const BirdChatPage: React.FC = () => {
   };
 
   const handleQuickAction = (action: string) => {
-    const actionMessages: Record<string, string> = {
-      'story-time': "Once upon a time, in a beautiful forest...",
-      'fun-facts': "Did you know that birds can fly really high? Let me tell you more amazing facts!",
-      'science-explorer': "Let's explore the wonderful world of science together!",
-      'draw-something': "I'd love to draw with you! What would you like to create?"
+    const actionPrompts: Record<string, string> = {
+      'story-time': "Tell me an exciting and educational story appropriate for my grade level. Make it fun and include a lesson I can learn from!",
+      'fun-facts': "Share some amazing and educational fun facts that are appropriate for my grade level. Make them surprising and interesting!",
+      'science-explorer': "Let's do a fun science exploration! Suggest an age-appropriate science activity or experiment I can try, and explain the science behind it.",
+      'draw-something': "Suggest a creative drawing activity for me. Describe what I should draw step by step, and tell me something interesting about the subject!"
     };
 
-    const message = actionMessages[action] || "That sounds like a fun activity!";
-    handleSendMessage(message);
+    const prompt = actionPrompts[action] || `Help me with a fun ${action} activity!`;
+    handleSendMessage(prompt);
   };
 
   const handleNewChat = async () => {

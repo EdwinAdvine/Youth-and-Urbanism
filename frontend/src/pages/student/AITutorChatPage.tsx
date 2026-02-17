@@ -1,22 +1,67 @@
-import React, { useState } from 'react';
+// AITutorChatPage - Student page at /dashboard/student/ai-tutor. Interactive chat interface
+// with The Bird AI tutor for asking questions, getting explanations, and guided learning.
+import React, { useState, useRef, useEffect } from 'react';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';
-import { Bot, Send, Sparkles } from 'lucide-react';
+import { chatWithAI } from '../../services/student/studentAIService';
+import { Bot, Send, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
+
+interface ChatMessage {
+  id: number;
+  sender: 'student' | 'ai';
+  text: string;
+}
 
 const AITutorChatPage: React.FC = () => {
   const { borderRadius } = useAgeAdaptiveUI();
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<ChatMessage[]>([
     { id: 1, sender: 'ai', text: 'Hi! I\'m your AI tutor. How can I help you learn today?' },
   ]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleSend = () => {
-    if (!message.trim()) return;
-    setMessages([...messages, { id: Date.now(), sender: 'student', text: message }]);
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, loading]);
+
+  const handleSend = async () => {
+    if (!message.trim() || loading) return;
+
+    const userMessage = message.trim();
     setMessage('');
-    // Simulate AI response
-    setTimeout(() => {
-      setMessages(prev => [...prev, { id: Date.now(), sender: 'ai', text: 'That\'s a great question! Let me help you with that...' }]);
-    }, 1000);
+    setError(null);
+
+    const userMsg: ChatMessage = { id: Date.now(), sender: 'student', text: userMessage };
+    setMessages(prev => [...prev, userMsg]);
+    setLoading(true);
+
+    try {
+      const conversationHistory = messages
+        .filter(m => m.id !== 1)
+        .map(m => ({
+          role: m.sender === 'student' ? 'user' : 'assistant',
+          content: m.text,
+        }));
+      conversationHistory.push({ role: 'user', content: userMessage });
+
+      const response = await chatWithAI({
+        message: userMessage,
+        conversation_history: conversationHistory,
+      });
+
+      const aiMsg: ChatMessage = {
+        id: Date.now() + 1,
+        sender: 'ai',
+        text: response.message,
+      };
+      setMessages(prev => [...prev, aiMsg]);
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.detail || err?.message || 'Failed to get a response. Please try again.';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,8 +85,30 @@ const AITutorChatPage: React.FC = () => {
               </div>
             </div>
           ))}
+
+          {loading && (
+            <div className="flex justify-start">
+              <div className={`max-w-[85%] sm:max-w-[70%] p-4 ${borderRadius} bg-purple-500/20 text-gray-900 dark:text-white border border-purple-500/30`}>
+                <Bot className="w-4 h-4 inline-block mr-2" />
+                <span className="inline-flex items-center gap-1">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Thinking...
+                </span>
+              </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
         </div>
       </div>
+
+      {error && (
+        <div className={`mb-2 p-3 bg-red-500/10 border border-red-500/20 ${borderRadius} flex items-center gap-2 text-red-400 text-sm`}>
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <span>{error}</span>
+          <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-300 text-xs underline">Dismiss</button>
+        </div>
+      )}
 
       <div className="flex gap-2">
         <input
@@ -50,13 +117,15 @@ const AITutorChatPage: React.FC = () => {
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSend()}
           placeholder="Type your question..."
-          className={`flex-1 px-4 py-3 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] ${borderRadius} text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/40 focus:outline-none focus:border-[#FF0000]`}
+          disabled={loading}
+          className={`flex-1 px-4 py-3 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] ${borderRadius} text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/40 focus:outline-none focus:border-[#FF0000] disabled:opacity-50`}
         />
         <button
           onClick={handleSend}
-          className={`px-6 py-3 bg-[#FF0000] hover:bg-[#FF0000]/80 text-gray-900 dark:text-white ${borderRadius}`}
+          disabled={loading || !message.trim()}
+          className={`px-6 py-3 bg-[#FF0000] hover:bg-[#FF0000]/80 text-gray-900 dark:text-white ${borderRadius} disabled:opacity-50`}
         >
-          <Send className="w-5 h-5" />
+          {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
         </button>
       </div>
 

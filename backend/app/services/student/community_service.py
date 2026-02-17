@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Dict, List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, func, desc
+from sqlalchemy.orm import aliased
 from uuid import UUID
 
 from app.models.student import Student
@@ -17,6 +18,13 @@ from app.models.student_community import (
     ShoutoutCategory,
     StudentTeacherQA
 )
+
+
+def _get_user_name(user: User) -> str:
+    """Extract display name from User profile_data JSONB"""
+    if user and user.profile_data:
+        return user.profile_data.get("full_name", user.email)
+    return "Unknown"
 
 
 class CommunityService:
@@ -115,7 +123,7 @@ class CommunityService:
             friends.append({
                 "friendship_id": str(friendship.id),
                 "friend_id": str(friend_student.id),
-                "friend_name": f"{friend_student.first_name} {friend_student.last_name}",
+                "friend_name": _get_user_name(friend_user),
                 "friend_email": friend_user.email,
                 "grade_level": friend_student.grade_level,
                 "since": friendship.created_at
@@ -143,7 +151,7 @@ class CommunityService:
             friend_requests.append({
                 "friendship_id": str(friendship.id),
                 "requester_id": str(requester_student.id),
-                "requester_name": f"{requester_student.first_name} {requester_student.last_name}",
+                "requester_name": _get_user_name(requester_user),
                 "grade_level": requester_student.grade_level,
                 "requested_at": friendship.created_at
             })
@@ -268,7 +276,7 @@ class CommunityService:
             shoutouts_data.append({
                 "shoutout_id": str(shoutout.id),
                 "from_student_id": str(shoutout.from_student_id) if not shoutout.is_anonymous else None,
-                "from_student_name": f"{from_student.first_name} {from_student.last_name}" if not shoutout.is_anonymous else "Anonymous",
+                "from_student_name": _get_user_name(from_user) if not shoutout.is_anonymous else "Anonymous",
                 "message": shoutout.message,
                 "category": shoutout.category.value,
                 "is_anonymous": shoutout.is_anonymous,
@@ -288,31 +296,30 @@ class CommunityService:
         if not student:
             raise ValueError("Student not found")
 
-        # Get public shoutouts from same grade
+        # Use aliased models to avoid ambiguous join
+        FromStudent = aliased(Student)
+        ToStudent = aliased(Student)
+        FromUser = aliased(User)
+        ToUser = aliased(User)
+
         result = await self.db.execute(
-            select(StudentShoutout, Student, Student)
-            .join(Student, StudentShoutout.from_student_id == Student.id, isouter=True)
-            .join(Student, StudentShoutout.to_student_id == Student.id, isouter=True)
-            .where(
-                and_(
-                    StudentShoutout.is_public == True,
-                    or_(
-                        Student.grade_level == student.grade_level,
-                        Student.grade_level == student.grade_level
-                    )
-                )
-            )
+            select(StudentShoutout, FromStudent, ToStudent, FromUser, ToUser)
+            .join(FromStudent, StudentShoutout.from_student_id == FromStudent.id, isouter=True)
+            .join(ToStudent, StudentShoutout.to_student_id == ToStudent.id, isouter=True)
+            .join(FromUser, FromStudent.user_id == FromUser.id, isouter=True)
+            .join(ToUser, ToStudent.user_id == ToUser.id, isouter=True)
+            .where(StudentShoutout.is_public == True)
             .order_by(desc(StudentShoutout.created_at))
             .limit(limit)
         )
         shoutouts = result.all()
 
         wall_data = []
-        for shoutout, from_student, to_student in shoutouts:
+        for shoutout, from_student, to_student, from_user, to_user in shoutouts:
             wall_data.append({
                 "shoutout_id": str(shoutout.id),
-                "from_name": f"{from_student.first_name}" if from_student and not shoutout.is_anonymous else "Anonymous",
-                "to_name": f"{to_student.first_name}" if to_student else "Unknown",
+                "from_name": _get_user_name(from_user) if from_user and not shoutout.is_anonymous else "Anonymous",
+                "to_name": _get_user_name(to_user) if to_user else "Unknown",
                 "message": shoutout.message,
                 "category": shoutout.category.value,
                 "created_at": shoutout.created_at
@@ -338,7 +345,7 @@ class CommunityService:
                 "ai_summary": qa.ai_summary,
                 "answer": qa.answer,
                 "is_answered": qa.is_answered,
-                "teacher_name": f"{teacher.first_name} {teacher.last_name}" if teacher else "Teacher",
+                "teacher_name": _get_user_name(teacher) if teacher else "Teacher",
                 "created_at": qa.created_at,
                 "answered_at": qa.answered_at
             })

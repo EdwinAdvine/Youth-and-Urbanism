@@ -23,7 +23,14 @@ class FollowUpStatus(str, enum.Enum):
 
 
 class InstructorSessionAttendance(Base):
-    """Detailed attendance tracking for live sessions"""
+    """
+    Per-student attendance record for a live session.
+
+    Captures when a student joined and left, total duration, and AI-calculated
+    engagement metrics (questions asked, reactions, participation). This data
+    feeds the instructor's session analytics and helps the AI generate
+    follow-up recommendations for disengaged students.
+    """
 
     __tablename__ = "instructor_session_attendance"
 
@@ -52,7 +59,14 @@ class InstructorSessionAttendance(Base):
 
 
 class InstructorSessionFollowUp(Base):
-    """Follow-up tasks created after live sessions"""
+    """
+    A follow-up task created by an instructor after a live session.
+
+    Tasks can be general (for the whole class) or assigned to a specific
+    student. Each task has a title, description, due date, and status
+    (pending -> completed). Instructors use these to track post-session
+    action items like sending materials, grading, or one-on-one check-ins.
+    """
 
     __tablename__ = "instructor_session_follow_ups"
 

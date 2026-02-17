@@ -21,7 +21,7 @@ export type PaymentGateway = 'mpesa' | 'paypal' | 'stripe';
 /**
  * Transaction status types
  */
-export type TransactionStatus = 'pending' | 'completed' | 'failed' | 'refunded';
+export type TransactionStatus = 'pending' | 'completed' | 'success' | 'failed' | 'cancelled' | 'refunded';
 
 /**
  * Transaction type
@@ -122,6 +122,7 @@ export interface PaymentStatusResponse {
   status: TransactionStatus;
   amount: number;
   currency: string;
+  message?: string;
   completedAt?: string;
   failureReason?: string;
 }
@@ -596,7 +597,9 @@ export const getTransactionStatusColor = (status: TransactionStatus): string => 
   const colors: Record<TransactionStatus, string> = {
     pending: 'text-yellow-600 bg-yellow-100',
     completed: 'text-green-600 bg-green-100',
+    success: 'text-green-600 bg-green-100',
     failed: 'text-red-600 bg-red-100',
+    cancelled: 'text-gray-600 bg-gray-100',
     refunded: 'text-blue-600 bg-blue-100',
   };
   return colors[status] || 'text-gray-600 bg-gray-100';

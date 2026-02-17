@@ -1,107 +1,84 @@
 /**
- * Student WebSocket Hook - Real-time notifications via Socket.IO
+ * Student WebSocket Hook - Real-time notifications via native WebSocket
+ *
+ * Uses shared base hook with cookie-based auth (no token in URL).
+ * Maps incoming message types to Zustand store actions.
  */
-import { useEffect, useRef, useCallback, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { useEffect } from 'react';
+import { useBaseWebSocket } from './useBaseWebSocket';
 import { useStudentStore } from '../store/studentStore';
 
-const WS_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
-interface WebSocketMessage {
-  type: string;
-  data: Record<string, unknown>;
-}
-
 export default function useStudentWebSocket() {
-  const socketRef = useRef<Socket | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
+  const { isConnected, lastMessage, sendMessage, reconnect, disconnect } =
+    useBaseWebSocket({
+      path: '/ws/student',
+      requiredRole: 'student',
+    });
+
   const store = useStudentStore();
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    if (!token) return;
+    if (!lastMessage) return;
 
-    const socket = io(`${WS_URL}/student`, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-      reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionAttempts: 5,
-    });
+    switch (lastMessage.type) {
+      case 'new_notification':
+      case 'notification':
+        store.incrementCounter('unreadNotifications');
+        break;
 
-    socketRef.current = socket;
+      case 'new_assignment':
+      case 'assignment_update':
+        store.incrementCounter('pendingAssignments');
+        break;
 
-    socket.on('connect', () => {
-      setIsConnected(true);
-      console.log('Student WebSocket connected');
-    });
+      case 'friend_request':
+      case 'new_request':
+        store.incrementCounter('friendRequests');
+        break;
 
-    socket.on('disconnect', () => {
-      setIsConnected(false);
-      console.log('Student WebSocket disconnected');
-    });
+      case 'badge_earned':
+      case 'achievement':
+        // Badge/achievement — handled via notification toast by consumers
+        break;
 
-    // Handle notification events
-    socket.on('notification', (data: WebSocketMessage) => {
-      if (data.type === 'new_notification') {
-        store.setUnreadNotifications((store.unreadNotifications || 0) + 1);
-      }
-    });
+      case 'streak_update':
+        if (typeof lastMessage.streak === 'number') {
+          // Read longestStreak from current state to avoid stale closure
+          const { longestStreak } = useStudentStore.getState();
+          store.updateStreak(lastMessage.streak as number, longestStreak);
+        }
+        break;
 
-    // Handle assignment updates
-    socket.on('assignment_update', (data: WebSocketMessage) => {
-      if (data.type === 'new_assignment') {
-        store.setPendingAssignments((store.pendingAssignments || 0) + 1);
-      }
-    });
+      case 'xp_update':
+        if (typeof lastMessage.xp === 'number') {
+          store.updateXP(lastMessage.xp as number);
+        }
+        if (typeof lastMessage.level === 'number') {
+          store.updateLevel(lastMessage.level as number);
+        }
+        break;
 
-    // Handle friend request
-    socket.on('friend_request', (data: WebSocketMessage) => {
-      if (data.type === 'new_request') {
-        store.setFriendRequests((store.friendRequests || 0) + 1);
-      }
-    });
+      case 'counter_update':
+        // Generic counter update from backend
+        if (lastMessage.data && typeof lastMessage.data === 'object') {
+          const counters = lastMessage.data as Record<string, number>;
+          const validKeys = [
+            'unreadNotifications', 'pendingAssignments', 'upcomingQuizzes',
+            'dueSoonCount', 'unreadMessages', 'friendRequests',
+            'newShoutouts', 'activeLiveSessions',
+          ] as const;
+          Object.entries(counters).forEach(([key, value]) => {
+            if (typeof value === 'number' && validKeys.includes(key as typeof validKeys[number])) {
+              store.incrementCounter(key as typeof validKeys[number], value);
+            }
+          });
+        }
+        break;
 
-    // Handle achievement unlocked
-    socket.on('achievement', (data: WebSocketMessage) => {
-      if (data.type === 'badge_earned') {
-        // Could trigger a toast notification
-        console.log('Badge earned:', data.data);
-      }
-    });
-
-    // Handle streak update
-    socket.on('streak_update', (data: WebSocketMessage) => {
-      if (data.data && typeof data.data.streak === 'number') {
-        store.setCurrentStreak(data.data.streak as number);
-      }
-    });
-
-    // Handle XP update
-    socket.on('xp_update', (data: WebSocketMessage) => {
-      if (data.data && typeof data.data.xp === 'number') {
-        store.setXp(data.data.xp as number);
-      }
-      if (data.data && typeof data.data.level === 'number') {
-        store.setLevel(data.data.level as number);
-      }
-    });
-
-    socket.on('connect_error', (error) => {
-      console.warn('Student WebSocket connection error:', error.message);
-    });
-
-    return () => {
-      socket.disconnect();
-      socketRef.current = null;
-    };
-  }, []);
-
-  const emit = useCallback((event: string, data: unknown) => {
-    if (socketRef.current?.connected) {
-      socketRef.current.emit(event, data);
+      default:
+        break;
     }
-  }, []);
+  }, [lastMessage]);
 
-  return { isConnected, emit };
+  return { isConnected, sendMessage, reconnect, disconnect };
 }

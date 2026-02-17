@@ -308,8 +308,241 @@ async def seed_parent_data():
             await session.flush()
             print(f"  ✓ Created {len(alerts_data)} AI alerts")
 
-            # ========== 7. CREATE CONSENT RECORDS ==========
-            print("\n[7/10] Creating consent records...")
+            # ========== 7. CREATE COURSES & ENROLLMENTS ==========
+            print("\n[7/16] Creating courses and enrollments...")
+
+            # Look up existing instructor or create one
+            instructor_result = await session.execute(
+                select(User).where(User.email == "instructor@urbanhomeschool.co.ke")
+            )
+            instructor = instructor_result.scalar_one_or_none()
+            if not instructor:
+                instructor = User(
+                    email="instructor.seed@urbanhomeschool.co.ke",
+                    password_hash=get_password_hash("Instructor@2026!"),
+                    role="instructor",
+                    is_active=True,
+                    is_verified=True,
+                    profile_data={
+                        "full_name": "Mr. John Kamau",
+                        "phone": "+254722000111",
+                        "specialization": "Mathematics & Science",
+                    },
+                )
+                session.add(instructor)
+                await session.flush()
+
+            courses_data = [
+                {"title": "Fun with Numbers", "description": "Early childhood numeracy through play", "grade_levels": ["ECD 2"], "learning_area": "Mathematics", "price": 0},
+                {"title": "My First ABC", "description": "Interactive phonics and letter recognition", "grade_levels": ["ECD 2"], "learning_area": "Languages", "price": 0},
+                {"title": "Grade 3 Mathematics", "description": "Multiplication, division, and fractions", "grade_levels": ["Grade 3"], "learning_area": "Mathematics", "price": 500},
+                {"title": "English Language Arts", "description": "Reading comprehension and creative writing", "grade_levels": ["Grade 3"], "learning_area": "Languages", "price": 500},
+                {"title": "Science & Technology G6", "description": "Exploring physics, chemistry, and biology", "grade_levels": ["Grade 6"], "learning_area": "Science", "price": 800},
+                {"title": "Mathematics G6 - Algebra", "description": "Introduction to algebraic thinking", "grade_levels": ["Grade 6"], "learning_area": "Mathematics", "price": 800},
+                {"title": "Integrated Science G8", "description": "Advanced science for junior secondary", "grade_levels": ["Grade 8"], "learning_area": "Science", "price": 1200},
+                {"title": "Mathematics G8 - Geometry", "description": "Geometry, trigonometry, and problem solving", "grade_levels": ["Grade 8"], "learning_area": "Mathematics", "price": 1200},
+            ]
+
+            courses = []
+            for cd in courses_data:
+                course = Course(
+                    title=cd["title"],
+                    description=cd["description"],
+                    grade_levels=cd["grade_levels"],
+                    learning_area=cd["learning_area"],
+                    instructor_id=instructor.id,
+                    is_platform_created=True,
+                    price=cd["price"],
+                    currency="KES",
+                    is_published=True,
+                    syllabus={"units": [{"title": "Unit 1", "topics": ["Introduction", "Basics"]}]},
+                    lessons=[{"id": "L1", "title": "Lesson 1", "type": "video"}, {"id": "L2", "title": "Lesson 2", "type": "interactive"}],
+                )
+                session.add(course)
+                courses.append(course)
+            await session.flush()
+            print(f"  ✓ Created {len(courses)} courses")
+
+            # Create enrollments - 2 courses per child
+            enrollment_count = 0
+            for i, child in enumerate(children):
+                # Each child gets 2 courses matching their grade
+                child_courses = [c for c in courses if child.grade_level in c.grade_levels]
+                for course in child_courses[:2]:
+                    is_completed = random.choice([True, False])
+                    enrollment = Enrollment(
+                        student_id=child.id,
+                        course_id=course.id,
+                        status="completed" if is_completed else "active",
+                        progress_percentage=100.0 if is_completed else random.uniform(20, 80),
+                        enrolled_at=datetime.utcnow() - timedelta(days=random.randint(30, 90)),
+                    )
+                    session.add(enrollment)
+                    enrollment_count += 1
+            await session.flush()
+            print(f"  ✓ Created {enrollment_count} enrollments")
+
+            # ========== 8. CREATE CERTIFICATES ==========
+            print("\n[8/16] Creating certificates...")
+
+            cert_count = 0
+            for i, child in enumerate(children):
+                if i < 2:  # Skip youngest child (ECD 2)
+                    continue
+                # Older children get 1-2 certificates
+                child_courses = [c for c in courses if child.grade_level in c.grade_levels]
+                for course in child_courses[:random.randint(1, 2)]:
+                    cert = Certificate(
+                        serial_number=f"UHS-{date.today().strftime('%Y%m%d')}-{str(uuid.uuid4())[:5].upper()}",
+                        student_id=child.user_id,  # Certificate.student_id refs users.id
+                        student_name=child.learning_profile.get('full_name', children_data[i]['full_name']),
+                        course_id=course.id,
+                        course_name=course.title,
+                        grade=random.choice(["A", "A-", "B+", "B"]),
+                        completion_date=datetime.utcnow() - timedelta(days=random.randint(7, 60)),
+                        issued_at=datetime.utcnow() - timedelta(days=random.randint(1, 7)),
+                        is_valid=True,
+                    )
+                    session.add(cert)
+                    cert_count += 1
+            await session.flush()
+            print(f"  ✓ Created {cert_count} certificates")
+
+            # ========== 9. CREATE MESSAGES & CONVERSATIONS ==========
+            print("\n[9/16] Creating messages and conversations...")
+
+            conversations = [
+                {
+                    "channel": "instructor",
+                    "child_idx": 1,  # Emma
+                    "messages": [
+                        {"sender": "instructor", "content": "Hello! Just wanted to share that Emma did great in today's math session."},
+                        {"sender": "parent", "content": "That's wonderful to hear! She's been practicing at home too."},
+                        {"sender": "instructor", "content": "It shows! Her multiplication tables are much improved."},
+                        {"sender": "parent", "content": "Thank you for the feedback. Should we work on anything specific?"},
+                        {"sender": "instructor", "content": "I'd suggest focusing on word problems. She has the basics down."},
+                    ]
+                },
+                {
+                    "channel": "ai_tutor",
+                    "child_idx": 2,  # James
+                    "messages": [
+                        {"sender": "parent", "content": "Can you tell me about James's learning patterns this week?"},
+                        {"sender": "instructor", "content": "James has been very engaged with the science module. He asked 15 questions about photosynthesis!"},
+                        {"sender": "parent", "content": "That's his favorite subject. How are his math scores?"},
+                        {"sender": "instructor", "content": "Math could use more practice. I recommend the extra exercises module."},
+                    ]
+                },
+                {
+                    "channel": "platform",
+                    "child_idx": None,
+                    "messages": [
+                        {"sender": "instructor", "content": "Welcome to Urban Home School! Your family account is all set up."},
+                        {"sender": "parent", "content": "Thank you! Looking forward to the learning journey."},
+                        {"sender": "instructor", "content": "Feel free to reach out anytime. Your children's AI tutors are ready!"},
+                    ]
+                },
+            ]
+
+            msg_count = 0
+            for conv_data in conversations:
+                conv_id = uuid.uuid4()
+                child_id = children[conv_data["child_idx"]].id if conv_data["child_idx"] is not None else None
+
+                for j, msg_data in enumerate(conv_data["messages"]):
+                    sender_id = parent.id if msg_data["sender"] == "parent" else instructor.id
+                    recipient_id = instructor.id if msg_data["sender"] == "parent" else parent.id
+
+                    message = ParentMessage(
+                        conversation_id=conv_id,
+                        sender_id=sender_id,
+                        recipient_id=recipient_id,
+                        channel=conv_data["channel"],
+                        child_id=child_id,
+                        content=msg_data["content"],
+                        message_type="text",
+                        is_read=True if j < len(conv_data["messages"]) - 1 else random.choice([True, False]),
+                        created_at=datetime.utcnow() - timedelta(days=3) + timedelta(hours=j * 2),
+                    )
+                    session.add(message)
+                    msg_count += 1
+            await session.flush()
+            print(f"  ✓ Created {msg_count} messages in {len(conversations)} conversations")
+
+            # ========== 10. CREATE SUPPORT TICKETS ==========
+            print("\n[10/16] Creating support tickets...")
+
+            tickets_data = [
+                {
+                    "subject": "Can't access science course material",
+                    "category": "technical",
+                    "priority": "high",
+                    "description": "When James tries to open Lesson 3 in Integrated Science, the page shows a blank screen.",
+                    "child_idx": 2,
+                    "replies": [
+                        {"sender": "instructor", "content": "Thank you for reporting this. We've identified the issue and our team is working on it."},
+                        {"sender": "instructor", "content": "The issue has been fixed. Please try accessing the lesson again and let us know if it works."},
+                    ]
+                },
+                {
+                    "subject": "Question about subscription upgrade",
+                    "category": "billing",
+                    "priority": "medium",
+                    "description": "I'd like to know what additional features come with the premium plan.",
+                    "child_idx": None,
+                    "replies": [
+                        {"sender": "instructor", "content": "The premium plan includes: unlimited AI tutoring, advanced analytics, priority support, and portfolio exports. Would you like to upgrade?"},
+                    ]
+                },
+            ]
+
+            for td in tickets_data:
+                ticket_conv_id = uuid.uuid4()
+                ticket_child_id = children[td["child_idx"]].id if td["child_idx"] is not None else None
+
+                # Initial ticket message
+                ticket_msg = ParentMessage(
+                    conversation_id=ticket_conv_id,
+                    sender_id=parent.id,
+                    recipient_id=None,
+                    channel="support",
+                    child_id=ticket_child_id,
+                    content=td["description"],
+                    message_type="text",
+                    is_read=True,
+                    metadata_={
+                        "ticket": True,
+                        "subject": td["subject"],
+                        "category": td["category"],
+                        "priority": td["priority"],
+                        "status": "open",
+                    },
+                    created_at=datetime.utcnow() - timedelta(days=5),
+                )
+                session.add(ticket_msg)
+                await session.flush()
+
+                # Replies
+                for k, reply in enumerate(td["replies"]):
+                    reply_sender = instructor.id if reply["sender"] == "instructor" else parent.id
+                    reply_msg = ParentMessage(
+                        conversation_id=ticket_conv_id,
+                        sender_id=reply_sender,
+                        recipient_id=parent.id if reply["sender"] == "instructor" else None,
+                        channel="support",
+                        child_id=ticket_child_id,
+                        content=reply["content"],
+                        message_type="text",
+                        is_read=True,
+                        metadata_={"ticket_reply": True, "ticket_id": str(ticket_msg.id)},
+                        created_at=datetime.utcnow() - timedelta(days=4) + timedelta(hours=k * 6),
+                    )
+                    session.add(reply_msg)
+            await session.flush()
+            print(f"  ✓ Created {len(tickets_data)} support tickets with replies")
+
+            # ========== 11. CREATE CONSENT RECORDS ==========
+            print("\n[11/16] Creating consent records...")
 
             data_types = ["learning_analytics", "ai_conversations", "assessment_scores", "behavioral"]
             recipients = ["platform", "instructors", "ai_system"]
@@ -329,8 +562,8 @@ async def seed_parent_data():
             await session.flush()
             print(f"  ✓ Created {len(children) * len(data_types) * len(recipients)} consent records")
 
-            # ========== 8. CREATE NOTIFICATION PREFERENCES ==========
-            print("\n[8/10] Creating notification preferences...")
+            # ========== 12. CREATE NOTIFICATION PREFERENCES ==========
+            print("\n[12/16] Creating notification preferences...")
 
             notif_types = ["achievement", "alert", "report", "message", "payment"]
             for notif_type in notif_types:
@@ -349,8 +582,8 @@ async def seed_parent_data():
             await session.flush()
             print(f"  ✓ Created {len(notif_types)} notification preferences")
 
-            # ========== 9. CREATE REPORTS ==========
-            print("\n[9/10] Creating parent reports...")
+            # ========== 13. CREATE REPORTS ==========
+            print("\n[13/16] Creating parent reports...")
 
             for child in children:
                 # Weekly report
@@ -378,8 +611,8 @@ async def seed_parent_data():
             await session.flush()
             print(f"  ✓ Created {len(children)} weekly reports")
 
-            # ========== 10. COMMIT TRANSACTION ==========
-            print("\n[10/10] Committing all data...")
+            # ========== 16. COMMIT TRANSACTION ==========
+            print("\n[16/16] Committing all data...")
             await session.commit()
             print("✓ All data committed successfully")
 
@@ -393,9 +626,14 @@ async def seed_parent_data():
             for child in children:
                 print(f"  - {child.learning_profile.get('full_name', 'Unknown')} ({child.grade_level})")
             print(f"\n✓ Data Created:")
+            print(f"  - 8 courses")
+            print(f"  - {enrollment_count} course enrollments")
+            print(f"  - {cert_count} certificates")
             print(f"  - ~90 mood entries")
             print(f"  - 4 family goals")
             print(f"  - 3 AI alerts")
+            print(f"  - {msg_count} messages in {len(conversations)} conversations")
+            print(f"  - {len(tickets_data)} support tickets")
             print(f"  - {len(children) * len(data_types) * len(recipients)} consent records")
             print(f"  - {len(notif_types)} notification preferences")
             print(f"  - {len(children)} weekly reports")

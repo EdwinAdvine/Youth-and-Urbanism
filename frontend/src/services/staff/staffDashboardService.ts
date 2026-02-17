@@ -10,47 +10,22 @@ import type {
   MyFocusData,
   AIAgendaItem,
 } from '../../types/staff';
-
-const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/staff`;
-
-function getAuthHeaders(): HeadersInit {
-  const token =
-    localStorage.getItem('access_token') ||
-    JSON.parse(localStorage.getItem('auth-store') || '{}')?.state?.token;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
-
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Request failed' }));
-    throw new Error(error.detail || `HTTP ${response.status}`);
-  }
-  return response.json();
-}
+import apiClient from '../api';
 
 /** Fetch aggregate dashboard statistics for the current staff member. */
 export async function getDashboardStats(): Promise<StaffDashboardStats> {
-  const response = await fetch(`${API_BASE}/dashboard/overview`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<StaffDashboardStats>(response);
+  const { data } = await apiClient.get<StaffDashboardStats>('/api/v1/staff/dashboard/overview');
+  return data;
 }
 
 /** Fetch the personalised "My Focus" view with urgent items and AI anomalies. */
 export async function getMyFocus(): Promise<MyFocusData> {
-  const response = await fetch(`${API_BASE}/dashboard/my-focus`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<MyFocusData>(response);
+  const { data } = await apiClient.get<MyFocusData>('/api/v1/staff/dashboard/my-focus');
+  return data;
 }
 
 /** Fetch the AI-prioritised agenda for the current staff member. */
 export async function getAIAgenda(): Promise<AIAgendaItem[]> {
-  const response = await fetch(`${API_BASE}/dashboard/ai-agenda`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<AIAgendaItem[]>(response);
+  const { data } = await apiClient.get<AIAgendaItem[]>('/api/v1/staff/dashboard/ai-agenda');
+  return data;
 }

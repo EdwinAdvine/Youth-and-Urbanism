@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Sparkles, CheckCircle, ArrowRight, Filter } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { format } from 'date-fns';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface DailyInsight {
   priority: 'low' | 'medium' | 'high' | 'urgent';
@@ -53,12 +52,8 @@ export const AIInsightsPage: React.FC = () => {
   const fetchInsights = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(
-        `${API_URL}/api/v1/instructor/insights/daily`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const response = await apiClient.get(
+        '/api/v1/instructor/insights/daily'
       );
       // For demo, use mock data if API fails
       if (!response.data) {

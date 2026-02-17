@@ -18,9 +18,8 @@ import {
 } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { format, formatDistanceToNow } from 'date-fns';
-import axios from 'axios';
+import apiClient from '../../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Notification {
   id: string;
@@ -156,13 +155,9 @@ export const InstructorNotificationsPage: React.FC = () => {
   const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
 
-      const response = await axios.get(
-        `${API_URL}/api/v1/instructor/dashboard/notifications`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const response = await apiClient.get(
+        '/api/v1/instructor/dashboard/notifications'
       );
 
       const data: Notification[] = response.data;
@@ -189,12 +184,10 @@ export const InstructorNotificationsPage: React.FC = () => {
   const handleMarkAsRead = async (id: string) => {
     try {
       setActionLoading(id);
-      const token = localStorage.getItem('access_token');
 
-      await axios.put(
-        `${API_URL}/api/v1/instructor/dashboard/notifications/${id}/read`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
+      await apiClient.put(
+        `/api/v1/instructor/dashboard/notifications/${id}/read`,
+        {}
       );
     } catch (err) {
       console.error('Error marking notification as read:', err);
@@ -210,12 +203,10 @@ export const InstructorNotificationsPage: React.FC = () => {
   const handleMarkAllRead = async () => {
     try {
       setMarkAllLoading(true);
-      const token = localStorage.getItem('access_token');
 
-      await axios.post(
-        `${API_URL}/api/v1/instructor/dashboard/notifications/mark-all-read`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
+      await apiClient.post(
+        '/api/v1/instructor/dashboard/notifications/mark-all-read',
+        {}
       );
     } catch (err) {
       console.error('Error marking all as read:', err);
@@ -229,11 +220,9 @@ export const InstructorNotificationsPage: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       setActionLoading(id);
-      const token = localStorage.getItem('access_token');
 
-      await axios.delete(
-        `${API_URL}/api/v1/instructor/dashboard/notifications/${id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      await apiClient.delete(
+        `/api/v1/instructor/dashboard/notifications/${id}`
       );
     } catch (err) {
       console.error('Error deleting notification:', err);
@@ -254,14 +243,12 @@ export const InstructorNotificationsPage: React.FC = () => {
 
     try {
       setBatchDeleteLoading(true);
-      const token = localStorage.getItem('access_token');
 
       // Delete each selected notification
       const deletePromises = Array.from(selectedIds).map((id) =>
-        axios
+        apiClient
           .delete(
-            `${API_URL}/api/v1/instructor/dashboard/notifications/${id}`,
-            { headers: { Authorization: `Bearer ${token}` } }
+            `/api/v1/instructor/dashboard/notifications/${id}`
           )
           .catch((err) =>
             console.error(`Error deleting notification ${id}:`, err)

@@ -21,7 +21,7 @@ interface ReportCanvasProps {
 
 const ReportCanvas: React.FC<ReportCanvasProps> = ({
   widgets,
-  onUpdateWidget,
+  onUpdateWidget: _onUpdateWidget,
   onDeleteWidget,
   onDuplicateWidget,
   selectedWidgetId,

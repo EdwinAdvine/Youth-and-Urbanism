@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Calendar, Save, Clock, Globe, Timer, Users, Coffee, CheckCircle, AlertCircle, Loader2, BarChart3 } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
-import axios from 'axios';
+import apiClient from '../../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface DaySchedule {
   enabled: boolean;
@@ -103,10 +102,7 @@ export const AvailabilityPage: React.FC = () => {
   const fetchAvailability = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_URL}/api/v1/instructor/account/availability`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get('/api/v1/instructor/account/availability');
 
       if (response.data) {
         setAvailability({
@@ -129,19 +125,15 @@ export const AvailabilityPage: React.FC = () => {
     try {
       setSaving(true);
       setFeedback(null);
-      const token = localStorage.getItem('access_token');
 
-      await axios.put(
-        `${API_URL}/api/v1/instructor/account/availability`,
+      await apiClient.put(
+        '/api/v1/instructor/account/availability',
         {
           schedule: availability.schedule,
           timezone: availability.timezone,
           booking_buffer_minutes: availability.booking_buffer_minutes,
           max_sessions_per_day: availability.max_sessions_per_day,
           break_between_sessions_minutes: availability.break_between_sessions_minutes,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
         }
       );
 

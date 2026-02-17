@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Save, ArrowLeft, Plus, Trash2, Sparkles } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Question {
   id: string;
@@ -54,10 +53,8 @@ export const AssessmentEditorPage: React.FC = () => {
   const fetchAssessment = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(
-        `${API_URL}/api/v1/instructor/assessments/${assessmentId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const response = await apiClient.get(
+        `/api/v1/instructor/assessments/${assessmentId}`
       );
 
       if (response.data) {
@@ -79,19 +76,15 @@ export const AssessmentEditorPage: React.FC = () => {
 
     try {
       setSaving(true);
-      const token = localStorage.getItem('access_token');
       const dataToSave = { ...formData, status };
 
       if (assessmentId && assessmentId !== 'create') {
-        await axios.put(
-          `${API_URL}/api/v1/instructor/assessments/${assessmentId}`,
-          dataToSave,
-          { headers: { Authorization: `Bearer ${token}` } }
+        await apiClient.put(
+          `/api/v1/instructor/assessments/${assessmentId}`,
+          dataToSave
         );
       } else {
-        await axios.post(`${API_URL}/api/v1/instructor/assessments`, dataToSave, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await apiClient.post('/api/v1/instructor/assessments', dataToSave);
       }
 
       alert(`Assessment ${status === 'published' ? 'published' : 'saved'} successfully!`);

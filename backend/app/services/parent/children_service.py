@@ -9,7 +9,7 @@ import logging
 from typing import List, Optional
 from datetime import date, datetime, timedelta
 from uuid import UUID
-from sqlalchemy import select, func, and_, desc
+from sqlalchemy import select, func, and_, or_, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import (
@@ -395,21 +395,21 @@ Competencies: {child.competencies}
         if not child:
             raise ValueError("Child not found")
 
-        # Get certificates
+        # Get certificates (Certificate.student_id references users.id)
         cert_result = await db.execute(
-            select(Certificate).where(Certificate.student_id == child.id)
+            select(Certificate).where(Certificate.student_id == child.user_id)
         )
         certificates = cert_result.scalars().all()
 
         cert_schemas = [
             CertificateSchema(
                 id=cert.id,
-                title=cert.title,
-                description=cert.description or '',
-                issued_date=cert.issued_date,
-                certificate_url=cert.certificate_url or '',
-                thumbnail_url=cert.thumbnail_url,
-                course_name=cert.course.title if cert.course else None
+                title=cert.course_name,
+                description=f"Grade: {cert.grade}" if cert.grade else 'Course completion certificate',
+                issued_date=cert.completion_date.date() if cert.completion_date else cert.issued_at.date(),
+                certificate_url=f"/certificates/validate/{cert.serial_number}",
+                thumbnail_url=None,
+                course_name=cert.course_name
             )
             for cert in certificates
         ]

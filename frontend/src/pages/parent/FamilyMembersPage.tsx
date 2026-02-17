@@ -100,8 +100,21 @@ const FamilyMembersPage: React.FC = () => {
     }
   };
 
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleInvite = async () => {
-    if (!inviteName.trim() || !inviteEmail.trim()) return;
+    if (!inviteName.trim() || !inviteEmail.trim()) {
+      setToast({ type: 'error', message: 'Name and email are required.' });
+      return;
+    }
+
+    if (!validateEmail(inviteEmail.trim())) {
+      setToast({ type: 'error', message: 'Please enter a valid email address.' });
+      return;
+    }
 
     try {
       setInviting(true);

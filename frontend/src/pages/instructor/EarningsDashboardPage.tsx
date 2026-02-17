@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { DollarSign, TrendingUp, Calendar, Download, Filter } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { format, subMonths } from 'date-fns';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface EarningsSummary {
   total_lifetime: number;
@@ -39,12 +38,9 @@ export const EarningsDashboardPage: React.FC = () => {
   const fetchEarningsData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
 
       // Fetch summary
-      const summaryResponse = await axios.get(`${API_URL}/api/v1/instructor/earnings/breakdown`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const summaryResponse = await apiClient.get('/api/v1/instructor/earnings/breakdown');
 
       // Mock data for development
       if (!summaryResponse.data) {
@@ -86,9 +82,7 @@ export const EarningsDashboardPage: React.FC = () => {
 
   const handleExportData = async () => {
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_URL}/api/v1/instructor/earnings/export`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await apiClient.get('/api/v1/instructor/earnings/export', {
         responseType: 'blob',
       });
 

@@ -228,14 +228,14 @@ export const useStudentStore = create<StudentState>()(
             : state.unreadNotificationCount,
         })),
       clearNotifications: () =>
-        set({
+        set((state) => ({
           notifications: [],
           unreadNotificationCount: 0,
-          counters: (state) => ({
+          counters: {
             ...state.counters,
             unreadNotifications: 0,
-          }) as any,
-        }),
+          },
+        })),
     }),
     {
       name: 'student-storage',

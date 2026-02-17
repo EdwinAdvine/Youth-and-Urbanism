@@ -12,26 +12,7 @@ import type {
   NotificationPreferences,
   ActiveSession,
 } from '../../types/staff';
-
-const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/staff`;
-
-function getAuthHeaders(): HeadersInit {
-  const token =
-    localStorage.getItem('access_token') ||
-    JSON.parse(localStorage.getItem('auth-store') || '{}')?.state?.token;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
-
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Request failed' }));
-    throw new Error(error.detail || `HTTP ${response.status}`);
-  }
-  return response.json();
-}
+import apiClient from '../api';
 
 // ---------------------------------------------------------------------------
 // Types local to this service
@@ -81,54 +62,41 @@ export interface AuditLogParams {
 
 /** Fetch the current staff member's profile. */
 export async function getProfile(): Promise<StaffProfile> {
-  const response = await fetch(`${API_BASE}/account/profile`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<StaffProfile>(response);
+  const { data } = await apiClient.get<StaffProfile>('/api/v1/staff/account/profile');
+  return data;
 }
 
 /** Update the current staff member's profile. */
 export async function updateProfile(
-  data: UpdateProfilePayload,
+  payload: UpdateProfilePayload,
 ): Promise<StaffProfile> {
-  const response = await fetch(`${API_BASE}/account/profile`, {
-    method: 'PATCH',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<StaffProfile>(response);
+  const { data } = await apiClient.patch<StaffProfile>(
+    '/api/v1/staff/account/profile',
+    payload,
+  );
+  return data;
 }
 
 /** Update the current staff member's UI/app preferences. */
 export async function updatePreferences(
-  data: UpdatePreferencesPayload,
+  payload: UpdatePreferencesPayload,
 ): Promise<void> {
-  const response = await fetch(`${API_BASE}/account/preferences`, {
-    method: 'PATCH',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<void>(response);
+  await apiClient.patch('/api/v1/staff/account/preferences', payload);
 }
 
 /** Fetch notification preferences. */
 export async function getNotificationPreferences(): Promise<NotificationPreferences> {
-  const response = await fetch(`${API_BASE}/account/notifications/preferences`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<NotificationPreferences>(response);
+  const { data } = await apiClient.get<NotificationPreferences>(
+    '/api/v1/staff/account/notifications/preferences',
+  );
+  return data;
 }
 
 /** Update notification preferences. */
 export async function updateNotificationPreferences(
-  data: UpdateNotificationPreferencesPayload,
+  payload: UpdateNotificationPreferencesPayload,
 ): Promise<void> {
-  const response = await fetch(`${API_BASE}/account/notifications/preferences`, {
-    method: 'PATCH',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<void>(response);
+  await apiClient.patch('/api/v1/staff/account/notifications/preferences', payload);
 }
 
 /** Change the current staff member's password. */
@@ -136,35 +104,27 @@ export async function changePassword(
   currentPassword: string,
   newPassword: string,
 ): Promise<void> {
-  const response = await fetch(`${API_BASE}/account/security/change-password`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify({
-      current_password: currentPassword,
-      new_password: newPassword,
-    }),
+  await apiClient.post('/api/v1/staff/account/security/change-password', {
+    current_password: currentPassword,
+    new_password: newPassword,
   });
-  return handleResponse<void>(response);
 }
 
 /** Fetch active login sessions for the current staff member. */
 export async function getActiveSessions(): Promise<ActiveSession[]> {
-  const response = await fetch(`${API_BASE}/account/security/sessions`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<ActiveSession[]>(response);
+  const { data } = await apiClient.get<ActiveSession[]>(
+    '/api/v1/staff/account/security/sessions',
+  );
+  return data;
 }
 
 /** Fetch the current staff member's audit log. */
 export async function getAuditLog(
   params: AuditLogParams = {},
 ): Promise<PaginatedResponse<AuditEntry>> {
-  const qs = new URLSearchParams();
-  if (params.page != null) qs.set('page', String(params.page));
-  if (params.page_size != null) qs.set('page_size', String(params.page_size));
-
-  const response = await fetch(`${API_BASE}/account/audit-log?${qs.toString()}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<PaginatedResponse<AuditEntry>>(response);
+  const { data } = await apiClient.get<PaginatedResponse<AuditEntry>>(
+    '/api/v1/staff/account/audit-log',
+    { params },
+  );
+  return data;
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Sparkles, MessageSquare, Mic, Video, Brain, Zap, TrendingUp } from 'lucide-react';
 import adminProviderService, { RecommendedProvider } from '@/services/adminProviderService';
 

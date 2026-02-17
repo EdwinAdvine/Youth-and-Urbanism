@@ -1,3 +1,5 @@
+// ProfilePage - Authenticated page at /profile. Allows any user to view and edit their
+// profile details including avatar, personal info, password, and account settings.
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '../store/authStore';
 import {
@@ -88,7 +90,7 @@ export default function ProfilePage() {
   });
 
   // Security state
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [twoFactorEnabled] = useState(false);
   const [sessions, setSessions] = useState<Session[]>([
     {
       id: '1',

@@ -28,6 +28,7 @@ const AIInsightsPage: React.FC = () => {
 
   const [summary, setSummary] = useState<AITutorSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (effectiveChildId) {
@@ -42,10 +43,12 @@ const AIInsightsPage: React.FC = () => {
 
     try {
       setLoading(true);
+      setError(null);
       const data = await getAITutorSummary(effectiveChildId);
       setSummary(data);
     } catch (error) {
       console.error('Failed to load AI tutor summary:', error);
+      setError('Failed to load AI insights. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -86,6 +89,24 @@ const AIInsightsPage: React.FC = () => {
             className="px-6 py-2 bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#FF0000] transition-colors"
           >
             View Children
+          </button>
+        </div>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <div className="text-center py-12">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <p className="text-gray-900 dark:text-white font-medium mb-2">Something went wrong</p>
+          <p className="text-gray-500 dark:text-white/60 mb-4">{error}</p>
+          <button
+            onClick={loadSummary}
+            className="px-6 py-2 bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#FF0000] transition-colors"
+          >
+            Try Again
           </button>
         </div>
       </>

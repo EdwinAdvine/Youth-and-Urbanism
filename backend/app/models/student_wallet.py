@@ -1,5 +1,10 @@
 """
-Student Wallet & Payment Models - Paystack Transactions
+Student Wallet and Payment Models
+
+Models for Paystack payment gateway integration: transaction records for
+course purchases and subscriptions, and saved (tokenized) payment methods
+for one-click repeat payments. Amounts are stored in the smallest currency
+unit (e.g. kobo for NGN, cents for KES) to avoid floating-point issues.
 """
 from sqlalchemy import Column, String, Integer, Float, DateTime, Boolean, Text, ForeignKey, Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID, JSONB
@@ -30,7 +35,15 @@ class PaystackChannel(str, enum.Enum):
 
 
 class PaystackTransaction(Base):
-    """Paystack payment transactions"""
+    """
+    A payment transaction processed through the Paystack gateway.
+
+    Stores the Paystack reference, amount (in smallest currency unit),
+    channel (card, bank, USSD, QR, mobile money, bank transfer), and
+    gateway response. Successful transactions capture authorization
+    details (card type, last4, bank) for tokenized future payments.
+    Custom metadata (course_id, subscription_type) is stored in JSONB.
+    """
     __tablename__ = "paystack_transactions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -76,7 +89,15 @@ class PaystackTransaction(Base):
 
 
 class StudentSavedPaymentMethod(Base):
-    """Saved payment methods for students (tokenized cards)"""
+    """
+    A tokenized payment card saved by a student for future purchases.
+
+    Stores the Paystack authorization code, card type, last four digits,
+    expiry, and issuing bank. One method can be marked as the default.
+    Methods can be deactivated without deletion to preserve transaction
+    history references. Only the token is stored -- never the full card
+    number.
+    """
     __tablename__ = "student_saved_payment_methods"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

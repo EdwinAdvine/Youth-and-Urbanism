@@ -1,4 +1,6 @@
-import React from 'react';
+// DashboardPartner - Partner role dashboard at /dashboard. Shows sponsorship overview,
+// impact metrics, sponsored children stats, upcoming events, and partnership activity.
+import React, { useState } from 'react';
 import {
   Building2,
   Users,
@@ -9,6 +11,7 @@ import {
   MapPin
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const stagger = {
   hidden: {},
@@ -20,6 +23,8 @@ const fadeUp = {
 };
 
 const DashboardPartner: React.FC = () => {
+  const navigate = useNavigate();
+  const [rsvpSent, setRsvpSent] = useState<Record<number, boolean>>({});
   const stats = [
     { title: 'Active Partnerships', value: '12', icon: Building2, color: 'text-orange-400', bg: 'bg-orange-500/10' },
     { title: 'Students Supported', value: '1,247', icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/10' },
@@ -85,7 +90,10 @@ const DashboardPartner: React.FC = () => {
           <div className="bg-gray-50 dark:bg-[#181C1F] border border-gray-200 dark:border-[#2A3035] rounded-lg p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Our Latest Updates</h2>
-              <button className="text-[#E40000] hover:text-[#FF0000] text-sm font-medium flex items-center gap-2">
+              <button
+                onClick={() => navigate('/dashboard/partner/impact-reports')}
+                className="text-[#E40000] hover:text-[#FF0000] text-sm font-medium flex items-center gap-2"
+              >
                 View All
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -101,7 +109,10 @@ const DashboardPartner: React.FC = () => {
                   </div>
                   <h3 className="font-medium text-gray-900 dark:text-white mb-2">{update.title}</h3>
                   <p className="text-sm text-gray-600 dark:text-white/80 mb-3">{update.excerpt}</p>
-                  <button className="text-[#E40000] hover:text-[#FF0000] text-sm font-medium flex items-center gap-1">
+                  <button
+                    onClick={() => navigate('/dashboard/partner/impact-reports')}
+                    className="text-[#E40000] hover:text-[#FF0000] text-sm font-medium flex items-center gap-1"
+                  >
                     Read More
                     <ChevronRight className="w-3 h-3" />
                   </button>
@@ -116,7 +127,10 @@ const DashboardPartner: React.FC = () => {
           <div className="bg-gray-50 dark:bg-[#181C1F] border border-gray-200 dark:border-[#2A3035] rounded-lg p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Upcoming Events</h2>
-              <button className="text-[#E40000] hover:text-[#FF0000] text-sm font-medium flex items-center gap-2">
+              <button
+                onClick={() => navigate('/dashboard/partner/collaboration')}
+                className="text-[#E40000] hover:text-[#FF0000] text-sm font-medium flex items-center gap-2"
+              >
                 View Calendar
                 <Calendar className="w-4 h-4" />
               </button>
@@ -139,8 +153,19 @@ const DashboardPartner: React.FC = () => {
                       </div>
                       <p className="text-sm text-gray-600 dark:text-white/80">{event.description}</p>
                     </div>
-                    <button className="text-[#E40000] hover:text-[#FF0000] text-sm font-medium">
-                      RSVP
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setRsvpSent((prev) => ({ ...prev, [event.id]: true }));
+                      }}
+                      disabled={rsvpSent[event.id]}
+                      className={`text-sm font-medium ${
+                        rsvpSent[event.id]
+                          ? 'text-green-400 cursor-default'
+                          : 'text-[#E40000] hover:text-[#FF0000]'
+                      }`}
+                    >
+                      {rsvpSent[event.id] ? 'RSVP Sent!' : 'RSVP'}
                     </button>
                   </div>
                 </div>

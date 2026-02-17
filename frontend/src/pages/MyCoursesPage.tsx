@@ -77,11 +77,6 @@ export default function MyCoursesPage() {
   const activeCount = enrollments.filter((e) => e.status === 'active').length;
   const completedCount = enrollments.filter((e) => e.is_completed).length;
   const totalTimeSpent = enrollments.reduce((sum, e) => sum + e.total_time_spent_minutes, 0);
-  const averageProgress =
-    enrollments.length > 0
-      ? enrollments.reduce((sum, e) => sum + Number(e.progress_percentage), 0) / enrollments.length
-      : 0;
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}

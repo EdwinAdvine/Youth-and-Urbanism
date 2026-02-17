@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Plus, Search, Filter, MessageSquare, Pin, Flag, ThumbsUp, Eye, Sparkles } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { format } from 'date-fns';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface ForumPost {
   id: string;
@@ -39,13 +38,11 @@ export const DiscussionsPage: React.FC = () => {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
       const params: any = {};
       if (typeFilter !== 'all') params.type = typeFilter;
       if (showFlaggedOnly) params.flagged = true;
 
-      const response = await axios.get(`${API_URL}/api/v1/instructor/hub/community/posts`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await apiClient.get('/api/v1/instructor/hub/community/posts', {
         params,
       });
 
@@ -138,11 +135,9 @@ export const DiscussionsPage: React.FC = () => {
 
   const handlePinPost = async (postId: string, isPinned: boolean) => {
     try {
-      const token = localStorage.getItem('access_token');
-      await axios.patch(
-        `${API_URL}/api/v1/instructor/hub/community/posts/${postId}`,
-        { is_pinned: !isPinned },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await apiClient.patch(
+        `/api/v1/instructor/hub/community/posts/${postId}`,
+        { is_pinned: !isPinned }
       );
       fetchPosts();
     } catch (error) {
@@ -156,11 +151,9 @@ export const DiscussionsPage: React.FC = () => {
     if (!action) return;
 
     try {
-      const token = localStorage.getItem('access_token');
-      await axios.patch(
-        `${API_URL}/api/v1/instructor/hub/community/posts/${postId}`,
-        { is_moderated: true },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await apiClient.patch(
+        `/api/v1/instructor/hub/community/posts/${postId}`,
+        { is_moderated: true }
       );
       fetchPosts();
     } catch (error) {

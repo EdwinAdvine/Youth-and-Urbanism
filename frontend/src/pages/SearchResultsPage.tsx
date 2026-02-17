@@ -1,3 +1,5 @@
+// SearchResultsPage - Page at /search. Displays search results for users, courses, and
+// notifications based on the query parameter, with categorized result tabs.
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, BookOpen, Users, Bell, FileText, Loader2, ArrowLeft } from 'lucide-react';

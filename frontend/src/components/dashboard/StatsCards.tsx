@@ -1,14 +1,10 @@
 import React from 'react';
 import { useUserStore } from '../../store';
-import { 
-  BookOpen, 
-  FileText, 
-  Award, 
-  Wallet, 
-  Clock, 
-  CheckCircle, 
-  TrendingUp,
-  Users
+import {
+  BookOpen,
+  Award,
+  Wallet,
+  Clock
 } from 'lucide-react';
 
 interface StatsCardsProps {
@@ -20,10 +16,7 @@ const StatsCards: React.FC<StatsCardsProps> = ({ onAction }) => {
   
   // Calculate stats
   const activeCourses = courses.filter(c => c.status === 'in_progress').length;
-  const completedCourses = courses.filter(c => c.status === 'completed').length;
   const pendingAssignments = assignments.filter(a => a.status === 'pending').length;
-  const submittedAssignments = assignments.filter(a => a.status === 'submitted').length;
-  const gradedAssignments = assignments.filter(a => a.status === 'graded').length;
   const totalCertificates = certificates.length;
   const walletBalance = transactions
     .filter(t => t.type === 'credit')
@@ -65,7 +58,7 @@ const StatsCards: React.FC<StatsCardsProps> = ({ onAction }) => {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      {stats.map((stat, index) => {
+      {stats.map((stat, _index) => {
         const Icon = stat.icon;
         return (
           <div

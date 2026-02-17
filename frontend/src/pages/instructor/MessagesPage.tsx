@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Send, User, Paperclip, MoreVertical } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { format } from 'date-fns';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Message {
   id: string;
@@ -47,10 +46,7 @@ export const MessagesPage: React.FC = () => {
   const fetchConversations = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_URL}/api/v1/instructor/messages/conversations`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get('/api/v1/instructor/messages/conversations');
 
       // Mock data for development
       if (!response.data || response.data.length === 0) {
@@ -93,10 +89,7 @@ export const MessagesPage: React.FC = () => {
 
   const fetchMessages = async (userId: string) => {
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_URL}/api/v1/instructor/messages/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get(`/api/v1/instructor/messages/${userId}`);
 
       // Mock data for development
       if (!response.data || response.data.length === 0) {
@@ -153,15 +146,12 @@ export const MessagesPage: React.FC = () => {
 
     try {
       setSending(true);
-      const token = localStorage.getItem('access_token');
       const newMessage = {
         to_user_id: selectedConversation,
         content: messageInput.trim(),
       };
 
-      await axios.post(`${API_URL}/api/v1/instructor/messages`, newMessage, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await apiClient.post('/api/v1/instructor/messages', newMessage);
 
       // Optimistically add message to UI
       const optimisticMessage: Message = {

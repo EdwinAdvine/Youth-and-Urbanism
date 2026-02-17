@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Send, CheckCircle } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { format } from 'date-fns';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface TicketMessage {
   id: string;
@@ -31,10 +30,7 @@ export const SupportTicketDetailPage: React.FC = () => {
   const fetchTicketDetails = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_URL}/api/v1/instructor/hub/support/tickets/${ticketId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get(`/api/v1/instructor/hub/support/tickets/${ticketId}`);
 
       // Mock data
       if (!response.data) {
@@ -94,11 +90,9 @@ export const SupportTicketDetailPage: React.FC = () => {
 
     try {
       setSending(true);
-      const token = localStorage.getItem('access_token');
-      await axios.post(
-        `${API_URL}/api/v1/instructor/hub/support/tickets/${ticketId}/reply`,
-        { content: replyText.trim() },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await apiClient.post(
+        `/api/v1/instructor/hub/support/tickets/${ticketId}/reply`,
+        { content: replyText.trim() }
       );
 
       // Add message locally

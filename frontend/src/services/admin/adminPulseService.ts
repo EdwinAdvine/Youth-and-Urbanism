@@ -1,39 +1,12 @@
 /**
  * Admin Platform Pulse API Service
  *
- * Fetches real-time monitoring data from the Platform Pulse backend
- * endpoints. Follows the same auth-header and fetch patterns used
- * by adminDashboardService.ts.
+ * Fetches real-time monitoring data from the Platform Pulse backend endpoints.
  */
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const BASE = `${API_URL}/api/v1/admin/pulse`;
+import apiClient from '../api';
 
-function getAuthHeaders(): Record<string, string> {
-  let jwt = '';
-  const stored = localStorage.getItem('auth-store');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      jwt = parsed?.state?.token || parsed?.token || '';
-    } catch {
-      jwt = stored;
-    }
-  }
-  return {
-    Authorization: `Bearer ${jwt}`,
-    'Content-Type': 'application/json',
-  };
-}
-
-async function fetchJson<T>(url: string): Promise<T> {
-  const response = await fetch(url, { headers: getAuthHeaders() });
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status} ${response.statusText}`);
-  }
-  const json = await response.json();
-  return json.data ?? json;
-}
+const BASE = `/api/v1/admin/pulse`;
 
 // ---------------------------------------------------------------------------
 // Interfaces
@@ -132,17 +105,25 @@ export type MetricsPeriod = '1h' | '6h' | '24h' | '7d';
 // ---------------------------------------------------------------------------
 
 const adminPulseService = {
-  getRealtimeMetrics: () =>
-    fetchJson<RealtimeMetrics>(`${BASE}/realtime`),
+  getRealtimeMetrics: async (): Promise<RealtimeMetrics> => {
+    const r = await apiClient.get(`${BASE}/realtime`);
+    return r.data.data ?? r.data;
+  },
 
-  getHealthStatus: () =>
-    fetchJson<HealthStatusResponse>(`${BASE}/health`),
+  getHealthStatus: async (): Promise<HealthStatusResponse> => {
+    const r = await apiClient.get(`${BASE}/health`);
+    return r.data.data ?? r.data;
+  },
 
-  getUrgentFlags: () =>
-    fetchJson<UrgentFlagsResponse>(`${BASE}/urgent-flags`),
+  getUrgentFlags: async (): Promise<UrgentFlagsResponse> => {
+    const r = await apiClient.get(`${BASE}/urgent-flags`);
+    return r.data.data ?? r.data;
+  },
 
-  getMetricsHistory: (period: MetricsPeriod = '24h') =>
-    fetchJson<MetricsHistoryResponse>(`${BASE}/metrics/${period}`),
+  getMetricsHistory: async (period: MetricsPeriod = '24h'): Promise<MetricsHistoryResponse> => {
+    const r = await apiClient.get(`${BASE}/metrics/${period}`);
+    return r.data.data ?? r.data;
+  },
 };
 
 export default adminPulseService;

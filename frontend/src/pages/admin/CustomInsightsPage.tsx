@@ -233,6 +233,14 @@ const CustomInsightsPage: React.FC = () => {
   const [queryInput, setQueryInput] = useState('');
   const [isQuerying, setIsQuerying] = useState(false);
   const [showChart, setShowChart] = useState(false);
+  const [savedQueries, setSavedQueries] = useState<SavedQuery[]>(SAVED_QUERIES);
+  const [lastQueryInput, setLastQueryInput] = useState('');
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 600);
@@ -241,16 +249,60 @@ const CustomInsightsPage: React.FC = () => {
 
   const handleRefresh = () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 800);
+    setTimeout(() => {
+      setRefreshing(false);
+      showToast('Data refreshed');
+    }, 800);
   };
 
   const handleRunQuery = () => {
     if (!queryInput.trim()) return;
     setIsQuerying(true);
+    setLastQueryInput(queryInput);
     setTimeout(() => {
       setIsQuerying(false);
       setShowChart(true);
-    }, 1200);
+      showToast('Query executed successfully');
+    }, 1500);
+  };
+
+  const handleSaveQuery = () => {
+    if (!queryInput.trim()) {
+      showToast('Enter a query before saving', 'error');
+      return;
+    }
+    const newQuery: SavedQuery = {
+      id: `sq-${Date.now()}`,
+      name: queryInput.length > 50 ? queryInput.slice(0, 50) + '...' : queryInput,
+      query: queryInput,
+      createdAt: new Date().toISOString().split('T')[0],
+      lastRun: new Date().toISOString(),
+      resultCount: 0,
+    };
+    setSavedQueries(prev => [newQuery, ...prev]);
+    showToast('Query saved successfully');
+  };
+
+  const handleDeleteQuery = (queryId: string) => {
+    if (!confirm('Are you sure you want to delete this saved query?')) return;
+    setSavedQueries(prev => prev.filter(q => q.id !== queryId));
+    showToast('Query deleted');
+  };
+
+  const handleExportResults = () => {
+    const headers = ['Grade', 'Value'];
+    const rows = SAMPLE_CHART_DATA.map(d => `${d.label},${d.value}`);
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `insights-export-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast('Results exported as CSV');
   };
 
   const handleExampleClick = (example: string) => {
@@ -272,8 +324,8 @@ const CustomInsightsPage: React.FC = () => {
       minute: '2-digit',
     });
 
-  const totalQueries = SAVED_QUERIES.length + 23;
-  const savedReportsCount = SAVED_QUERIES.length;
+  const totalQueries = savedQueries.length + 23;
+  const savedReportsCount = savedQueries.length;
   const scheduledReportsCount = SCHEDULED_REPORTS.filter((r) => r.isActive).length;
 
   if (loading) {
@@ -383,6 +435,7 @@ const CustomInsightsPage: React.FC = () => {
               {isQuerying ? 'Running...' : 'Run Query'}
             </button>
             <button
+              onClick={handleSaveQuery}
               className="flex items-center gap-2 px-4 py-3 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] text-gray-600 dark:text-white/70 rounded-lg hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors"
             >
               <Save className="w-4 h-4" />
@@ -412,9 +465,9 @@ const CustomInsightsPage: React.FC = () => {
             >
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm text-gray-600 dark:text-white/70">
-                  Results for: <span className="text-gray-900 dark:text-white font-medium">{queryInput}</span>
+                  Results for: <span className="text-gray-900 dark:text-white font-medium">{lastQueryInput}</span>
                 </p>
-                <button className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white transition-colors">
+                <button onClick={handleExportResults} className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white transition-colors">
                   <Download className="w-3.5 h-3.5" />
                   Export Results
                 </button>
@@ -483,7 +536,7 @@ const CustomInsightsPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {SAVED_QUERIES.map((sq) => (
+                {savedQueries.map((sq) => (
                   <tr
                     key={sq.id}
                     className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-gray-100 dark:hover:bg-[#22272B]/30 transition-colors"
@@ -513,6 +566,7 @@ const CustomInsightsPage: React.FC = () => {
                           <Play className="w-4 h-4" />
                         </button>
                         <button
+                          onClick={() => handleDeleteQuery(sq.id)}
                           title="Delete"
                           className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 dark:text-white/50 hover:text-red-400 transition-colors"
                         >
@@ -621,6 +675,16 @@ const CustomInsightsPage: React.FC = () => {
           </div>
         </motion.div>
       </motion.div>
+
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
+            toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+          }`}>
+            <p className="text-sm font-medium">{toast.message}</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };

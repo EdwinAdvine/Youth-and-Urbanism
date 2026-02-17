@@ -11,26 +11,7 @@ import type {
   LiveSession,
   LiveSessionRecording,
 } from '../../types/staff';
-
-const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/staff`;
-
-function getAuthHeaders(): HeadersInit {
-  const token =
-    localStorage.getItem('access_token') ||
-    JSON.parse(localStorage.getItem('auth-store') || '{}')?.state?.token;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
-
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Request failed' }));
-    throw new Error(error.detail || `HTTP ${response.status}`);
-  }
-  return response.json();
-}
+import apiClient from '../api';
 
 // ---------------------------------------------------------------------------
 // Types local to this service
@@ -81,93 +62,67 @@ export interface BreakoutRoomConfig {
 export async function getSessions(
   params: SessionListParams = {},
 ): Promise<PaginatedResponse<LiveSession>> {
-  const qs = new URLSearchParams();
-  if (params.page != null) qs.set('page', String(params.page));
-  if (params.page_size != null) qs.set('page_size', String(params.page_size));
-  if (params.status) qs.set('status', params.status);
-
-  const response = await fetch(`${API_BASE}/sessions?${qs.toString()}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<PaginatedResponse<LiveSession>>(response);
+  const { data } = await apiClient.get<PaginatedResponse<LiveSession>>(
+    '/api/v1/staff/sessions',
+    { params },
+  );
+  return data;
 }
 
 /** Fetch a single session by ID. */
 export async function getSession(sessionId: string): Promise<LiveSession> {
-  const response = await fetch(`${API_BASE}/sessions/${sessionId}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<LiveSession>(response);
+  const { data } = await apiClient.get<LiveSession>(`/api/v1/staff/sessions/${sessionId}`);
+  return data;
 }
 
 /** Create a new live session. */
 export async function createSession(
-  data: CreateSessionPayload,
+  payload: CreateSessionPayload,
 ): Promise<LiveSession> {
-  const response = await fetch(`${API_BASE}/sessions`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<LiveSession>(response);
+  const { data } = await apiClient.post<LiveSession>('/api/v1/staff/sessions', payload);
+  return data;
 }
 
 /** Update an existing session. */
 export async function updateSession(
   sessionId: string,
-  data: UpdateSessionPayload,
+  payload: UpdateSessionPayload,
 ): Promise<LiveSession> {
-  const response = await fetch(`${API_BASE}/sessions/${sessionId}`, {
-    method: 'PATCH',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<LiveSession>(response);
+  const { data } = await apiClient.patch<LiveSession>(
+    `/api/v1/staff/sessions/${sessionId}`,
+    payload,
+  );
+  return data;
 }
 
 /** Generate a LiveKit token for joining a session room. */
 export async function getLiveKitToken(
   sessionId: string,
 ): Promise<{ token: string }> {
-  const response = await fetch(`${API_BASE}/sessions/${sessionId}/token`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<{ token: string }>(response);
+  const { data } = await apiClient.post<{ token: string }>(
+    `/api/v1/staff/sessions/${sessionId}/token`,
+  );
+  return data;
 }
 
 /** Start recording a live session. */
 export async function startRecording(sessionId: string): Promise<void> {
-  const response = await fetch(
-    `${API_BASE}/sessions/${sessionId}/recording/start`,
-    {
-      method: 'POST',
-      headers: getAuthHeaders(),
-    },
-  );
-  return handleResponse<void>(response);
+  await apiClient.post(`/api/v1/staff/sessions/${sessionId}/recording/start`);
 }
 
 /** Stop recording a live session. */
 export async function stopRecording(sessionId: string): Promise<void> {
-  const response = await fetch(
-    `${API_BASE}/sessions/${sessionId}/recording/stop`,
-    {
-      method: 'POST',
-      headers: getAuthHeaders(),
-    },
-  );
-  return handleResponse<void>(response);
+  await apiClient.post(`/api/v1/staff/sessions/${sessionId}/recording/stop`);
 }
 
 /** Fetch all recordings for a session. */
 export async function getRecordings(
   sessionId: string,
 ): Promise<LiveSessionRecording[]> {
-  const response = await fetch(`${API_BASE}/sessions/${sessionId}/recordings`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<LiveSessionRecording[]>(response);
+  const { data } = await apiClient.get<LiveSessionRecording[]>(
+    `/api/v1/staff/sessions/${sessionId}/recordings`,
+  );
+  return data;
 }
 
 /** Create or update breakout rooms within a live session. */
@@ -175,13 +130,5 @@ export async function manageBreakoutRooms(
   sessionId: string,
   config: BreakoutRoomConfig,
 ): Promise<void> {
-  const response = await fetch(
-    `${API_BASE}/sessions/${sessionId}/breakout-rooms`,
-    {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(config),
-    },
-  );
-  return handleResponse<void>(response);
+  await apiClient.post(`/api/v1/staff/sessions/${sessionId}/breakout-rooms`, config);
 }

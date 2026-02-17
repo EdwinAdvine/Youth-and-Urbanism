@@ -1,7 +1,21 @@
+/**
+ * Authentication store for the Urban Home School platform.
+ *
+ * Manages JWT-based authentication state including user object, loading
+ * and error flags, and persistence to localStorage under "auth-storage".
+ *
+ * Actions:
+ *  - login     -- authenticates via authService and stores user + tokens.
+ *  - register  -- creates account, auto-logs in, and fetches the user profile.
+ *  - logout    -- clears local state and fires a fire-and-forget server call.
+ *  - checkAuth -- validates the current token; logs out if expired.
+ */
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import authService, { User, LoginRequest, RegisterRequest } from '../services/authService';
 
+/** Shape of the authentication store state and actions. */
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
@@ -27,9 +41,7 @@ export const useAuthStore = create<AuthState>()(
       login: async (credentials: LoginRequest) => {
         set({ isLoading: true, error: null });
         try {
-          console.log('[Auth] store.login: calling authService.login');
-          const { user, tokens } = await authService.login(credentials);
-          console.log('[Auth] store.login: setting isAuthenticated=true, user:', user?.role);
+          const { user } = await authService.login(credentials);
           set({
             user,
             isAuthenticated: true,
@@ -37,7 +49,6 @@ export const useAuthStore = create<AuthState>()(
             error: null
           });
         } catch (error: any) {
-          console.error('[Auth] store.login: FAILED:', error?.message || error);
           const errorMessage = error.response?.data?.detail || 'Login failed. Please check your credentials.';
           set({
             error: errorMessage,
@@ -52,7 +63,7 @@ export const useAuthStore = create<AuthState>()(
       register: async (data: RegisterRequest) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await authService.register(data);
+          await authService.register(data);
           // After registration, automatically login
           await authService.login({
             email: data.email,
@@ -86,18 +97,14 @@ export const useAuthStore = create<AuthState>()(
       },
 
       checkAuth: async () => {
-        if (!authService.isAuthenticated()) {
-          set({ user: null, isAuthenticated: false });
-          return;
-        }
-
+        // Verify auth by calling /auth/me — cookie is sent automatically
         try {
           const user = await authService.getCurrentUser();
           set({ user, isAuthenticated: true });
-        } catch (error) {
-          // Token invalid, logout
-          authService.logout();
+        } catch {
+          // Token invalid or expired — clear local state
           set({ user: null, isAuthenticated: false });
+          localStorage.removeItem('user');
         }
       },
 

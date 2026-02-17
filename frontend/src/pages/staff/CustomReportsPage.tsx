@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   FileText,
@@ -19,46 +19,41 @@ import {
   Copy,
   Trash2,
   LayoutGrid,
+  AlertCircle,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import {
+  getReports,
+  createReport,
+  deleteReport,
+  exportReport,
+} from '@/services/staff/staffReportService';
+import type { ReportDefinition } from '@/types/staff';
 
 /* ------------------------------------------------------------------ */
-/* Types                                                               */
+/* Helpers                                                             */
 /* ------------------------------------------------------------------ */
 
-interface Report {
-  id: string;
-  name: string;
-  type: 'dashboard' | 'tabular' | 'visual';
-  last_modified: string;
-  author: string;
-  shared: boolean;
-  scheduled: boolean;
-  schedule_frequency?: string;
-}
+const typeIcons: Record<string, React.FC<{ className?: string }>> = {
+  dashboard: LayoutGrid,
+  table: Table,
+  chart: BarChart3,
+  mixed: FileText,
+};
 
-/* ------------------------------------------------------------------ */
-/* Mock data                                                           */
-/* ------------------------------------------------------------------ */
+const typeColors: Record<string, string> = {
+  dashboard: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+  table: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+  chart: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+  mixed: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+};
 
-const MOCK_REPORTS: Report[] = [
-  { id: 'RPT-001', name: 'Weekly Student Progress Summary', type: 'dashboard', last_modified: '2025-01-15T14:30:00Z', author: 'Grace Njeri', shared: true, scheduled: true, schedule_frequency: 'Weekly on Monday' },
-  { id: 'RPT-002', name: 'Monthly Revenue Breakdown', type: 'tabular', last_modified: '2025-01-14T09:00:00Z', author: 'James Odhiambo', shared: false, scheduled: true, schedule_frequency: 'Monthly 1st' },
-  { id: 'RPT-003', name: 'AI Tutor Usage Analytics', type: 'visual', last_modified: '2025-01-13T16:45:00Z', author: 'Faith Wanjiku', shared: true, scheduled: false },
-  { id: 'RPT-004', name: 'CBC Compliance Status', type: 'dashboard', last_modified: '2025-01-12T11:20:00Z', author: 'Peter Kamau', shared: true, scheduled: false },
-  { id: 'RPT-005', name: 'Support Ticket Trends Q4', type: 'visual', last_modified: '2025-01-10T08:00:00Z', author: 'Grace Njeri', shared: false, scheduled: false },
-  { id: 'RPT-006', name: 'Parent Engagement Report', type: 'tabular', last_modified: '2025-01-09T13:15:00Z', author: 'Amina Hassan', shared: true, scheduled: true, schedule_frequency: 'Bi-weekly' },
-];
-
-const SHARED_REPORTS: Report[] = [
-  { id: 'RPT-101', name: 'Platform-Wide KPI Dashboard', type: 'dashboard', last_modified: '2025-01-15T10:00:00Z', author: 'System Admin', shared: true, scheduled: true, schedule_frequency: 'Daily' },
-  { id: 'RPT-102', name: 'Team Performance Overview', type: 'visual', last_modified: '2025-01-14T15:30:00Z', author: 'James Odhiambo', shared: true, scheduled: false },
-];
-
-const TEMPLATE_REPORTS: Report[] = [
-  { id: 'TPL-001', name: 'Student Assessment Summary', type: 'tabular', last_modified: '2025-01-01T00:00:00Z', author: 'Template', shared: false, scheduled: false },
-  { id: 'TPL-002', name: 'Financial Overview', type: 'dashboard', last_modified: '2025-01-01T00:00:00Z', author: 'Template', shared: false, scheduled: false },
-  { id: 'TPL-003', name: 'Content Performance Tracker', type: 'visual', last_modified: '2025-01-01T00:00:00Z', author: 'Template', shared: false, scheduled: false },
-];
+const formatDate = (iso: string): string =>
+  new Date(iso).toLocaleDateString('en-KE', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
 
 const WIDGET_TYPES = [
   { name: 'Metric Card', icon: Hash, color: 'text-blue-400' },
@@ -70,57 +65,142 @@ const WIDGET_TYPES = [
 ];
 
 /* ------------------------------------------------------------------ */
-/* Helpers                                                             */
-/* ------------------------------------------------------------------ */
-
-const typeIcons: Record<string, React.FC<{ className?: string }>> = {
-  dashboard: LayoutGrid,
-  tabular: Table,
-  visual: BarChart3,
-};
-
-const typeColors: Record<string, string> = {
-  dashboard: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  tabular: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-  visual: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-};
-
-const formatDate = (iso: string): string =>
-  new Date(iso).toLocaleDateString('en-KE', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-
-/* ------------------------------------------------------------------ */
 /* Component                                                           */
 /* ------------------------------------------------------------------ */
 
 const CustomReportsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reports, setReports] = useState<ReportDefinition[]>([]);
   const [activeTab, setActiveTab] = useState<'my' | 'shared' | 'templates' | 'schedules'>('my');
   const [search, setSearch] = useState('');
   const [showBuilder, setShowBuilder] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(timer);
+  // Builder form state
+  const [builderName, setBuilderName] = useState('');
+  const [builderType, setBuilderType] = useState<'dashboard' | 'table' | 'chart' | 'mixed'>('dashboard');
+  const [saving, setSaving] = useState(false);
+
+  // Schedule modal state
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [scheduleReportId, setScheduleReportId] = useState<string | null>(null);
+
+  const fetchReports = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await getReports();
+      setReports(response.items);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load reports');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const getReports = (): Report[] => {
+  useEffect(() => {
+    fetchReports();
+  }, [fetchReports]);
+
+  const getDisplayReports = (): ReportDefinition[] => {
     switch (activeTab) {
-      case 'my': return MOCK_REPORTS;
-      case 'shared': return SHARED_REPORTS;
-      case 'templates': return TEMPLATE_REPORTS;
-      case 'schedules': return MOCK_REPORTS.filter((r) => r.scheduled);
-      default: return MOCK_REPORTS;
+      case 'my': return reports.filter(r => !r.is_template && !r.is_shared);
+      case 'shared': return reports.filter(r => r.is_shared);
+      case 'templates': return reports.filter(r => r.is_template);
+      case 'schedules': return reports;
+      default: return reports;
     }
   };
 
-  const filteredReports = getReports().filter(
+  const filteredReports = getDisplayReports().filter(
     (r) => !search || r.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleSaveReport = async () => {
+    if (!builderName.trim()) return;
+    setSaving(true);
+    try {
+      await createReport({
+        name: builderName,
+        report_type: builderType,
+        config: {
+          widgets: [],
+          layout: { columns: 12, row_height: 100 },
+        },
+      });
+      setShowBuilder(false);
+      setBuilderName('');
+      setBuilderType('dashboard');
+      await fetchReports();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create report');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleExport = async (reportId: string) => {
+    setActiveMenu(null);
+    setActionLoading(reportId);
+    try {
+      const result = await exportReport(reportId, 'csv');
+      if (result.download_url) {
+        window.open(result.download_url, '_blank');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to export report');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDuplicate = async (report: ReportDefinition) => {
+    setActiveMenu(null);
+    setActionLoading(report.id);
+    try {
+      await createReport({
+        name: `${report.name} (Copy)`,
+        report_type: report.report_type,
+        config: report.config,
+        filters: report.filters,
+        is_template: report.is_template,
+        is_shared: false,
+      });
+      await fetchReports();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to duplicate report');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDelete = async (reportId: string) => {
+    setActiveMenu(null);
+    if (!window.confirm('Are you sure you want to delete this report? This action cannot be undone.')) return;
+    setActionLoading(reportId);
+    try {
+      await deleteReport(reportId);
+      setReports(prev => prev.filter(r => r.id !== reportId));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete report');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleEdit = (reportId: string) => {
+    setActiveMenu(null);
+    navigate(`/dashboard/staff/reports/${reportId}/edit`);
+  };
+
+  const handleSchedule = (reportId: string) => {
+    setActiveMenu(null);
+    setScheduleReportId(reportId);
+    setShowScheduleModal(true);
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -145,6 +225,21 @@ const CustomReportsPage: React.FC = () => {
     );
   }
 
+  if (error && reports.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 space-y-4">
+        <AlertCircle className="w-12 h-12 text-red-400" />
+        <p className="text-red-400 text-sm">{error}</p>
+        <button
+          onClick={fetchReports}
+          className="px-4 py-2 bg-[#E40000] hover:bg-[#C80000] text-white text-sm rounded-lg transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   if (showBuilder) {
     return (
       <motion.div
@@ -165,9 +260,40 @@ const CustomReportsPage: React.FC = () => {
             >
               Cancel
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-[#E40000] hover:bg-[#C80000] text-gray-900 dark:text-white text-sm rounded-lg transition-colors">
-              Save Report
+            <button
+              onClick={handleSaveReport}
+              disabled={saving || !builderName.trim()}
+              className="flex items-center gap-2 px-4 py-2 bg-[#E40000] hover:bg-[#C80000] text-gray-900 dark:text-white text-sm rounded-lg transition-colors disabled:opacity-50"
+            >
+              {saving ? 'Saving...' : 'Save Report'}
             </button>
+          </div>
+        </div>
+
+        {/* Report name and type inputs */}
+        <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4 space-y-3">
+          <div>
+            <label className="text-xs text-gray-500 dark:text-white/50 block mb-1">Report Name</label>
+            <input
+              type="text"
+              value={builderName}
+              onChange={(e) => setBuilderName(e.target.value)}
+              placeholder="Enter report name..."
+              className="w-full bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:outline-none focus:border-[#E40000]/50"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 dark:text-white/50 block mb-1">Report Type</label>
+            <select
+              value={builderType}
+              onChange={(e) => setBuilderType(e.target.value as 'dashboard' | 'table' | 'chart' | 'mixed')}
+              className="w-full bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#E40000]/50"
+            >
+              <option value="dashboard">Dashboard</option>
+              <option value="table">Table</option>
+              <option value="chart">Chart</option>
+              <option value="mixed">Mixed</option>
+            </select>
           </div>
         </div>
 
@@ -212,6 +338,35 @@ const CustomReportsPage: React.FC = () => {
       initial="hidden"
       animate="visible"
     >
+      {/* Error banner */}
+      {error && (
+        <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{error}</span>
+          <button onClick={() => setError(null)} className="ml-auto text-xs underline">Dismiss</button>
+        </div>
+      )}
+
+      {/* Schedule Modal */}
+      {showScheduleModal && scheduleReportId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Schedule Report</h3>
+            <p className="text-sm text-gray-500 dark:text-white/50 mb-4">
+              Report scheduling configuration will be available soon. Report ID: {scheduleReportId}
+            </p>
+            <div className="flex justify-end">
+              <button
+                onClick={() => { setShowScheduleModal(false); setScheduleReportId(null); }}
+                className="px-4 py-2 bg-gray-100 dark:bg-[#22272B] text-gray-900 dark:text-white text-sm rounded-lg hover:bg-gray-200 dark:hover:bg-[#2A2F34]"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -268,19 +423,20 @@ const CustomReportsPage: React.FC = () => {
       ) : (
         <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredReports.map((report) => {
-            const TypeIcon = typeIcons[report.type] || FileText;
+            const TypeIcon = typeIcons[report.report_type] || FileText;
+            const isActionLoading = actionLoading === report.id;
             return (
               <div
                 key={report.id}
-                className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4 hover:border-gray-300 dark:hover:border-[#333] transition-colors group"
+                className={`bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4 hover:border-gray-300 dark:hover:border-[#333] transition-colors group ${isActionLoading ? 'opacity-50 pointer-events-none' : ''}`}
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <div className="p-2 bg-gray-100 dark:bg-[#22272B] rounded-lg">
                       <TypeIcon className="w-4 h-4 text-gray-500 dark:text-white/50" />
                     </div>
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border capitalize ${typeColors[report.type]}`}>
-                      {report.type}
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border capitalize ${typeColors[report.report_type] || typeColors.mixed}`}>
+                      {report.report_type}
                     </span>
                   </div>
                   <div className="relative">
@@ -292,20 +448,35 @@ const CustomReportsPage: React.FC = () => {
                     </button>
                     {activeMenu === report.id && (
                       <div className="absolute right-0 top-8 w-40 bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg shadow-xl z-10 py-1">
-                        <button className="flex items-center gap-2 w-full px-3 py-2 text-xs text-gray-600 dark:text-white/70 hover:bg-[#333] transition-colors">
+                        <button
+                          onClick={() => handleEdit(report.id)}
+                          className="flex items-center gap-2 w-full px-3 py-2 text-xs text-gray-600 dark:text-white/70 hover:bg-[#333] transition-colors"
+                        >
                           <Edit3 className="w-3 h-3" /> Edit
                         </button>
-                        <button className="flex items-center gap-2 w-full px-3 py-2 text-xs text-gray-600 dark:text-white/70 hover:bg-[#333] transition-colors">
+                        <button
+                          onClick={() => handleExport(report.id)}
+                          className="flex items-center gap-2 w-full px-3 py-2 text-xs text-gray-600 dark:text-white/70 hover:bg-[#333] transition-colors"
+                        >
                           <Download className="w-3 h-3" /> Export
                         </button>
-                        <button className="flex items-center gap-2 w-full px-3 py-2 text-xs text-gray-600 dark:text-white/70 hover:bg-[#333] transition-colors">
+                        <button
+                          onClick={() => handleSchedule(report.id)}
+                          className="flex items-center gap-2 w-full px-3 py-2 text-xs text-gray-600 dark:text-white/70 hover:bg-[#333] transition-colors"
+                        >
                           <Calendar className="w-3 h-3" /> Schedule
                         </button>
-                        <button className="flex items-center gap-2 w-full px-3 py-2 text-xs text-gray-600 dark:text-white/70 hover:bg-[#333] transition-colors">
+                        <button
+                          onClick={() => handleDuplicate(report)}
+                          className="flex items-center gap-2 w-full px-3 py-2 text-xs text-gray-600 dark:text-white/70 hover:bg-[#333] transition-colors"
+                        >
                           <Copy className="w-3 h-3" /> Duplicate
                         </button>
                         <div className="border-t border-gray-300 dark:border-[#444] my-1" />
-                        <button className="flex items-center gap-2 w-full px-3 py-2 text-xs text-red-400 hover:bg-[#333] transition-colors">
+                        <button
+                          onClick={() => handleDelete(report.id)}
+                          className="flex items-center gap-2 w-full px-3 py-2 text-xs text-red-400 hover:bg-[#333] transition-colors"
+                        >
                           <Trash2 className="w-3 h-3" /> Delete
                         </button>
                       </div>
@@ -316,22 +487,22 @@ const CustomReportsPage: React.FC = () => {
                 <div className="flex items-center gap-3 text-[10px] text-gray-400 dark:text-white/40">
                   <span className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
-                    {formatDate(report.last_modified)}
+                    {formatDate(report.updated_at)}
                   </span>
-                  {report.shared && (
+                  {report.is_shared && (
                     <span className="flex items-center gap-1">
                       <Share2 className="w-3 h-3" />
                       Shared
                     </span>
                   )}
                 </div>
-                {report.scheduled && report.schedule_frequency && (
+                {report.is_template && (
                   <div className="mt-2 flex items-center gap-1 text-[10px] text-cyan-400/70">
                     <Calendar className="w-3 h-3" />
-                    {report.schedule_frequency}
+                    Template
                   </div>
                 )}
-                <p className="text-[10px] text-gray-400 dark:text-white/30 mt-2">by {report.author}</p>
+                <p className="text-[10px] text-gray-400 dark:text-white/30 mt-2">by {report.created_by.name}</p>
               </div>
             );
           })}

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, User as UserIcon, Sparkles, Brain, BookOpen, Play } from 'lucide-react';
+import { User as UserIcon } from 'lucide-react';
 import { useChatStore } from '../../store/chatStore';
 
 interface ChatMessage {

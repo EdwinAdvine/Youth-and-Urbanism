@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Plus, Search, Filter, FileText, List, Grid } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { format } from 'date-fns';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Assessment {
   id: string;
@@ -41,13 +40,11 @@ export const AssessmentsPage: React.FC = () => {
   const fetchAssessments = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
       const params: any = {};
       if (typeFilter !== 'all') params.type = typeFilter;
       if (statusFilter !== 'all') params.status = statusFilter;
 
-      const response = await axios.get(`${API_URL}/api/v1/instructor/assessments`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await apiClient.get('/api/v1/instructor/assessments', {
         params,
       });
 
@@ -120,8 +117,8 @@ export const AssessmentsPage: React.FC = () => {
     navigate(`/dashboard/instructor/assessments/${assessmentId}/edit`);
   };
 
-  const handleViewSubmissions = (assessmentId: string) => {
-    navigate(`/dashboard/instructor/assessments/${assessmentId}/submissions`);
+  const handleViewSubmissions = (_assessmentId: string) => {
+    navigate('/dashboard/instructor/submissions');
   };
 
   const filteredAssessments = assessments.filter((assessment) => {

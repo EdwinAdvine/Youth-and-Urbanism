@@ -1,13 +1,28 @@
+/**
+ * Central store barrel file for the Urban Home School frontend.
+ *
+ * Re-exports all role-specific Zustand stores and defines the two
+ * core global stores used across every dashboard:
+ *  - useUserStore  -- user preferences, notifications, courses, assignments,
+ *                     quizzes, certificates, transactions, and forum posts.
+ *                     Persisted to localStorage under "user-storage".
+ *  - useThemeStore -- light / dark / system theme management with DOM class
+ *                     toggling and localStorage persistence.
+ *
+ * Also exports the initializeTheme() helper that should be called once on
+ * application startup to apply the saved (or default dark) theme.
+ */
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { 
-  UserPreferences, 
-  Notification, 
-  Course, 
-  Assignment, 
-  Quiz, 
-  Certificate, 
-  Transaction, 
+import {
+  UserPreferences,
+  Notification,
+  Course,
+  Assignment,
+  Quiz,
+  Certificate,
+  Transaction,
   ForumPost,
   ForumReply
 } from '../types/index';
@@ -15,12 +30,14 @@ import { useCoPilotStore, useCoPilotInit } from './coPilotStore';
 import { useAuthStore } from './authStore';
 import { useInstructorStore } from './instructorStore';
 
+// Re-export all role-specific stores so consumers can import from a single path
 export { useCoPilotStore, useCoPilotInit, useAuthStore, useInstructorStore };
 export { useStaffStore } from './staffStore';
 export { useAdminStore } from './adminStore';
 export { useParentStore } from './parentStore';
 export { usePartnerStore } from './partnerStore';
 
+/** Shape of the global user store -- preferences, content, and related actions. */
 interface UserState {
   preferences: UserPreferences;
   notifications: Notification[];
@@ -44,6 +61,7 @@ interface UserState {
   addForumReply: (postId: string, reply: Omit<ForumReply, 'id' | 'createdAt' | 'isEdited'>) => void;
 }
 
+/** Shape of the theme store -- current theme choice and computed dark-mode flag. */
 interface ThemeState {
   theme: 'light' | 'dark' | 'system';
   isDarkMode: boolean;
@@ -54,7 +72,7 @@ interface ThemeState {
 // User Store with persistence
 export const useUserStore = create<UserState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       preferences: {
         theme: 'system',
         language: 'en',
@@ -180,15 +198,10 @@ export const useUserStore = create<UserState>()(
     }),
     {
       name: 'user-storage',
+      // Only persist non-sensitive UI preferences.
+      // Courses, assignments, transactions, etc. are fetched from the API per session.
       partialize: (state) => ({
         preferences: state.preferences,
-        notifications: state.notifications,
-        courses: state.courses,
-        assignments: state.assignments,
-        quizzes: state.quizzes,
-        certificates: state.certificates,
-        transactions: state.transactions,
-        forumPosts: state.forumPosts
       })
     }
   )
@@ -229,16 +242,18 @@ export const initializeTheme = () => {
   useThemeStore.getState().setTheme(savedTheme || 'dark');
 };
 
-// Subscribe to system theme changes
+// Subscribe to system theme changes — update DOM and isDarkMode
+// WITHOUT overwriting the 'system' preference stored in theme state.
 if (typeof window !== 'undefined') {
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    const themeStore = useThemeStore.getState();
-    if (themeStore.theme === 'system') {
-      const newTheme = e.matches ? 'dark' : 'light';
+    const { theme } = useThemeStore.getState();
+    if (theme === 'system') {
+      const resolved = e.matches ? 'dark' : 'light';
       const root = window.document.documentElement;
       root.classList.remove('light', 'dark');
-      root.classList.add(newTheme);
-      themeStore.setTheme(newTheme);
+      root.classList.add(resolved);
+      // Only update isDarkMode — keep theme as 'system'
+      useThemeStore.setState({ isDarkMode: resolved === 'dark' });
     }
   });
 }

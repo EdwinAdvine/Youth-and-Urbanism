@@ -13,9 +13,8 @@ import {
   Loader2,
 } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
-import axios from 'axios';
+import apiClient from '../../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -41,13 +40,6 @@ interface TOTPSetupData {
 
 // ---------------------------------------------------------------------------
 // Helpers
-// ---------------------------------------------------------------------------
-
-function authHeaders() {
-  return { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
-}
-
-// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -93,9 +85,7 @@ export const SecurityPage: React.FC = () => {
 
   const fetch2FAStatus = useCallback(async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/v1/instructor/account/2fa-status`, {
-        headers: authHeaders(),
-      });
+      const res = await apiClient.get('/api/v1/instructor/account/2fa-status');
       setTwoFaStatus(res.data);
     } catch (err: any) {
       console.error('Failed to fetch 2FA status:', err);
@@ -128,10 +118,8 @@ export const SecurityPage: React.FC = () => {
     setTotpCode('');
     setShowBackupCodes(false);
     try {
-      const res = await axios.post(
-        `${API_URL}/api/v1/instructor/account/2fa/totp/setup`,
-        {},
-        { headers: authHeaders() }
+      const res = await apiClient.post(
+        '/api/v1/instructor/account/2fa/totp/setup'
       );
       setTotpSetupData(res.data);
       setShowBackupCodes(true);
@@ -152,10 +140,9 @@ export const SecurityPage: React.FC = () => {
     setTotpError(null);
     setTotpSuccess(null);
     try {
-      await axios.post(
-        `${API_URL}/api/v1/instructor/account/2fa/totp/verify`,
-        { code: totpCode },
-        { headers: authHeaders() }
+      await apiClient.post(
+        '/api/v1/instructor/account/2fa/totp/verify',
+        { code: totpCode }
       );
       setTotpSuccess('Authenticator app has been enabled successfully.');
       setTotpCode('');
@@ -191,10 +178,9 @@ export const SecurityPage: React.FC = () => {
     setSmsError(null);
     setSmsSuccess(null);
     try {
-      await axios.post(
-        `${API_URL}/api/v1/instructor/account/2fa/sms/enable`,
-        { phone: smsPhone },
-        { headers: authHeaders() }
+      await apiClient.post(
+        '/api/v1/instructor/account/2fa/sms/enable',
+        { phone: smsPhone }
       );
       setSmsPendingVerify(true);
       setSmsSuccess('Verification code sent to your phone.');
@@ -215,10 +201,9 @@ export const SecurityPage: React.FC = () => {
     setSmsError(null);
     setSmsSuccess(null);
     try {
-      await axios.post(
-        `${API_URL}/api/v1/instructor/account/2fa/sms/verify`,
-        { code: smsCode },
-        { headers: authHeaders() }
+      await apiClient.post(
+        '/api/v1/instructor/account/2fa/sms/verify',
+        { code: smsCode }
       );
       setSmsSuccess('SMS two-factor authentication has been enabled.');
       setSmsCode('');
@@ -255,10 +240,9 @@ export const SecurityPage: React.FC = () => {
 
     setPasswordChanging(true);
     try {
-      await axios.put(
-        `${API_URL}/api/v1/instructor/account/password`,
-        { current_password: currentPassword, new_password: newPassword },
-        { headers: authHeaders() }
+      await apiClient.put(
+        '/api/v1/instructor/account/password',
+        { current_password: currentPassword, new_password: newPassword }
       );
       setPasswordSuccess('Password changed successfully.');
       setCurrentPassword('');

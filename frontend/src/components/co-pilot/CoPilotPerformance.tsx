@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useCoPilotStore } from '../../store';
 
 interface CoPilotPerformanceProps {
   isExpanded: boolean;

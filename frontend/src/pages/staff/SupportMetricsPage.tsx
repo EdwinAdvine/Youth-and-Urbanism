@@ -20,7 +20,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
 } from 'recharts';
 
 /* ------------------------------------------------------------------ */
@@ -237,7 +236,7 @@ const SupportMetricsPage: React.FC = () => {
                 <CartesianGrid strokeDasharray="3 3" stroke="#22272B" />
                 <XAxis dataKey="date" stroke="#555" tick={{ fill: '#777', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis stroke="#555" tick={{ fill: '#777', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}h`} />
-                <Tooltip contentStyle={tooltipStyle} formatter={(value: number) => [`${value}h`, 'Avg Time']} />
+                <Tooltip contentStyle={tooltipStyle} formatter={(value) => [`${value ?? 0}h`, 'Avg Time']} />
                 <Line type="monotone" dataKey="hours" name="Hours" stroke="#3B82F6" strokeWidth={2} dot={{ fill: '#3B82F6', r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
@@ -254,7 +253,7 @@ const SupportMetricsPage: React.FC = () => {
                 <CartesianGrid strokeDasharray="3 3" stroke="#22272B" />
                 <XAxis dataKey="date" stroke="#555" tick={{ fill: '#777', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis stroke="#555" tick={{ fill: '#777', fontSize: 11 }} axisLine={false} tickLine={false} domain={[3.5, 5]} />
-                <Tooltip contentStyle={tooltipStyle} formatter={(value: number) => [`${value}/5`, 'CSAT']} />
+                <Tooltip contentStyle={tooltipStyle} formatter={(value) => [`${value ?? 0}/5`, 'CSAT']} />
                 <Line type="monotone" dataKey="score" name="CSAT" stroke="#10B981" strokeWidth={2} dot={{ fill: '#10B981', r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
@@ -274,7 +273,7 @@ const SupportMetricsPage: React.FC = () => {
                       <Cell key={index} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={tooltipStyle} formatter={(value: number) => [`${value}%`, '']} />
+                  <Tooltip contentStyle={tooltipStyle} formatter={(value) => [`${value ?? 0}%`, '']} />
                 </PieChart>
               </ResponsiveContainer>
             </div>

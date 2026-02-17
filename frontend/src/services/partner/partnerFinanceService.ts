@@ -3,19 +3,14 @@
  * API calls for subscriptions, payments, and billing
  */
 
-import axios from 'axios';
+import apiClient from '../api';
 import type {
   PartnerSubscription,
   PartnerPayment,
   PaginatedResponse,
 } from '../../types/partner';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const BASE_PATH = `${API_URL}/api/v1/partner/finance`;
-
-const getAuthHeaders = () => ({
-  Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-});
+const BASE_PATH = `/api/v1/partner/finance`;
 
 /**
  * Get all subscriptions
@@ -28,10 +23,7 @@ export const getSubscriptions = async (
     limit?: number;
   }
 ): Promise<PaginatedResponse<PartnerSubscription>> => {
-  const response = await axios.get(`${BASE_PATH}/subscriptions`, {
-    headers: getAuthHeaders(),
-    params,
-  });
+  const response = await apiClient.get(`${BASE_PATH}/subscriptions`, { params });
   return response.data;
 };
 
@@ -44,9 +36,7 @@ export const createSubscription = async (data: {
   payment_method_id?: string;
   auto_renew?: boolean;
 }): Promise<PartnerSubscription> => {
-  const response = await axios.post(`${BASE_PATH}/subscriptions`, data, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.post(`${BASE_PATH}/subscriptions`, data);
   return response.data;
 };
 
@@ -57,9 +47,7 @@ export const updateSubscription = async (
   subscriptionId: string,
   data: Partial<PartnerSubscription>
 ): Promise<PartnerSubscription> => {
-  const response = await axios.put(`${BASE_PATH}/subscriptions/${subscriptionId}`, data, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.put(`${BASE_PATH}/subscriptions/${subscriptionId}`, data);
   return response.data;
 };
 
@@ -70,8 +58,7 @@ export const cancelSubscription = async (
   subscriptionId: string,
   reason?: string
 ): Promise<{ success: boolean; message: string }> => {
-  const response = await axios.delete(`${BASE_PATH}/subscriptions/${subscriptionId}`, {
-    headers: getAuthHeaders(),
+  const response = await apiClient.delete(`${BASE_PATH}/subscriptions/${subscriptionId}`, {
     data: { reason },
   });
   return response.data;
@@ -86,9 +73,7 @@ export const processPayment = async (data: {
   phone_number?: string;
   card_token?: string;
 }): Promise<PartnerPayment> => {
-  const response = await axios.post(`${BASE_PATH}/payments`, data, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.post(`${BASE_PATH}/payments`, data);
   return response.data;
 };
 
@@ -105,10 +90,7 @@ export const getBillingHistory = async (
     limit?: number;
   }
 ): Promise<PaginatedResponse<PartnerPayment>> => {
-  const response = await axios.get(`${BASE_PATH}/payments`, {
-    headers: getAuthHeaders(),
-    params,
-  });
+  const response = await apiClient.get(`${BASE_PATH}/payments`, { params });
   return response.data;
 };
 
@@ -116,9 +98,7 @@ export const getBillingHistory = async (
  * Download receipt
  */
 export const downloadReceipt = async (paymentId: string): Promise<{ url: string }> => {
-  const response = await axios.get(`${BASE_PATH}/payments/${paymentId}/receipt`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.get(`${BASE_PATH}/payments/${paymentId}/receipt`);
   return response.data;
 };
 
@@ -140,9 +120,7 @@ export const getBudgetOverview = async (): Promise<{
     next_year: number;
   };
 }> => {
-  const response = await axios.get(`${BASE_PATH}/budget`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.get(`${BASE_PATH}/budget`);
   return response.data;
 };
 
@@ -161,9 +139,7 @@ export const getGrants = async (): Promise<
     status: string;
   }>
 > => {
-  const response = await axios.get(`${BASE_PATH}/grants`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.get(`${BASE_PATH}/grants`);
   return response.data;
 };
 

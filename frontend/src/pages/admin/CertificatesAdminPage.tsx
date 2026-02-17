@@ -106,14 +106,81 @@ const TAB_CONFIG: { key: TabKey; label: string }[] = [
 const CertificatesAdminPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('issuance');
   const [search, setSearch] = useState('');
+  const [certificates, setCertificates] = useState<Certificate[]>(MOCK_CERTIFICATES);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  const totalIssued = MOCK_CERTIFICATES.length;
-  const activeCerts = MOCK_CERTIFICATES.filter((c) => c.status === 'active').length;
-  const revokedCerts = MOCK_CERTIFICATES.filter((c) => c.status === 'revoked').length;
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  /* -- Button handlers ------------------------------------------------- */
+
+  const handleExport = () => {
+    const headers = ['Student', 'Student ID', 'Course', 'Certificate No.', 'Grade', 'Issued', 'Status'];
+    const rows = filteredCerts.map((c) =>
+      [c.student_name, c.student_id, c.course, c.certificate_number, c.grade_achieved, c.issued_at, c.status].join(',')
+    );
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'certificates_export.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Certificates exported successfully');
+  };
+
+  const handleIssueCertificate = () => {
+    alert('Issue certificate flow coming soon');
+  };
+
+  const handleViewCertificate = (cert: Certificate) => {
+    alert(
+      `Certificate Details\n\nStudent: ${cert.student_name} (${cert.student_id})\nCourse: ${cert.course}\nCertificate No.: ${cert.certificate_number}\nGrade Achieved: ${cert.grade_achieved}\nIssued: ${cert.issued_at}\nStatus: ${cert.status}`
+    );
+  };
+
+  const handleDownloadCertificate = (cert: Certificate) => {
+    const content = `URBAN HOME SCHOOL\nCERTIFICATE OF COMPLETION\n\nThis certifies that ${cert.student_name}\nhas successfully completed ${cert.course}\nwith a grade of ${cert.grade_achieved}\n\nCertificate Number: ${cert.certificate_number}\nDate Issued: ${cert.issued_at}`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${cert.certificate_number}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`Certificate ${cert.certificate_number} downloaded`);
+  };
+
+  const handleRevokeCertificate = (certId: string, certNumber: string) => {
+    if (!confirm(`Are you sure you want to revoke certificate ${certNumber}? This action cannot be easily undone.`)) return;
+    setCertificates((prev) =>
+      prev.map((c) => (c.id === certId ? { ...c, status: 'revoked' as CertificateStatus } : c))
+    );
+    showToast(`Certificate ${certNumber} has been revoked`);
+  };
+
+  const handleViewTemplate = (tmpl: CertificateTemplate) => {
+    alert(
+      `Template Details\n\nName: ${tmpl.name}\nDescription: ${tmpl.description}\nCourse Type: ${tmpl.course_type}\nCreated: ${tmpl.created_at}\nUsage Count: ${tmpl.usage_count}\nActive: ${tmpl.is_active ? 'Yes' : 'No'}`
+    );
+  };
+
+  const handleMoreTemplate = () => {
+    alert('More options coming soon');
+  };
+
+  /* ------------------------------------------------------------------- */
+
+  const totalIssued = certificates.length;
+  const activeCerts = certificates.filter((c) => c.status === 'active').length;
+  const revokedCerts = certificates.filter((c) => c.status === 'revoked').length;
   const templateCount = MOCK_TEMPLATES.filter((t) => t.is_active).length;
 
   const getFilteredCerts = () => {
-    let certs = MOCK_CERTIFICATES;
+    let certs = certificates;
     if (activeTab === 'revoked') {
       certs = certs.filter((c) => c.status === 'revoked');
     }
@@ -165,11 +232,17 @@ const CertificatesAdminPage: React.FC = () => {
           ]}
           actions={
             <div className="flex items-center gap-2">
-              <button className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors">
+              <button
+                onClick={handleExport}
+                className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors"
+              >
                 <Download className="w-4 h-4" />
                 Export
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 text-sm bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#C00] transition-colors">
+              <button
+                onClick={handleIssueCertificate}
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#C00] transition-colors"
+              >
                 <Plus className="w-4 h-4" />
                 Issue Certificate
               </button>
@@ -308,12 +381,14 @@ const CertificatesAdminPage: React.FC = () => {
                           <div className="flex items-center justify-end gap-1">
                             <button
                               title="View"
+                              onClick={() => handleViewCertificate(cert)}
                               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                             >
                               <Eye className="w-4 h-4" />
                             </button>
                             <button
                               title="Download"
+                              onClick={() => handleDownloadCertificate(cert)}
                               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                             >
                               <Download className="w-4 h-4" />
@@ -321,6 +396,7 @@ const CertificatesAdminPage: React.FC = () => {
                             {cert.status === 'active' && (
                               <button
                                 title="Revoke"
+                                onClick={() => handleRevokeCertificate(cert.id, cert.certificate_number)}
                                 className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 dark:text-white/50 hover:text-red-400 transition-colors"
                               >
                                 <Ban className="w-4 h-4" />
@@ -406,12 +482,14 @@ const CertificatesAdminPage: React.FC = () => {
                           <div className="flex items-center justify-end gap-1">
                             <button
                               title="View"
+                              onClick={() => handleViewTemplate(tmpl)}
                               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                             >
                               <Eye className="w-4 h-4" />
                             </button>
                             <button
                               title="More"
+                              onClick={handleMoreTemplate}
                               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                             >
                               <MoreHorizontal className="w-4 h-4" />
@@ -435,6 +513,17 @@ const CertificatesAdminPage: React.FC = () => {
           </motion.div>
         )}
       </motion.div>
+
+      {/* Toast notification */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
+            toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+          }`}>
+            <p className="text-sm font-medium">{toast.message}</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };

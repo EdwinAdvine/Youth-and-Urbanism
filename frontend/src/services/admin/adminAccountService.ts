@@ -7,37 +7,9 @@
  * Uses the existing users table + profile_data JSONB column.
  */
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const BASE = `${API_URL}/api/v1/admin/account`;
+import apiClient from '../api';
 
-function getAuthHeaders(): Record<string, string> {
-  let jwt = '';
-  const stored = localStorage.getItem('auth-store');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      jwt = parsed?.state?.token || parsed?.token || '';
-    } catch {
-      jwt = stored;
-    }
-  }
-  return {
-    Authorization: `Bearer ${jwt}`,
-    'Content-Type': 'application/json',
-  };
-}
-
-async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(url, {
-    headers: getAuthHeaders(),
-    ...options,
-  });
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status} ${response.statusText}`);
-  }
-  const json = await response.json();
-  return json.data ?? json;
-}
+const BASE = `/api/v1/admin/account`;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -102,52 +74,54 @@ export interface UpdateProfileData {
 // ---------------------------------------------------------------------------
 
 const adminAccountService = {
-  getProfile: (): Promise<AdminProfile> =>
-    fetchJson<AdminProfile>(`${BASE}/profile`),
+  getProfile: async (): Promise<AdminProfile> => {
+    const r = await apiClient.get(`${BASE}/profile`);
+    return r.data.data ?? r.data;
+  },
 
-  updateProfile: (data: UpdateProfileData): Promise<AdminProfile> =>
-    fetchJson<AdminProfile>(`${BASE}/profile`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    }),
+  updateProfile: async (data: UpdateProfileData): Promise<AdminProfile> => {
+    const r = await apiClient.put(`${BASE}/profile`, data);
+    return r.data.data ?? r.data;
+  },
 
-  getPreferences: (): Promise<AdminPreferences> =>
-    fetchJson<AdminPreferences>(`${BASE}/preferences`),
+  getPreferences: async (): Promise<AdminPreferences> => {
+    const r = await apiClient.get(`${BASE}/preferences`);
+    return r.data.data ?? r.data;
+  },
 
-  updatePreferences: (data: Partial<AdminPreferences>): Promise<AdminPreferences> =>
-    fetchJson<AdminPreferences>(`${BASE}/preferences`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    }),
+  updatePreferences: async (data: Partial<AdminPreferences>): Promise<AdminPreferences> => {
+    const r = await apiClient.put(`${BASE}/preferences`, data);
+    return r.data.data ?? r.data;
+  },
 
-  getNotifications: (
+  getNotifications: async (
     page = 1,
     pageSize = 20,
     unreadOnly = false,
   ): Promise<NotificationListResponse> => {
-    let url = `${BASE}/notifications?page=${page}&page_size=${pageSize}`;
-    if (unreadOnly) url += '&unread_only=true';
-    return fetchJson<NotificationListResponse>(url);
+    const params: Record<string, string | number | boolean> = { page, page_size: pageSize };
+    if (unreadOnly) params.unread_only = true;
+    const r = await apiClient.get(`${BASE}/notifications`, { params });
+    return r.data.data ?? r.data;
   },
 
-  markNotificationRead: (notificationId: string): Promise<{ success: boolean }> =>
-    fetchJson(`${BASE}/notifications/${notificationId}/read`, {
-      method: 'PUT',
-    }),
+  markNotificationRead: async (notificationId: string): Promise<{ success: boolean }> => {
+    const r = await apiClient.put(`${BASE}/notifications/${notificationId}/read`);
+    return r.data.data ?? r.data;
+  },
 
-  markAllNotificationsRead: (): Promise<{ success: boolean }> =>
-    fetchJson(`${BASE}/notifications/read-all`, {
-      method: 'PUT',
-    }),
+  markAllNotificationsRead: async (): Promise<{ success: boolean }> => {
+    const r = await apiClient.put(`${BASE}/notifications/read-all`);
+    return r.data.data ?? r.data;
+  },
 
-  changePassword: (data: {
+  changePassword: async (data: {
     current_password: string;
     new_password: string;
-  }): Promise<{ success: boolean }> =>
-    fetchJson(`${BASE}/password`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    }),
+  }): Promise<{ success: boolean }> => {
+    const r = await apiClient.put(`${BASE}/password`, data);
+    return r.data.data ?? r.data;
+  },
 };
 
 export default adminAccountService;

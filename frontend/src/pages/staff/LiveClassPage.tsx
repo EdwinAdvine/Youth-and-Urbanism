@@ -13,7 +13,6 @@ import {
   LayoutGrid,
   Clock,
   Radio,
-  ChevronRight,
   Send,
   X,
   Maximize2,

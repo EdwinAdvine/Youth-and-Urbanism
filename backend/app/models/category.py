@@ -23,7 +23,14 @@ from app.database import Base
 
 
 class Category(Base):
-    """Course categories with optional nesting for mega-menu"""
+    """
+    A course category aligned with Kenya's CBC learning areas.
+
+    Categories support a single level of nesting via parent_id for building
+    a mega-menu navigation. Each category has a URL-safe slug, optional icon
+    and image, a display_order for sorting, and a denormalized course_count.
+    Categories can be deactivated (is_active=False) without deletion.
+    """
 
     __tablename__ = "categories"
 

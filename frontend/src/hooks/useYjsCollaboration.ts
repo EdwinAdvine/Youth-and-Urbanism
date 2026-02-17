@@ -20,7 +20,8 @@ interface Collaborator {
 
 interface UseYjsCollaborationOptions {
   docId: string;
-  token: string;
+  /** @deprecated Token is no longer needed — httpOnly cookie used for auth */
+  token?: string;
   userName?: string;
   userColor?: string;
   autoConnect?: boolean;
@@ -46,7 +47,6 @@ interface UseYjsCollaborationReturn {
  */
 export function useYjsCollaboration({
   docId,
-  token,
   userName = 'Anonymous',
   userColor = '#8B5CF6',
   autoConnect = false,
@@ -54,6 +54,7 @@ export function useYjsCollaboration({
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reconnectAttemptsRef = useRef(0);
+  const shouldReconnectRef = useRef(true);
 
   const [isConnected, setIsConnected] = useState(false);
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
@@ -61,8 +62,10 @@ export function useYjsCollaboration({
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
+    shouldReconnectRef.current = true;
 
-    const ws = new WebSocket(`${WS_URL}/ws/yjs/${docId}/${token}`);
+    // httpOnly cookie sent automatically during WS upgrade handshake
+    const ws = new WebSocket(`${WS_URL}/ws/yjs/${docId}`);
     ws.binaryType = 'arraybuffer';
     wsRef.current = ws;
 
@@ -123,11 +126,12 @@ export function useYjsCollaboration({
 
     ws.onclose = () => {
       setIsConnected(false);
-      // Auto-reconnect with exponential backoff
+      // Only auto-reconnect if disconnect() was NOT called intentionally
+      if (!shouldReconnectRef.current) return;
       const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000);
       reconnectAttemptsRef.current++;
       reconnectTimeoutRef.current = setTimeout(() => {
-        if (wsRef.current?.readyState !== WebSocket.OPEN) {
+        if (shouldReconnectRef.current && wsRef.current?.readyState !== WebSocket.OPEN) {
           connect();
         }
       }, delay);
@@ -136,13 +140,13 @@ export function useYjsCollaboration({
     ws.onerror = () => {
       ws.close();
     };
-  }, [docId, token, userName, userColor]);
+  }, [docId, userName, userColor]);
 
   const disconnect = useCallback(() => {
+    shouldReconnectRef.current = false; // Prevent auto-reconnect on intentional disconnect
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
     }
-    reconnectAttemptsRef.current = 999; // Prevent auto-reconnect
     wsRef.current?.close();
     wsRef.current = null;
     setIsConnected(false);
@@ -185,13 +189,13 @@ export function useYjsCollaboration({
   );
 
   useEffect(() => {
-    if (autoConnect && docId && token) {
+    if (autoConnect && docId) {
       connect();
     }
     return () => {
       disconnect();
     };
-  }, [autoConnect, docId, token, connect, disconnect]);
+  }, [autoConnect, docId, connect, disconnect]);
 
   return {
     isConnected,

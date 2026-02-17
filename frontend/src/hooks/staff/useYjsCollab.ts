@@ -51,17 +51,6 @@ function getRandomColor(): string {
   return USER_COLORS[Math.floor(Math.random() * USER_COLORS.length)];
 }
 
-function getToken(): string | null {
-  try {
-    const stored = localStorage.getItem('auth-store');
-    if (!stored) return null;
-    const parsed = JSON.parse(stored);
-    return parsed?.state?.token || parsed?.token || null;
-  } catch {
-    return null;
-  }
-}
-
 export function useYjsCollab(options: UseYjsCollabOptions): UseYjsCollabResult {
   const { docId, userName, userColor } = options;
 
@@ -111,11 +100,11 @@ export function useYjsCollab(options: UseYjsCollabOptions): UseYjsCollabResult {
         return;
       }
 
-      const token = getToken();
+      // httpOnly cookie sent automatically during WS upgrade handshake
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
       const wsProtocol = apiUrl.startsWith('https') ? 'wss' : 'ws';
       const host = apiUrl.replace(/^https?:\/\//, '');
-      const wsUrl = `${wsProtocol}://${host}/ws/yjs/${docId}${token ? `/${token}` : ''}`;
+      const wsUrl = `${wsProtocol}://${host}/ws/yjs/${docId}`;
 
       const doc = new Y.Doc();
       const prov = new WebsocketProvider(wsUrl, docId, doc, {

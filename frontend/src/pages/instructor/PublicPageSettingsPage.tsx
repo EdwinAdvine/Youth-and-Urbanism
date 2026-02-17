@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Globe, Save, Eye, Camera, Link, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
-import axios from 'axios';
+import apiClient from '../../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface ProfileSettings {
   public_profile_enabled: boolean;
@@ -53,10 +52,7 @@ export const PublicPageSettingsPage: React.FC = () => {
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_URL}/api/v1/instructor/account/profile`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get('/api/v1/instructor/account/profile');
 
       if (response.data) {
         setSettings({
@@ -92,10 +88,9 @@ export const PublicPageSettingsPage: React.FC = () => {
     try {
       setSaving(true);
       setFeedback(null);
-      const token = localStorage.getItem('access_token');
 
-      await axios.put(
-        `${API_URL}/api/v1/instructor/account/profile`,
+      await apiClient.put(
+        '/api/v1/instructor/account/profile',
         {
           public_profile_enabled: settings.public_profile_enabled,
           public_slug: settings.public_slug,
@@ -104,9 +99,6 @@ export const PublicPageSettingsPage: React.FC = () => {
           seo_description: settings.seo_description,
           seo_keywords: settings.seo_keywords,
           social_links: settings.social_links,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
         }
       );
 

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Award, Star, Zap, Lock, Target } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { format } from 'date-fns';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Badge {
   id: string;
@@ -44,15 +43,10 @@ export const BadgesPage: React.FC = () => {
   const fetchBadgesAndPoints = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
 
       const [badgesResponse, pointsResponse] = await Promise.all([
-        axios.get(`${API_URL}/api/v1/instructor/gamification/badges`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        axios.get(`${API_URL}/api/v1/instructor/gamification/points`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
+        apiClient.get('/api/v1/instructor/gamification/badges'),
+        apiClient.get('/api/v1/instructor/gamification/points'),
       ]);
 
       // Mock data for development

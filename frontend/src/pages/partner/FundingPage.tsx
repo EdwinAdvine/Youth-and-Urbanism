@@ -14,7 +14,7 @@ import {
   AlertCircle,
   Loader2,
 } from 'lucide-react';
-import { getSubscriptions, getBillingHistory } from '../../services/partner/partnerFinanceService';
+import { getSubscriptions, getBillingHistory, processPayment, downloadReceipt } from '../../services/partner/partnerFinanceService';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -127,6 +127,10 @@ const FundingPage: React.FC = () => {
   const [paymentHistory, setPaymentHistory] = useState<Payment[]>(fallbackPaymentHistory);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [processingPayment, setProcessingPayment] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
+  const [selectedProgram, setSelectedProgram] = useState('all');
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -259,6 +263,55 @@ const FundingPage: React.FC = () => {
     const matchesStatus = statusFilter === 'all' || payment.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const handleProcessPayment = async () => {
+    try {
+      setProcessingPayment(true);
+      const subId = selectedProgram === 'all' ? subscriptions[0]?.id : selectedProgram;
+      const gatewayMap: Record<string, 'mpesa' | 'stripe' | 'paypal'> = {
+        bank_transfer: 'paypal',
+        mpesa: 'mpesa',
+        stripe: 'stripe',
+      };
+      await processPayment({
+        subscription_id: subId,
+        payment_gateway: gatewayMap[paymentMethod] || 'mpesa',
+      });
+      alert('Payment processed successfully!');
+      setShowPaymentForm(false);
+      // Refresh billing history
+      try {
+        const billingResponse = await getBillingHistory();
+        if (billingResponse.items.length > 0) {
+          const gatewayLabelMap: Record<string, string> = { mpesa: 'M-Pesa', bank_transfer: 'Bank Transfer', paypal: 'PayPal', stripe: 'Credit Card', invoice: 'Invoice' };
+          const paymentStatusMap: Record<string, 'completed' | 'pending' | 'failed'> = { completed: 'completed', pending: 'pending', processing: 'pending', failed: 'failed', refunded: 'failed', cancelled: 'failed' };
+          setPaymentHistory(billingResponse.items.map((p) => ({
+            id: p.id, date: new Date(p.paid_at || p.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            program: p.subscription_id, amount: p.amount, status: paymentStatusMap[p.status] || 'pending',
+            method: gatewayLabelMap[p.payment_gateway] || p.payment_gateway, invoiceUrl: p.receipt_url || '#',
+          })));
+        }
+      } catch { /* keep existing data */ }
+    } catch {
+      alert('Payment processing failed. Please try again.');
+    } finally {
+      setProcessingPayment(false);
+    }
+  };
+
+  const handleDownloadReceipt = async (paymentId: string) => {
+    try {
+      setDownloadingId(paymentId);
+      const result = await downloadReceipt(paymentId);
+      if (result.url) {
+        window.open(result.url, '_blank');
+      }
+    } catch {
+      alert('Receipt download is not available for this payment.');
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   const totalMonthly = subscriptions
     .filter((s) => s.status === 'active')
@@ -413,18 +466,26 @@ const FundingPage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                   <label className="text-xs text-gray-500 dark:text-white/50 block mb-1.5">Payment Method</label>
-                  <select className="w-full bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#E40000]/50">
-                    <option>Bank Transfer</option>
-                    <option>M-Pesa</option>
-                    <option>Credit Card</option>
+                  <select
+                    value={paymentMethod}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    className="w-full bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#E40000]/50"
+                  >
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="mpesa">M-Pesa</option>
+                    <option value="stripe">Credit Card</option>
                   </select>
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 dark:text-white/50 block mb-1.5">Select Program</label>
-                  <select className="w-full bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#E40000]/50">
-                    <option>All Programs (KSh 845,000)</option>
+                  <select
+                    value={selectedProgram}
+                    onChange={(e) => setSelectedProgram(e.target.value)}
+                    className="w-full bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#E40000]/50"
+                  >
+                    <option value="all">All Programs (KSh {(totalMonthly / 1000).toFixed(0)}K)</option>
                     {subscriptions.map((sub) => (
-                      <option key={sub.id}>
+                      <option key={sub.id} value={sub.id}>
                         {sub.program} (KSh {(sub.amount / 1000).toFixed(0)}K)
                       </option>
                     ))}
@@ -432,8 +493,13 @@ const FundingPage: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <button className="px-6 py-2.5 bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#FF4444] transition-colors">
-                  Process Payment
+                <button
+                  onClick={handleProcessPayment}
+                  disabled={processingPayment}
+                  className="px-6 py-2.5 bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#FF4444] transition-colors disabled:opacity-50 flex items-center gap-2"
+                >
+                  {processingPayment && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {processingPayment ? 'Processing...' : 'Process Payment'}
                 </button>
                 <button
                   onClick={() => setShowPaymentForm(false)}
@@ -501,9 +567,17 @@ const FundingPage: React.FC = () => {
                       <td className="py-3 px-4 text-sm text-gray-500 dark:text-white/60">{payment.method}</td>
                       <td className="py-3 px-4">{getStatusBadge(payment.status)}</td>
                       <td className="py-3 px-4">
-                        <button className="flex items-center gap-2 text-[#E40000] hover:text-[#FF4444] text-sm">
-                          <Download className="w-4 h-4" />
-                          Download
+                        <button
+                          onClick={() => handleDownloadReceipt(payment.id)}
+                          disabled={downloadingId === payment.id}
+                          className="flex items-center gap-2 text-[#E40000] hover:text-[#FF4444] text-sm disabled:opacity-50"
+                        >
+                          {downloadingId === payment.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Download className="w-4 h-4" />
+                          )}
+                          {downloadingId === payment.id ? 'Downloading...' : 'Download'}
                         </button>
                       </td>
                     </tr>

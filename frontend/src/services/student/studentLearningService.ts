@@ -1,19 +1,15 @@
 /**
  * Student Learning Service - Courses, Enrollments, Live Sessions
  */
-import axios from 'axios';
+import apiClient from '../api';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const API_PREFIX = '/api/v1/student/learning';
 
 /**
  * Get enrolled courses with progress
  */
 export const getEnrolledCourses = async () => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/courses/enrolled`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/courses/enrolled`);
   return response.data;
 };
 
@@ -21,9 +17,8 @@ export const getEnrolledCourses = async () => {
  * Get AI-recommended courses
  */
 export const getAIRecommendedCourses = async (limit: number = 10) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/courses/recommended?limit=${limit}`, {
-    headers: { Authorization: `Bearer ${token}` }
+  const response = await apiClient.get(`${API_PREFIX}/courses/recommended`, {
+    params: { limit },
   });
   return response.data;
 };
@@ -39,15 +34,7 @@ export const browseCourses = async (params: {
   limit?: number;
   offset?: number;
 }) => {
-  const token = localStorage.getItem('access_token');
-  const queryParams = new URLSearchParams();
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined) queryParams.append(key, String(value));
-  });
-
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/browse?${queryParams}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/browse`, { params });
   return response.data;
 };
 
@@ -55,10 +42,7 @@ export const browseCourses = async (params: {
  * Get course preview
  */
 export const getCoursePreview = async (courseId: string) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/course/${courseId}/preview`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/course/${courseId}/preview`);
   return response.data;
 };
 
@@ -66,10 +50,7 @@ export const getCoursePreview = async (courseId: string) => {
  * Get wishlist
  */
 export const getWishlist = async () => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/wishlist`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/wishlist`);
   return response.data;
 };
 
@@ -77,11 +58,7 @@ export const getWishlist = async () => {
  * Add to wishlist
  */
 export const addToWishlist = async (courseId: string) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.post(`${API_BASE}${API_PREFIX}/wishlist`,
-    { course_id: courseId },
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const response = await apiClient.post(`${API_PREFIX}/wishlist`, { course_id: courseId });
   return response.data;
 };
 
@@ -89,10 +66,7 @@ export const addToWishlist = async (courseId: string) => {
  * Remove from wishlist
  */
 export const removeFromWishlist = async (courseId: string) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.delete(`${API_BASE}${API_PREFIX}/wishlist/${courseId}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.delete(`${API_PREFIX}/wishlist/${courseId}`);
   return response.data;
 };
 
@@ -100,10 +74,7 @@ export const removeFromWishlist = async (courseId: string) => {
  * Get upcoming live sessions
  */
 export const getUpcomingLiveSessions = async () => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/live-sessions/upcoming`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/live-sessions/upcoming`);
   return response.data;
 };
 
@@ -111,9 +82,6 @@ export const getUpcomingLiveSessions = async () => {
  * Get session prep
  */
 export const getSessionPrep = async (sessionId: string) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/session/${sessionId}/prep`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/session/${sessionId}/prep`);
   return response.data;
 };

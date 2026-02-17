@@ -105,7 +105,7 @@ const mockIndexedDB = {
 
     setTimeout(() => {
       if (request.onupgradeneeded) {
-        request.onupgradeneeded(new Event('upgradeneeded'));
+        request.onupgradeneeded(new Event('upgradeneeded') as unknown as IDBVersionChangeEvent);
       }
       if (request.onsuccess) {
         request.onsuccess(new Event('success'));

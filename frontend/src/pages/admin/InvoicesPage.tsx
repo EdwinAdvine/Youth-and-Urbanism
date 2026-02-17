@@ -95,15 +95,74 @@ const InvoicesPage: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [page, setPage] = useState(1);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const pageSize = 5;
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(timer);
   }, []);
 
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [search, statusFilter]);
+
   const handleRefresh = () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 800);
+    setTimeout(() => {
+      setRefreshing(false);
+      showToast('Data refreshed');
+    }, 800);
+  };
+
+  /* ---- CSV Export ---- */
+  const handleExport = () => {
+    const headers = ['Invoice #', 'Recipient', 'Email', 'Amount', 'Status', 'Issued', 'Due Date', 'Items'];
+    const rows = filteredInvoices.map((inv) => [
+      inv.invoice_number, `"${inv.recipient}"`, inv.recipient_email, inv.amount,
+      inv.status, inv.issued_date, inv.due_date, `"${inv.items}"`,
+    ]);
+    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `invoices-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Export downloaded');
+  };
+
+  /* ---- Row action handlers ---- */
+  const handleViewInvoice = (inv: Invoice) => {
+    alert(
+      `Invoice Details\n\n` +
+      `Invoice #: ${inv.invoice_number}\n` +
+      `Recipient: ${inv.recipient}\n` +
+      `Email: ${inv.recipient_email}\n` +
+      `Amount: KES ${inv.amount.toLocaleString()}\n` +
+      `Status: ${inv.status}\n` +
+      `Issued: ${inv.issued_date}\n` +
+      `Due: ${inv.due_date}\n` +
+      `Items: ${inv.items}`
+    );
+  };
+
+  const handleDownloadPDF = (inv: Invoice) => {
+    showToast(`PDF download started for ${inv.invoice_number}`);
+  };
+
+  const handleSendReminder = (inv: Invoice) => {
+    if (confirm(`Send payment reminder to ${inv.recipient} (${inv.recipient_email})?`)) {
+      showToast(`Reminder sent to ${inv.recipient_email}`);
+    }
   };
 
   const filteredInvoices = MOCK_INVOICES.filter(
@@ -113,6 +172,11 @@ const InvoicesPage: React.FC = () => {
         inv.invoice_number.toLowerCase().includes(search.toLowerCase()) ||
         inv.recipient.toLowerCase().includes(search.toLowerCase()))
   );
+
+  const totalPages = Math.max(1, Math.ceil(filteredInvoices.length / pageSize));
+  const paginatedStart = (page - 1) * pageSize;
+  const paginatedEnd = paginatedStart + pageSize;
+  const pagedInvoices = filteredInvoices.slice(paginatedStart, paginatedEnd);
 
   const totalInvoices = MOCK_INVOICES.length;
   const paidCount = MOCK_INVOICES.filter((i) => i.status === 'paid').length;
@@ -161,7 +225,10 @@ const InvoicesPage: React.FC = () => {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors">
+            <button
+              onClick={handleExport}
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors"
+            >
               <Download className="w-4 h-4" />
               Export
             </button>
@@ -258,7 +325,7 @@ const InvoicesPage: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                filteredInvoices.map((inv) => (
+                pagedInvoices.map((inv) => (
                   <tr key={inv.id} className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
                     <td className="px-4 py-3">
                       <span className="text-gray-900 dark:text-white font-mono text-xs">{inv.invoice_number}</span>
@@ -281,12 +348,14 @@ const InvoicesPage: React.FC = () => {
                       <div className="flex items-center justify-end gap-1">
                         <button
                           title="View"
+                          onClick={() => handleViewInvoice(inv)}
                           className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
                           title="Download PDF"
+                          onClick={() => handleDownloadPDF(inv)}
                           className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                         >
                           <Download className="w-4 h-4" />
@@ -294,6 +363,7 @@ const InvoicesPage: React.FC = () => {
                         {(inv.status === 'pending' || inv.status === 'overdue') && (
                           <button
                             title="Send Reminder"
+                            onClick={() => handleSendReminder(inv)}
                             className="p-1.5 rounded-lg hover:bg-blue-500/10 text-gray-500 dark:text-white/50 hover:text-blue-400 transition-colors"
                           >
                             <Send className="w-4 h-4" />
@@ -311,19 +381,50 @@ const InvoicesPage: React.FC = () => {
         {/* Pagination */}
         <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-[#22272B]">
           <p className="text-xs text-gray-400 dark:text-white/40">
-            Showing 1-{filteredInvoices.length} of {filteredInvoices.length} invoices
+            Showing {filteredInvoices.length === 0 ? 0 : paginatedStart + 1}-{Math.min(paginatedEnd, filteredInvoices.length)} of {filteredInvoices.length} invoices
           </p>
           <div className="flex items-center gap-1">
-            <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors" disabled>
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors"
+            >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <button className="w-8 h-8 rounded-lg text-xs font-medium bg-[#E40000] text-gray-900 dark:text-white">1</button>
-            <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors" disabled>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
+              <button
+                key={pg}
+                onClick={() => setPage(pg)}
+                className={`w-8 h-8 rounded-lg text-xs font-medium transition-colors ${
+                  pg === page
+                    ? 'bg-[#E40000] text-gray-900 dark:text-white'
+                    : 'text-gray-500 dark:text-white/50 hover:bg-gray-100 dark:hover:bg-[#22272B] hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                {pg}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors"
+            >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>
       </motion.div>
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
+            toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+          }`}>
+            <p className="text-sm font-medium">{toast.message}</p>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };

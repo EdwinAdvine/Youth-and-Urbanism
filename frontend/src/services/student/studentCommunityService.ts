@@ -1,20 +1,15 @@
 /**
  * Student Community Service - Friends, Study Groups, Shoutouts
  */
-import axios from 'axios';
+import apiClient from '../api';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const API_PREFIX = '/api/v1/student/community';
 
 /**
  * Send friend request
  */
 export const sendFriendRequest = async (friendId: string) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.post(`${API_BASE}${API_PREFIX}/friends/request`,
-    { friend_id: friendId },
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const response = await apiClient.post(`${API_PREFIX}/friends/request`, { friend_id: friendId });
   return response.data;
 };
 
@@ -22,11 +17,7 @@ export const sendFriendRequest = async (friendId: string) => {
  * Accept friend request
  */
 export const acceptFriendRequest = async (friendshipId: string) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.post(`${API_BASE}${API_PREFIX}/friends/accept/${friendshipId}`,
-    {},
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const response = await apiClient.post(`${API_PREFIX}/friends/accept/${friendshipId}`, {});
   return response.data;
 };
 
@@ -34,10 +25,7 @@ export const acceptFriendRequest = async (friendshipId: string) => {
  * Get friends
  */
 export const getFriends = async () => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/friends`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/friends`);
   return response.data;
 };
 
@@ -45,10 +33,7 @@ export const getFriends = async () => {
  * Get friend requests
  */
 export const getFriendRequests = async () => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/friends/requests`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/friends/requests`);
   return response.data;
 };
 
@@ -61,11 +46,7 @@ export const createStudyGroup = async (data: {
   subject?: string;
   max_members?: number;
 }) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.post(`${API_BASE}${API_PREFIX}/study-groups`,
-    data,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const response = await apiClient.post(`${API_PREFIX}/study-groups`, data);
   return response.data;
 };
 
@@ -73,11 +54,7 @@ export const createStudyGroup = async (data: {
  * Join study group
  */
 export const joinStudyGroup = async (groupId: string) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.post(`${API_BASE}${API_PREFIX}/study-groups/${groupId}/join`,
-    {},
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const response = await apiClient.post(`${API_PREFIX}/study-groups/${groupId}/join`, {});
   return response.data;
 };
 
@@ -85,10 +62,7 @@ export const joinStudyGroup = async (groupId: string) => {
  * Get study groups
  */
 export const getStudyGroups = async () => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/study-groups`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/study-groups`);
   return response.data;
 };
 
@@ -101,11 +75,7 @@ export const sendShoutout = async (data: {
   category: 'encouragement' | 'help' | 'achievement' | 'thanks' | 'other';
   is_anonymous?: boolean;
 }) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.post(`${API_BASE}${API_PREFIX}/shoutouts`,
-    data,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const response = await apiClient.post(`${API_PREFIX}/shoutouts`, data);
   return response.data;
 };
 
@@ -113,10 +83,7 @@ export const sendShoutout = async (data: {
  * Get shoutouts received
  */
 export const getShoutoutsReceived = async (limit: number = 20) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/shoutouts/received?limit=${limit}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/shoutouts/received`, { params: { limit } });
   return response.data;
 };
 
@@ -124,10 +91,31 @@ export const getShoutoutsReceived = async (limit: number = 20) => {
  * Get class wall
  */
 export const getClassWall = async (limit: number = 50) => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/class-wall?limit=${limit}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/class-wall`, { params: { limit } });
+  return response.data;
+};
+
+/**
+ * Reject friend request
+ */
+export const rejectFriendRequest = async (friendshipId: string) => {
+  const response = await apiClient.post(`${API_PREFIX}/friends/reject/${friendshipId}`, {});
+  return response.data;
+};
+
+/**
+ * Get recent discussions
+ */
+export const getRecentDiscussions = async (limit: number = 20) => {
+  const response = await apiClient.get(`${API_PREFIX}/discussions`, { params: { limit } });
+  return response.data;
+};
+
+/**
+ * Get classmates list (for shoutouts)
+ */
+export const getClassmates = async () => {
+  const response = await apiClient.get(`${API_PREFIX}/classmates`);
   return response.data;
 };
 
@@ -135,9 +123,6 @@ export const getClassWall = async (limit: number = 50) => {
  * Get teacher Q&A threads
  */
 export const getTeacherQAThreads = async () => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/teacher-qa`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/teacher-qa`);
   return response.data;
 };

@@ -1,5 +1,16 @@
-export type DashboardType = 'student' | 'parent' | 'teacher' | 'admin' | 'partner' | 'staff';
-export type UserRole = 'student' | 'parent' | 'teacher' | 'admin' | 'partner' | 'staff';
+/**
+ * Dashboard Detection Utility
+ *
+ * Provides type-safe dashboard configuration, role detection, and quick actions
+ * for all six user roles in the Urban Home School platform.
+ *
+ * Role standardization: 'instructor' is the canonical role name (not 'teacher').
+ * Quick actions now include real frontend routes and AI context prompts that
+ * can be passed to the CoPilot for contextual assistance.
+ */
+
+export type DashboardType = 'student' | 'parent' | 'instructor' | 'admin' | 'partner' | 'staff';
+export type UserRole = 'student' | 'parent' | 'instructor' | 'admin' | 'partner' | 'staff';
 
 export interface DashboardConfig {
   type: DashboardType;
@@ -13,19 +24,24 @@ export interface QuickAction {
   id: string;
   title: string;
   description: string;
-  icon: React.ReactNode;
+  icon: string;
   color: string;
-  onClick: () => void;
+  /** Frontend route to navigate to */
+  route: string;
+  /** AI prompt for contextual assistance when this action is clicked */
+  aiPrompt: string;
 }
 
 /**
- * Detects the dashboard type based on the current pathname
+ * Detects the dashboard type based on the current pathname.
+ * Maps both /dashboard/teacher and /dashboard/instructor to 'instructor'
+ * for backward compatibility.
  */
 export function detectDashboardType(pathname: string): DashboardType {
   if (pathname.includes('/dashboard/parent')) {
     return 'parent';
   } else if (pathname.includes('/dashboard/teacher') || pathname.includes('/dashboard/instructor')) {
-    return 'teacher';
+    return 'instructor';
   } else if (pathname.includes('/dashboard/admin')) {
     return 'admin';
   } else if (pathname.includes('/dashboard/partner')) {
@@ -39,7 +55,8 @@ export function detectDashboardType(pathname: string): DashboardType {
 }
 
 /**
- * Gets the configuration for a specific dashboard type
+ * Gets the configuration for a specific dashboard type with
+ * real routes and AI prompts for quick actions.
  */
 export function getDashboardConfig(type: DashboardType): DashboardConfig {
   switch (type) {
@@ -52,35 +69,39 @@ export function getDashboardConfig(type: DashboardType): DashboardConfig {
         quickActions: [
           {
             id: 'assignments',
-            title: 'My Assignments',
-            description: 'View pending assignments and deadlines',
+            title: 'Due Soon',
+            description: 'View upcoming assignment deadlines',
             icon: '📚',
             color: 'from-blue-500 to-cyan-500',
-            onClick: () => console.log('View assignments')
+            route: '/dashboard/student/assignments/due-soon',
+            aiPrompt: 'Summarize my upcoming assignment deadlines and help me prioritize my work.'
           },
           {
             id: 'progress',
-            title: 'Progress Analytics',
-            description: 'Track learning progress and insights',
+            title: 'Grade Trends',
+            description: 'Track learning progress and trends',
             icon: '📊',
             color: 'from-blue-500 to-cyan-500',
-            onClick: () => console.log('View progress')
+            route: '/dashboard/student/reports/trends',
+            aiPrompt: 'Analyze my grade trends and identify areas where I need to improve.'
           },
           {
-            id: 'goals',
-            title: 'Study Goals',
-            description: 'Set and track learning goals',
+            id: 'quiz',
+            title: 'Practice Quiz',
+            description: 'Test your knowledge',
             icon: '🎯',
             color: 'from-blue-500 to-cyan-500',
-            onClick: () => console.log('Manage goals')
+            route: '/dashboard/student/quizzes/practice',
+            aiPrompt: 'Create a personalized practice quiz based on my recent lessons and weak areas.'
           },
           {
             id: 'forum',
             title: 'Class Forum',
-            description: 'Recent forum activity and discussions',
+            description: 'Join discussions with classmates',
             icon: '🤝',
             color: 'from-blue-500 to-cyan-500',
-            onClick: () => console.log('Open forum')
+            route: '/dashboard/student/forum',
+            aiPrompt: 'Show me recent discussions in my classes and suggest topics I might contribute to.'
           }
         ]
       };
@@ -93,78 +114,86 @@ export function getDashboardConfig(type: DashboardType): DashboardConfig {
         subtitle: "Track progress & get insights",
         quickActions: [
           {
-            id: 'child-progress',
-            title: 'Child Progress',
-            description: 'Track your child\'s learning progress',
+            id: 'children',
+            title: 'My Children',
+            description: 'Track all your children\'s progress',
             icon: '👨‍👩‍👧‍👦',
             color: 'from-green-500 to-emerald-500',
-            onClick: () => console.log('View child progress')
+            route: '/dashboard/parent/children',
+            aiPrompt: 'Give me a summary of how each of my children is performing academically this week.'
           },
           {
-            id: 'events',
-            title: 'Upcoming Events',
-            description: 'School events and important deadlines',
-            icon: '📅',
+            id: 'highlights',
+            title: 'AI Highlights',
+            description: 'AI-generated insights and alerts',
+            icon: '✨',
             color: 'from-green-500 to-emerald-500',
-            onClick: () => console.log('View events')
+            route: '/dashboard/parent/highlights',
+            aiPrompt: 'Show me the most important updates and alerts about my children\'s learning.'
           },
           {
-            id: 'fees',
-            title: 'Fee Management',
-            description: 'Payment tracking and billing',
+            id: 'subscription',
+            title: 'Subscription',
+            description: 'Payment and subscription management',
             icon: '💰',
             color: 'from-green-500 to-emerald-500',
-            onClick: () => console.log('Manage fees')
+            route: '/dashboard/parent/subscription',
+            aiPrompt: 'Help me understand my current subscription plan and payment options.'
           },
           {
-            id: 'communication',
-            title: 'Teacher Communication',
-            description: 'Contact teachers and get updates',
+            id: 'messages',
+            title: 'Messages',
+            description: 'Communicate with instructors and staff',
             icon: '📞',
             color: 'from-green-500 to-emerald-500',
-            onClick: () => console.log('Contact teachers')
+            route: '/dashboard/parent/messages',
+            aiPrompt: 'Draft a message to my child\'s instructor about their recent performance.'
           }
         ]
       };
 
-    case 'teacher':
+    case 'instructor':
       return {
-        type: 'teacher',
-        role: 'teacher',
+        type: 'instructor',
+        role: 'instructor',
         title: "Teaching Assistant",
         subtitle: "Class insights & tools",
         quickActions: [
           {
-            id: 'class-management',
-            title: 'Class Management',
-            description: 'Student roster and class management',
+            id: 'courses',
+            title: 'My Courses',
+            description: 'View and manage your courses',
             icon: '👥',
             color: 'from-purple-500 to-pink-500',
-            onClick: () => console.log('Manage class')
+            route: '/dashboard/instructor/courses',
+            aiPrompt: 'Give me an overview of my active courses and student enrollment numbers.'
           },
           {
-            id: 'assignments',
-            title: 'Assignment Review',
-            description: 'Grade assignments and provide feedback',
+            id: 'submissions',
+            title: 'Pending Grading',
+            description: 'Review and grade student submissions',
             icon: '📝',
             color: 'from-purple-500 to-pink-500',
-            onClick: () => console.log('Review assignments')
+            route: '/dashboard/instructor/submissions',
+            aiPrompt: 'Summarize the submissions waiting for my review and help me prioritize grading.'
           },
           {
-            id: 'analytics',
-            title: 'Class Analytics',
-            description: 'Class performance insights',
+            id: 'performance',
+            title: 'Class Performance',
+            description: 'Class-wide analytics and trends',
             icon: '📈',
             color: 'from-purple-500 to-pink-500',
-            onClick: () => console.log('View analytics')
+            route: '/dashboard/instructor/performance',
+            aiPrompt: 'Analyze my class performance data and identify students who may need extra support.'
           },
           {
-            id: 'lesson-planning',
-            title: 'Lesson Planning',
-            description: 'Curriculum and lesson planning tools',
+            id: 'modules',
+            title: 'Course Content',
+            description: 'Create and organize course modules',
             icon: '📋',
             color: 'from-purple-500 to-pink-500',
-            onClick: () => console.log('Plan lessons')
+            route: '/dashboard/instructor/modules',
+            aiPrompt: 'Help me plan my next lesson module with CBC-aligned learning objectives.'
           }
         ]
       };
@@ -177,36 +206,40 @@ export function getDashboardConfig(type: DashboardType): DashboardConfig {
         subtitle: "System insights",
         quickActions: [
           {
-            id: 'system-analytics',
-            title: 'System Analytics',
-            description: 'Platform-wide statistics and insights',
+            id: 'pulse',
+            title: 'Platform Pulse',
+            description: 'Real-time platform health and metrics',
             icon: '📊',
             color: 'from-orange-500 to-red-500',
-            onClick: () => console.log('View system analytics')
+            route: '/dashboard/admin/pulse',
+            aiPrompt: 'Give me a high-level summary of platform health, active users, and critical alerts.'
           },
           {
-            id: 'user-management',
+            id: 'users',
             title: 'User Management',
-            description: 'Manage users and permissions',
+            description: 'Manage users, roles, and permissions',
             icon: '👥',
             color: 'from-orange-500 to-red-500',
-            onClick: () => console.log('Manage users')
+            route: '/dashboard/admin/users',
+            aiPrompt: 'Show me recent user registration trends and any flagged accounts.'
           },
           {
-            id: 'settings',
-            title: 'System Settings',
-            description: 'Configuration and system settings',
+            id: 'system',
+            title: 'System Health',
+            description: 'Infrastructure and service monitoring',
             icon: '🔧',
             color: 'from-orange-500 to-red-500',
-            onClick: () => console.log('System settings')
+            route: '/dashboard/admin/system-health',
+            aiPrompt: 'Check system health metrics and identify any performance issues or bottlenecks.'
           },
           {
             id: 'reports',
-            title: 'Reports',
-            description: 'Generate and view system reports',
+            title: 'Analytics Reports',
+            description: 'Generate platform-wide reports',
             icon: '📈',
             color: 'from-orange-500 to-red-500',
-            onClick: () => console.log('Generate reports')
+            route: '/dashboard/admin/reports',
+            aiPrompt: 'Help me generate a comprehensive monthly analytics report for stakeholders.'
           }
         ]
       };
@@ -219,36 +252,40 @@ export function getDashboardConfig(type: DashboardType): DashboardConfig {
         subtitle: "Collaboration tools",
         quickActions: [
           {
-            id: 'analytics',
-            title: 'Partnership Analytics',
-            description: 'Partnership performance metrics',
-            icon: '🤝',
+            id: 'ai-highlights',
+            title: 'AI Highlights',
+            description: 'AI-generated partnership insights',
+            icon: '✨',
             color: 'from-teal-500 to-blue-500',
-            onClick: () => console.log('View partnership analytics')
+            route: '/dashboard/partner/ai-highlights',
+            aiPrompt: 'Summarize key performance metrics and ROI for our partnership this month.'
           },
           {
-            id: 'revenue',
-            title: 'Revenue Tracking',
-            description: 'Commission and payment tracking',
-            icon: '📈',
+            id: 'funding',
+            title: 'Funding & Billing',
+            description: 'Track financial transactions and invoices',
+            icon: '💰',
             color: 'from-teal-500 to-blue-500',
-            onClick: () => console.log('Track revenue')
+            route: '/dashboard/partner/funding',
+            aiPrompt: 'Break down my recent funding transactions and upcoming payment schedules.'
           },
           {
-            id: 'referrals',
-            title: 'Student Referrals',
-            description: 'Track referred students and progress',
-            icon: '📊',
+            id: 'children',
+            title: 'Sponsored Children',
+            description: 'Monitor sponsored students\' progress',
+            icon: '👦',
             color: 'from-teal-500 to-blue-500',
-            onClick: () => console.log('View referrals')
+            route: '/dashboard/partner/sponsored-children',
+            aiPrompt: 'Give me progress updates on all the children I\'m currently sponsoring.'
           },
           {
-            id: 'support',
-            title: 'Partner Support',
-            description: 'Partner support and resources',
-            icon: '📞',
+            id: 'tickets',
+            title: 'Support Tickets',
+            description: 'Partner support and issue tracking',
+            icon: '🎫',
             color: 'from-teal-500 to-blue-500',
-            onClick: () => console.log('Partner support')
+            route: '/dashboard/partner/tickets',
+            aiPrompt: 'Show me open support tickets and help me draft a response to the most urgent one.'
           }
         ]
       };
@@ -261,36 +298,40 @@ export function getDashboardConfig(type: DashboardType): DashboardConfig {
         subtitle: "Management & coordination tools",
         quickActions: [
           {
-            id: 'student-monitoring',
-            title: 'Student Monitoring',
-            description: 'Track student progress and attendance',
-            icon: '👀',
+            id: 'progress',
+            title: 'Student Progress',
+            description: 'Track and monitor student learning journeys',
+            icon: '📈',
             color: 'from-blue-500 to-indigo-500',
-            onClick: () => console.log('View student monitoring')
+            route: '/dashboard/staff/learning/progress',
+            aiPrompt: 'Identify students who may need intervention or additional support based on recent performance.'
           },
           {
-            id: 'attendance',
-            title: 'Attendance Tracking',
-            description: 'Manage and review attendance records',
-            icon: '📋',
+            id: 'sessions',
+            title: 'Live Sessions',
+            description: 'Manage and schedule live learning sessions',
+            icon: '🎥',
             color: 'from-blue-500 to-indigo-500',
-            onClick: () => console.log('View attendance')
+            route: '/dashboard/staff/learning/sessions',
+            aiPrompt: 'Show me upcoming live sessions and help me plan session content.'
           },
           {
-            id: 'resources',
-            title: 'Resource Management',
-            description: 'Manage learning materials and resources',
+            id: 'content',
+            title: 'Content Studio',
+            description: 'Create and manage learning materials',
             icon: '📚',
             color: 'from-blue-500 to-indigo-500',
-            onClick: () => console.log('Manage resources')
+            route: '/dashboard/staff/learning/content',
+            aiPrompt: 'Help me organize and tag learning content for easier discovery by students.'
           },
           {
-            id: 'communication',
-            title: 'Communication Hub',
-            description: 'Coordinate with teachers and parents',
-            icon: '💬',
+            id: 'tickets',
+            title: 'Support Tickets',
+            description: 'Handle user support requests',
+            icon: '🎫',
             color: 'from-blue-500 to-indigo-500',
-            onClick: () => console.log('Open communication hub')
+            route: '/dashboard/staff/support/tickets',
+            aiPrompt: 'Prioritize my open support tickets and suggest responses for the most common issues.'
           }
         ]
       };
@@ -301,14 +342,14 @@ export function getDashboardConfig(type: DashboardType): DashboardConfig {
 }
 
 /**
- * Gets the appropriate role based on dashboard type
+ * Gets the appropriate role based on dashboard type.
  */
 export function getRoleForDashboard(type: DashboardType): UserRole {
   return type as UserRole;
 }
 
 /**
- * Checks if the current path is a dashboard path
+ * Checks if the current path is a dashboard path.
  */
 export function isDashboardPath(pathname: string): boolean {
   return pathname.startsWith('/dashboard/');

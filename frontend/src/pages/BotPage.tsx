@@ -1,3 +1,5 @@
+// BotPage - Public AI chat demo page at /bot. Provides an interactive preview of The Bird AI
+// tutor with text, voice, and video input modes, conversation history, and subject selection.
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';

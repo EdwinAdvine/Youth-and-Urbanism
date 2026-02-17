@@ -139,15 +139,46 @@ const AuditLogsPage: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  const filteredLogs = MOCK_LOGS.filter(
-    (log) =>
-      (!statusFilter || log.status === statusFilter) &&
-      (!search ||
-        log.actor_email.toLowerCase().includes(search.toLowerCase()) ||
-        log.action.toLowerCase().includes(search.toLowerCase()) ||
-        log.details.toLowerCase().includes(search.toLowerCase()) ||
-        log.resource_type.toLowerCase().includes(search.toLowerCase()))
+  const [currentPage, setCurrentPage] = useState(1);
+  const logsPerPage = 5;
+
+  const filteredLogs = MOCK_LOGS.filter((log) => {
+    if (statusFilter && log.status !== statusFilter) return false;
+    if (
+      search &&
+      !log.actor_email.toLowerCase().includes(search.toLowerCase()) &&
+      !log.action.toLowerCase().includes(search.toLowerCase()) &&
+      !log.details.toLowerCase().includes(search.toLowerCase()) &&
+      !log.resource_type.toLowerCase().includes(search.toLowerCase())
+    )
+      return false;
+    if (dateFrom) {
+      const logDate = new Date(log.timestamp);
+      const fromDate = new Date(dateFrom);
+      fromDate.setHours(0, 0, 0, 0);
+      if (logDate < fromDate) return false;
+    }
+    if (dateTo) {
+      const logDate = new Date(log.timestamp);
+      const toDate = new Date(dateTo);
+      toDate.setHours(23, 59, 59, 999);
+      if (logDate > toDate) return false;
+    }
+    return true;
+  });
+
+  const totalPages = Math.max(1, Math.ceil(filteredLogs.length / logsPerPage));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedLogs = filteredLogs.slice(
+    (safePage - 1) * logsPerPage,
+    safePage * logsPerPage
   );
+
+  // Reset to page 1 when filters change
+  const handleSearch = (value: string) => { setSearch(value); setCurrentPage(1); };
+  const handleStatusFilter = (value: string) => { setStatusFilter(value); setCurrentPage(1); };
+  const handleDateFrom = (value: string) => { setDateFrom(value); setCurrentPage(1); };
+  const handleDateTo = (value: string) => { setDateTo(value); setCurrentPage(1); };
 
   const todayLogs = MOCK_LOGS.filter(
     (log) => new Date(log.timestamp).toDateString() === new Date('2025-01-15').toDateString()
@@ -244,7 +275,7 @@ const AuditLogsPage: React.FC = () => {
             type="text"
             placeholder="Search by actor, action, or resource..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
           />
         </div>
@@ -252,7 +283,7 @@ const AuditLogsPage: React.FC = () => {
           <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => handleStatusFilter(e.target.value)}
             className="pl-10 pr-8 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[140px]"
           >
             <option value="">All Status</option>
@@ -267,7 +298,7 @@ const AuditLogsPage: React.FC = () => {
             <input
               type="date"
               value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
+              onChange={(e) => handleDateFrom(e.target.value)}
               className="pl-10 pr-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
               placeholder="From"
             />
@@ -276,7 +307,7 @@ const AuditLogsPage: React.FC = () => {
           <input
             type="date"
             value={dateTo}
-            onChange={(e) => setDateTo(e.target.value)}
+            onChange={(e) => handleDateTo(e.target.value)}
             className="px-4 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:border-[#E40000]/50 transition-colors"
             placeholder="To"
           />
@@ -298,7 +329,7 @@ const AuditLogsPage: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredLogs.length === 0 ? (
+              {paginatedLogs.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-4 py-16 text-center">
                     <FileText className="w-12 h-12 text-white/10 mx-auto mb-3" />
@@ -306,7 +337,7 @@ const AuditLogsPage: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                filteredLogs.map((log) => (
+                paginatedLogs.map((log) => (
                   <tr key={log.id} className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
                     <td className="px-4 py-3 text-gray-500 dark:text-white/50 text-xs whitespace-nowrap">{formatDate(log.timestamp)}</td>
                     <td className="px-4 py-3">
@@ -343,14 +374,34 @@ const AuditLogsPage: React.FC = () => {
         {/* Pagination */}
         <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-[#22272B]">
           <p className="text-xs text-gray-400 dark:text-white/40">
-            Showing 1-{filteredLogs.length} of {filteredLogs.length} logs
+            Showing {filteredLogs.length === 0 ? 0 : (safePage - 1) * logsPerPage + 1}-{Math.min(safePage * logsPerPage, filteredLogs.length)} of {filteredLogs.length} logs
           </p>
           <div className="flex items-center gap-1">
-            <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors" disabled>
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={safePage <= 1}
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors"
+            >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <button className="w-8 h-8 rounded-lg text-xs font-medium bg-[#E40000] text-gray-900 dark:text-white">1</button>
-            <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors" disabled>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`w-8 h-8 rounded-lg text-xs font-medium transition-colors ${
+                  page === safePage
+                    ? 'bg-[#E40000] text-gray-900 dark:text-white'
+                    : 'hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={safePage >= totalPages}
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors"
+            >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>

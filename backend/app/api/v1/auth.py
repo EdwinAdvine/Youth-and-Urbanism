@@ -11,7 +11,8 @@ This module defines FastAPI routes for user authentication including:
 import logging
 from uuid import UUID
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Request, status
+from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -27,38 +28,208 @@ from app.utils.security import get_current_user, decode_token, verify_token
 from app.models.user import User
 from app.config import settings
 
+
+# ---------------------------------------------------------------------------
+# Cookie helpers for httpOnly token storage
+# ---------------------------------------------------------------------------
+
+def _set_auth_cookies(response: JSONResponse, access_token: str, refresh_token: str) -> None:
+    """Set httpOnly, Secure, SameSite cookies for access and refresh tokens."""
+    is_prod = settings.is_production
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=is_prod,
+        samesite="strict" if is_prod else "lax",
+        max_age=settings.access_token_expire_minutes * 60,
+        path="/",
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=is_prod,
+        samesite="strict" if is_prod else "lax",
+        max_age=settings.refresh_token_expire_days * 86400,
+        path="/api/v1/auth",  # Only sent to auth endpoints
+    )
+
+
+def _clear_auth_cookies(response: JSONResponse) -> None:
+    """Remove auth cookies."""
+    response.delete_cookie("access_token", path="/")
+    response.delete_cookie("refresh_token", path="/api/v1/auth")
+
 logger = logging.getLogger(__name__)
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 # ---------------------------------------------------------------------------
-# Redis client for token blacklist
+# Redis client for token blacklist - use centralized Redis
 # ---------------------------------------------------------------------------
-_redis_client = None
+from app.redis import get_redis
 
 
-async def _get_redis():
-    """Lazily initialise and return an async Redis client."""
-    global _redis_client
-    if _redis_client is None:
-        try:
-            import redis.asyncio as aioredis
-            _redis_client = aioredis.from_url(
-                settings.redis_url, decode_responses=True
+def _get_redis_safe():
+    """Get Redis client, returning None if not available."""
+    try:
+        return get_redis()
+    except RuntimeError:
+        return None
+
+
+async def _check_auth_rate_limit(key: str, max_attempts: int, window_seconds: int) -> bool:
+    """
+    Rate-limit auth endpoints per key (e.g. IP or email).
+
+    CRITICAL FIX (H-02): Uses Lua script for atomic INCR+EXPIRE operation.
+    Prevents permanent rate-limit keys if process crashes between commands.
+
+    Returns True if allowed, raises HTTPException 429 if limit exceeded.
+    """
+    r = _get_redis_safe()
+    if r is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Service temporarily unavailable. Please try again later.",
+        )
+
+    try:
+        redis_key = f"auth_ratelimit:{key}"
+
+        # CRITICAL FIX (H-02): Atomic INCR + EXPIRE via Lua script
+        # This prevents orphaned keys if the server crashes between INCR and EXPIRE
+        lua_script = """
+        local current = redis.call('INCR', KEYS[1])
+        if current == 1 then
+            redis.call('EXPIRE', KEYS[1], ARGV[1])
+        end
+        return current
+        """
+        current = await r.eval(lua_script, 1, redis_key, window_seconds)
+
+        if current > max_attempts:
+            ttl = await r.ttl(redis_key)
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"Too many attempts. Try again in {ttl} seconds.",
             )
-        except Exception as e:
-            logger.warning(f"Redis unavailable for token blacklist: {e}")
-    return _redis_client
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.warning(f"Auth rate limit check failed: {e}")
+
+    return True
+
+
+# ---------------------------------------------------------------------------
+# Account lockout after repeated failed login attempts
+# ---------------------------------------------------------------------------
+
+ACCOUNT_LOCKOUT_THRESHOLD = 10  # Lock after 10 failed attempts
+ACCOUNT_LOCKOUT_WINDOW = 3600   # 1-hour window for counting failures
+ACCOUNT_LOCKOUT_DURATION = 1800  # 30-minute lockout duration
+
+
+async def _check_account_lockout(email: str) -> None:
+    """
+    Check if an account is locked due to too many failed login attempts.
+
+    SECURITY: Fail-closed behavior - if Redis is unavailable, reject login
+    to prevent brute-force attacks during Redis outage.
+
+    Raises HTTPException 423 if the account is locked.
+    Raises HTTPException 503 if Redis is unavailable (fail-closed).
+    """
+    r = _get_redis_safe()
+    if r is None:
+        # CRITICAL FIX: Fail-closed instead of fail-open
+        # Consistent with token blacklist behavior
+        logger.error("Redis unavailable for account lockout check — rejecting login (fail-closed)")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication service temporarily unavailable. Please try again later.",
+        )
+
+    try:
+        lockout_key = f"account_lockout:{email.lower()}"
+        if await r.exists(lockout_key):
+            ttl = await r.ttl(lockout_key)
+            raise HTTPException(
+                status_code=status.HTTP_423_LOCKED,
+                detail=f"Account temporarily locked due to too many failed login attempts. Try again in {ttl} seconds.",
+            )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Account lockout check failed: {e}")
+        # Fail-closed on Redis errors
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication service temporarily unavailable. Please try again later.",
+        )
+
+
+async def _record_failed_login(email: str) -> None:
+    """
+    Record a failed login attempt. If the threshold is exceeded,
+    lock the account for ACCOUNT_LOCKOUT_DURATION seconds.
+
+    CRITICAL FIX (H-02): Uses Lua script for atomic INCR+EXPIRE.
+    """
+    r = _get_redis_safe()
+    if r is None:
+        return
+
+    try:
+        fail_key = f"login_failures:{email.lower()}"
+
+        # CRITICAL FIX (H-02): Atomic INCR + EXPIRE via Lua script
+        lua_script = """
+        local current = redis.call('INCR', KEYS[1])
+        if current == 1 then
+            redis.call('EXPIRE', KEYS[1], ARGV[1])
+        end
+        return current
+        """
+        current = await r.eval(lua_script, 1, fail_key, ACCOUNT_LOCKOUT_WINDOW)
+
+        if current >= ACCOUNT_LOCKOUT_THRESHOLD:
+            lockout_key = f"account_lockout:{email.lower()}"
+            await r.setex(lockout_key, ACCOUNT_LOCKOUT_DURATION, "locked")
+            await r.delete(fail_key)  # Reset counter
+            logger.warning(f"Account locked for {email} after {current} failed attempts")
+    except Exception as e:
+        logger.warning(f"Failed to record login failure: {e}")
+
+
+async def _clear_failed_logins(email: str) -> None:
+    """Clear the failed login counter after a successful login."""
+    r = _get_redis_safe()
+    if r is None:
+        return
+
+    try:
+        await r.delete(f"login_failures:{email.lower()}")
+    except Exception:
+        pass
 
 
 async def is_token_blacklisted(token: str) -> bool:
-    """Check whether a JWT has been blacklisted (logged out)."""
-    r = await _get_redis()
+    """Check whether a JWT has been blacklisted (logged out).
+
+    Fail-closed: returns True (blacklisted) when Redis is unavailable,
+    so a logged-out token can never be reused even during an outage.
+    """
+    r = _get_redis_safe()
     if r is None:
-        return False  # fail-open when Redis is down
+        logger.warning("Redis unavailable — treating token as blacklisted (fail-closed)")
+        return True
     try:
         return await r.exists(f"blacklist:{token}") == 1
     except Exception:
-        return False
+        logger.warning("Redis error during blacklist check — treating token as blacklisted (fail-closed)")
+        return True
 
 
 # Create router with authentication prefix and tags
@@ -73,6 +244,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
     description="Create a new user account. Automatically creates an AI tutor for student accounts."
 )
 async def register(
+    request: Request,
     user_data: UserCreate,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
@@ -91,6 +263,10 @@ async def register(
     Raises:
         HTTPException 400: If email already exists or validation fails
     """
+    # Rate limit: 5 registrations per IP per hour
+    client_ip = request.client.host if request.client else "unknown"
+    await _check_auth_rate_limit(f"register:{client_ip}", max_attempts=5, window_seconds=3600)
+
     try:
         user = await auth_service.register_user(user_data, db)
 
@@ -104,14 +280,25 @@ async def register(
     except HTTPException:
         raise
     except ValueError as e:
+        # Registration ValueErrors are user-facing validation messages (e.g. "Email already registered")
+        error_msg = str(e)
+        safe_messages = [
+            "email already registered",
+            "invalid email",
+            "password too short",
+            "password too weak",
+            "invalid role",
+        ]
+        detail = error_msg if any(msg in error_msg.lower() for msg in safe_messages) else "Registration validation failed"
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
+            detail=detail
         )
     except Exception as e:
+        logger.error(f"Registration failed: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Registration failed: {str(e)}"
+            detail="Registration failed"
         )
 
 
@@ -123,37 +310,70 @@ async def register(
     description="Authenticate user and return access/refresh tokens. Ensures AI tutor exists for student accounts."
 )
 async def login(
+    request: Request,
     credentials: UserLogin,
     db: AsyncSession = Depends(get_db)
-) -> TokenResponse:
+):
     """
-    Authenticate user and return JWT tokens.
+    Authenticate user and return JWT tokens (also set as httpOnly cookies).
 
     Args:
+        request: FastAPI Request (for rate limiting)
         credentials: Login credentials (email and password)
         db: Database session
 
     Returns:
-        TokenResponse: Access token, refresh token, token type, and expiration time
+        JSONResponse with token data and httpOnly cookies set
 
     Raises:
         HTTPException 401: If credentials are invalid
     """
+    # Rate limit: 10 login attempts per IP per hour, 5 per email per 15 min
+    client_ip = request.client.host if request.client else "unknown"
+    await _check_auth_rate_limit(f"login:ip:{client_ip}", max_attempts=10, window_seconds=3600)
+    await _check_auth_rate_limit(f"login:email:{credentials.email}", max_attempts=5, window_seconds=900)
+
+    # Check if account is locked due to too many failed attempts
+    await _check_account_lockout(credentials.email)
+
     try:
         token_data = await auth_service.authenticate_user(credentials, db)
-        return token_data
-    except HTTPException:
+
+        # Successful login — clear failed attempt counter
+        await _clear_failed_logins(credentials.email)
+
+        # Build JSON body (backward compatible — tokens still in body for mobile/API clients)
+        body = {
+            "access_token": token_data.access_token,
+            "refresh_token": token_data.refresh_token,
+            "token_type": token_data.token_type,
+            "expires_in": token_data.expires_in,
+        }
+        response = JSONResponse(content=body, status_code=200)
+
+        # Also set httpOnly cookies for browser clients
+        _set_auth_cookies(response, token_data.access_token, token_data.refresh_token)
+
+        return response
+    except HTTPException as e:
+        # Record failed login attempt for account lockout (only for auth failures)
+        if e.status_code in (401, 403):
+            await _record_failed_login(credentials.email)
         raise
     except ValueError as e:
+        # Record failed login attempt
+        await _record_failed_login(credentials.email)
+        logger.warning(f"Login ValueError for {credentials.email}: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=str(e),
+            detail="Invalid email or password",
             headers={"WWW-Authenticate": "Bearer"}
         )
     except Exception as e:
+        logger.error(f"Login failed: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Login failed: {str(e)}"
+            detail="Authentication failed"
         )
 
 
@@ -165,45 +385,100 @@ async def login(
     description="Generate a new access token using a valid refresh token."
 )
 async def refresh_token(
-    refresh_token_data: dict,
+    request: Request,
+    refresh_token_data: dict = Body(None),
     db: AsyncSession = Depends(get_db)
-) -> TokenResponse:
+):
     """
     Refresh access token using refresh token.
 
+    Accepts refresh_token from either:
+    1. Request body ({"refresh_token": "..."}) — for API/mobile clients
+    2. httpOnly cookie — for browser clients
+
+    SECURITY: Blacklists the old refresh token BEFORE issuing a new one to prevent replay attacks.
+
     Args:
-        refresh_token_data: Dictionary containing refresh_token
+        request: FastAPI Request (for cookie access)
+        refresh_token_data: Optional dict containing refresh_token
         db: Database session
 
     Returns:
-        TokenResponse: New access token, refresh token, token type, and expiration time
+        JSONResponse with new tokens and httpOnly cookies
 
     Raises:
-        HTTPException 401: If refresh token is invalid or expired
+        HTTPException 401: If refresh token is invalid, expired, or blacklisted
     """
-    refresh_token = refresh_token_data.get("refresh_token")
+    # Try body first, then cookie
+    rt = None
+    if refresh_token_data:
+        rt = refresh_token_data.get("refresh_token")
+    if not rt:
+        rt = request.cookies.get("refresh_token")
 
-    if not refresh_token:
+    if not rt:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Refresh token is required"
         )
 
+    # Check if refresh token is already blacklisted
+    if await is_token_blacklisted(rt):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token has been revoked",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
     try:
-        token_data = await auth_service.refresh_access_token(refresh_token, db)
-        return token_data
+        # Verify the token before blacklisting it (extract expiry for TTL)
+        import time
+        payload = verify_token(rt, token_type="refresh")
+        refresh_exp = payload.get("exp", 0)
+        refresh_ttl = max(int(refresh_exp - time.time()), 1)
+
+        # CRITICAL: Blacklist the OLD refresh token BEFORE issuing new one
+        # This prevents replay attacks where an attacker reuses the old token
+        r = _get_redis_safe()
+        if r is not None:
+            try:
+                await r.setex(f"blacklist:{rt}", refresh_ttl, "1")
+                logger.debug("Blacklisted old refresh token during rotation")
+            except Exception as e:
+                logger.error(f"CRITICAL: Failed to blacklist old refresh token: {e}")
+                # Fail-closed: If we can't blacklist the old token, don't issue a new one
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="Token rotation temporarily unavailable"
+                )
+
+        # Generate new tokens (old token is now blacklisted)
+        token_data = await auth_service.refresh_access_token(rt, db)
+
+        body = {
+            "access_token": token_data.access_token,
+            "refresh_token": token_data.refresh_token,
+            "token_type": token_data.token_type,
+            "expires_in": token_data.expires_in,
+        }
+        response = JSONResponse(content=body, status_code=200)
+        _set_auth_cookies(response, token_data.access_token, token_data.refresh_token)
+
+        return response
     except HTTPException:
         raise
     except ValueError as e:
+        logger.warning(f"Token refresh ValueError: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=str(e),
+            detail="Invalid or expired refresh token",
             headers={"WWW-Authenticate": "Bearer"}
         )
     except Exception as e:
+        logger.error(f"Token refresh failed: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Token refresh failed: {str(e)}"
+            detail="Token refresh failed"
         )
 
 
@@ -260,17 +535,11 @@ async def verify_email(
         HTTPException 400: If token is invalid, expired, or email already verified
     """
     try:
-        payload = verify_token(data.token, token_type="access")
+        payload = verify_token(data.token, token_type="email_verification")
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired verification token",
-        )
-
-    if payload.get("type") != "email_verification":
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid verification token",
         )
 
     user_id_str = payload.get("sub")
@@ -342,6 +611,7 @@ async def resend_verification(
     description="Send a password reset link to the provided email address.",
 )
 async def forgot_password(
+    request: Request,
     data: PasswordReset,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
@@ -352,6 +622,7 @@ async def forgot_password(
     Always returns success to avoid revealing whether an email exists.
 
     Args:
+        request: FastAPI Request (for rate limiting)
         data: Contains the email address
         background_tasks: FastAPI background tasks
         db: Database session
@@ -359,6 +630,10 @@ async def forgot_password(
     Returns:
         Success message (always, for security)
     """
+    # Rate limit: 3 password reset requests per IP per hour
+    client_ip = request.client.host if request.client else "unknown"
+    await _check_auth_rate_limit(f"forgot:ip:{client_ip}", max_attempts=3, window_seconds=3600)
+
     result = await db.execute(
         select(User).where(User.email == data.email, User.is_active == True)
     )
@@ -420,35 +695,60 @@ async def reset_password(
     "/logout",
     status_code=status.HTTP_200_OK,
     summary="Logout user",
-    description="Invalidate the current access token by adding it to the Redis blacklist.",
+    description="Invalidate the access and refresh tokens by adding them to the Redis blacklist.",
 )
 async def logout(
+    request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(security),
-) -> dict:
+):
     """
-    Logout the current user by blacklisting their access token.
+    Logout the current user by blacklisting their access token and clearing cookies.
 
     The token is stored in Redis with a TTL equal to its remaining lifetime
     so that it cannot be reused after logout.
     """
+    # With auto_error=False, credentials is None when no token is present.
+    # For logout, still clear cookies even without a valid token.
+    if credentials is None:
+        response = JSONResponse(content={"message": "Logged out successfully"})
+        _clear_auth_cookies(response)
+        return response
+
     token = credentials.credentials
 
     try:
         payload = verify_token(token, token_type="access")
     except HTTPException:
-        # Token is already invalid/expired - treat as successful logout
-        return {"message": "Logged out successfully"}
+        # Token is already invalid/expired - still clear cookies
+        response = JSONResponse(content={"message": "Logged out successfully"})
+        _clear_auth_cookies(response)
+        return response
 
     # Calculate remaining TTL so the blacklist entry auto-expires
     import time
     exp = payload.get("exp", 0)
     ttl = max(int(exp - time.time()), 1)
 
-    r = await _get_redis()
+    r = _get_redis_safe()
     if r is not None:
         try:
+            # Blacklist access token
             await r.setex(f"blacklist:{token}", ttl, "1")
-        except Exception as e:
-            logger.warning(f"Failed to blacklist token in Redis: {e}")
 
-    return {"message": "Logged out successfully"}
+            # Also blacklist refresh token if present in cookie
+            refresh_token = request.cookies.get("refresh_token")
+            if refresh_token:
+                try:
+                    # Refresh tokens have 7-day expiry
+                    refresh_payload = verify_token(refresh_token, token_type="refresh")
+                    refresh_exp = refresh_payload.get("exp", 0)
+                    refresh_ttl = max(int(refresh_exp - time.time()), 1)
+                    await r.setex(f"blacklist:{refresh_token}", refresh_ttl, "1")
+                except Exception as e:
+                    logger.warning(f"Failed to blacklist refresh token: {e}")
+        except Exception as e:
+            logger.warning(f"Failed to blacklist tokens in Redis: {e}")
+
+    response = JSONResponse(content={"message": "Logged out successfully"})
+    _clear_auth_cookies(response)
+    return response

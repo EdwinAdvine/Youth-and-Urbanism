@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { ArrowLeft, DollarSign, TrendingUp, Sparkles, Plus, Edit2, Trash2 } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface RevenueSplit {
   id: string;
@@ -42,10 +41,7 @@ export const RatesPage: React.FC = () => {
   const fetchRevenueSplits = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_URL}/api/v1/instructor/rates`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get('/api/v1/instructor/rates');
 
       // Mock data for development
       if (!response.data || response.data.length === 0) {
@@ -92,11 +88,9 @@ export const RatesPage: React.FC = () => {
   const handleAIOptimize = async () => {
     try {
       setAnalyzingRates(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.post(
-        `${API_URL}/api/v1/instructor/rates/ai-optimize`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
+      const response = await apiClient.post(
+        '/api/v1/instructor/rates/ai-optimize',
+        {}
       );
 
       // Mock recommendations for development

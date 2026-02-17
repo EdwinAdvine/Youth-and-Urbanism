@@ -1,13 +1,25 @@
-import React, { useState } from 'react';
+// ContactSupportPage - Student page at /dashboard/student/contact-support. Support ticket
+// system where students can view existing tickets, submit new issues, and contact support channels.
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';
-import { Headphones, Send, Clock, CheckCircle, AlertTriangle, MessageCircle, Bot, Phone, Mail } from 'lucide-react';
+import { createSupportTicket, getStudentTickets } from '../../services/student/studentSupportService';
+import { Headphones, Send, Clock, CheckCircle, AlertTriangle, MessageCircle, Bot, Phone, Mail, AlertCircle, Loader2 } from 'lucide-react';
 
-const tickets = [
+const fallbackTickets = [
   { id: 'TKT-001', subject: 'Cannot access Science course', status: 'open' as const, priority: 'high' as const, createdAt: '2 hours ago', lastReply: 'Support team is looking into it' },
   { id: 'TKT-002', subject: 'M-Pesa payment not reflected', status: 'resolved' as const, priority: 'medium' as const, createdAt: '3 days ago', lastReply: 'Issue resolved, funds credited' },
   { id: 'TKT-003', subject: 'Quiz timer not working properly', status: 'open' as const, priority: 'low' as const, createdAt: '1 week ago', lastReply: 'We are investigating the issue' },
 ];
+
+interface Ticket {
+  id: string;
+  subject: string;
+  status: 'open' | 'resolved';
+  priority: 'high' | 'medium' | 'low';
+  createdAt: string;
+  lastReply: string;
+}
 
 const ContactSupportPage: React.FC = () => {
   const navigate = useNavigate();
@@ -16,8 +28,14 @@ const ContactSupportPage: React.FC = () => {
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [category, setCategory] = useState('');
-  const [priority, setPriority] = useState('medium');
+  const [priority, setPriority] = useState<'normal' | 'high' | 'urgent'>('normal');
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const [tickets, setTickets] = useState<Ticket[]>(fallbackTickets);
+  const [ticketsLoading, setTicketsLoading] = useState(false);
+  const [ticketsError, setTicketsError] = useState<string | null>(null);
 
   const statusConfig = {
     open: { icon: Clock, color: 'text-yellow-400', bg: 'bg-yellow-500/20' },
@@ -28,6 +46,64 @@ const ContactSupportPage: React.FC = () => {
     high: { color: 'text-red-400', bg: 'bg-red-500/20' },
     medium: { color: 'text-yellow-400', bg: 'bg-yellow-500/20' },
     low: { color: 'text-blue-400', bg: 'bg-blue-500/20' },
+    normal: { color: 'text-blue-400', bg: 'bg-blue-500/20' },
+    urgent: { color: 'text-red-400', bg: 'bg-red-500/20' },
+  };
+
+  // Fetch tickets when "My Tickets" tab is active
+  useEffect(() => {
+    if (activeTab === 'tickets') {
+      fetchTickets();
+    }
+  }, [activeTab]);
+
+  const fetchTickets = async () => {
+    setTicketsLoading(true);
+    setTicketsError(null);
+    try {
+      const response = await getStudentTickets();
+      const apiTickets: Ticket[] = (Array.isArray(response) ? response : response.tickets || []).map((t: any) => ({
+        id: t.id || t.ticket_id || 'TKT-???',
+        subject: t.subject || 'No subject',
+        status: t.status === 'resolved' ? 'resolved' : 'open',
+        priority: t.priority || 'medium',
+        createdAt: t.created_at ? new Date(t.created_at).toLocaleDateString() : 'Unknown',
+        lastReply: t.last_reply || t.description || 'No replies yet',
+      }));
+      setTickets(apiTickets.length > 0 ? apiTickets : fallbackTickets);
+    } catch (err: any) {
+      setTicketsError(err?.response?.data?.detail || err?.message || 'Failed to load tickets.');
+      // Keep fallback tickets visible
+    } finally {
+      setTicketsLoading(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!subject || !message || !category) return;
+
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      await createSupportTicket({
+        subject: `[${category}] ${subject}`,
+        description: message,
+        priority: priority === 'normal' ? 'normal' : priority,
+      });
+
+      setSubmitted(true);
+      setSubject('');
+      setMessage('');
+      setCategory('');
+      setPriority('normal');
+      setTimeout(() => setSubmitted(false), 3000);
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.detail || err?.message || 'Failed to submit ticket. Please try again.';
+      setSubmitError(errorMessage);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -112,17 +188,21 @@ const ContactSupportPage: React.FC = () => {
             <div>
               <label className="text-gray-500 dark:text-white/60 text-sm mb-1 block">Priority</label>
               <div className="flex gap-2">
-                {(['low', 'medium', 'high'] as const).map((p) => (
+                {([
+                  { key: 'normal' as const, label: 'Normal', config: priorityConfig.low },
+                  { key: 'high' as const, label: 'High', config: priorityConfig.high },
+                  { key: 'urgent' as const, label: 'Urgent', config: priorityConfig.urgent },
+                ]).map((p) => (
                   <button
-                    key={p}
-                    onClick={() => setPriority(p)}
+                    key={p.key}
+                    onClick={() => setPriority(p.key)}
                     className={`px-3 py-1.5 ${borderRadius} text-sm capitalize ${
-                      priority === p
-                        ? `${priorityConfig[p].bg} ${priorityConfig[p].color}`
+                      priority === p.key
+                        ? `${p.config.bg} ${p.config.color}`
                         : 'bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-white/60'
                     }`}
                   >
-                    {p}
+                    {p.label}
                   </button>
                 ))}
               </div>
@@ -139,19 +219,25 @@ const ContactSupportPage: React.FC = () => {
               />
             </div>
 
+            {submitError && (
+              <div className={`p-3 bg-red-500/10 border border-red-500/20 ${borderRadius} flex items-center gap-2 text-red-400 text-sm`}>
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{submitError}</span>
+              </div>
+            )}
+
             <button
-              disabled={!subject || !message || !category}
-              onClick={() => {
-                setSubmitted(true);
-                setSubject('');
-                setMessage('');
-                setCategory('');
-                setPriority('medium');
-                setTimeout(() => setSubmitted(false), 3000);
-              }}
+              disabled={!subject || !message || !category || submitting}
+              onClick={handleSubmit}
               className={`w-full py-2.5 ${submitted ? 'bg-green-600' : 'bg-green-500 hover:bg-green-600'} disabled:bg-gray-100 dark:disabled:bg-white/10 disabled:text-gray-400 dark:disabled:text-white/30 text-gray-900 dark:text-white font-medium ${borderRadius} flex items-center justify-center gap-2`}
             >
-              {submitted ? <><CheckCircle className="w-4 h-4" /> Ticket Submitted!</> : <><Send className="w-4 h-4" /> Submit Ticket</>}
+              {submitting ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</>
+              ) : submitted ? (
+                <><CheckCircle className="w-4 h-4" /> Ticket Submitted!</>
+              ) : (
+                <><Send className="w-4 h-4" /> Submit Ticket</>
+              )}
             </button>
           </div>
         </div>
@@ -159,9 +245,24 @@ const ContactSupportPage: React.FC = () => {
 
       {activeTab === 'tickets' && (
         <div className="space-y-3">
-          {tickets.map((ticket) => {
+          {ticketsLoading && (
+            <div className={`p-8 bg-white dark:bg-[#181C1F] ${borderRadius} border border-gray-200 dark:border-[#22272B] flex items-center justify-center gap-2 text-gray-500 dark:text-white/60`}>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span>Loading tickets...</span>
+            </div>
+          )}
+
+          {ticketsError && (
+            <div className={`p-3 bg-red-500/10 border border-red-500/20 ${borderRadius} flex items-center gap-2 text-red-400 text-sm`}>
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>{ticketsError}</span>
+              <button onClick={fetchTickets} className="ml-auto text-red-400 hover:text-red-300 text-xs underline">Retry</button>
+            </div>
+          )}
+
+          {!ticketsLoading && tickets.map((ticket) => {
             const sConfig = statusConfig[ticket.status];
-            const pConfig = priorityConfig[ticket.priority];
+            const pConfig = priorityConfig[ticket.priority] || priorityConfig.medium;
             const StatusIcon = sConfig.icon;
 
             return (

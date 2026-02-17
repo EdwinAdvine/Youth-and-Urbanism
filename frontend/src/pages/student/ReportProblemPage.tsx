@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';
-import { ArrowLeft, Bug, Send, CheckCircle } from 'lucide-react';
+import { reportProblem } from '../../services/student/studentSupportService';
+import { ArrowLeft, Bug, Send, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
 const ReportProblemPage: React.FC = () => {
   const navigate = useNavigate();
@@ -10,11 +11,30 @@ const ReportProblemPage: React.FC = () => {
   const [description, setDescription] = useState('');
   const [steps, setSteps] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!category || !description) return;
-    setSubmitted(true);
-    setTimeout(() => navigate('/dashboard/student/support'), 2000);
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      await reportProblem({
+        problem_type: category,
+        description: steps ? `${description}\n\nSteps to reproduce:\n${steps}` : description,
+        urgency: 'normal',
+      });
+
+      setSubmitted(true);
+      setTimeout(() => navigate('/dashboard/student/support'), 2000);
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.detail || err?.message || 'Failed to submit report. Please try again.';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -51,12 +71,26 @@ const ReportProblemPage: React.FC = () => {
           <label className="text-gray-500 dark:text-white/60 text-sm mb-1 block">Steps to reproduce (optional)</label>
           <textarea value={steps} onChange={(e) => setSteps(e.target.value)} placeholder="1. Go to...\n2. Click on...\n3. See error" rows={3} className={`w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-[#22272B] ${borderRadius} text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none focus:border-[#FF0000] resize-none`} />
         </div>
+
+        {error && (
+          <div className={`p-3 bg-red-500/10 border border-red-500/20 ${borderRadius} flex items-center gap-2 text-red-400 text-sm`}>
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
         <button
           onClick={handleSubmit}
-          disabled={!category || !description || submitted}
+          disabled={!category || !description || submitted || loading}
           className={`w-full py-2.5 ${submitted ? 'bg-green-600' : 'bg-[#FF0000] hover:bg-[#FF0000]/80'} disabled:bg-gray-100 dark:disabled:bg-white/10 disabled:text-gray-400 dark:disabled:text-white/30 text-gray-900 dark:text-white font-medium ${borderRadius} flex items-center justify-center gap-2`}
         >
-          {submitted ? <><CheckCircle className="w-4 h-4" /> Report Submitted!</> : <><Send className="w-4 h-4" /> Submit Report</>}
+          {loading ? (
+            <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</>
+          ) : submitted ? (
+            <><CheckCircle className="w-4 h-4" /> Report Submitted!</>
+          ) : (
+            <><Send className="w-4 h-4" /> Submit Report</>
+          )}
         </button>
       </div>
     </div>

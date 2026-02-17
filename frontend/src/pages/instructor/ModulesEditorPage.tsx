@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Plus, Save, ArrowLeft, GripVertical, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Lesson {
   id: string;
@@ -39,18 +38,13 @@ export const ModulesEditorPage: React.FC = () => {
   const fetchModules = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
 
       // Fetch course info
-      const courseResponse = await axios.get(`${API_URL}/api/v1/instructor/courses/${courseId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const courseResponse = await apiClient.get(`/api/v1/instructor/courses/${courseId}`);
       setCourseTitle(courseResponse.data?.title || 'Course');
 
       // Fetch modules
-      const response = await axios.get(`${API_URL}/api/v1/instructor/courses/${courseId}/modules`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get(`/api/v1/instructor/courses/${courseId}/modules`);
 
       // Mock data for development
       if (!response.data || response.data.length === 0) {
@@ -214,11 +208,9 @@ export const ModulesEditorPage: React.FC = () => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const token = localStorage.getItem('access_token');
-      await axios.put(
-        `${API_URL}/api/v1/instructor/courses/${courseId}/modules`,
-        { modules },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await apiClient.put(
+        `/api/v1/instructor/courses/${courseId}/modules`,
+        { modules }
       );
       alert('Modules saved successfully!');
     } catch (error) {

@@ -170,15 +170,104 @@ const MoneyFlowPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [page, setPage] = useState(1);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const pageSize = 5;
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(timer);
   }, []);
 
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [search, statusFilter, activeTab]);
+
   const handleRefresh = () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 800);
+    setTimeout(() => {
+      setRefreshing(false);
+      showToast('Data refreshed');
+    }, 800);
+  };
+
+  /* ---- Filtered data per tab ---- */
+  const filteredTransactions = MOCK_TRANSACTIONS.filter(
+    (t) =>
+      (!statusFilter || t.status === statusFilter) &&
+      (!search ||
+        t.user.toLowerCase().includes(search.toLowerCase()) ||
+        t.reference.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  const filteredRefunds = MOCK_REFUNDS.filter(
+    (r) =>
+      (!statusFilter || r.status === statusFilter) &&
+      (!search || r.user.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  const filteredFailed = MOCK_FAILED.filter(
+    (f) =>
+      (!statusFilter || f.status === statusFilter) &&
+      (!search || f.user.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  const filteredPayouts = MOCK_PAYOUTS.filter(
+    (p) =>
+      (!statusFilter || p.status === statusFilter) &&
+      (!search || p.recipient.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  /* ---- Active tab data + pagination ---- */
+  const activeData = activeTab === 'transactions' ? filteredTransactions
+    : activeTab === 'refunds' ? filteredRefunds
+    : activeTab === 'failed' ? filteredFailed
+    : filteredPayouts;
+
+  const totalPages = Math.max(1, Math.ceil(activeData.length / pageSize));
+  const paginatedStart = (page - 1) * pageSize;
+  const paginatedEnd = paginatedStart + pageSize;
+
+  const pagedTransactions = filteredTransactions.slice(paginatedStart, paginatedEnd);
+  const pagedRefunds = filteredRefunds.slice(paginatedStart, paginatedEnd);
+  const pagedFailed = filteredFailed.slice(paginatedStart, paginatedEnd);
+  const pagedPayouts = filteredPayouts.slice(paginatedStart, paginatedEnd);
+
+  /* ---- CSV Export ---- */
+  const handleExport = () => {
+    let csv = '';
+    if (activeTab === 'transactions') {
+      const headers = ['ID', 'Date', 'User', 'Email', 'Amount', 'Type', 'Status', 'Reference'];
+      const rows = filteredTransactions.map((t) => [t.id, t.date, t.user, t.email, t.amount, t.type, t.status, t.reference]);
+      csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    } else if (activeTab === 'refunds') {
+      const headers = ['ID', 'Date', 'User', 'Original Amount', 'Refund Amount', 'Reason', 'Status'];
+      const rows = filteredRefunds.map((r) => [r.id, r.date, r.user, r.original_amount, r.refund_amount, `"${r.reason}"`, r.status]);
+      csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    } else if (activeTab === 'failed') {
+      const headers = ['ID', 'Date', 'User', 'Amount', 'Method', 'Error Code', 'Retries', 'Status'];
+      const rows = filteredFailed.map((f) => [f.id, f.date, f.user, f.amount, f.method, f.error_code, f.retries, f.status]);
+      csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    } else {
+      const headers = ['ID', 'Date', 'Recipient', 'Amount', 'Method', 'Status', 'Scheduled Date'];
+      const rows = filteredPayouts.map((p) => [p.id, p.date, `"${p.recipient}"`, p.amount, p.method, p.status, p.scheduled_date]);
+      csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    }
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `money-flow-${activeTab}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Export downloaded');
   };
 
   const tabs: { key: MoneyFlowTab; label: string; count: number }[] = [
@@ -229,7 +318,10 @@ const MoneyFlowPage: React.FC = () => {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors">
+            <button
+              onClick={handleExport}
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors"
+            >
               <Download className="w-4 h-4" />
               Export
             </button>
@@ -311,11 +403,16 @@ const MoneyFlowPage: React.FC = () => {
         </div>
         <div className="relative">
           <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
-          <select className="pl-10 pr-8 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[140px]">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="pl-10 pr-8 py-2.5 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg text-gray-900 dark:text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-[#E40000]/50 transition-colors min-w-[140px]"
+          >
             <option value="">All Status</option>
             <option value="completed">Completed</option>
             <option value="pending">Pending</option>
             <option value="failed">Failed</option>
+            <option value="refunded">Refunded</option>
           </select>
         </div>
       </motion.div>
@@ -336,12 +433,7 @@ const MoneyFlowPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {MOCK_TRANSACTIONS.filter(
-                  (t) =>
-                    !search ||
-                    t.user.toLowerCase().includes(search.toLowerCase()) ||
-                    t.reference.toLowerCase().includes(search.toLowerCase())
-                ).map((tx) => (
+                {pagedTransactions.map((tx) => (
                   <tr key={tx.id} className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
                     <td className="px-4 py-3 text-gray-500 dark:text-white/60">{formatDate(tx.date)}</td>
                     <td className="px-4 py-3">
@@ -373,7 +465,7 @@ const MoneyFlowPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {MOCK_REFUNDS.map((ref) => (
+                {pagedRefunds.map((ref) => (
                   <tr key={ref.id} className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
                     <td className="px-4 py-3 text-gray-500 dark:text-white/60">{formatDate(ref.date)}</td>
                     <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">{ref.user}</td>
@@ -401,7 +493,7 @@ const MoneyFlowPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {MOCK_FAILED.map((fp) => (
+                {pagedFailed.map((fp) => (
                   <tr key={fp.id} className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
                     <td className="px-4 py-3 text-gray-500 dark:text-white/60">{formatDate(fp.date)}</td>
                     <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">{fp.user}</td>
@@ -429,7 +521,7 @@ const MoneyFlowPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {MOCK_PAYOUTS.map((po) => (
+                {pagedPayouts.map((po) => (
                   <tr key={po.id} className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors">
                     <td className="px-4 py-3 text-gray-500 dark:text-white/60">{formatDate(po.date)}</td>
                     <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">{po.recipient}</td>
@@ -446,18 +538,51 @@ const MoneyFlowPage: React.FC = () => {
 
         {/* Pagination */}
         <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-[#22272B]">
-          <p className="text-xs text-gray-400 dark:text-white/40">Showing 1-8 of 8 results</p>
+          <p className="text-xs text-gray-400 dark:text-white/40">
+            Showing {activeData.length === 0 ? 0 : paginatedStart + 1}-{Math.min(paginatedEnd, activeData.length)} of {activeData.length} results
+          </p>
           <div className="flex items-center gap-1">
-            <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors" disabled>
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors"
+            >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <button className="w-8 h-8 rounded-lg text-xs font-medium bg-[#E40000] text-gray-900 dark:text-white">1</button>
-            <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors" disabled>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
+              <button
+                key={pg}
+                onClick={() => setPage(pg)}
+                className={`w-8 h-8 rounded-lg text-xs font-medium transition-colors ${
+                  pg === page
+                    ? 'bg-[#E40000] text-gray-900 dark:text-white'
+                    : 'text-gray-500 dark:text-white/50 hover:bg-gray-100 dark:hover:bg-[#22272B] hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                {pg}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors"
+            >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>
       </motion.div>
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
+            toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+          }`}>
+            <p className="text-sm font-medium">{toast.message}</p>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };

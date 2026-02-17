@@ -6,7 +6,6 @@ import { useYjsCollaboration } from '../../hooks/useYjsCollaboration';
 export const CoCreatePage: React.FC = () => {
   const [documentTitle, setDocumentTitle] = useState('Untitled Document');
   const [docId] = useState(() => `cocreate-${Date.now()}`);
-  const token = localStorage.getItem('access_token') || '';
 
   const {
     isConnected,
@@ -18,7 +17,6 @@ export const CoCreatePage: React.FC = () => {
     sendCursorUpdate,
   } = useYjsCollaboration({
     docId,
-    token,
     userName: 'Instructor',
     userColor: '#8B5CF6',
   });

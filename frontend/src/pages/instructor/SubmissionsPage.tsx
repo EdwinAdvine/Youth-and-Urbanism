@@ -3,9 +3,8 @@ import { Search, Filter, Sparkles, Download, CheckSquare } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { SubmissionRow } from '../../components/instructor/assessments/SubmissionRow';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Submission {
   id: string;
@@ -38,12 +37,10 @@ export const SubmissionsPage: React.FC = () => {
   const fetchSubmissions = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
       const params: any = {};
       if (statusFilter !== 'all') params.status = statusFilter;
 
-      const response = await axios.get(`${API_URL}/api/v1/instructor/assessments/submissions`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await apiClient.get('/api/v1/instructor/assessments/submissions', {
         params,
       });
 
@@ -121,7 +118,7 @@ export const SubmissionsPage: React.FC = () => {
   };
 
   const handleGradeSubmission = (submissionId: string) => {
-    navigate(`/dashboard/instructor/submissions/${submissionId}/grade`);
+    navigate(`/dashboard/instructor/submissions/${submissionId}`);
   };
 
   const handleViewDetails = (submissionId: string) => {
@@ -136,11 +133,9 @@ export const SubmissionsPage: React.FC = () => {
 
     try {
       setBatchGrading(true);
-      const token = localStorage.getItem('access_token');
-      await axios.post(
-        `${API_URL}/api/v1/instructor/assessments/batch-grade`,
-        { submission_ids: Array.from(selectedIds) },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await apiClient.post(
+        '/api/v1/instructor/assessments/batch-grade',
+        { submission_ids: Array.from(selectedIds) }
       );
 
       alert('Batch grading initiated. AI feedback will be generated shortly.');
@@ -156,9 +151,7 @@ export const SubmissionsPage: React.FC = () => {
 
   const handleExportResults = async () => {
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_URL}/api/v1/instructor/assessments/export`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await apiClient.get('/api/v1/instructor/assessments/export', {
         responseType: 'blob',
       });
 

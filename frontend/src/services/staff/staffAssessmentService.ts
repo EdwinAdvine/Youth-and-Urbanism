@@ -12,26 +12,7 @@ import type {
   AssessmentQuestion,
   AIGradingResult,
 } from '../../types/staff';
-
-const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/staff`;
-
-function getAuthHeaders(): HeadersInit {
-  const token =
-    localStorage.getItem('access_token') ||
-    JSON.parse(localStorage.getItem('auth-store') || '{}')?.state?.token;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
-
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Request failed' }));
-    throw new Error(error.detail || `HTTP ${response.status}`);
-  }
-  return response.json();
-}
+import apiClient from '../api';
 
 // ---------------------------------------------------------------------------
 // Types local to this service
@@ -123,93 +104,78 @@ export interface AdaptiveSessionState {
 export async function getAssessments(
   params: AssessmentListParams = {},
 ): Promise<PaginatedResponse<AdaptiveAssessment>> {
-  const qs = new URLSearchParams();
-  if (params.page != null) qs.set('page', String(params.page));
-  if (params.page_size != null) qs.set('page_size', String(params.page_size));
-
-  const response = await fetch(`${API_BASE}/assessments?${qs.toString()}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<PaginatedResponse<AdaptiveAssessment>>(response);
+  const { data } = await apiClient.get<PaginatedResponse<AdaptiveAssessment>>(
+    '/api/v1/staff/assessments',
+    { params },
+  );
+  return data;
 }
 
 /** Fetch a single assessment by ID. */
 export async function getAssessment(
   assessmentId: string,
 ): Promise<AdaptiveAssessment> {
-  const response = await fetch(`${API_BASE}/assessments/${assessmentId}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<AdaptiveAssessment>(response);
+  const { data } = await apiClient.get<AdaptiveAssessment>(
+    `/api/v1/staff/assessments/${assessmentId}`,
+  );
+  return data;
 }
 
 /** Create a new adaptive assessment. */
 export async function createAssessment(
-  data: CreateAssessmentPayload,
+  payload: CreateAssessmentPayload,
 ): Promise<AdaptiveAssessment> {
-  const response = await fetch(`${API_BASE}/assessments`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<AdaptiveAssessment>(response);
+  const { data } = await apiClient.post<AdaptiveAssessment>(
+    '/api/v1/staff/assessments',
+    payload,
+  );
+  return data;
 }
 
 /** Update an existing assessment. */
 export async function updateAssessment(
   assessmentId: string,
-  data: UpdateAssessmentPayload,
+  payload: UpdateAssessmentPayload,
 ): Promise<AdaptiveAssessment> {
-  const response = await fetch(`${API_BASE}/assessments/${assessmentId}`, {
-    method: 'PATCH',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<AdaptiveAssessment>(response);
+  const { data } = await apiClient.patch<AdaptiveAssessment>(
+    `/api/v1/staff/assessments/${assessmentId}`,
+    payload,
+  );
+  return data;
 }
 
 /** Delete an assessment. */
 export async function deleteAssessment(assessmentId: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/assessments/${assessmentId}`, {
-    method: 'DELETE',
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<void>(response);
+  await apiClient.delete(`/api/v1/staff/assessments/${assessmentId}`);
 }
 
 /** Add a question to an assessment. */
 export async function addQuestion(
   assessmentId: string,
-  data: CreateQuestionPayload,
+  payload: CreateQuestionPayload,
 ): Promise<AssessmentQuestion> {
-  const response = await fetch(`${API_BASE}/assessments/${assessmentId}/questions`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<AssessmentQuestion>(response);
+  const { data } = await apiClient.post<AssessmentQuestion>(
+    `/api/v1/staff/assessments/${assessmentId}/questions`,
+    payload,
+  );
+  return data;
 }
 
 /** Update an existing question. */
 export async function updateQuestion(
   questionId: string,
-  data: UpdateQuestionPayload,
+  payload: UpdateQuestionPayload,
 ): Promise<AssessmentQuestion> {
-  const response = await fetch(`${API_BASE}/assessments/questions/${questionId}`, {
-    method: 'PATCH',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<AssessmentQuestion>(response);
+  const { data } = await apiClient.patch<AssessmentQuestion>(
+    `/api/v1/staff/assessments/questions/${questionId}`,
+    payload,
+  );
+  return data;
 }
 
 /** Delete a question from an assessment. */
 export async function deleteQuestion(questionId: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/assessments/questions/${questionId}`, {
-    method: 'DELETE',
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<void>(response);
+  await apiClient.delete(`/api/v1/staff/assessments/questions/${questionId}`);
 }
 
 /** Request the next adaptive question based on current session state. */
@@ -217,15 +183,11 @@ export async function getNextAdaptiveQuestion(
   assessmentId: string,
   sessionState: AdaptiveSessionState,
 ): Promise<AssessmentQuestion> {
-  const response = await fetch(
-    `${API_BASE}/assessments/${assessmentId}/adaptive/next`,
-    {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(sessionState),
-    },
+  const { data } = await apiClient.post<AssessmentQuestion>(
+    `/api/v1/staff/assessments/${assessmentId}/adaptive/next`,
+    sessionState,
   );
-  return handleResponse<AssessmentQuestion>(response);
+  return data;
 }
 
 /** Submit a student answer for AI-powered grading. */
@@ -233,13 +195,9 @@ export async function gradeResponse(
   questionId: string,
   answer: string,
 ): Promise<AIGradingResult> {
-  const response = await fetch(
-    `${API_BASE}/assessments/questions/${questionId}/grade`,
-    {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ answer }),
-    },
+  const { data } = await apiClient.post<AIGradingResult>(
+    `/api/v1/staff/assessments/questions/${questionId}/grade`,
+    { answer },
   );
-  return handleResponse<AIGradingResult>(response);
+  return data;
 }

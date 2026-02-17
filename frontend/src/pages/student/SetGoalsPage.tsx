@@ -1,53 +1,106 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';
-import { Target, Plus, CheckCircle2, Circle, Sparkles, Clock } from 'lucide-react';
-
-interface Goal {
-  id: string;
-  title: string;
-  target: number;
-  current: number;
-  unit: string;
-  deadline: string;
-  aiSuggested: boolean;
-  completed: boolean;
-}
-
-const sampleGoals: Goal[] = [
-  { id: '1', title: 'Complete 5 Math lessons this week', target: 5, current: 3, unit: 'lessons', deadline: 'Feb 16', aiSuggested: true, completed: false },
-  { id: '2', title: 'Maintain a 14-day streak', target: 14, current: 12, unit: 'days', deadline: 'Feb 20', aiSuggested: false, completed: false },
-  { id: '3', title: 'Score 80%+ on Science quiz', target: 80, current: 0, unit: '%', deadline: 'Feb 18', aiSuggested: true, completed: false },
-  { id: '4', title: 'Read 3 English chapters', target: 3, current: 3, unit: 'chapters', deadline: 'Feb 14', aiSuggested: false, completed: true },
-];
+import { getGoals, createGoal } from '../../services/student/studentProgressService';
+import { Target, Plus, CheckCircle2, Circle, Sparkles, Clock, Loader2, AlertCircle } from 'lucide-react';
+import type { LearningGoal } from '../../types/student';
 
 const SetGoalsPage: React.FC = () => {
   const { borderRadius } = useAgeAdaptiveUI();
-  const [goals, setGoals] = useState(sampleGoals);
+  const [goals, setGoals] = useState<LearningGoal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newTarget, setNewTarget] = useState('');
   const [newDeadline, setNewDeadline] = useState('');
+  const [creating, setCreating] = useState(false);
 
-  const addGoal = () => {
+  useEffect(() => {
+    const fetchGoals = async () => {
+      try {
+        setLoading(true);
+        const data = await getGoals();
+        setGoals(Array.isArray(data) ? data : []);
+      } catch {
+        setError('Failed to load goals');
+        setGoals([
+          { id: '1', studentId: '', title: 'Complete 5 Math lessons this week', target: 5, current: 3, unit: 'lessons', deadline: new Date('2026-02-16'), aiSuggested: true, teacherAssigned: false, status: 'active', createdAt: new Date() },
+          { id: '2', studentId: '', title: 'Maintain a 14-day streak', target: 14, current: 12, unit: 'days', deadline: new Date('2026-02-20'), aiSuggested: false, teacherAssigned: false, status: 'active', createdAt: new Date() },
+          { id: '3', studentId: '', title: 'Score 80%+ on Science quiz', target: 80, current: 0, unit: '%', deadline: new Date('2026-02-18'), aiSuggested: true, teacherAssigned: false, status: 'active', createdAt: new Date() },
+          { id: '4', studentId: '', title: 'Read 3 English chapters', target: 3, current: 3, unit: 'chapters', deadline: new Date('2026-02-14'), aiSuggested: false, teacherAssigned: false, status: 'completed', createdAt: new Date() },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGoals();
+  }, []);
+
+  const addGoal = async () => {
     if (!newTitle.trim()) return;
-    setGoals(prev => [...prev, {
-      id: String(Date.now()),
-      title: newTitle,
-      target: parseInt(newTarget) || 1,
-      current: 0,
-      unit: 'tasks',
-      deadline: newDeadline || 'No deadline',
-      aiSuggested: false,
-      completed: false,
-    }]);
-    setNewTitle('');
-    setNewTarget('');
-    setNewDeadline('');
-    setShowNew(false);
+    setCreating(true);
+    try {
+      const result = await createGoal({
+        title: newTitle,
+        target: parseInt(newTarget) || 1,
+        deadline: newDeadline ? new Date(newDeadline) : undefined,
+      });
+      setGoals(prev => [...prev, {
+        id: result.id,
+        studentId: '',
+        title: result.title,
+        target: result.target,
+        current: result.current,
+        unit: 'tasks',
+        deadline: result.deadline ? new Date(result.deadline) : undefined,
+        aiSuggested: false,
+        teacherAssigned: false,
+        status: 'active' as const,
+        createdAt: new Date(),
+      }]);
+      setNewTitle('');
+      setNewTarget('');
+      setNewDeadline('');
+      setShowNew(false);
+    } catch {
+      // Fallback: add locally
+      setGoals(prev => [...prev, {
+        id: String(Date.now()),
+        studentId: '',
+        title: newTitle,
+        target: parseInt(newTarget) || 1,
+        current: 0,
+        unit: 'tasks',
+        deadline: newDeadline ? new Date(newDeadline) : undefined,
+        aiSuggested: false,
+        teacherAssigned: false,
+        status: 'active' as const,
+        createdAt: new Date(),
+      }]);
+      setNewTitle('');
+      setNewTarget('');
+      setNewDeadline('');
+      setShowNew(false);
+    } finally {
+      setCreating(false);
+    }
   };
 
-  const activeGoals = goals.filter(g => !g.completed);
-  const completedGoals = goals.filter(g => g.completed);
+  const activeGoals = goals.filter(g => g.status === 'active');
+  const completedGoals = goals.filter(g => g.status === 'completed');
+
+  const formatDeadline = (date?: Date | null) => {
+    if (!date) return 'No deadline';
+    return new Date(date).toLocaleDateString('en-KE', { month: 'short', day: 'numeric' });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 text-[#FF0000] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -63,6 +116,13 @@ const SetGoalsPage: React.FC = () => {
         </button>
       </div>
 
+      {error && (
+        <div className={`p-3 bg-yellow-500/10 ${borderRadius} border border-yellow-500/20 flex items-center gap-2`}>
+          <AlertCircle className="w-4 h-4 text-yellow-400" />
+          <span className="text-yellow-400 text-sm">{error} - showing sample data</span>
+        </div>
+      )}
+
       {showNew && (
         <div className={`p-6 bg-white dark:bg-[#181C1F] ${borderRadius} border border-[#FF0000]/30`}>
           <h3 className="text-gray-900 dark:text-white font-medium mb-3">Create New Goal</h3>
@@ -73,7 +133,10 @@ const SetGoalsPage: React.FC = () => {
               <input type="date" value={newDeadline} onChange={(e) => setNewDeadline(e.target.value)} className={`flex-1 px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-[#22272B] ${borderRadius} text-gray-900 dark:text-white focus:outline-none focus:border-[#FF0000]`} />
             </div>
             <div className="flex gap-2">
-              <button onClick={addGoal} className={`px-4 py-2 bg-[#FF0000] hover:bg-[#FF0000]/80 text-gray-900 dark:text-white ${borderRadius}`}>Create Goal</button>
+              <button onClick={addGoal} disabled={creating || !newTitle.trim()} className={`px-4 py-2 bg-[#FF0000] hover:bg-[#FF0000]/80 disabled:opacity-50 text-gray-900 dark:text-white ${borderRadius} flex items-center gap-2`}>
+                {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                Create Goal
+              </button>
               <button onClick={() => setShowNew(false)} className={`px-4 py-2 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-900 dark:text-white ${borderRadius}`}>Cancel</button>
             </div>
           </div>
@@ -97,7 +160,7 @@ const SetGoalsPage: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-3 mt-1 text-sm text-gray-500 dark:text-white/50">
                       <span>{goal.current}/{goal.target} {goal.unit}</span>
-                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {goal.deadline}</span>
+                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {formatDeadline(goal.deadline)}</span>
                     </div>
                     <div className="w-full h-2 bg-gray-100 dark:bg-white/10 rounded-full mt-2 overflow-hidden">
                       <div className="h-full bg-blue-500 rounded-full transition-all" style={{ width: `${progress}%` }} />
@@ -108,6 +171,12 @@ const SetGoalsPage: React.FC = () => {
               </div>
             );
           })}
+          {activeGoals.length === 0 && (
+            <div className={`p-8 bg-white dark:bg-[#181C1F] ${borderRadius} border border-gray-200 dark:border-[#22272B] text-center`}>
+              <Target className="w-12 h-12 text-gray-300 dark:text-white/20 mx-auto mb-3" />
+              <p className="text-gray-500 dark:text-white/60">No active goals. Create one to start tracking!</p>
+            </div>
+          )}
         </div>
       </div>
 

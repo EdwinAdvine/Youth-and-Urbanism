@@ -311,6 +311,51 @@ const AIPersonalizationPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [search, setSearch] = useState('');
   const [auditFilter, setAuditFilter] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+      showToast('Personalization data refreshed');
+    }, 1200);
+  };
+
+  const handleViewBiasDetails = (report: BiasReport) => {
+    alert(
+      `Bias Report Details\n\n` +
+      `ID: ${report.id}\n` +
+      `Category: ${report.category}\n` +
+      `Metric: ${report.metric_name}\n` +
+      `Fairness Score: ${report.fairness_score}%\n` +
+      `Threshold: ${report.threshold}%\n` +
+      `Status: ${report.status}\n` +
+      `Affected Students: ${report.affected_students}\n` +
+      `Last Evaluated: ${formatDate(report.last_evaluated)}\n\n` +
+      `Description:\n${report.description}`
+    );
+  };
+
+  const handleViewAudit = (audit: LearningPathAudit) => {
+    alert(
+      `Learning Path Audit Details\n\n` +
+      `ID: ${audit.id}\n` +
+      `Student: ${audit.student_name} (${audit.grade_level})\n` +
+      `Path: ${audit.path_name}\n` +
+      `Subjects: ${audit.subjects.join(', ')}\n` +
+      `AI Model: ${audit.ai_model}\n` +
+      `Customization Level: ${audit.customization_level}%\n` +
+      `Recommendation Quality: ${audit.recommendation_quality}%\n` +
+      `Audit Status: ${auditStatusLabels[audit.audit_status]}\n` +
+      `Last Updated: ${formatDate(audit.last_updated)}`
+    );
+  };
 
   const filteredAudits = mockLearningPathAudits.filter((audit) => {
     const matchesSearch =
@@ -344,8 +389,12 @@ const AIPersonalizationPage: React.FC = () => {
             { label: 'Personalization' },
           ]}
           actions={
-            <button className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors">
-              <RefreshCw className="w-4 h-4" />
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
             </button>
           }
@@ -541,6 +590,7 @@ const AIPersonalizationPage: React.FC = () => {
                   </div>
                   <button
                     title="View Details"
+                    onClick={() => handleViewBiasDetails(report)}
                     className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors flex-shrink-0"
                   >
                     <Eye className="w-4 h-4" />
@@ -665,6 +715,7 @@ const AIPersonalizationPage: React.FC = () => {
                             <div className="flex items-center justify-end">
                               <button
                                 title="View Audit"
+                                onClick={() => handleViewAudit(audit)}
                                 className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                               >
                                 <Eye className="w-4 h-4" />
@@ -681,6 +732,17 @@ const AIPersonalizationPage: React.FC = () => {
           </motion.div>
         )}
       </motion.div>
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
+            toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+          }`}>
+            <p className="text-sm font-medium">{toast.message}</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };

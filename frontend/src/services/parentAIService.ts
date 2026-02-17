@@ -21,7 +21,7 @@ import type {
  * Get AI tutor summary for a child
  */
 export const getAITutorSummary = async (childId: string): Promise<AITutorSummary> => {
-  const response = await api.get(`/parent/ai/summary/${childId}`);
+  const response = await api.get(`/api/v1/parent/ai/summary/${childId}`);
   return response.data;
 };
 
@@ -29,7 +29,7 @@ export const getAITutorSummary = async (childId: string): Promise<AITutorSummary
  * Get learning style analysis for a child
  */
 export const getLearningStyleAnalysis = async (childId: string): Promise<LearningStyleAnalysis> => {
-  const response = await api.get(`/parent/ai/learning-style/${childId}`);
+  const response = await api.get(`/api/v1/parent/ai/learning-style/${childId}`);
   return response.data;
 };
 
@@ -37,7 +37,7 @@ export const getLearningStyleAnalysis = async (childId: string): Promise<Learnin
  * Get practical home support tips
  */
 export const getSupportTips = async (childId: string): Promise<SupportTipsResponse> => {
-  const response = await api.get(`/parent/ai/support-tips/${childId}`);
+  const response = await api.get(`/api/v1/parent/ai/support-tips/${childId}`);
   return response.data;
 };
 
@@ -45,7 +45,7 @@ export const getSupportTips = async (childId: string): Promise<SupportTipsRespon
  * Get AI planning (upcoming topics)
  */
 export const getAIPlanning = async (childId: string): Promise<AIPlanningResponse> => {
-  const response = await api.get(`/parent/ai/planning/${childId}`);
+  const response = await api.get(`/api/v1/parent/ai/planning/${childId}`);
   return response.data;
 };
 
@@ -53,7 +53,7 @@ export const getAIPlanning = async (childId: string): Promise<AIPlanningResponse
  * Get curiosity patterns analysis
  */
 export const getCuriosityPatterns = async (childId: string): Promise<CuriosityPatternsResponse> => {
-  const response = await api.get(`/parent/ai/patterns/${childId}`);
+  const response = await api.get(`/api/v1/parent/ai/patterns/${childId}`);
   return response.data;
 };
 
@@ -61,7 +61,7 @@ export const getCuriosityPatterns = async (childId: string): Promise<CuriosityPa
  * Get early warning signs analysis
  */
 export const getWarningSignsAnalysis = async (childId: string): Promise<WarningSignsResponse> => {
-  const response = await api.get(`/parent/ai/warnings/${childId}`);
+  const response = await api.get(`/api/v1/parent/ai/warnings/${childId}`);
   return response.data;
 };
 
@@ -73,7 +73,7 @@ export const getAlertsList = async (params?: {
   severity?: string;
   isRead?: boolean;
 }): Promise<AlertsListResponse> => {
-  const response = await api.get('/parent/ai/alerts', { params });
+  const response = await api.get('/api/v1/parent/ai/alerts', { params });
   return response.data;
 };
 
@@ -81,7 +81,7 @@ export const getAlertsList = async (params?: {
  * Get detailed alert information
  */
 export const getAlertDetail = async (alertId: string): Promise<AlertDetailResponse> => {
-  const response = await api.get(`/parent/ai/alerts/${alertId}`);
+  const response = await api.get(`/api/v1/parent/ai/alerts/${alertId}`);
   return response.data;
 };
 
@@ -89,7 +89,7 @@ export const getAlertDetail = async (alertId: string): Promise<AlertDetailRespon
  * Mark an alert as read
  */
 export const markAlertRead = async (alertId: string): Promise<AlertDetailResponse> => {
-  const response = await api.put(`/parent/ai/alerts/${alertId}/read`);
+  const response = await api.put(`/api/v1/parent/ai/alerts/${alertId}/read`);
   return response.data;
 };
 
@@ -97,13 +97,13 @@ export const markAlertRead = async (alertId: string): Promise<AlertDetailRespons
  * Dismiss an alert
  */
 export const dismissAlert = async (alertId: string): Promise<void> => {
-  await api.put(`/parent/ai/alerts/${alertId}/dismiss`);
+  await api.put(`/api/v1/parent/ai/alerts/${alertId}/dismiss`);
 };
 
 /**
  * Get AI parent coaching content
  */
 export const getParentCoaching = async (childId: string): Promise<ParentCoachingResponse> => {
-  const response = await api.get(`/parent/ai/coaching/${childId}`);
+  const response = await api.get(`/api/v1/parent/ai/coaching/${childId}`);
   return response.data;
 };

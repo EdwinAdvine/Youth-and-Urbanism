@@ -1,9 +1,35 @@
+/**
+ * AI CoPilot sidebar store (upgraded for full multi-role support).
+ *
+ * Controls the collapsible CoPilot panel that appears on every dashboard.
+ * Manages sessions, chat messages, agent profiles, insights, streaming responses,
+ * and role-based context detection for all 6 user roles.
+ *
+ * NEW FEATURES:
+ * - Agent profile management (custom name, persona, avatar)
+ * - Role-specific contextual insights
+ * - Real-time SSE streaming for AI responses
+ * - Voice and video response modes
+ * - Automatic role synchronization from auth state
+ * - Integration with new CoPilot backend API
+ *
+ * Persisted fields (localStorage key "co-pilot-storage"):
+ *  - isExpanded, activeRole, sessions, currentSessionId, agentProfile
+ */
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import React from 'react';
+import copilotService, {
+  CopilotChatRequest,
+  CopilotChatResponse,
+  CopilotInsight,
+} from '../services/copilotService';
 
-export type UserRole = 'student' | 'parent' | 'teacher' | 'admin' | 'partner' | 'staff';
+/** Supported user roles (standardized to 'instructor', not 'teacher'). */
+export type UserRole = 'student' | 'parent' | 'instructor' | 'admin' | 'partner' | 'staff';
 
+/** Represents a single CoPilot conversation session. */
 export interface CoPilotSession {
   id: string;
   title: string;
@@ -13,54 +39,101 @@ export interface CoPilotSession {
   role: UserRole;
 }
 
+/** A single chat message exchanged between the user and the AI CoPilot. */
 export interface ChatMessage {
   id: string;
   content: string;
   sender: 'user' | 'ai';
   timestamp: Date;
   status: 'sending' | 'sent' | 'delivered' | 'read';
+  audio_url?: string | null;
+  video_url?: string | null;
 }
 
+/** Agent profile summary (cached from backend). */
+export interface AgentProfile {
+  agent_name: string;
+  avatar_url: string | null;
+}
+
+/** Full state shape and actions for the CoPilot sidebar store. */
 export interface CoPilotState {
   // Core state
   isExpanded: boolean;
   activeRole: UserRole;
   isOnline: boolean;
-  
+
+  // Agent profile
+  agentProfile: AgentProfile | null;
+
+  // Insights
+  insights: CopilotInsight[];
+
+  // Pending AI prompt (from quick actions)
+  pendingAiPrompt: string | null;
+
+  // Response mode
+  responseMode: 'text' | 'voice' | 'video';
+
   // Sessions
   sessions: CoPilotSession[];
   currentSessionId: string | null;
-  
+
   // UI state
   isMinimized: boolean;
   hasUnreadMessages: boolean;
-  
+
   // Chat state
   isChatMode: boolean;
   chatMessages: ChatMessage[];
-  currentDashboardType: 'student' | 'parent' | 'teacher' | 'admin' | 'partner' | 'staff';
+  currentDashboardType: 'student' | 'parent' | 'instructor' | 'admin' | 'partner' | 'staff';
   detectedRole: UserRole;
-  
+
+  // Streaming state
+  isStreaming: boolean;
+  streamingContent: string;
+  isAiTyping: boolean;
+
   // Actions
   toggleExpanded: () => void;
   setExpanded: (expanded: boolean) => void;
   setActiveRole: (role: UserRole) => void;
   setOnlineStatus: (isOnline: boolean) => void;
-  createSession: (role: UserRole) => void;
+  createSession: (role: UserRole) => string;
   switchSession: (sessionId: string) => void;
   deleteSession: (sessionId: string) => void;
   markAsRead: () => void;
   minimize: () => void;
   maximize: () => void;
-  
+
+  // Agent profile actions
+  setAgentProfile: (profile: AgentProfile | null) => void;
+
+  // Insights actions
+  setInsights: (insights: CopilotInsight[]) => void;
+
+  // Pending AI prompt actions
+  setPendingAiPrompt: (prompt: string | null) => void;
+
+  // Response mode actions
+  setResponseMode: (mode: 'text' | 'voice' | 'video') => void;
+
+  // Role sync actions
+  syncRoleFromAuth: (authRole: string) => void;
+
   // Chat actions
   activateChatMode: () => void;
-  sendMessage: (message: string) => void;
+  sendMessage: (message: string) => Promise<void>;
   detectDashboardType: (pathname: string) => void;
   resetToNormalMode: () => void;
   addChatMessage: (message: ChatMessage) => void;
   updateMessageStatus: (messageId: string, status: ChatMessage['status']) => void;
   clearChatMessages: () => void;
+
+  // Streaming actions
+  startStreaming: () => void;
+  appendStreamToken: (token: string) => void;
+  finishStreaming: (response: CopilotChatResponse) => void;
 }
 
 export const useCoPilotStore = create<CoPilotState>()(
@@ -70,6 +143,10 @@ export const useCoPilotStore = create<CoPilotState>()(
       isExpanded: false,
       activeRole: 'student',
       isOnline: navigator.onLine,
+      agentProfile: null,
+      insights: [],
+      pendingAiPrompt: null,
+      responseMode: 'text',
       sessions: [],
       currentSessionId: null,
       isMinimized: false,
@@ -78,6 +155,9 @@ export const useCoPilotStore = create<CoPilotState>()(
       chatMessages: [],
       currentDashboardType: 'student',
       detectedRole: 'student',
+      isStreaming: false,
+      streamingContent: '',
+      isAiTyping: false,
 
       // Actions
       toggleExpanded: () => {
@@ -93,7 +173,7 @@ export const useCoPilotStore = create<CoPilotState>()(
 
       setActiveRole: (role: UserRole) => {
         set({ activeRole: role });
-        
+
         // Create new session if role changes and sidebar is expanded
         const state = get();
         if (state.isExpanded) {
@@ -103,6 +183,36 @@ export const useCoPilotStore = create<CoPilotState>()(
 
       setOnlineStatus: (isOnline: boolean) => {
         set({ isOnline });
+      },
+
+      setAgentProfile: (profile: AgentProfile | null) => {
+        set({ agentProfile: profile });
+      },
+
+      setInsights: (insights: CopilotInsight[]) => {
+        set({ insights });
+      },
+
+      setPendingAiPrompt: (prompt: string | null) => {
+        set({ pendingAiPrompt: prompt });
+      },
+
+      setResponseMode: (mode: 'text' | 'voice' | 'video') => {
+        set({ responseMode: mode });
+      },
+
+      syncRoleFromAuth: (authRole: string) => {
+        // Map auth role to CoPilot role (standardize 'teacher' -> 'instructor')
+        const normalizedRole =
+          authRole === 'teacher' ? 'instructor' :
+          ['student', 'parent', 'instructor', 'admin', 'partner', 'staff'].includes(authRole)
+            ? (authRole as UserRole)
+            : 'student';
+
+        const currentRole = get().activeRole;
+        if (normalizedRole !== currentRole) {
+          set({ activeRole: normalizedRole });
+        }
       },
 
       createSession: (role: UserRole) => {
@@ -120,6 +230,8 @@ export const useCoPilotStore = create<CoPilotState>()(
           currentSessionId: newSession.id,
           hasUnreadMessages: false,
         }));
+
+        return newSession.id;
       },
 
       switchSession: (sessionId: string) => {
@@ -133,8 +245,8 @@ export const useCoPilotStore = create<CoPilotState>()(
       deleteSession: (sessionId: string) => {
         set((state) => {
           const newSessions = state.sessions.filter(s => s.id !== sessionId);
-          const newCurrentSessionId = state.currentSessionId === sessionId 
-            ? newSessions[0]?.id || null 
+          const newCurrentSessionId = state.currentSessionId === sessionId
+            ? newSessions[0]?.id || null
             : state.currentSessionId;
 
           return {
@@ -161,7 +273,20 @@ export const useCoPilotStore = create<CoPilotState>()(
         set({ isChatMode: true });
       },
 
-      sendMessage: (message: string) => {
+      sendMessage: async (message: string) => {
+        const { currentSessionId, responseMode, pendingAiPrompt, createSession, activeRole } = get();
+
+        // Use pending AI prompt if available
+        const effectiveMessage = pendingAiPrompt
+          ? `${pendingAiPrompt}\n\nUser question: ${message}`
+          : message;
+
+        // Clear pending prompt after using it
+        if (pendingAiPrompt) {
+          set({ pendingAiPrompt: null });
+        }
+
+        // Create user message
         const userMessage: ChatMessage = {
           id: Date.now().toString(),
           content: message,
@@ -172,78 +297,82 @@ export const useCoPilotStore = create<CoPilotState>()(
 
         set((state) => ({
           chatMessages: [...state.chatMessages, userMessage],
-          isChatMode: true
+          isChatMode: true,
+          isAiTyping: true
         }));
 
-        // Call real AI backend
-        const apiUrl = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) || 'http://localhost:8000';
-        let token = '';
         try {
-          const stored = localStorage.getItem('auth-storage');
-          if (stored) {
-            const parsed = JSON.parse(stored);
-            token = parsed?.state?.token || '';
+          // Create session if none exists
+          let sessionId = currentSessionId;
+          if (!sessionId) {
+            sessionId = createSession(activeRole);
           }
-        } catch { /* ignore */ }
 
-        const { activeRole, chatMessages } = get();
-        const conversationHistory = chatMessages.slice(-10).map(m => ({
-          role: m.sender === 'user' ? 'user' : 'assistant',
-          content: m.content,
-        }));
+          // Build chat request
+          const request: CopilotChatRequest = {
+            message: effectiveMessage,
+            session_id: sessionId,
+            response_mode: responseMode,
+            include_context: true,
+            context_messages: 10
+          };
 
-        const roleContext = `You are an AI assistant for the ${activeRole} dashboard of Urban Home School, a Kenyan educational platform. Respond helpfully and concisely.`;
+          // Call backend
+          const response = await copilotService.chat(request);
 
-        fetch(`${apiUrl}/api/v1/ai-tutor/chat`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify({
-            message: message,
-            context: roleContext,
-            conversation_history: conversationHistory,
-            response_mode: 'text',
-          }),
-        })
-          .then(res => res.json())
-          .then(data => {
-            const aiMessage: ChatMessage = {
-              id: (Date.now() + 1).toString(),
-              content: data.response || data.message || data.detail || "I've received your message. How can I help you today?",
-              sender: 'ai',
-              timestamp: new Date(),
-              status: 'sent'
-            };
-            set((state) => ({
-              chatMessages: [...state.chatMessages, aiMessage]
-            }));
-          })
-          .catch(() => {
-            const aiMessage: ChatMessage = {
-              id: (Date.now() + 1).toString(),
-              content: "I'm having trouble connecting to the AI service. Please check that the backend is running and try again.",
-              sender: 'ai',
-              timestamp: new Date(),
-              status: 'sent'
-            };
-            set((state) => ({
-              chatMessages: [...state.chatMessages, aiMessage]
-            }));
-          });
+          // Update session ID if it was created by backend
+          if (response.session_id !== sessionId) {
+            set({ currentSessionId: response.session_id });
+          }
+
+          // Add AI response to chat
+          const aiMessage: ChatMessage = {
+            id: response.message_id,
+            content: response.message,
+            sender: 'ai',
+            timestamp: new Date(response.timestamp),
+            status: 'sent',
+            audio_url: response.audio_url,
+            video_url: response.video_url
+          };
+
+          set((state) => ({
+            chatMessages: [...state.chatMessages, aiMessage],
+            isAiTyping: false
+          }));
+
+          // Update user message status
+          get().updateMessageStatus(userMessage.id, 'sent');
+
+        } catch (error: any) {
+          console.error('Failed to send message:', error);
+
+          // Add error message
+          const errorMessage: ChatMessage = {
+            id: (Date.now() + 1).toString(),
+            content: "I'm having trouble connecting to the AI service. Please try again later.",
+            sender: 'ai',
+            timestamp: new Date(),
+            status: 'sent'
+          };
+
+          set((state) => ({
+            chatMessages: [...state.chatMessages, errorMessage],
+            isAiTyping: false
+          }));
+        }
       },
 
       detectDashboardType: (pathname: string) => {
-        let dashboardType: 'student' | 'parent' | 'teacher' | 'admin' | 'partner' | 'staff' = 'student';
+        let dashboardType: 'student' | 'parent' | 'instructor' | 'admin' | 'partner' | 'staff' = 'student';
         let detectedRole: UserRole = 'student';
 
         if (pathname.includes('/dashboard/parent')) {
           dashboardType = 'parent';
           detectedRole = 'parent';
         } else if (pathname.includes('/dashboard/teacher') || pathname.includes('/dashboard/instructor')) {
-          dashboardType = 'teacher';
-          detectedRole = 'teacher';
+          dashboardType = 'instructor';
+          detectedRole = 'instructor';
         } else if (pathname.includes('/dashboard/admin')) {
           dashboardType = 'admin';
           detectedRole = 'admin';
@@ -279,6 +408,36 @@ export const useCoPilotStore = create<CoPilotState>()(
       clearChatMessages: () => {
         set({ chatMessages: [] });
       },
+
+      // Streaming actions
+      startStreaming: () => {
+        set({ isStreaming: true, streamingContent: '', isAiTyping: true });
+      },
+
+      appendStreamToken: (token: string) => {
+        set((state) => ({
+          streamingContent: state.streamingContent + token
+        }));
+      },
+
+      finishStreaming: (response: CopilotChatResponse) => {
+        const aiMessage: ChatMessage = {
+          id: response.message_id,
+          content: response.message,
+          sender: 'ai',
+          timestamp: new Date(response.timestamp),
+          status: 'sent',
+          audio_url: response.audio_url,
+          video_url: response.video_url
+        };
+
+        set((state) => ({
+          chatMessages: [...state.chatMessages, aiMessage],
+          isStreaming: false,
+          streamingContent: '',
+          isAiTyping: false
+        }));
+      },
     }),
     {
       name: 'co-pilot-storage',
@@ -287,6 +446,7 @@ export const useCoPilotStore = create<CoPilotState>()(
         activeRole: state.activeRole,
         sessions: state.sessions,
         currentSessionId: state.currentSessionId,
+        agentProfile: state.agentProfile,
       }),
       // Rehydrate function to convert string dates back to Date objects
       onRehydrateStorage: () => (state) => {
@@ -305,7 +465,7 @@ export const useCoPilotStore = create<CoPilotState>()(
 // Auto-create initial session when role is set
 export const useCoPilotInit = () => {
   const { activeRole, sessions, createSession } = useCoPilotStore();
-  
+
   React.useEffect(() => {
     if (sessions.length === 0) {
       createSession(activeRole);

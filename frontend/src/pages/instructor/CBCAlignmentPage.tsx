@@ -3,9 +3,8 @@ import { Sparkles, CheckCircle, AlertCircle, Target } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { CBCAlignmentBadge } from '../../components/instructor/courses/CBCAlignmentBadge';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface CBCCompetency {
   code: string;
@@ -41,10 +40,8 @@ export const CBCAlignmentPage: React.FC = () => {
   const fetchAnalysis = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(
-        `${API_URL}/api/v1/instructor/courses/${courseId}/cbc-analysis`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const response = await apiClient.get(
+        `/api/v1/instructor/courses/${courseId}/cbc-analysis`
       );
 
       // Mock data for development
@@ -117,11 +114,9 @@ export const CBCAlignmentPage: React.FC = () => {
   const handleRunAnalysis = async () => {
     try {
       setAnalyzing(true);
-      const token = localStorage.getItem('access_token');
-      await axios.post(
-        `${API_URL}/api/v1/instructor/courses/${courseId}/cbc-analysis`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
+      await apiClient.post(
+        `/api/v1/instructor/courses/${courseId}/cbc-analysis`,
+        {}
       );
 
       setTimeout(() => {

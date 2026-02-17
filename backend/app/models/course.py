@@ -42,7 +42,17 @@ from app.database import Base
 
 
 class Course(Base):
-    """CBC-aligned courses with multi-level support"""
+    """
+    A CBC-aligned course with multi-grade-level support and revenue sharing.
+
+    Courses can be created by platform admins (is_platform_created=True) or
+    external instructors. Each course targets one or more grade levels and a
+    learning area from Kenya's CBC framework. Content is stored as structured
+    JSONB (syllabus and lessons array). Paid courses follow a 60/30/10
+    revenue split between instructor, platform, and partner. Statistics
+    (enrollment count, average rating, reviews) are denormalized here for
+    fast dashboard queries.
+    """
 
     __tablename__ = "courses"
 

@@ -1,3 +1,5 @@
+// CardPaymentPage - Student page at /dashboard/student/card-payment. Secure card payment
+// form for wallet top-ups with card number, expiry, CVV fields, and transaction confirmation.
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';

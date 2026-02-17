@@ -1,7 +1,9 @@
+// DashboardParent - Parent role dashboard at /dashboard. Displays children overview,
+// academic progress, upcoming events, and quick links to monitoring tools.
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Users, BarChart3, Calendar, Award, Eye } from 'lucide-react';
+import { Users, BarChart3, Calendar, Eye } from 'lucide-react';
 
 const stagger = {
   hidden: {},
@@ -50,7 +52,7 @@ const DashboardParent: React.FC = () => {
                 <Eye className="w-8 h-8 text-[#E40000]" />
               </div>
               <button
-                onClick={() => navigate('/dashboard/parent/today/status')}
+                onClick={() => navigate('/dashboard/parent/highlights')}
                 className="w-full py-2 px-4 bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#FF0000] transition-colors"
               >
                 View Status

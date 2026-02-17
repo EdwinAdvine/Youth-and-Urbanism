@@ -118,9 +118,9 @@ const AddonsPage: React.FC = () => {
       setTimeout(() => {
         if (pollRef.current) {
           clearInterval(pollRef.current);
-          if (paymentStep === 'processing') {
-            setPaymentStep('failed');
-          }
+          pollRef.current = null;
+          // Use functional update to avoid stale closure
+          setPaymentStep((current) => current === 'processing' ? 'failed' : current);
         }
       }, 120000);
     } catch (error) {

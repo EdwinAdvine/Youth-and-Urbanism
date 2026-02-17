@@ -11,26 +11,7 @@ import type {
   ReportDefinition,
   ReportSchedule,
 } from '../../types/staff';
-
-const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/staff`;
-
-function getAuthHeaders(): HeadersInit {
-  const token =
-    localStorage.getItem('access_token') ||
-    JSON.parse(localStorage.getItem('auth-store') || '{}')?.state?.token;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
-
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Request failed' }));
-    throw new Error(error.detail || `HTTP ${response.status}`);
-  }
-  return response.json();
-}
+import apiClient from '../api';
 
 // ---------------------------------------------------------------------------
 // Types local to this service
@@ -101,63 +82,49 @@ export interface UpdateSchedulePayload {
 }
 
 // ---------------------------------------------------------------------------
-// API calls — Report definitions
+// API calls -- Report definitions
 // ---------------------------------------------------------------------------
 
 /** Fetch a paginated list of report definitions. */
 export async function getReports(
   params: ReportListParams = {},
 ): Promise<PaginatedResponse<ReportDefinition>> {
-  const qs = new URLSearchParams();
-  if (params.page != null) qs.set('page', String(params.page));
-  if (params.page_size != null) qs.set('page_size', String(params.page_size));
-
-  const response = await fetch(`${API_BASE}/reports?${qs.toString()}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<PaginatedResponse<ReportDefinition>>(response);
+  const { data } = await apiClient.get<PaginatedResponse<ReportDefinition>>(
+    '/api/v1/staff/reports',
+    { params },
+  );
+  return data;
 }
 
 /** Fetch a single report definition by ID. */
 export async function getReport(reportId: string): Promise<ReportDefinition> {
-  const response = await fetch(`${API_BASE}/reports/${reportId}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<ReportDefinition>(response);
+  const { data } = await apiClient.get<ReportDefinition>(`/api/v1/staff/reports/${reportId}`);
+  return data;
 }
 
 /** Create a new report definition. */
 export async function createReport(
-  data: CreateReportPayload,
+  payload: CreateReportPayload,
 ): Promise<ReportDefinition> {
-  const response = await fetch(`${API_BASE}/reports`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<ReportDefinition>(response);
+  const { data } = await apiClient.post<ReportDefinition>('/api/v1/staff/reports', payload);
+  return data;
 }
 
 /** Update an existing report definition. */
 export async function updateReport(
   reportId: string,
-  data: UpdateReportPayload,
+  payload: UpdateReportPayload,
 ): Promise<ReportDefinition> {
-  const response = await fetch(`${API_BASE}/reports/${reportId}`, {
-    method: 'PATCH',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<ReportDefinition>(response);
+  const { data } = await apiClient.patch<ReportDefinition>(
+    `/api/v1/staff/reports/${reportId}`,
+    payload,
+  );
+  return data;
 }
 
 /** Delete a report definition. */
 export async function deleteReport(reportId: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/reports/${reportId}`, {
-    method: 'DELETE',
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<void>(response);
+  await apiClient.delete(`/api/v1/staff/reports/${reportId}`);
 }
 
 /** Export a report in the specified format. Returns a download URL. */
@@ -166,56 +133,47 @@ export async function exportReport(
   format: string,
   filters?: ExportReportFilters,
 ): Promise<{ download_url: string }> {
-  const response = await fetch(`${API_BASE}/reports/${reportId}/export`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ format, ...(filters ? { filters } : {}) }),
-  });
-  return handleResponse<{ download_url: string }>(response);
+  const { data } = await apiClient.post<{ download_url: string }>(
+    `/api/v1/staff/reports/${reportId}/export`,
+    { format, ...(filters ? { filters } : {}) },
+  );
+  return data;
 }
 
 // ---------------------------------------------------------------------------
-// API calls — Report schedules
+// API calls -- Report schedules
 // ---------------------------------------------------------------------------
 
 /** Fetch all report delivery schedules. */
 export async function getSchedules(): Promise<ReportSchedule[]> {
-  const response = await fetch(`${API_BASE}/reports/schedules`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<ReportSchedule[]>(response);
+  const { data } = await apiClient.get<ReportSchedule[]>('/api/v1/staff/reports/schedules');
+  return data;
 }
 
 /** Create a new report delivery schedule. */
 export async function createSchedule(
-  data: CreateSchedulePayload,
+  payload: CreateSchedulePayload,
 ): Promise<ReportSchedule> {
-  const response = await fetch(`${API_BASE}/reports/schedules`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<ReportSchedule>(response);
+  const { data } = await apiClient.post<ReportSchedule>(
+    '/api/v1/staff/reports/schedules',
+    payload,
+  );
+  return data;
 }
 
 /** Update an existing report delivery schedule. */
 export async function updateSchedule(
   scheduleId: string,
-  data: UpdateSchedulePayload,
+  payload: UpdateSchedulePayload,
 ): Promise<ReportSchedule> {
-  const response = await fetch(`${API_BASE}/reports/schedules/${scheduleId}`, {
-    method: 'PATCH',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  return handleResponse<ReportSchedule>(response);
+  const { data } = await apiClient.patch<ReportSchedule>(
+    `/api/v1/staff/reports/schedules/${scheduleId}`,
+    payload,
+  );
+  return data;
 }
 
 /** Delete a report delivery schedule. */
 export async function deleteSchedule(scheduleId: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/reports/schedules/${scheduleId}`, {
-    method: 'DELETE',
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<void>(response);
+  await apiClient.delete(`/api/v1/staff/reports/schedules/${scheduleId}`);
 }

@@ -69,12 +69,12 @@ const UrgentTicketsCard: React.FC<UrgentTicketsCardProps> = ({ tickets, isLoadin
           ))
         )}
       </div>
-      {tickets.length > 5 && (
+      {tickets.length > 0 && (
         <button
-          onClick={() => navigate('/dashboard/staff/support/tickets?priority=critical,high')}
-          className="mt-3 text-xs text-[#FF4444] hover:text-[#FF6666] transition-colors"
+          onClick={() => navigate('/dashboard/staff/support/tickets')}
+          className="mt-3 w-full flex items-center justify-center gap-1 text-xs text-[#FF4444] hover:text-[#FF6666] transition-colors"
         >
-          View all {tickets.length} urgent tickets
+          View All Tickets <ArrowRight className="w-3 h-3" />
         </button>
       )}
     </div>

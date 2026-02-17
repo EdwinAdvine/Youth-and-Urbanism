@@ -4,34 +4,9 @@
  * Fetches dashboard data from the backend API endpoints.
  */
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const BASE = `${API_URL}/api/v1/admin/dashboard`;
+import apiClient from '../api';
 
-function getAuthHeaders(): Record<string, string> {
-  let jwt = '';
-  const stored = localStorage.getItem('auth-store');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      jwt = parsed?.state?.token || parsed?.token || '';
-    } catch {
-      jwt = stored;
-    }
-  }
-  return {
-    Authorization: `Bearer ${jwt}`,
-    'Content-Type': 'application/json',
-  };
-}
-
-async function fetchJson<T>(url: string): Promise<T> {
-  const response = await fetch(url, { headers: getAuthHeaders() });
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status} ${response.statusText}`);
-  }
-  const json = await response.json();
-  return json.data ?? json;
-}
+const BASE = `/api/v1/admin/dashboard`;
 
 export interface DashboardOverview {
   total_users: number;
@@ -91,11 +66,26 @@ export interface AIAnomaly {
 }
 
 const adminDashboardService = {
-  getOverview: () => fetchJson<DashboardOverview>(`${BASE}/overview`),
-  getAlerts: () => fetchJson<DashboardAlert[]>(`${BASE}/alerts`),
-  getPendingItems: () => fetchJson<PendingItems>(`${BASE}/pending-items`),
-  getRevenueSnapshot: () => fetchJson<RevenueSnapshot>(`${BASE}/revenue-snapshot`),
-  getAIAnomalies: () => fetchJson<AIAnomaly[]>(`${BASE}/ai-anomalies`),
+  getOverview: async (): Promise<DashboardOverview> => {
+    const r = await apiClient.get(`${BASE}/overview`);
+    return r.data.data ?? r.data;
+  },
+  getAlerts: async (): Promise<DashboardAlert[]> => {
+    const r = await apiClient.get(`${BASE}/alerts`);
+    return r.data.data ?? r.data;
+  },
+  getPendingItems: async (): Promise<PendingItems> => {
+    const r = await apiClient.get(`${BASE}/pending-items`);
+    return r.data.data ?? r.data;
+  },
+  getRevenueSnapshot: async (): Promise<RevenueSnapshot> => {
+    const r = await apiClient.get(`${BASE}/revenue-snapshot`);
+    return r.data.data ?? r.data;
+  },
+  getAIAnomalies: async (): Promise<AIAnomaly[]> => {
+    const r = await apiClient.get(`${BASE}/ai-anomalies`);
+    return r.data.data ?? r.data;
+  },
 };
 
 export default adminDashboardService;

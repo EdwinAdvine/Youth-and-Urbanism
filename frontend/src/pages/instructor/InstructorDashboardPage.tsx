@@ -7,9 +7,9 @@ import { UpcomingSessionsCard } from '../../components/instructor/dashboard/Upco
 import { AIInsightsCard } from '../../components/instructor/dashboard/AIInsightsCard';
 import { useInstructorStore } from '../../store/instructorStore';
 import { useInstructorWebSocket } from '../../hooks/useInstructorWebSocket';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import apiClient from '../../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface DashboardData {
   stats: {
@@ -38,6 +38,7 @@ export const InstructorDashboardPage: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const { counters } = useInstructorStore();
+  const navigate = useNavigate();
 
   // Connect to WebSocket for real-time updates
   useInstructorWebSocket();
@@ -49,12 +50,8 @@ export const InstructorDashboardPage: React.FC = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(
-        `${API_URL}/api/v1/instructor/dashboard/overview`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const response = await apiClient.get(
+        '/api/v1/instructor/dashboard/overview'
       );
       setDashboardData(response.data);
     } catch (error) {
@@ -99,7 +96,7 @@ export const InstructorDashboardPage: React.FC = () => {
           icon={Users}
           color="purple"
           subtitle={`${stats.active_students_today} active today`}
-          onClick={() => window.location.href = '/dashboard/instructor/students'}
+          onClick={() => navigate('/dashboard/instructor/progress-pulse')}
         />
         <InstructorStatsCard
           title="Published Courses"
@@ -107,14 +104,14 @@ export const InstructorDashboardPage: React.FC = () => {
           icon={BookOpen}
           color="blue"
           subtitle={`${stats.total_courses} total`}
-          onClick={() => window.location.href = '/dashboard/instructor/courses'}
+          onClick={() => navigate('/dashboard/instructor/courses')}
         />
         <InstructorStatsCard
           title="Upcoming Sessions"
           value={stats.upcoming_sessions_count}
           icon={Video}
           color="green"
-          onClick={() => window.location.href = '/dashboard/instructor/sessions'}
+          onClick={() => navigate('/dashboard/instructor/sessions')}
         />
         <InstructorStatsCard
           title="Total Points"
@@ -122,7 +119,7 @@ export const InstructorDashboardPage: React.FC = () => {
           icon={Award}
           color="orange"
           subtitle={`${stats.current_streak} day streak`}
-          onClick={() => window.location.href = '/dashboard/instructor/impact'}
+          onClick={() => navigate('/dashboard/instructor/badges')}
         />
       </div>
 
@@ -150,7 +147,7 @@ export const InstructorDashboardPage: React.FC = () => {
                   </p>
                 </div>
                 <button
-                  onClick={() => window.location.href = '/dashboard/instructor/submissions'}
+                  onClick={() => navigate('/dashboard/instructor/submissions')}
                   className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-gray-900 dark:text-white rounded-lg transition-colors text-sm font-medium"
                 >
                   Grade Now
@@ -176,7 +173,7 @@ export const InstructorDashboardPage: React.FC = () => {
                 category: 'engagement',
                 title: 'Review student progress',
                 description: 'Check in on students with declining engagement',
-                action_url: '/dashboard/instructor/students/progress',
+                action_url: '/dashboard/instructor/progress-pulse',
               },
             ]}
           />
@@ -186,19 +183,19 @@ export const InstructorDashboardPage: React.FC = () => {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
             <div className="space-y-2">
               <button
-                onClick={() => window.location.href = '/dashboard/instructor/courses/new'}
+                onClick={() => navigate('/dashboard/instructor/courses/create')}
                 className="w-full p-3 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 rounded-lg transition-colors text-sm font-medium text-left"
               >
                 + Create New Course
               </button>
               <button
-                onClick={() => window.location.href = '/dashboard/instructor/sessions/new'}
+                onClick={() => navigate('/dashboard/instructor/sessions/create')}
                 className="w-full p-3 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 rounded-lg transition-colors text-sm font-medium text-left"
               >
                 + Schedule Live Session
               </button>
               <button
-                onClick={() => window.location.href = '/dashboard/instructor/assessments/new'}
+                onClick={() => navigate('/dashboard/instructor/assessments/create')}
                 className="w-full p-3 bg-green-500/10 hover:bg-green-500/20 text-green-300 rounded-lg transition-colors text-sm font-medium text-left"
               >
                 + Create Assessment

@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Search, TrendingUp, TrendingDown, Minus, Award, AlertTriangle, Users } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface StudentProgress {
   student_id: string;
@@ -35,10 +34,7 @@ export const ProgressPulsePage: React.FC = () => {
   const fetchProgress = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_URL}/api/v1/instructor/students/progress`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get('/api/v1/instructor/students/progress');
 
       // Mock data for development
       if (!response.data || response.data.length === 0) {

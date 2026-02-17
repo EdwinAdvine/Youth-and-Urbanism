@@ -23,6 +23,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user import User
 from app.models.student import Student
 from app.models.ai_tutor import AITutor
+from app.models.ai_agent_profile import AIAgentProfile
 from app.schemas.user_schemas import UserCreate, UserLogin, TokenResponse
 from app.utils.security import (
     get_password_hash,
@@ -40,9 +41,10 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
 
     This function:
     1. Validates that the email is not already registered
-    2. Hashes the password securely
-    3. Creates a new user record
-    4. For student roles: automatically creates Student and AITutor records
+    2. Validates that role is allowed for self-registration (defense-in-depth)
+    3. Hashes the password securely
+    4. Creates a new user record
+    5. For student roles: automatically creates Student and AITutor records
 
     Args:
         user_data: UserCreate schema containing registration data
@@ -52,9 +54,17 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
         User: The newly created user object
 
     Raises:
-        HTTPException: 400 if email already exists
+        HTTPException: 400 if email already exists or role not allowed
         HTTPException: 500 if database operation fails
     """
+    # Defense-in-depth: validate role whitelist at service level
+    ALLOWED_SELF_REGISTRATION_ROLES = ['student', 'parent', 'instructor']
+    if user_data.role not in ALLOWED_SELF_REGISTRATION_ROLES:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Role '{user_data.role}' cannot self-register. Contact an administrator."
+        )
+
     # Check if email already exists
     result = await db.execute(
         select(User).where(User.email == user_data.email)
@@ -94,10 +104,13 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
             # Generate admission number if not provided
             if not admission_number:
                 # Format: TUHS-YYYY-XXXXX (e.g., TUHS-2026-00001)
-                year = datetime.utcnow().year
-                # Get count of existing students to generate sequential number
-                student_count = await db.execute(select(Student))
-                count = len(student_count.scalars().all())
+                from datetime import timezone
+                year = datetime.now(timezone.utc).year
+                # CRITICAL FIX (M-04): Use COUNT(*) instead of loading all students
+                # Prevents O(N) memory usage and race conditions
+                from sqlalchemy import func
+                result = await db.execute(select(func.count()).select_from(Student))
+                count = result.scalar() or 0
                 admission_number = f"TUHS-{year}-{(count + 1):05d}"
 
             # Create Student record
@@ -106,7 +119,7 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
                 parent_id=None,  # Can be linked later by parent
                 admission_number=admission_number,
                 grade_level=grade_level,
-                enrollment_date=datetime.utcnow().date(),
+                enrollment_date=datetime.now(timezone.utc).date(),
                 is_active=True,
                 learning_profile=profile.get('learning_profile', {}),
                 competencies={},
@@ -128,6 +141,26 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
             )
 
             db.add(ai_tutor)
+
+        # Create AIAgentProfile for ALL roles (student, parent, instructor, admin, staff, partner)
+        # Each user gets their own dedicated AI agent with role-specific defaults
+        from app.services.copilot_service import CopilotService
+
+        role_defaults = CopilotService.ROLE_DEFAULTS.get(
+            user_data.role,
+            {'agent_name': 'AI Assistant', 'persona': 'Helpful assistant', 'expertise_focus': 'general assistance'}
+        )
+
+        ai_agent_profile = AIAgentProfile(
+            user_id=new_user.id,
+            agent_name=role_defaults['agent_name'],
+            persona=role_defaults['persona'],
+            expertise_focus=role_defaults['expertise_focus'],
+            avatar_url=None,  # User can customize later
+            custom_instructions='',
+            is_active=True,
+        )
+        db.add(ai_agent_profile)
 
         # Commit all changes
         await db.commit()
@@ -238,6 +271,33 @@ async def authenticate_user(credentials: UserLogin, db: AsyncSession) -> TokenRe
                     db.add(ai_tutor)
                     await db.flush()
 
+        # Lazy-create AIAgentProfile for ALL existing users who don't have one
+        # This ensures backward compatibility for users created before CoPilot feature
+        agent_profile_result = await db.execute(
+            select(AIAgentProfile).where(AIAgentProfile.user_id == user.id)
+        )
+        agent_profile = agent_profile_result.scalars().first()
+
+        if not agent_profile:
+            from app.services.copilot_service import CopilotService
+
+            role_defaults = CopilotService.ROLE_DEFAULTS.get(
+                user.role,
+                {'agent_name': 'AI Assistant', 'persona': 'Helpful assistant', 'expertise_focus': 'general assistance'}
+            )
+
+            agent_profile = AIAgentProfile(
+                user_id=user.id,
+                agent_name=role_defaults['agent_name'],
+                persona=role_defaults['persona'],
+                expertise_focus=role_defaults['expertise_focus'],
+                avatar_url=None,
+                custom_instructions='',
+                is_active=True,
+            )
+            db.add(agent_profile)
+            await db.flush()
+
         # Generate JWT tokens
         token_data = {
             "sub": str(user.id),
@@ -249,7 +309,8 @@ async def authenticate_user(credentials: UserLogin, db: AsyncSession) -> TokenRe
         refresh_token = create_refresh_token(data={"sub": str(user.id)})
 
         # Update last_login timestamp
-        user.last_login = datetime.utcnow()
+        from datetime import timezone
+        user.last_login = datetime.now(timezone.utc)
         await db.commit()
 
         # Return token response
@@ -521,7 +582,7 @@ async def confirm_password_reset(
     1. Verifies the reset token
     2. Extracts user ID from token
     3. Updates the user's password
-    4. Invalidates the reset token
+    4. CRITICAL FIX (H-01): Blacklists the reset token to prevent reuse
 
     Args:
         reset_token: Password reset token from email
@@ -537,14 +598,7 @@ async def confirm_password_reset(
     """
     try:
         # Verify reset token
-        payload = verify_token(reset_token, token_type="access")
-
-        # Check if this is a password reset token
-        if payload.get("type") != "password_reset":
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid reset token"
-            )
+        payload = verify_token(reset_token, token_type="password_reset")
 
         user_id_str: str = payload.get("sub")
         if user_id_str is None:
@@ -571,6 +625,28 @@ async def confirm_password_reset(
         # Hash new password and update
         user.password_hash = get_password_hash(new_password)
         await db.commit()
+
+        # CRITICAL FIX (H-01): Blacklist the reset token to prevent reuse
+        # Password reset tokens are one-time use only for security
+        try:
+            import redis.asyncio as aioredis
+            import time
+            r = aioredis.from_url(
+                settings.redis_url, decode_responses=True
+            ) if hasattr(settings, 'redis_url') else None
+
+            if r is not None:
+                # Calculate remaining TTL
+                exp = payload.get("exp", 0)
+                ttl = max(int(exp - time.time()), 1)
+                await r.setex(f"blacklist:{reset_token}", ttl, "1")
+                await r.close()
+        except Exception as e:
+            # Log warning but don't fail the password reset
+            # Token is already used, so even if blacklist fails, it's expired in 1 hour
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Failed to blacklist password reset token: {e}")
 
         return True
 

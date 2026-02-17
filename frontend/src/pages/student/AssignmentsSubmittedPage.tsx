@@ -1,3 +1,5 @@
+// AssignmentsSubmittedPage - Student page at /dashboard/student/assignments-submitted. Lists
+// all submitted assignments with grading status, scores, feedback availability, and resubmit options.
 import React from 'react';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';
 import { CheckCircle2, Clock, MessageSquare, RotateCcw, Eye } from 'lucide-react';

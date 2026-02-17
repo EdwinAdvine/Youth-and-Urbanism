@@ -16,7 +16,7 @@ Features:
 """
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, String, Boolean, DateTime, UUID
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
@@ -58,11 +58,12 @@ class User(Base):
     is_verified = Column(Boolean, default=False, nullable=False)
 
     # Profile data (flexible JSONB for role-specific fields)
-    profile_data = Column(JSONB, default={}, nullable=False)
+    profile_data = Column(JSONB, default=dict, nullable=False)
 
     # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    # CRITICAL FIX (M-05): Replace deprecated datetime.utcnow with datetime.now(timezone.utc)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
     last_login = Column(DateTime, nullable=True)
 
     # Soft delete tracking
@@ -73,6 +74,8 @@ class User(Base):
     transactions = relationship("Transaction", back_populates="user", cascade="all, delete-orphan")
     payment_methods = relationship("PaymentMethod", back_populates="user", cascade="all, delete-orphan")
     wallet = relationship("Wallet", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    # CRITICAL FIX (H-19): Added missing student_profile relationship
+    student_profile = relationship("Student", back_populates="user", uselist=False, cascade="all, delete-orphan")
     instructor_profile = relationship("InstructorProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
     partner_profile = relationship("PartnerProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
 

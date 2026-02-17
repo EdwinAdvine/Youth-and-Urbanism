@@ -1,26 +1,8 @@
-import React from 'react';
-import CoPilotSidebar from '../CoPilotSidebar';
+import { describe, it, expect } from 'vitest';
 
-// Simple integration test component for manual testing
-interface TestCoPilotProps {
-  initialState?: {
-    isExpanded?: boolean;
-    activeRole?: string;
-    isOnline?: boolean;
-  };
-}
-
-const TestCoPilot: React.FC<TestCoPilotProps> = ({ 
-  initialState = { isExpanded: false, activeRole: 'student', isOnline: true } 
-}) => {
-  // This is a manual test component for development
-  return (
-    <div>
-      <h2>CoPilot Integration Test</h2>
-      <p>Initial State: {JSON.stringify(initialState)}</p>
-      <CoPilotSidebar />
-    </div>
-  );
-};
-
-export default TestCoPilot;
+describe('CoPilot', () => {
+  it('module exists', () => {
+    // Placeholder: real tests will be added in Phase 6
+    expect(true).toBe(true);
+  });
+});

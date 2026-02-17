@@ -1,3 +1,5 @@
+// WalletPage - Authenticated page at /wallet. Displays wallet balance, transaction history,
+// top-up options via M-Pesa/card, and withdrawal functionality.
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   Wallet,
@@ -16,7 +18,6 @@ import {
   TrendingUp,
   TrendingDown,
   Calendar,
-  MoreVertical,
   Trash2,
   Star,
   Download,

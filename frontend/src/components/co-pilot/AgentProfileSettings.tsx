@@ -1,20 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Bot, Save, RotateCcw, X, Sparkles } from 'lucide-react';
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
-const getAuthHeaders = () => {
-  const stored = localStorage.getItem('auth-storage');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      const token = parsed?.state?.token;
-      if (token) return { Authorization: `Bearer ${token}` };
-    } catch { /* ignore */ }
-  }
-  return {};
-};
+import apiClient from '../../services/api';
 
 interface AgentProfile {
   agent_name: string;
@@ -56,9 +42,11 @@ const languages = [
 
 interface AgentProfileSettingsProps {
   onClose: () => void;
+  /** Callback when profile is successfully updated */
+  onProfileUpdate?: (profile: { agent_name: string; avatar_url: string | null }) => void;
 }
 
-const AgentProfileSettings: React.FC<AgentProfileSettingsProps> = ({ onClose }) => {
+const AgentProfileSettings: React.FC<AgentProfileSettingsProps> = ({ onClose, onProfileUpdate }) => {
   const [profile, setProfile] = useState<AgentProfile>(defaultProfile);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -70,7 +58,7 @@ const AgentProfileSettings: React.FC<AgentProfileSettingsProps> = ({ onClose }) 
 
   const loadProfile = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/v1/ai-agent/profile`, { headers: getAuthHeaders() });
+      const res = await apiClient.get('/api/v1/ai-agent/profile');
       setProfile({ ...defaultProfile, ...res.data });
     } catch {
       // Use defaults
@@ -83,9 +71,15 @@ const AgentProfileSettings: React.FC<AgentProfileSettingsProps> = ({ onClose }) 
     setSaving(true);
     setMessage('');
     try {
-      await axios.put(`${API_URL}/api/v1/ai-agent/profile`, profile, { headers: getAuthHeaders() });
+      await apiClient.put('/api/v1/ai-agent/profile', profile);
       setMessage('Profile saved!');
       setTimeout(() => setMessage(''), 2000);
+
+      // Notify parent component so sidebar greeting updates immediately
+      onProfileUpdate?.({
+        agent_name: profile.agent_name,
+        avatar_url: profile.avatar_url,
+      });
     } catch {
       setMessage('Failed to save');
     } finally {
@@ -96,7 +90,7 @@ const AgentProfileSettings: React.FC<AgentProfileSettingsProps> = ({ onClose }) 
   const resetProfile = async () => {
     setSaving(true);
     try {
-      await axios.post(`${API_URL}/api/v1/ai-agent/profile/reset`, {}, { headers: getAuthHeaders() });
+      await apiClient.post('/api/v1/ai-agent/profile/reset', {});
       setProfile(defaultProfile);
       setMessage('Reset to defaults');
       setTimeout(() => setMessage(''), 2000);

@@ -123,20 +123,79 @@ const ResourceLibraryPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
+  const [resources, setResources] = useState<Resource[]>(MOCK_RESOURCES);
+  const [refreshing, setRefreshing] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  const totalResources = MOCK_RESOURCES.length;
-  const pendingReview = MOCK_RESOURCES.filter((r) => r.moderation_status === 'pending').length;
-  const approvedCount = MOCK_RESOURCES.filter((r) => r.moderation_status === 'approved').length;
-  const categories = Array.from(new Set(MOCK_RESOURCES.map((r) => r.category)));
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  /* -- Button handlers ------------------------------------------------- */
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+      showToast('Resource library refreshed');
+    }, 1200);
+  };
+
+  const handleUploadResource = () => {
+    alert('Upload flow coming soon');
+  };
+
+  const handlePreviewResource = (resource: Resource) => {
+    alert(
+      `Resource Preview\n\nTitle: ${resource.title}\nType: ${resource.file_type.toUpperCase()}\nSize: ${resource.file_size}\nCategory: ${resource.category}\nUploaded By: ${resource.uploaded_by}\nStatus: ${resource.moderation_status}\nUsage Count: ${resource.usage_count}\nCreated: ${resource.created_at}`
+    );
+  };
+
+  const handleDownloadResource = (resource: Resource) => {
+    const content = `Resource: ${resource.title}\nType: ${resource.file_type}\nSize: ${resource.file_size}\nCategory: ${resource.category}\n\n[This is a placeholder download. The actual file would be downloaded from the server.]`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${resource.title.replace(/\s+/g, '_')}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`"${resource.title}" download started`);
+  };
+
+  const handleApproveResource = (resourceId: string) => {
+    setResources((prev) =>
+      prev.map((r) => (r.id === resourceId ? { ...r, moderation_status: 'approved' as ModerationStatus } : r))
+    );
+    showToast('Resource approved successfully');
+  };
+
+  const handleDeleteResource = (resourceId: string, title: string) => {
+    if (!confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) return;
+    setResources((prev) => prev.filter((r) => r.id !== resourceId));
+    showToast(`"${title}" has been deleted`);
+  };
+
+  const handleMoreResource = () => {
+    alert('More options coming soon');
+  };
+
+  /* ------------------------------------------------------------------- */
+
+  const totalResources = resources.length;
+  const pendingReview = resources.filter((r) => r.moderation_status === 'pending').length;
+  const approvedCount = resources.filter((r) => r.moderation_status === 'approved').length;
+  const categories = Array.from(new Set(resources.map((r) => r.category)));
 
   const getFilteredResources = () => {
-    let resources = MOCK_RESOURCES;
+    let filtered = resources;
     if (activeTab === 'moderation') {
-      resources = resources.filter((r) => r.moderation_status === 'pending');
+      filtered = filtered.filter((r) => r.moderation_status === 'pending');
     }
     if (search) {
       const q = search.toLowerCase();
-      resources = resources.filter(
+      filtered = filtered.filter(
         (r) =>
           r.title.toLowerCase().includes(q) ||
           r.uploaded_by.toLowerCase().includes(q) ||
@@ -144,12 +203,12 @@ const ResourceLibraryPage: React.FC = () => {
       );
     }
     if (categoryFilter) {
-      resources = resources.filter((r) => r.category === categoryFilter);
+      filtered = filtered.filter((r) => r.category === categoryFilter);
     }
     if (typeFilter) {
-      resources = resources.filter((r) => r.file_type === typeFilter);
+      filtered = filtered.filter((r) => r.file_type === typeFilter);
     }
-    return resources;
+    return filtered;
   };
 
   const filteredResources = getFilteredResources();
@@ -182,11 +241,18 @@ const ResourceLibraryPage: React.FC = () => {
           ]}
           actions={
             <div className="flex items-center gap-2">
-              <button className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors">
-                <RefreshCw className="w-4 h-4" />
-                Refresh
+              <button
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                {refreshing ? 'Refreshing...' : 'Refresh'}
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 text-sm bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#C00] transition-colors">
+              <button
+                onClick={handleUploadResource}
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-[#C00] transition-colors"
+              >
                 <Plus className="w-4 h-4" />
                 Upload Resource
               </button>
@@ -345,12 +411,14 @@ const ResourceLibraryPage: React.FC = () => {
                         <div className="flex items-center justify-end gap-1">
                           <button
                             title="Preview"
+                            onClick={() => handlePreviewResource(resource)}
                             className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
                           <button
                             title="Download"
+                            onClick={() => handleDownloadResource(resource)}
                             className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                           >
                             <Download className="w-4 h-4" />
@@ -358,6 +426,7 @@ const ResourceLibraryPage: React.FC = () => {
                           {resource.moderation_status === 'pending' && (
                             <button
                               title="Approve"
+                              onClick={() => handleApproveResource(resource.id)}
                               className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-gray-500 dark:text-white/50 hover:text-emerald-400 transition-colors"
                             >
                               <CheckCircle2 className="w-4 h-4" />
@@ -365,12 +434,14 @@ const ResourceLibraryPage: React.FC = () => {
                           )}
                           <button
                             title="Delete"
+                            onClick={() => handleDeleteResource(resource.id, resource.title)}
                             className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 dark:text-white/50 hover:text-red-400 transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
                           <button
                             title="More"
+                            onClick={handleMoreResource}
                             className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22272B] text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
                           >
                             <MoreHorizontal className="w-4 h-4" />
@@ -387,12 +458,23 @@ const ResourceLibraryPage: React.FC = () => {
           {filteredResources.length > 0 && (
             <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-[#22272B]">
               <p className="text-xs text-gray-400 dark:text-white/40">
-                Showing {filteredResources.length} of {MOCK_RESOURCES.length} resources
+                Showing {filteredResources.length} of {resources.length} resources
               </p>
             </div>
           )}
         </motion.div>
       </motion.div>
+
+      {/* Toast notification */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl ${
+            toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+          }`}>
+            <p className="text-sm font-medium">{toast.message}</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };

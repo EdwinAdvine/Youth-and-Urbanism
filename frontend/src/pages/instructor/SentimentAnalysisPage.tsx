@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Brain, TrendingUp, TrendingDown, AlertCircle, Sparkles } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import {
   LineChart,
   Line,
@@ -18,7 +18,6 @@ import {
   Cell,
 } from 'recharts';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface SentimentData {
   overall_sentiment: number;
@@ -66,10 +65,7 @@ export const SentimentAnalysisPage: React.FC = () => {
   const fetchSentimentData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_URL}/api/v1/instructor/feedback/sentiment`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get('/api/v1/instructor/feedback/sentiment');
 
       // Mock data for development
       if (!response.data) {
@@ -123,11 +119,9 @@ export const SentimentAnalysisPage: React.FC = () => {
   const handleReanalyze = async () => {
     try {
       setAnalyzing(true);
-      const token = localStorage.getItem('access_token');
-      await axios.post(
-        `${API_URL}/api/v1/instructor/feedback/sentiment/reanalyze`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
+      await apiClient.post(
+        '/api/v1/instructor/feedback/sentiment/reanalyze',
+        {}
       );
 
       await fetchSentimentData();

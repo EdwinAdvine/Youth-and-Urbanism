@@ -1,6 +1,7 @@
+// NotificationsPage - Authenticated page at /notifications. Shows all notifications grouped
+// by type (courses, assignments, community, payments) with read/unread filtering and bulk actions.
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUserStore } from '../store';
 import {
   Bell,
   BookOpen,
@@ -354,7 +355,6 @@ const groupNotifications = (notifications: Notification[]) => {
 };
 
 export default function NotificationsPage() {
-  const { user } = useUserStore();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<FilterType>('all');

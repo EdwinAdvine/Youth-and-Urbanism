@@ -1,5 +1,16 @@
 """
 Student Learning Service - Courses, Enrollments, Live Sessions, Browse
+
+Provides student-facing learning operations including:
+- Enrolled course listing with progress tracking
+- AI-powered course recommendations based on grade level
+- Course marketplace browsing with search, filtering, and sorting
+- Wishlist management (add, remove, list)
+- Upcoming live session retrieval
+- AI-generated session preparation tips
+- Detailed course preview data
+
+All methods are async and use the student UUID for personalization.
 """
 from datetime import datetime
 from typing import Dict, List, Optional
@@ -7,6 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, func, desc
 from uuid import UUID
 
+from app.models.user import User
 from app.models.student import Student
 from app.models.course import Course
 from app.models.enrollment import Enrollment, EnrollmentStatus
@@ -20,6 +32,18 @@ class LearningService:
     def __init__(self, db: AsyncSession):
         self.db = db
         self.ai_orchestrator = AIOrchestrator()
+
+    async def _get_instructor_name(self, instructor_id) -> str:
+        """Resolve instructor UUID to display name from User profile_data"""
+        if not instructor_id:
+            return "Urban Home School"
+        result = await self.db.execute(
+            select(User).where(User.id == instructor_id)
+        )
+        user = result.scalar_one_or_none()
+        if user and user.profile_data:
+            return user.profile_data.get("full_name", user.email)
+        return "Unknown Instructor"
 
     async def get_enrolled_courses(self, student_id: UUID) -> List[Dict]:
         """Get student's enrolled courses with progress"""
@@ -39,17 +63,19 @@ class LearningService:
 
         courses_data = []
         for enrollment, course in enrollments:
+            instructor_name = await self._get_instructor_name(course.instructor_id)
             courses_data.append({
                 "enrollment_id": str(enrollment.id),
                 "course_id": str(course.id),
                 "course_title": course.title,
                 "course_description": course.description,
-                "instructor_name": course.instructor_name,
+                "instructor_name": instructor_name,
                 "progress_percentage": enrollment.progress_percentage,
                 "completed": enrollment.completed,
                 "enrollment_date": enrollment.enrollment_date,
                 "completion_date": enrollment.completion_date,
                 "grade_levels": course.grade_levels,
+                "learning_area": course.learning_area,
                 "thumbnail_url": course.thumbnail_url
             })
 
@@ -97,15 +123,16 @@ class LearningService:
         # Format courses
         recommended = []
         for course in courses:
+            instructor_name = await self._get_instructor_name(course.instructor_id)
             recommended.append({
                 "course_id": str(course.id),
                 "title": course.title,
                 "description": course.description,
-                "instructor_name": course.instructor_name,
+                "instructor_name": instructor_name,
                 "grade_levels": course.grade_levels,
-                "learning_areas": course.learning_areas,
-                "rating": course.rating,
-                "total_students": course.total_students,
+                "learning_area": course.learning_area,
+                "average_rating": float(course.average_rating),
+                "enrollment_count": course.enrollment_count,
                 "thumbnail_url": course.thumbnail_url,
                 "price": float(course.price) if course.price else 0.0,
                 "ai_match_score": 85  # Placeholder - would use ML model
@@ -145,13 +172,13 @@ class LearningService:
             query = query.where(Course.grade_levels.contains([grade_level]))
 
         if subject:
-            query = query.where(Course.learning_areas.contains([subject]))
+            query = query.where(Course.learning_area == subject)
 
         # Apply sorting
         if sort_by == "popular":
-            query = query.order_by(desc(Course.total_students))
+            query = query.order_by(desc(Course.enrollment_count))
         elif sort_by == "rating":
-            query = query.order_by(desc(Course.rating))
+            query = query.order_by(desc(Course.average_rating))
         elif sort_by == "newest":
             query = query.order_by(desc(Course.created_at))
         elif sort_by == "price_low":
@@ -170,22 +197,24 @@ class LearningService:
         result = await self.db.execute(query)
         courses = result.scalars().all()
 
+        courses_list = []
+        for course in courses:
+            instructor_name = await self._get_instructor_name(course.instructor_id)
+            courses_list.append({
+                "course_id": str(course.id),
+                "title": course.title,
+                "description": course.description,
+                "instructor_name": instructor_name,
+                "grade_levels": course.grade_levels,
+                "learning_area": course.learning_area,
+                "average_rating": float(course.average_rating),
+                "enrollment_count": course.enrollment_count,
+                "thumbnail_url": course.thumbnail_url,
+                "price": float(course.price) if course.price else 0.0
+            })
+
         return {
-            "courses": [
-                {
-                    "course_id": str(course.id),
-                    "title": course.title,
-                    "description": course.description,
-                    "instructor_name": course.instructor_name,
-                    "grade_levels": course.grade_levels,
-                    "learning_areas": course.learning_areas,
-                    "rating": course.rating,
-                    "total_students": course.total_students,
-                    "thumbnail_url": course.thumbnail_url,
-                    "price": float(course.price) if course.price else 0.0
-                }
-                for course in courses
-            ],
+            "courses": courses_list,
             "total": total_courses,
             "limit": limit,
             "offset": offset
@@ -248,12 +277,13 @@ class LearningService:
 
         wishlist = []
         for wishlist_item, course in items:
+            instructor_name = await self._get_instructor_name(course.instructor_id)
             wishlist.append({
                 "wishlist_id": str(wishlist_item.id),
                 "course_id": str(course.id),
                 "course_title": course.title,
                 "course_description": course.description,
-                "instructor_name": course.instructor_name,
+                "instructor_name": instructor_name,
                 "grade_levels": course.grade_levels,
                 "price": float(course.price) if course.price else 0.0,
                 "thumbnail_url": course.thumbnail_url,
@@ -334,15 +364,17 @@ attending an upcoming live learning session. Include:
         if not course:
             raise ValueError("Course not found")
 
+        instructor_name = await self._get_instructor_name(course.instructor_id)
+
         return {
             "course_id": str(course.id),
             "title": course.title,
             "description": course.description,
-            "instructor_name": course.instructor_name,
+            "instructor_name": instructor_name,
             "grade_levels": course.grade_levels,
-            "learning_areas": course.learning_areas,
-            "rating": course.rating,
-            "total_students": course.total_students,
+            "learning_area": course.learning_area,
+            "average_rating": float(course.average_rating),
+            "enrollment_count": course.enrollment_count,
             "thumbnail_url": course.thumbnail_url,
             "price": float(course.price) if course.price else 0.0,
             "created_at": course.created_at,

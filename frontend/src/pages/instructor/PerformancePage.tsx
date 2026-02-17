@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { TrendingUp, Users, Award, Target, Calendar } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import {
   BarChart,
   Bar,
@@ -15,7 +15,6 @@ import {
   Area,
 } from 'recharts';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface PerformanceData {
   engagement_over_time: Array<{
@@ -59,9 +58,7 @@ export const PerformancePage: React.FC = () => {
   const fetchPerformanceData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_URL}/api/v1/instructor/performance`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await apiClient.get('/api/v1/instructor/performance', {
         params: { period: periodFilter },
       });
 

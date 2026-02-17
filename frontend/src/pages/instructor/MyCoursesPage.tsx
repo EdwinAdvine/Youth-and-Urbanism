@@ -3,9 +3,8 @@ import { Plus, Search, Filter, BookOpen, TrendingUp } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { CourseCard } from '../../components/instructor/courses/CourseCard';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Course {
   id: string;
@@ -37,13 +36,11 @@ export const MyCoursesPage: React.FC = () => {
   const fetchCourses = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
       const params: any = {};
       if (statusFilter !== 'all') params.status = statusFilter;
       if (sortBy) params.sort_by = sortBy;
 
-      const response = await axios.get(`${API_URL}/api/v1/instructor/courses`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await apiClient.get('/api/v1/instructor/courses', {
         params,
       });
 
@@ -117,10 +114,7 @@ export const MyCoursesPage: React.FC = () => {
     if (!confirm('Are you sure you want to delete this course?')) return;
 
     try {
-      const token = localStorage.getItem('access_token');
-      await axios.delete(`${API_URL}/api/v1/instructor/courses/${courseId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await apiClient.delete(`/api/v1/instructor/courses/${courseId}`);
       fetchCourses();
     } catch (error) {
       console.error('Error deleting course:', error);
@@ -128,8 +122,8 @@ export const MyCoursesPage: React.FC = () => {
     }
   };
 
-  const handleViewAnalytics = (courseId: string) => {
-    navigate(`/dashboard/instructor/courses/${courseId}/analytics`);
+  const handleViewAnalytics = (_courseId: string) => {
+    navigate('/dashboard/instructor/performance');
   };
 
   // Filter courses based on search query

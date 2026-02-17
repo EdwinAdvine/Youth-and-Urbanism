@@ -43,7 +43,7 @@ const AIProvidersPage: React.FC = () => {
       setLoading(true);
       setError(null);
       const response = await adminProviderService.listProviders(false);
-      setProviders(response.items);
+      setProviders(response.providers);
     } catch (err) {
       setError('Failed to load AI providers. Please try again.');
       console.error('Error loading providers:', err);
@@ -297,20 +297,16 @@ const AIProvidersPage: React.FC = () => {
           ) : activeTab === 'recommended' ? (
             // Recommended Providers Tab
             <RecommendedProviders
-              providers={recommendedProviders}
-              onSelect={(provider) => {
-                const createData: Partial<AIProviderCreate> = {
-                  name: provider.name,
-                  provider_type: provider.provider_type as 'text' | 'voice' | 'video' | 'multimodal',
-                  specialization: provider.specialization,
-                };
+              onSelectTemplate={(template) => {
                 setSelectedProvider({
-                  ...createData,
+                  name: template.name,
+                  provider_type: template.provider_type as 'text' | 'voice' | 'video' | 'multimodal',
+                  specialization: template.specialization,
                   id: '',
-                  api_endpoint: '',
+                  api_endpoint: template.api_endpoint || '',
                   is_active: true,
-                  is_recommended: false,
-                  configuration: {},
+                  is_recommended: template.is_recommended || false,
+                  configuration: template.configuration || {},
                   created_at: '',
                   updated_at: '',
                 } as AIProvider);
@@ -322,7 +318,12 @@ const AIProvidersPage: React.FC = () => {
             <AIProviderList
               providers={filteredProviders}
               onEdit={handleEdit}
-              onDeactivate={handleDeactivate}
+              onDelete={handleDeactivate}
+              onToggleActive={(id, isActive) => {
+                if (!isActive) {
+                  handleDeactivate(id);
+                }
+              }}
             />
           )}
 
@@ -355,9 +356,17 @@ const AIProvidersPage: React.FC = () => {
       {/* Provider Form Modal */}
       {showForm && (
         <AIProviderForm
+          isOpen={showForm}
           provider={selectedProvider}
-          onSubmit={selectedProvider?.id ? handleUpdate : handleCreate}
-          onCancel={() => {
+          mode={selectedProvider?.id ? 'edit' : 'create'}
+          onSubmit={async (data) => {
+            if (selectedProvider?.id) {
+              await handleUpdate(selectedProvider.id, data as AIProviderUpdate);
+            } else {
+              await handleCreate(data as AIProviderCreate);
+            }
+          }}
+          onClose={() => {
             setShowForm(false);
             setSelectedProvider(null);
           }}

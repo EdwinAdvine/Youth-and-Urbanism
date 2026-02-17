@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Mic, MicOff, Sparkles, Brain, BookOpen, Play, Paperclip, Image, FileText, Code, Lightbulb, Star } from 'lucide-react';
+import { Send, Sparkles, Brain, BookOpen, Play, Paperclip, Image, FileText, Code } from 'lucide-react';
 import { useChatStore } from '../../store/chatStore';
 
 interface InputBarProps {
@@ -15,9 +15,7 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, onQuickAction, isTyp
   const inputRef = useRef<HTMLTextAreaElement>(null);
   
   
-  const currentInput = useChatStore((state) => state.currentInput);
   const updateCurrentInput = useChatStore((state) => state.updateCurrentInput);
-  const setIsRecording = useChatStore((state) => state.setIsRecording);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -54,14 +52,6 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, onQuickAction, isTyp
 
   const handleQuickAction = (action: string) => {
     onQuickAction(action);
-  };
-
-  const handleSuggestionClick = (suggestion: string) => {
-    setInputValue(suggestion);
-    updateCurrentInput(suggestion);
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
   };
 
   return (

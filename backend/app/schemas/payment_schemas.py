@@ -514,27 +514,21 @@ class WalletResponse(BaseModel):
     """
     Schema for returning user wallet data.
 
-    Wallets are primarily used by external instructors to receive revenue
-    from course enrollments (60% of course price).
+    Aligned with the actual Wallet model columns.
+    Each user has one wallet for balance tracking and credit management.
 
     Attributes:
         id: Unique wallet identifier
         user_id: Owner of the wallet
         balance: Current available balance
-        currency: ISO 4217 currency code
-        total_earned: Lifetime earnings
-        pending_payout: Amount pending withdrawal
-        is_active: Whether wallet is active for transactions
+        currency: ISO 4217 currency code (default: KES)
         created_at: Wallet creation timestamp
         updated_at: Last update timestamp
     """
     id: UUID
     user_id: UUID
     balance: Decimal = Field(..., description="Current available balance")
-    currency: str = Field(..., max_length=3, description="ISO 4217 currency code")
-    total_earned: Decimal = Field(..., description="Lifetime total earnings")
-    pending_payout: Decimal = Field(..., description="Amount pending withdrawal")
-    is_active: bool = Field(..., description="Wallet active status")
+    currency: str = Field(default="KES", max_length=3, description="ISO 4217 currency code")
     created_at: datetime
     updated_at: datetime
 

@@ -1,3 +1,5 @@
+// HowItWorksPage - Public page at /how-it-works. Walks visitors through the platform
+// onboarding steps, from signup to AI-powered learning, with expandable details and FAQ.
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';

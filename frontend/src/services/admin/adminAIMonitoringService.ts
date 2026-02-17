@@ -5,34 +5,9 @@
  * personalization audits, performance metrics, and safety dashboard.
  */
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const BASE = `${API_URL}/api/v1/admin/ai-monitoring`;
+import apiClient from '../api';
 
-function getAuthHeaders(): Record<string, string> {
-  let jwt = '';
-  const stored = localStorage.getItem('auth-store');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      jwt = parsed?.state?.token || parsed?.token || '';
-    } catch {
-      jwt = stored;
-    }
-  }
-  return {
-    Authorization: `Bearer ${jwt}`,
-    'Content-Type': 'application/json',
-  };
-}
-
-async function fetchJson<T>(url: string): Promise<T> {
-  const response = await fetch(url, { headers: getAuthHeaders() });
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status} ${response.statusText}`);
-  }
-  const json = await response.json();
-  return json.data ?? json;
-}
+const BASE = `/api/v1/admin/ai-monitoring`;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -211,32 +186,41 @@ export interface SafetyDashboard {
 // ---------------------------------------------------------------------------
 
 const adminAIMonitoringService = {
-  getConversationFlags: (
+  getConversationFlags: async (
     page = 1,
     pageSize = 10,
     severity?: string,
   ): Promise<ConversationFlagListResponse> => {
-    let url = `${BASE}/conversations/flags?page=${page}&page_size=${pageSize}`;
-    if (severity) url += `&severity=${severity}`;
-    return fetchJson<ConversationFlagListResponse>(url);
+    const params: Record<string, string | number> = { page, page_size: pageSize };
+    if (severity) params.severity = severity;
+    const r = await apiClient.get(`${BASE}/conversations/flags`, { params });
+    return r.data.data ?? r.data;
   },
 
-  getContentReviewQueue: (
+  getContentReviewQueue: async (
     page = 1,
     pageSize = 10,
-  ): Promise<ContentReviewListResponse> =>
-    fetchJson<ContentReviewListResponse>(
-      `${BASE}/content/review-queue?page=${page}&page_size=${pageSize}`,
-    ),
+  ): Promise<ContentReviewListResponse> => {
+    const r = await apiClient.get(`${BASE}/content/review-queue`, {
+      params: { page, page_size: pageSize },
+    });
+    return r.data.data ?? r.data;
+  },
 
-  getPersonalizationAudits: (): Promise<PersonalizationAuditData> =>
-    fetchJson<PersonalizationAuditData>(`${BASE}/personalization/audits`),
+  getPersonalizationAudits: async (): Promise<PersonalizationAuditData> => {
+    const r = await apiClient.get(`${BASE}/personalization/audits`);
+    return r.data.data ?? r.data;
+  },
 
-  getPerformanceOverview: (): Promise<PerformanceOverview> =>
-    fetchJson<PerformanceOverview>(`${BASE}/performance/overview`),
+  getPerformanceOverview: async (): Promise<PerformanceOverview> => {
+    const r = await apiClient.get(`${BASE}/performance/overview`);
+    return r.data.data ?? r.data;
+  },
 
-  getSafetyDashboard: (): Promise<SafetyDashboard> =>
-    fetchJson<SafetyDashboard>(`${BASE}/safety/dashboard`),
+  getSafetyDashboard: async (): Promise<SafetyDashboard> => {
+    const r = await apiClient.get(`${BASE}/safety/dashboard`);
+    return r.data.data ?? r.data;
+  },
 };
 
 export default adminAIMonitoringService;

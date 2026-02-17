@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { ArrowLeft, FileText, Download, Eye, Calendar, Filter } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { format } from 'date-fns';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Document {
   id: string;
@@ -35,13 +34,11 @@ export const DocumentsPage: React.FC = () => {
   const fetchDocuments = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
       const params: any = {};
       if (typeFilter !== 'all') params.type = typeFilter;
       if (yearFilter !== 'all') params.year = yearFilter;
 
-      const response = await axios.get(`${API_URL}/api/v1/instructor/payouts/documents`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await apiClient.get('/api/v1/instructor/payouts/documents', {
         params,
       });
 
@@ -122,12 +119,10 @@ export const DocumentsPage: React.FC = () => {
   const handleGenerateReport = async (reportType: string, period: string) => {
     try {
       setGeneratingReport(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.post(
-        `${API_URL}/api/v1/instructor/payouts/documents/generate`,
+      const response = await apiClient.post(
+        '/api/v1/instructor/payouts/documents/generate',
         { report_type: reportType, period },
         {
-          headers: { Authorization: `Bearer ${token}` },
           responseType: 'blob',
         }
       );

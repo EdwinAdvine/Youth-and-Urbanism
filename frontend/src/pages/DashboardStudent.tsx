@@ -1,3 +1,5 @@
+// DashboardStudent - Student role dashboard at /dashboard. Shows enrolled courses, assignments,
+// progress stats, AI tutor access, forum activity, and certificates overview.
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';

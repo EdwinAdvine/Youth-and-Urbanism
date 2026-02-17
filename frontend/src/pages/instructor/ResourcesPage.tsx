@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Upload, Search, Filter, File, FileText, Image, Video, Sparkles, Download, Trash2 } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { format } from 'date-fns';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Resource {
   id: string;
@@ -36,12 +35,10 @@ export const ResourcesPage: React.FC = () => {
   const fetchResources = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
       const params: any = {};
       if (typeFilter !== 'all') params.type = typeFilter;
 
-      const response = await axios.get(`${API_URL}/api/v1/instructor/resources`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await apiClient.get('/api/v1/instructor/resources', {
         params,
       });
 
@@ -111,13 +108,8 @@ export const ResourcesPage: React.FC = () => {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('title', file.name);
-
-      const token = localStorage.getItem('access_token');
-      await axios.post(`${API_URL}/api/v1/instructor/resources`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
+      await apiClient.post('/api/v1/instructor/resources', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
 
       alert('File uploaded successfully!');
@@ -134,10 +126,7 @@ export const ResourcesPage: React.FC = () => {
     if (!confirm('Are you sure you want to delete this resource?')) return;
 
     try {
-      const token = localStorage.getItem('access_token');
-      await axios.delete(`${API_URL}/api/v1/instructor/resources/${resourceId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await apiClient.delete(`/api/v1/instructor/resources/${resourceId}`);
       fetchResources();
     } catch (error) {
       console.error('Error deleting resource:', error);

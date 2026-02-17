@@ -3,21 +3,10 @@
  * API calls for courses, resources, and AI content generation
  */
 
-import axios from 'axios';
+import apiClient from '../api';
 import type { PartnerResource, PaginatedResponse } from '../../types/partner';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const BASE_PATH = `${API_URL}/api/v1/partner/content`;
-
-const getAuthHeaders = () => ({
-  Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-  'Content-Type': 'application/json',
-});
-
-const getMultipartHeaders = () => ({
-  Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-  'Content-Type': 'multipart/form-data',
-});
+const BASE_PATH = `/api/v1/partner/content`;
 
 /**
  * Get sponsored courses usage
@@ -36,10 +25,7 @@ export const getSponsoredCourses = async (params?: {
   }>;
   total: number;
 }> => {
-  const response = await axios.get(`${BASE_PATH}/courses`, {
-    headers: getAuthHeaders(),
-    params,
-  });
+  const response = await apiClient.get(`${BASE_PATH}/courses`, { params });
   return response.data;
 };
 
@@ -68,8 +54,8 @@ export const uploadResource = async (data: {
     formData.append('branding_applied', String(data.branding_applied));
   }
 
-  const response = await axios.post(`${BASE_PATH}/resources`, formData, {
-    headers: getMultipartHeaders(),
+  const response = await apiClient.post(`${BASE_PATH}/resources`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
   });
   return response.data;
 };
@@ -83,10 +69,7 @@ export const getResources = async (params?: {
   page?: number;
   limit?: number;
 }): Promise<PaginatedResponse<PartnerResource>> => {
-  const response = await axios.get(`${BASE_PATH}/resources`, {
-    headers: getAuthHeaders(),
-    params,
-  });
+  const response = await apiClient.get(`${BASE_PATH}/resources`, { params });
   return response.data;
 };
 
@@ -108,9 +91,7 @@ export const generateAIContent = async (data: {
   };
   suggestions: string[];
 }> => {
-  const response = await axios.post(`${BASE_PATH}/ai-generate`, data, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.post(`${BASE_PATH}/ai-generate`, data);
   return response.data;
 };
 

@@ -106,6 +106,7 @@ const reportTypeOptions: { value: '' | ReportType; label: string }[] = [
 
 const ImpactReportsPage: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState<'' | ReportType>('');
+  const [showGenerateModal, setShowGenerateModal] = useState(false);
 
   const filteredReports = typeFilter
     ? mockReports.filter((r) => r.type === typeFilter)
@@ -127,7 +128,10 @@ const ImpactReportsPage: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Impact Reports</h1>
             <p className="text-gray-400 dark:text-white/40 mt-1">View and generate AI-powered impact reports</p>
           </div>
-          <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-gray-900 dark:text-white bg-red-500 hover:bg-red-600 transition-colors self-start">
+          <button
+            onClick={() => setShowGenerateModal(true)}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-gray-900 dark:text-white bg-red-500 hover:bg-red-600 transition-colors self-start"
+          >
             <Plus className="w-4 h-4" />
             Generate Report
           </button>
@@ -220,11 +224,32 @@ const ImpactReportsPage: React.FC = () => {
               <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-[#22272B]">
                 <p className="text-gray-400 dark:text-white/40 text-xs">Generated {formatDate(report.generatedDate)}</p>
                 <div className="flex items-center gap-2">
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-white/70 bg-gray-100 dark:bg-[#22272B] hover:bg-[#2a3035] transition-colors">
+                  <button
+                    onClick={() => {
+                      const link = document.createElement('a');
+                      link.href = `#`;
+                      link.download = `${report.title.replace(/\s+/g, '-')}.pdf`;
+                      link.click();
+                      alert(`Downloading PDF: ${report.title}`);
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-white/70 bg-gray-100 dark:bg-[#22272B] hover:bg-[#2a3035] transition-colors"
+                  >
                     <FileDown className="w-3.5 h-3.5" />
                     PDF
                   </button>
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-white/70 bg-gray-100 dark:bg-[#22272B] hover:bg-[#2a3035] transition-colors">
+                  <button
+                    onClick={() => {
+                      const csvContent = `Report: ${report.title}\nPeriod: ${formatDate(report.periodStart)} - ${formatDate(report.periodEnd)}\nStudents Impacted: ${report.studentsImpacted}\nAvg Progress: ${report.avgProgress}%\nCompletion Rate: ${report.completionRate}%\n`;
+                      const blob = new Blob([csvContent], { type: 'text/csv' });
+                      const url = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `${report.title.replace(/\s+/g, '-')}.csv`;
+                      a.click();
+                      window.URL.revokeObjectURL(url);
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-white/70 bg-gray-100 dark:bg-[#22272B] hover:bg-[#2a3035] transition-colors"
+                  >
                     <Download className="w-3.5 h-3.5" />
                     CSV
                   </button>
@@ -239,6 +264,71 @@ const ImpactReportsPage: React.FC = () => {
             <BarChart3 className="w-10 h-10 text-gray-400 dark:text-white/20 mx-auto mb-3" />
             <p className="text-gray-400 dark:text-white/40">No reports match the selected filter.</p>
           </motion.div>
+        )}
+
+        {/* Generate Report Modal */}
+        {showGenerateModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6 max-w-lg w-full"
+            >
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Generate Impact Report</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm text-gray-600 dark:text-white/70 block mb-2">Report Type</label>
+                  <select className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:border-red-500/50">
+                    <option value="monthly">Monthly Report</option>
+                    <option value="termly">Termly Report</option>
+                    <option value="annual">Annual Report</option>
+                    <option value="custom">Custom Report</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-sm text-gray-600 dark:text-white/70 block mb-2">Start Date</label>
+                    <input
+                      type="date"
+                      className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:border-red-500/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-600 dark:text-white/70 block mb-2">End Date</label>
+                    <input
+                      type="date"
+                      className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:border-red-500/50"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600 dark:text-white/70 block mb-2">Report Title</label>
+                  <input
+                    type="text"
+                    placeholder="Enter custom report title"
+                    className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-red-500/50"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    alert('Report generation started! You will be notified when it is ready.');
+                    setShowGenerateModal(false);
+                  }}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                >
+                  Generate Report
+                </button>
+                <button
+                  onClick={() => setShowGenerateModal(false)}
+                  className="px-4 py-2 bg-gray-100 dark:bg-[#22272B] text-gray-900 dark:text-white rounded-lg hover:bg-[#2a3035] transition-colors text-sm font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </motion.div>
     </div>

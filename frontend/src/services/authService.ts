@@ -50,80 +50,58 @@ class AuthService {
   }
 
   async login(credentials: LoginRequest): Promise<{ user: User; tokens: TokenResponse }> {
-    console.log('[Auth] authService.login: POST /api/v1/auth/login');
+    // Login sets httpOnly cookies automatically via Set-Cookie header
     const response = await apiClient.post<TokenResponse>('/api/v1/auth/login', credentials);
     const tokens = response.data;
-    console.log('[Auth] authService.login: got tokens, storing in localStorage');
 
-    // Store tokens in localStorage
-    localStorage.setItem('access_token', tokens.access_token);
-    localStorage.setItem('refresh_token', tokens.refresh_token);
-
-    // Get user info (backend returns flat User object from /auth/me)
-    console.log('[Auth] authService.login: GET /api/v1/auth/me');
+    // Get user info (cookie is sent automatically with withCredentials: true)
     const userResponse = await apiClient.get<User>('/api/v1/auth/me');
-    const user = userResponse.data;
-    console.log('[Auth] authService.login: got user:', user);
 
-    // Extract full_name from profile_data if not at top level
-    if (!user.full_name && user.profile_data?.full_name) {
-      user.full_name = user.profile_data.full_name;
-    }
+    // CRITICAL FIX (H-08): Create a new object instead of mutating the response
+    // Spread creates a shallow copy, preventing shared reference corruption
+    const user: User = {
+      ...userResponse.data,
+      // Extract full_name from profile_data if not at top level
+      full_name: userResponse.data.full_name || userResponse.data.profile_data?.full_name || '',
+    };
 
-    // Store user in localStorage
-    localStorage.setItem('user', JSON.stringify(user));
+    // REMOVED (H-07): Don't store in separate 'user' localStorage key
+    // Zustand authStore with persist middleware is now the single source of truth
+    // The calling code should use authStore.setUser(user) instead
 
     return { user, tokens };
   }
 
   async logout(): Promise<void> {
-    // Invalidate token on the server (best-effort)
+    // Server call clears httpOnly cookies and blacklists the token
     try {
-      const token = localStorage.getItem('access_token');
-      if (token) {
-        await apiClient.post('/api/v1/auth/logout');
-      }
+      await apiClient.post('/api/v1/auth/logout');
     } catch {
-      // Ignore errors – we still clear local state below
+      // Ignore errors – cookies are cleared server-side
     }
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user');
+    // REMOVED (H-07): Don't manage separate 'user' localStorage key
+    // Zustand authStore.logout() handles all state clearing
   }
 
   async getCurrentUser(): Promise<User> {
     const response = await apiClient.get<User>('/api/v1/auth/me');
-    const user = response.data;
-    if (!user.full_name && user.profile_data?.full_name) {
-      user.full_name = user.profile_data.full_name;
-    }
+    // CRITICAL FIX (H-08): Create new object instead of mutating response
+    const user: User = {
+      ...response.data,
+      full_name: response.data.full_name || response.data.profile_data?.full_name || '',
+    };
     return user;
   }
 
-  async refreshToken(refreshToken: string): Promise<TokenResponse> {
-    const response = await apiClient.post<TokenResponse>('/api/v1/auth/refresh', {
-      refresh_token: refreshToken
-    });
+  async refreshToken(): Promise<TokenResponse> {
+    // Refresh token is sent via httpOnly cookie automatically
+    const response = await apiClient.post<TokenResponse>('/api/v1/auth/refresh', {});
     return response.data;
   }
 
-  getStoredUser(): User | null {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) return null;
-    try {
-      return JSON.parse(userStr);
-    } catch {
-      return null;
-    }
-  }
-
-  getAccessToken(): string | null {
-    return localStorage.getItem('access_token');
-  }
-
-  isAuthenticated(): boolean {
-    return !!this.getAccessToken();
-  }
+  // REMOVED (H-07): getStoredUser() and isAuthenticated() deprecated
+  // Use authStore.user and authStore.isAuthenticated instead
+  // These methods relied on separate 'user' localStorage key which is no longer used
 }
 
 export default new AuthService();

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Key, Smartphone, Clock, AlertTriangle } from 'lucide-react';
+import { Key, Smartphone, Clock, AlertTriangle } from 'lucide-react';
 
 const StaffSecurityPage: React.FC = () => {
   return (

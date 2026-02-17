@@ -20,6 +20,9 @@ from app.models import (
     Student,
     AIProvider,
     AITutor,
+    AIAgentProfile,
+    CopilotSession,
+    CopilotMessage,
     Course,
     Enrollment,
     EnrollmentStatus,
@@ -121,7 +124,7 @@ from app.models.instructor import (
     InstructorForumPost,
     InstructorForumReply,
     InstructorTwoFactor,
-    LoginHistory,
+    InstructorLoginHistory,
 )
 
 # Partner models

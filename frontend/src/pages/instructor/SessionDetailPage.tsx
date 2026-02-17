@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Users, Clock, Download, Video, CheckSquare, Plus } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { format } from 'date-fns';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Attendee {
   student_id: string;
@@ -58,10 +57,7 @@ export const SessionDetailPage: React.FC = () => {
   const fetchSessionDetails = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_URL}/api/v1/instructor/sessions/${sessionId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get(`/api/v1/instructor/sessions/${sessionId}`);
 
       // Mock data for development
       if (!response.data) {
@@ -135,11 +131,9 @@ export const SessionDetailPage: React.FC = () => {
   const handleGenerateSummary = async () => {
     try {
       setGeneratingSummary(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.post(
-        `${API_URL}/api/v1/instructor/sessions/${sessionId}/ai-summary`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
+      const response = await apiClient.post(
+        `/api/v1/instructor/sessions/${sessionId}/ai-summary`,
+        {}
       );
 
       if (session) {

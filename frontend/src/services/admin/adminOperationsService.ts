@@ -5,45 +5,9 @@
  * system configuration, and audit log search.
  */
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const BASE = `${API_URL}/api/v1/admin`;
+import apiClient from '../api';
 
-function getAuthHeaders(): Record<string, string> {
-  let jwt = '';
-  const stored = localStorage.getItem('auth-store');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      jwt = parsed?.state?.token || parsed?.token || '';
-    } catch {
-      jwt = stored;
-    }
-  }
-  return {
-    Authorization: `Bearer ${jwt}`,
-    'Content-Type': 'application/json',
-  };
-}
-
-async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(url, {
-    headers: getAuthHeaders(),
-    ...options,
-  });
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status} ${response.statusText}`);
-  }
-  const json = await response.json();
-  return json.data ?? json;
-}
-
-function buildQuery(params: Record<string, string | number | undefined>): string {
-  const qs = Object.entries(params)
-    .filter(([, v]) => v !== undefined && v !== '' && v !== null)
-    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
-    .join('&');
-  return qs ? `?${qs}` : '';
-}
+const BASE = `/api/v1/admin`;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -186,92 +150,67 @@ export interface AuditLogParams {
 
 const adminOperationsService = {
   // Tickets
-  listTickets: (params: TicketListParams = {}): Promise<TicketListResponse> =>
-    fetchJson<TicketListResponse>(
-      `${BASE}/operations/tickets${buildQuery({
-        page: params.page,
-        page_size: params.page_size,
-        status: params.status,
-        priority: params.priority,
-        category: params.category,
-        search: params.search,
-      })}`,
-    ),
+  listTickets: async (params: TicketListParams = {}): Promise<TicketListResponse> => {
+    const r = await apiClient.get(`${BASE}/operations/tickets`, { params });
+    return r.data.data ?? r.data;
+  },
 
-  getTicketDetail: (ticketId: string): Promise<TicketDetail> =>
-    fetchJson<TicketDetail>(`${BASE}/operations/tickets/${ticketId}`),
+  getTicketDetail: async (ticketId: string): Promise<TicketDetail> => {
+    const r = await apiClient.get(`${BASE}/operations/tickets/${ticketId}`);
+    return r.data.data ?? r.data;
+  },
 
-  updateTicket: (
+  updateTicket: async (
     ticketId: string,
     data: { status?: string; priority?: string; assigned_to?: string },
-  ): Promise<{ success: boolean }> =>
-    fetchJson(`${BASE}/operations/tickets/${ticketId}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    }),
+  ): Promise<{ success: boolean }> => {
+    const r = await apiClient.put(`${BASE}/operations/tickets/${ticketId}`, data);
+    return r.data.data ?? r.data;
+  },
 
   // Moderation
-  listModerationQueue: (params: {
+  listModerationQueue: async (params: {
     page?: number;
     page_size?: number;
     severity?: string;
     content_type?: string;
-  } = {}): Promise<ModerationQueueResponse> =>
-    fetchJson<ModerationQueueResponse>(
-      `${BASE}/operations/moderation${buildQuery({
-        page: params.page,
-        page_size: params.page_size,
-        severity: params.severity,
-        content_type: params.content_type,
-      })}`,
-    ),
+  } = {}): Promise<ModerationQueueResponse> => {
+    const r = await apiClient.get(`${BASE}/operations/moderation`, { params });
+    return r.data.data ?? r.data;
+  },
 
-  moderateItem: (
+  moderateItem: async (
     itemId: string,
     decision: 'approved' | 'removed' | 'escalated',
     reason?: string,
-  ): Promise<{ success: boolean }> =>
-    fetchJson(`${BASE}/operations/moderation/${itemId}`, {
-      method: 'PUT',
-      body: JSON.stringify({ decision, reason }),
-    }),
+  ): Promise<{ success: boolean }> => {
+    const r = await apiClient.put(`${BASE}/operations/moderation/${itemId}`, { decision, reason });
+    return r.data.data ?? r.data;
+  },
 
   // System Config
-  listSystemConfigs: (category?: string): Promise<SystemConfigListResponse> => {
-    let url = `${BASE}/operations/config`;
-    if (category) url += `?category=${category}`;
-    return fetchJson<SystemConfigListResponse>(url);
+  listSystemConfigs: async (category?: string): Promise<SystemConfigListResponse> => {
+    const params = category ? { category } : undefined;
+    const r = await apiClient.get(`${BASE}/operations/config`, { params });
+    return r.data.data ?? r.data;
   },
 
   // Audit Logs
-  searchAuditLogs: (params: AuditLogParams = {}): Promise<AuditLogListResponse> =>
-    fetchJson<AuditLogListResponse>(
-      `${BASE}/operations/audit-logs${buildQuery({
-        page: params.page,
-        page_size: params.page_size,
-        actor_email: params.actor_email,
-        action: params.action,
-        resource_type: params.resource_type,
-        status: params.status,
-        search: params.search,
-        date_from: params.date_from,
-        date_to: params.date_to,
-      })}`,
-    ),
+  searchAuditLogs: async (params: AuditLogParams = {}): Promise<AuditLogListResponse> => {
+    const r = await apiClient.get(`${BASE}/operations/audit-logs`, { params });
+    return r.data.data ?? r.data;
+  },
 
   exportAuditLogs: async (params: {
     date_from?: string;
     date_to?: string;
     resource_type?: string;
   } = {}): Promise<string> => {
-    const qs = buildQuery(params);
-    const response = await fetch(`${BASE}/operations/audit-logs/export${qs}`, {
-      headers: getAuthHeaders(),
+    const r = await apiClient.get(`${BASE}/operations/audit-logs/export`, {
+      params,
+      responseType: 'blob',
     });
-    if (!response.ok) {
-      throw new Error(`Export failed: ${response.status}`);
-    }
-    const blob = await response.blob();
+    const blob = new Blob([r.data]);
     return URL.createObjectURL(blob);
   },
 };

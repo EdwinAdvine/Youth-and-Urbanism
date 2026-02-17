@@ -1,3 +1,5 @@
+// StudentDashboardHome - Main student dashboard at /dashboard/student. Shows today's tasks,
+// AI insights, progress snapshot, learning streaks, and quick-action navigation cards.
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStudentStore } from '../../store/studentStore';

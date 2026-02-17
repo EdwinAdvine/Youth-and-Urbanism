@@ -5,38 +5,10 @@
  * compliance data, custom NL queries, and scheduled reports.
  */
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const ANALYTICS_BASE = `${API_URL}/api/v1/admin/analytics`;
-const ADVANCED_BASE = `${API_URL}/api/v1/admin/advanced-analytics`;
+import apiClient from '../api';
 
-function getAuthHeaders(): Record<string, string> {
-  let jwt = '';
-  const stored = localStorage.getItem('auth-store');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      jwt = parsed?.state?.token || parsed?.token || '';
-    } catch {
-      jwt = stored;
-    }
-  }
-  return {
-    Authorization: `Bearer ${jwt}`,
-    'Content-Type': 'application/json',
-  };
-}
-
-async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(url, {
-    headers: getAuthHeaders(),
-    ...options,
-  });
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status} ${response.statusText}`);
-  }
-  const json = await response.json();
-  return json.data ?? json;
-}
+const ANALYTICS_BASE = `/api/v1/admin/analytics`;
+const ADVANCED_BASE = `/api/v1/admin/advanced-analytics`;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -121,62 +93,70 @@ export interface ScheduledReport {
 
 const adminAnalyticsService = {
   // Standard analytics (existing routes)
-  getDashboardSummary: (): Promise<DashboardSummary> =>
-    fetchJson<DashboardSummary>(`${ANALYTICS_BASE}/dashboard`),
-
-  getRevenueMetrics: (startDate?: string, endDate?: string): Promise<RevenueMetrics> => {
-    let url = `${ANALYTICS_BASE}/revenue`;
-    const params: string[] = [];
-    if (startDate) params.push(`start_date=${startDate}`);
-    if (endDate) params.push(`end_date=${endDate}`);
-    if (params.length) url += `?${params.join('&')}`;
-    return fetchJson<RevenueMetrics>(url);
+  getDashboardSummary: async (): Promise<DashboardSummary> => {
+    const r = await apiClient.get(`${ANALYTICS_BASE}/dashboard`);
+    return r.data.data ?? r.data;
   },
 
-  getUserGrowth: (startDate?: string, endDate?: string): Promise<UserGrowth> => {
-    let url = `${ANALYTICS_BASE}/users`;
-    const params: string[] = [];
-    if (startDate) params.push(`start_date=${startDate}`);
-    if (endDate) params.push(`end_date=${endDate}`);
-    if (params.length) url += `?${params.join('&')}`;
-    return fetchJson<UserGrowth>(url);
+  getRevenueMetrics: async (startDate?: string, endDate?: string): Promise<RevenueMetrics> => {
+    const params: Record<string, string> = {};
+    if (startDate) params.start_date = startDate;
+    if (endDate) params.end_date = endDate;
+    const r = await apiClient.get(`${ANALYTICS_BASE}/revenue`, { params });
+    return r.data.data ?? r.data;
   },
 
-  getCoursePerformance: (): Promise<CoursePerformance> =>
-    fetchJson<CoursePerformance>(`${ANALYTICS_BASE}/courses`),
+  getUserGrowth: async (startDate?: string, endDate?: string): Promise<UserGrowth> => {
+    const params: Record<string, string> = {};
+    if (startDate) params.start_date = startDate;
+    if (endDate) params.end_date = endDate;
+    const r = await apiClient.get(`${ANALYTICS_BASE}/users`, { params });
+    return r.data.data ?? r.data;
+  },
+
+  getCoursePerformance: async (): Promise<CoursePerformance> => {
+    const r = await apiClient.get(`${ANALYTICS_BASE}/courses`);
+    return r.data.data ?? r.data;
+  },
 
   // Advanced analytics (NL queries)
-  submitCustomQuery: (query: string): Promise<NLQueryResult> =>
-    fetchJson<NLQueryResult>(`${ADVANCED_BASE}/nl-query`, {
-      method: 'POST',
-      body: JSON.stringify({ query }),
-    }),
+  submitCustomQuery: async (query: string): Promise<NLQueryResult> => {
+    const r = await apiClient.post(`${ADVANCED_BASE}/nl-query`, { query });
+    return r.data.data ?? r.data;
+  },
 
-  getAvailableQueries: (): Promise<QueryExample[]> =>
-    fetchJson<QueryExample[]>(`${ADVANCED_BASE}/nl-query/examples`),
+  getAvailableQueries: async (): Promise<QueryExample[]> => {
+    const r = await apiClient.get(`${ADVANCED_BASE}/nl-query/examples`);
+    return r.data.data ?? r.data;
+  },
 
   // Compliance
-  getComplianceIncidents: (
+  getComplianceIncidents: async (
     page = 1,
     pageSize = 20,
-  ): Promise<{ items: ComplianceIncident[]; total: number }> =>
-    fetchJson(`${ADVANCED_BASE}/compliance/incidents?page=${page}&page_size=${pageSize}`),
+  ): Promise<{ items: ComplianceIncident[]; total: number }> => {
+    const r = await apiClient.get(`${ADVANCED_BASE}/compliance/incidents`, {
+      params: { page, page_size: pageSize },
+    });
+    return r.data.data ?? r.data;
+  },
 
   // Scheduled reports
-  getScheduledReports: (): Promise<ScheduledReport[]> =>
-    fetchJson<ScheduledReport[]>(`${ADVANCED_BASE}/reports/scheduled`),
+  getScheduledReports: async (): Promise<ScheduledReport[]> => {
+    const r = await apiClient.get(`${ADVANCED_BASE}/reports/scheduled`);
+    return r.data.data ?? r.data;
+  },
 
-  createScheduledReport: (data: {
+  createScheduledReport: async (data: {
     name: string;
     report_type: string;
     schedule_cron: string;
     recipients: string[];
     parameters?: Record<string, unknown>;
-  }): Promise<{ success: boolean; id: string }> =>
-    fetchJson(`${ADVANCED_BASE}/reports/scheduled`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
+  }): Promise<{ success: boolean; id: string }> => {
+    const r = await apiClient.post(`${ADVANCED_BASE}/reports/scheduled`, data);
+    return r.data.data ?? r.data;
+  },
 };
 
 export default adminAnalyticsService;

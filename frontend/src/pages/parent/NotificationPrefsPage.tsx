@@ -137,6 +137,7 @@ const NotificationPrefsPage: React.FC = () => {
           channel_sms: pref.channel_sms,
           channel_push: pref.channel_push,
           channel_in_app: pref.channel_in_app,
+          severity_threshold: pref.severity_threshold,
           is_enabled: pref.is_enabled,
         });
       }

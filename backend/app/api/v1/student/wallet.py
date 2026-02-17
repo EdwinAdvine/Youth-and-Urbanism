@@ -1,10 +1,13 @@
 """
 Student Wallet & Payment API Routes
 """
+import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Dict, List, Optional
 from pydantic import BaseModel, EmailStr
+
+logger = logging.getLogger(__name__)
 
 from app.database import get_db
 from app.models.user import User
@@ -51,9 +54,10 @@ async def get_wallet_balance(
         balance_data = await service.get_wallet_balance(current_user.id)
         return balance_data
     except Exception as e:
+        logger.error(f"Failed to fetch wallet balance for user {current_user.id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch wallet balance: {str(e)}"
+            detail="Failed to fetch wallet balance"
         )
 
 
@@ -87,9 +91,10 @@ async def get_transaction_history(
         )
         return history
     except Exception as e:
+        logger.error(f"Failed to fetch transaction history for user {current_user.id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch transaction history: {str(e)}"
+            detail="Failed to fetch transaction history"
         )
 
 
@@ -142,9 +147,10 @@ async def initiate_paystack_payment(
             "message": "Payment initialized. Redirect user to authorization_url"
         }
     except Exception as e:
+        logger.error(f"Failed to initiate Paystack payment for user {current_user.id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to initiate payment: {str(e)}"
+            detail="Failed to initiate payment"
         )
 
 
@@ -171,15 +177,16 @@ async def verify_paystack_payment(
     try:
         verification = await service.verify_paystack_payment(reference)
         return verification
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
+            detail="Payment not found"
         )
     except Exception as e:
+        logger.error(f"Failed to verify Paystack payment {reference}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to verify payment: {str(e)}"
+            detail="Failed to verify payment"
         )
 
 
@@ -209,9 +216,10 @@ async def get_payment_methods(
         methods = await service.get_payment_methods(current_user.student_id)
         return methods
     except Exception as e:
+        logger.error(f"Failed to fetch payment methods for student {current_user.student_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch payment methods: {str(e)}"
+            detail="Failed to fetch payment methods"
         )
 
 
@@ -265,9 +273,10 @@ async def save_payment_method(
             "message": "Payment method saved successfully"
         }
     except Exception as e:
+        logger.error(f"Failed to save payment method for student {current_user.student_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to save payment method: {str(e)}"
+            detail="Failed to save payment method"
         )
 
 
@@ -297,9 +306,10 @@ async def get_subscription_info(
         subscription = await service.get_subscription_info(current_user.student_id)
         return subscription
     except Exception as e:
+        logger.error(f"Failed to fetch subscription info for student {current_user.student_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch subscription info: {str(e)}"
+            detail="Failed to fetch subscription info"
         )
 
 
@@ -329,7 +339,8 @@ async def get_ai_fund_advisor(
         advice = await service.get_ai_fund_advisor(current_user.student_id)
         return advice
     except Exception as e:
+        logger.error(f"Failed to generate AI advice for student {current_user.student_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to generate AI advice: {str(e)}"
+            detail="Failed to generate financial advice"
         )

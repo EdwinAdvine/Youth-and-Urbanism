@@ -181,6 +181,19 @@ const BusinessAnalyticsPage: React.FC = () => {
     setTimeout(() => setRefreshing(false), 800);
   };
 
+  const handleExportCSV = () => {
+    const headers = ['Month', 'MRR (KES)', 'Churn %', 'LTV (KES)', 'Signups'];
+    const rows = MONTHLY_METRICS.map((m) => [m.month, m.mrr, m.churn, m.ltv, m.signups]);
+    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'business_analytics.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const latestMonth = MONTHLY_METRICS[MONTHLY_METRICS.length - 1];
   const prevMonth = MONTHLY_METRICS[MONTHLY_METRICS.length - 2];
   const mrrChange = ((latestMonth.mrr - prevMonth.mrr) / prevMonth.mrr) * 100;
@@ -223,6 +236,7 @@ const BusinessAnalyticsPage: React.FC = () => {
           actions={
             <div className="flex items-center gap-2">
               <button
+                onClick={handleExportCSV}
                 className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-300 dark:border-[#333] rounded-lg text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-[#444] transition-colors"
               >
                 <Download className="w-4 h-4" />

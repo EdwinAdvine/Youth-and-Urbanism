@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Sparkles, Copy, Star, Wand2, Search, Plus } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
-import axios from 'axios';
+import apiClient from '../../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface PromptTemplate {
   id: string;
@@ -145,14 +144,12 @@ export const AIPromptsPage: React.FC = () => {
     if (!generatedPrompt) return;
 
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.post(
-        `${API_URL}/api/v1/ai-tutor/chat`,
+      const response = await apiClient.post(
+        '/api/v1/ai-tutor/chat',
         {
           message: generatedPrompt,
           task_type: 'general',
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+        }
       );
 
       // Open result in a modal or redirect to AI interface

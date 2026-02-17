@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Filter, DollarSign, BookOpen, Video, Award } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { format } from 'date-fns';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface EarningItem {
   id: string;
@@ -34,13 +33,11 @@ export const EarningsBreakdownPage: React.FC = () => {
   const fetchEarnings = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
       const params: any = {};
       if (typeFilter !== 'all') params.type = typeFilter;
       if (statusFilter !== 'all') params.status = statusFilter;
 
-      const response = await axios.get(`${API_URL}/api/v1/instructor/earnings`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await apiClient.get('/api/v1/instructor/earnings', {
         params,
       });
 

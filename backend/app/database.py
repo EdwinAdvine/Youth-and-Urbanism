@@ -71,11 +71,12 @@ async def init_db() -> None:
         logger.info("Initializing database connection...")
 
         # Create async engine with connection pooling
+        # CRITICAL FIX (H-04): Use config values instead of hardcoded pool settings
         engine = create_async_engine(
             db_url,
             echo=settings.debug,  # Log SQL queries in debug mode
-            pool_size=10,  # Number of connections to maintain
-            max_overflow=20,  # Maximum overflow connections
+            pool_size=settings.db_pool_size,  # Use configured pool size
+            max_overflow=settings.db_max_overflow,  # Use configured max overflow
             pool_pre_ping=True,  # Verify connections before using
             pool_recycle=3600,  # Recycle connections after 1 hour
             # Use NullPool for testing environments if needed
@@ -129,14 +130,20 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
     into route handlers. The session is automatically closed after the
     request is complete.
 
+    CRITICAL FIX (M-01): Removed auto-commit logic. Route handlers must
+    explicitly call await db.commit() when they intend to persist changes.
+    This prevents accidental commits on exception paths and makes transactions explicit.
+
     Yields:
         AsyncSession: Database session
 
     Example:
-        @router.get("/users")
-        async def get_users(db: AsyncSession = Depends(get_db)):
-            result = await db.execute(select(User))
-            return result.scalars().all()
+        @router.post("/users")
+        async def create_user(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
+            new_user = User(**user_data.dict())
+            db.add(new_user)
+            await db.commit()  # Explicit commit required
+            return new_user
     """
     if AsyncSessionLocal is None:
         raise RuntimeError(
@@ -146,7 +153,8 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
         try:
             yield session
-            await session.commit()
+            # REMOVED (M-01): Auto-commit logic removed for safety
+            # Route handlers must explicitly call await db.commit()
         except SQLAlchemyError as e:
             await session.rollback()
             logger.error(f"Database session error: {str(e)}")

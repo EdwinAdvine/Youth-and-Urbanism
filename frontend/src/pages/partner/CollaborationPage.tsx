@@ -111,6 +111,8 @@ const mockMeetings: Meeting[] = [
 
 const CollaborationPage: React.FC = () => {
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
+  const [showComposeModal, setShowComposeModal] = useState(false);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
 
   const unreadCount = mockMessages.filter((m) => !m.isRead).length;
 
@@ -156,7 +158,10 @@ const CollaborationPage: React.FC = () => {
                     </span>
                   )}
                 </div>
-                <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors">
+                <button
+                  onClick={() => setShowComposeModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors"
+                >
                   <PenSquare className="w-4 h-4" />
                   Compose
                 </button>
@@ -207,7 +212,10 @@ const CollaborationPage: React.FC = () => {
               {/* Meetings Header */}
               <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-[#22272B]">
                 <h2 className="text-gray-900 dark:text-white font-semibold text-lg">Upcoming Meetings</h2>
-                <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors">
+                <button
+                  onClick={() => setShowScheduleModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors"
+                >
                   <CalendarPlus className="w-4 h-4" />
                   Schedule Meeting
                 </button>
@@ -251,6 +259,13 @@ const CollaborationPage: React.FC = () => {
 
                     {/* Action Button */}
                     <button
+                      onClick={() => {
+                        if (meeting.type === 'virtual') {
+                          window.open(`https://meet.google.com/${meeting.id}`, '_blank');
+                        } else {
+                          alert(`Meeting Details:\n${meeting.title}\nDate: ${formatMeetingDate(meeting.date)} at ${meeting.time}\nDuration: ${meeting.duration}\nAttendees: ${meeting.attendees}`);
+                        }
+                      }}
                       className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                         meeting.type === 'virtual'
                           ? 'text-blue-400 bg-blue-500/10 hover:bg-blue-500/20'
@@ -275,6 +290,125 @@ const CollaborationPage: React.FC = () => {
             </div>
           </motion.div>
         </div>
+
+        {/* Compose Message Modal */}
+        {showComposeModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6 max-w-lg w-full"
+            >
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Compose Message</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm text-gray-600 dark:text-white/70 block mb-2">To</label>
+                  <input
+                    type="text"
+                    placeholder="Enter recipient name"
+                    className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-red-500/50"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600 dark:text-white/70 block mb-2">Subject</label>
+                  <input
+                    type="text"
+                    placeholder="Message subject"
+                    className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-red-500/50"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600 dark:text-white/70 block mb-2">Message</label>
+                  <textarea
+                    rows={5}
+                    placeholder="Type your message..."
+                    className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-red-500/50 resize-none"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    alert('Message sent successfully!');
+                    setShowComposeModal(false);
+                  }}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                >
+                  Send Message
+                </button>
+                <button
+                  onClick={() => setShowComposeModal(false)}
+                  className="px-4 py-2 bg-gray-100 dark:bg-[#22272B] text-gray-900 dark:text-white rounded-lg hover:bg-[#2a3035] transition-colors text-sm font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Schedule Meeting Modal */}
+        {showScheduleModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6 max-w-lg w-full"
+            >
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Schedule Meeting</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm text-gray-600 dark:text-white/70 block mb-2">Meeting Title</label>
+                  <input
+                    type="text"
+                    placeholder="Enter meeting title"
+                    className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-red-500/50"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-sm text-gray-600 dark:text-white/70 block mb-2">Date</label>
+                    <input
+                      type="date"
+                      className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:border-red-500/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-600 dark:text-white/70 block mb-2">Time</label>
+                    <input
+                      type="time"
+                      className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:border-red-500/50"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600 dark:text-white/70 block mb-2">Type</label>
+                  <select className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:border-red-500/50">
+                    <option value="virtual">Virtual Meeting</option>
+                    <option value="in-person">In-Person Meeting</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    alert('Meeting scheduled successfully!');
+                    setShowScheduleModal(false);
+                  }}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                >
+                  Schedule Meeting
+                </button>
+                <button
+                  onClick={() => setShowScheduleModal(false)}
+                  className="px-4 py-2 bg-gray-100 dark:bg-[#22272B] text-gray-900 dark:text-white rounded-lg hover:bg-[#2a3035] transition-colors text-sm font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </motion.div>
     </div>
   );

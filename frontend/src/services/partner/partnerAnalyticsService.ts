@@ -3,15 +3,10 @@
  * API calls for ROI metrics, custom reports, and student insights
  */
 
-import axios from 'axios';
+import apiClient from '../api';
 import type { PartnerImpactReport, ROIMetrics, CustomReport } from '../../types/partner';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const BASE_PATH = `${API_URL}/api/v1/partner/analytics`;
-
-const getAuthHeaders = () => ({
-  Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-});
+const BASE_PATH = `/api/v1/partner/analytics`;
 
 /**
  * Get ROI metrics
@@ -21,10 +16,7 @@ export const getROIMetrics = async (params?: {
   start_date?: string;
   end_date?: string;
 }): Promise<ROIMetrics> => {
-  const response = await axios.get(`${BASE_PATH}/roi`, {
-    headers: getAuthHeaders(),
-    params,
-  });
+  const response = await apiClient.get(`${BASE_PATH}/roi`, { params });
   return response.data;
 };
 
@@ -42,10 +34,7 @@ export const getCustomReports = async (params?: {
   page: number;
   pages: number;
 }> => {
-  const response = await axios.get(`${BASE_PATH}/reports`, {
-    headers: getAuthHeaders(),
-    params,
-  });
+  const response = await apiClient.get(`${BASE_PATH}/reports`, { params });
   return response.data;
 };
 
@@ -59,9 +48,7 @@ export const generateReport = async (data: {
   end_date?: string;
   include_ai_insights?: boolean;
 }): Promise<PartnerImpactReport> => {
-  const response = await axios.post(`${BASE_PATH}/reports/generate`, data, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.post(`${BASE_PATH}/reports/generate`, data);
   return response.data;
 };
 
@@ -72,8 +59,7 @@ export const exportReport = async (
   reportId: string,
   format: 'pdf' | 'csv' | 'xlsx'
 ): Promise<{ url: string; filename: string }> => {
-  const response = await axios.get(`${BASE_PATH}/reports/${reportId}/export`, {
-    headers: getAuthHeaders(),
+  const response = await apiClient.get(`${BASE_PATH}/reports/${reportId}/export`, {
     params: { format },
   });
   return response.data;
@@ -96,9 +82,7 @@ export const getStudentInsights = async (studentId: string): Promise<{
     priority: 'low' | 'medium' | 'high';
   }>;
 }> => {
-  const response = await axios.get(`${BASE_PATH}/student-insights/${studentId}`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.get(`${BASE_PATH}/student-insights/${studentId}`);
   return response.data;
 };
 

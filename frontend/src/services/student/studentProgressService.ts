@@ -1,22 +1,34 @@
 /**
  * Student Progress & Gamification Service - API calls for XP, badges, goals
  */
-import axios from 'axios';
-import type { XPData, Badge, LearningGoal, LeaderboardEntry } from '../../types/student';
+import apiClient from '../api';
+import type { Badge, LearningGoal } from '../../types/student';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+/** XP and level data returned by the progress API */
+export interface XPData {
+  totalXp: number;
+  currentLevel: number;
+  nextLevelXp: number;
+  percentToNext: number;
+}
+
+/** Single entry on the leaderboard */
+export interface LeaderboardEntry {
+  rank: number;
+  studentId: string;
+  studentName: string;
+  xp: number;
+  level: number;
+  avatar?: string;
+}
+
 const API_PREFIX = '/api/v1/student/progress';
 
 /**
  * Get student's XP and level data
  */
 export const getXPAndLevel = async (): Promise<XPData> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/xp`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/xp`);
   return response.data;
 };
 
@@ -24,12 +36,7 @@ export const getXPAndLevel = async (): Promise<XPData> => {
  * Get all badges earned by student
  */
 export const getBadges = async (): Promise<Badge[]> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/badges`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/badges`);
   return response.data;
 };
 
@@ -40,14 +47,8 @@ export const getLeaderboard = async (
   scope: 'class' | 'grade' | 'school' = 'class',
   limit: number = 10
 ): Promise<LeaderboardEntry[]> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(
-    `${API_BASE}${API_PREFIX}/leaderboard?scope=${scope}&limit=${limit}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    }
+  const response = await apiClient.get(
+    `${API_PREFIX}/leaderboard?scope=${scope}&limit=${limit}`
   );
   return response.data;
 };
@@ -56,12 +57,7 @@ export const getLeaderboard = async (
  * Get student's active learning goals
  */
 export const getGoals = async (): Promise<LearningGoal[]> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/goals`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/goals`);
   return response.data;
 };
 
@@ -82,12 +78,7 @@ export const createGoal = async (data: {
   deadline: Date | null;
   message: string;
 }> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.post(`${API_BASE}${API_PREFIX}/goals`, data, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await apiClient.post(`${API_PREFIX}/goals`, data);
   return response.data;
 };
 
@@ -110,11 +101,6 @@ export const getWeeklyReport = async (): Promise<{
   improvement_area: string | null;
   shared_with_parent: boolean;
 }> => {
-  const token = localStorage.getItem('access_token');
-  const response = await axios.get(`${API_BASE}${API_PREFIX}/weekly-report`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const response = await apiClient.get(`${API_PREFIX}/weekly-report`);
   return response.data;
 };

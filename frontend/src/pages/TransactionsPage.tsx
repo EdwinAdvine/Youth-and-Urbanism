@@ -1,3 +1,5 @@
+// TransactionsPage - Authenticated page at /transactions. Lists all payment transactions
+// with search, date filtering, export options, and detailed transaction receipts.
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   Filter,

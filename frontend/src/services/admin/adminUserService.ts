@@ -4,37 +4,9 @@
  * Provides typed API calls for the admin user management endpoints.
  */
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const BASE = `${API_URL}/api/v1/admin/users`;
+import apiClient from '../api';
 
-function getAuthHeaders(): Record<string, string> {
-  let jwt = '';
-  const stored = localStorage.getItem('auth-store');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      jwt = parsed?.state?.token || parsed?.token || '';
-    } catch {
-      jwt = stored;
-    }
-  }
-  return {
-    Authorization: `Bearer ${jwt}`,
-    'Content-Type': 'application/json',
-  };
-}
-
-async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(url, {
-    headers: getAuthHeaders(),
-    ...options,
-  });
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status} ${response.statusText}`);
-  }
-  const json = await response.json();
-  return json.data ?? json;
-}
+const BASE = `/api/v1/admin/users`;
 
 // ------------------------------------------------------------------
 // Types
@@ -96,58 +68,48 @@ export interface UserListParams {
 // API calls
 // ------------------------------------------------------------------
 
-function buildQuery(params: Record<string, string | number | undefined>): string {
-  const qs = Object.entries(params)
-    .filter(([, v]) => v !== undefined && v !== '' && v !== null)
-    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
-    .join('&');
-  return qs ? `?${qs}` : '';
-}
-
 const adminUserService = {
   /** Paginated, filterable user list */
-  listUsers: (params: UserListParams = {}): Promise<UserListResponse> =>
-    fetchJson<UserListResponse>(
-      `${BASE}/${buildQuery({
-        page: params.page,
-        page_size: params.page_size,
-        search: params.search,
-        role: params.role,
-        status: params.status,
-        sort_by: params.sort_by,
-        sort_dir: params.sort_dir,
-      })}`,
-    ),
+  listUsers: async (params: UserListParams = {}): Promise<UserListResponse> => {
+    const r = await apiClient.get(`${BASE}/`, { params });
+    return r.data.data ?? r.data;
+  },
 
   /** Full user detail */
-  getUserDetail: (userId: string): Promise<UserDetail> =>
-    fetchJson<UserDetail>(`${BASE}/${userId}`),
+  getUserDetail: async (userId: string): Promise<UserDetail> => {
+    const r = await apiClient.get(`${BASE}/${userId}`);
+    return r.data.data ?? r.data;
+  },
 
   /** Deactivate a user */
-  deactivateUser: (userId: string): Promise<AdminUser> =>
-    fetchJson<AdminUser>(`${BASE}/${userId}/deactivate`, { method: 'PUT' }),
+  deactivateUser: async (userId: string): Promise<AdminUser> => {
+    const r = await apiClient.put(`${BASE}/${userId}/deactivate`);
+    return r.data.data ?? r.data;
+  },
 
   /** Reactivate a user */
-  reactivateUser: (userId: string): Promise<AdminUser> =>
-    fetchJson<AdminUser>(`${BASE}/${userId}/reactivate`, { method: 'PUT' }),
+  reactivateUser: async (userId: string): Promise<AdminUser> => {
+    const r = await apiClient.put(`${BASE}/${userId}/reactivate`);
+    return r.data.data ?? r.data;
+  },
 
   /** Update user role */
-  updateUserRole: (userId: string, role: string): Promise<AdminUser> =>
-    fetchJson<AdminUser>(`${BASE}/${userId}/role`, {
-      method: 'PUT',
-      body: JSON.stringify({ role }),
-    }),
+  updateUserRole: async (userId: string, role: string): Promise<AdminUser> => {
+    const r = await apiClient.put(`${BASE}/${userId}/role`, { role });
+    return r.data.data ?? r.data;
+  },
 
   /** User activity timeline */
-  getUserActivity: (userId: string, limit = 50): Promise<UserActivity[]> =>
-    fetchJson<UserActivity[]>(`${BASE}/${userId}/activity?limit=${limit}`),
+  getUserActivity: async (userId: string, limit = 50): Promise<UserActivity[]> => {
+    const r = await apiClient.get(`${BASE}/${userId}/activity`, { params: { limit } });
+    return r.data.data ?? r.data;
+  },
 
   /** Bulk action (deactivate / reactivate) */
-  bulkAction: (userIds: string[], action: string): Promise<BulkActionResult> =>
-    fetchJson<BulkActionResult>(`${BASE}/bulk`, {
-      method: 'POST',
-      body: JSON.stringify({ user_ids: userIds, action }),
-    }),
+  bulkAction: async (userIds: string[], action: string): Promise<BulkActionResult> => {
+    const r = await apiClient.post(`${BASE}/bulk`, { user_ids: userIds, action });
+    return r.data.data ?? r.data;
+  },
 
   /** Export users as CSV - returns blob URL */
   exportUsers: async (params: {
@@ -155,14 +117,11 @@ const adminUserService = {
     status?: string;
     search?: string;
   } = {}): Promise<string> => {
-    const qs = buildQuery(params);
-    const response = await fetch(`${BASE}/export${qs}`, {
-      headers: getAuthHeaders(),
+    const r = await apiClient.get(`${BASE}/export`, {
+      params,
+      responseType: 'blob',
     });
-    if (!response.ok) {
-      throw new Error(`Export failed: ${response.status}`);
-    }
-    const blob = await response.blob();
+    const blob = new Blob([r.data]);
     return URL.createObjectURL(blob);
   },
 };

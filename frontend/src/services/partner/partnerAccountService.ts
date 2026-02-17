@@ -3,23 +3,16 @@
  * API calls for profile, notifications, and settings
  */
 
-import axios from 'axios';
+import apiClient from '../api';
 import type { PartnerProfile, PartnerNotification } from '../../types/partner';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const BASE_PATH = `${API_URL}/api/v1/partner/account`;
-
-const getAuthHeaders = () => ({
-  Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-});
+const BASE_PATH = `/api/v1/partner/account`;
 
 /**
  * Get partner profile
  */
 export const getPartnerProfile = async (): Promise<PartnerProfile> => {
-  const response = await axios.get(`${BASE_PATH}/profile`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.get(`${BASE_PATH}/profile`);
   return response.data;
 };
 
@@ -29,9 +22,7 @@ export const getPartnerProfile = async (): Promise<PartnerProfile> => {
 export const updatePartnerProfile = async (
   data: Partial<PartnerProfile>
 ): Promise<PartnerProfile> => {
-  const response = await axios.put(`${BASE_PATH}/profile`, data, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.put(`${BASE_PATH}/profile`, data);
   return response.data;
 };
 
@@ -48,10 +39,7 @@ export const getNotifications = async (params?: {
   total: number;
   unread_count: number;
 }> => {
-  const response = await axios.get(`${BASE_PATH}/notifications`, {
-    headers: getAuthHeaders(),
-    params,
-  });
+  const response = await apiClient.get(`${BASE_PATH}/notifications`, { params });
   return response.data;
 };
 
@@ -61,10 +49,9 @@ export const getNotifications = async (params?: {
 export const markNotificationRead = async (
   notificationId: string
 ): Promise<{ success: boolean }> => {
-  const response = await axios.put(
+  const response = await apiClient.put(
     `${BASE_PATH}/notifications/${notificationId}/read`,
-    {},
-    { headers: getAuthHeaders() }
+    {}
   );
   return response.data;
 };
@@ -73,10 +60,9 @@ export const markNotificationRead = async (
  * Mark all notifications as read
  */
 export const markAllNotificationsRead = async (): Promise<{ success: boolean; count: number }> => {
-  const response = await axios.put(
+  const response = await apiClient.put(
     `${BASE_PATH}/notifications/read-all`,
-    {},
-    { headers: getAuthHeaders() }
+    {}
   );
   return response.data;
 };
@@ -95,10 +81,8 @@ export const updateSettings = async (data: {
     program_updates: boolean;
     impact_reports: boolean;
   };
-}): Promise<{ success: boolean; settings: any }> => {
-  const response = await axios.put(`${BASE_PATH}/settings`, data, {
-    headers: getAuthHeaders(),
-  });
+}): Promise<{ success: boolean; settings: unknown }> => {
+  const response = await apiClient.put(`${BASE_PATH}/settings`, data);
   return response.data;
 };
 
@@ -115,9 +99,7 @@ export const getTeamMembers = async (): Promise<
     added_at: string;
   }>
 > => {
-  const response = await axios.get(`${BASE_PATH}/team`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await apiClient.get(`${BASE_PATH}/team`);
   return response.data;
 };
 
@@ -129,10 +111,8 @@ export const addTeamMember = async (data: {
   email: string;
   role: string;
   permissions: string[];
-}): Promise<{ success: boolean; member: any }> => {
-  const response = await axios.post(`${BASE_PATH}/team`, data, {
-    headers: getAuthHeaders(),
-  });
+}): Promise<{ success: boolean; member: unknown }> => {
+  const response = await apiClient.post(`${BASE_PATH}/team`, data);
   return response.data;
 };
 

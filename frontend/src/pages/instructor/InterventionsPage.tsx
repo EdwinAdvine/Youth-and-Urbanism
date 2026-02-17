@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Flag, Award, Heart, Send, User } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
-import axios from 'axios';
+import apiClient from '../../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Student {
   id: string;
@@ -30,10 +29,7 @@ export const InterventionsPage: React.FC = () => {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_URL}/api/v1/instructor/students`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get('/api/v1/instructor/students');
 
       // Mock data for development
       if (!response.data || response.data.length === 0) {
@@ -88,19 +84,17 @@ export const InterventionsPage: React.FC = () => {
 
     try {
       setSubmitting(true);
-      const token = localStorage.getItem('access_token');
       const endpoint =
         actionType === 'flag'
           ? `/api/v1/instructor/students/${selectedStudent.id}/flag`
           : `/api/v1/instructor/students/${selectedStudent.id}/celebrate`;
 
-      await axios.post(
-        `${API_URL}${endpoint}`,
+      await apiClient.post(
+        endpoint,
         {
           reason: reason.trim(),
           message: message.trim() || undefined,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+        }
       );
 
       alert(

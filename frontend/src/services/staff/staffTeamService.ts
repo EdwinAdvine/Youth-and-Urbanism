@@ -11,26 +11,7 @@ import type {
   TeamPulseData,
   WorkloadSuggestion,
 } from '../../types/staff';
-
-const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/staff`;
-
-function getAuthHeaders(): HeadersInit {
-  const token =
-    localStorage.getItem('access_token') ||
-    JSON.parse(localStorage.getItem('auth-store') || '{}')?.state?.token;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
-
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Request failed' }));
-    throw new Error(error.detail || `HTTP ${response.status}`);
-  }
-  return response.json();
-}
+import apiClient from '../api';
 
 // ---------------------------------------------------------------------------
 // Types local to this service
@@ -74,44 +55,37 @@ export interface TeamMember {
 
 /** Fetch the current staff member's performance metrics. */
 export async function getMyPerformance(): Promise<MyPerformanceData> {
-  const response = await fetch(`${API_BASE}/team/my-performance`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<MyPerformanceData>(response);
+  const { data } = await apiClient.get<MyPerformanceData>('/api/v1/staff/team/my-performance');
+  return data;
 }
 
 /** Fetch team pulse data including member metrics and workload balance. */
 export async function getTeamPulse(): Promise<TeamPulseData> {
-  const response = await fetch(`${API_BASE}/team/pulse`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<TeamPulseData>(response);
+  const { data } = await apiClient.get<TeamPulseData>('/api/v1/staff/team/pulse');
+  return data;
 }
 
 /** Request AI-generated workload rebalancing suggestions. */
 export async function getWorkloadSuggestions(
   params: WorkloadRebalanceParams = {},
 ): Promise<WorkloadRebalanceResponse> {
-  const response = await fetch(`${API_BASE}/team/workload/rebalance`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(params),
-  });
-  return handleResponse<WorkloadRebalanceResponse>(response);
+  const { data } = await apiClient.post<WorkloadRebalanceResponse>(
+    '/api/v1/staff/team/workload/rebalance',
+    params,
+  );
+  return data;
 }
 
 /** Fetch available learning resources for professional development. */
 export async function getLearningResources(): Promise<LearningResource[]> {
-  const response = await fetch(`${API_BASE}/team/learning-resources`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<LearningResource[]>(response);
+  const { data } = await apiClient.get<LearningResource[]>(
+    '/api/v1/staff/team/learning-resources',
+  );
+  return data;
 }
 
 /** Fetch all team members. */
 export async function getTeamMembers(): Promise<TeamMember[]> {
-  const response = await fetch(`${API_BASE}/team/members`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<TeamMember[]>(response);
+  const { data } = await apiClient.get<TeamMember[]>('/api/v1/staff/team/members');
+  return data;
 }

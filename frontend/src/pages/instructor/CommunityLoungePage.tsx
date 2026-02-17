@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Users, MessageSquare, Plus, Pin, Eye, ThumbsUp } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface ForumPost {
   id: string;
@@ -37,12 +36,10 @@ export const CommunityLoungePage: React.FC = () => {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
       const params: any = { sort: sortBy };
       if (filterType !== 'all') params.type = filterType;
 
-      const response = await axios.get(`${API_URL}/api/v1/instructor/hub/community/posts`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await apiClient.get('/api/v1/instructor/hub/community/posts', {
         params,
       });
 

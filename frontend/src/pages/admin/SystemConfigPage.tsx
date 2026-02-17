@@ -107,7 +107,12 @@ const SystemConfigPage: React.FC = () => {
 
   const handleRefresh = () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 800);
+    setTimeout(() => {
+      setConfigs(MOCK_CONFIGS);
+      setEditingId(null);
+      setRefreshing(false);
+      showToast('Configuration refreshed to latest saved state', 'success');
+    }, 800);
   };
 
   const handleEdit = (config: ConfigEntry) => {

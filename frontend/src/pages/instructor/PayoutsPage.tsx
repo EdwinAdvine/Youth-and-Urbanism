@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, DollarSign, Clock, CheckCircle, XCircle, Download } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { format } from 'date-fns';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Payout {
   id: string;
@@ -36,10 +35,7 @@ export const PayoutsPage: React.FC = () => {
 
   const fetchBalance = async () => {
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_URL}/api/v1/instructor/earnings/breakdown`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get('/api/v1/instructor/earnings/breakdown');
 
       setAvailableBalance(response.data?.summary?.available_balance || 85000);
     } catch (error) {
@@ -51,10 +47,7 @@ export const PayoutsPage: React.FC = () => {
   const fetchPayouts = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(`${API_URL}/api/v1/instructor/earnings/payouts/history`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get('/api/v1/instructor/earnings/payouts/history');
 
       // Mock data for development
       if (!response.data || response.data.length === 0) {
@@ -120,15 +113,13 @@ export const PayoutsPage: React.FC = () => {
 
     try {
       setSubmitting(true);
-      const token = localStorage.getItem('access_token');
-      await axios.post(
-        `${API_URL}/api/v1/instructor/earnings/payouts/request`,
+      await apiClient.post(
+        '/api/v1/instructor/earnings/payouts/request',
         {
           amount,
           payout_method: payoutMethod,
           payout_details: payoutDetails,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+        }
       );
 
       alert('Payout request submitted successfully!');

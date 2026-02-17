@@ -1,3 +1,5 @@
+// CertificatesPage - Authenticated page at /certificates. Displays earned certificates
+// with options to download, share, and print, plus certificate verification status.
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';

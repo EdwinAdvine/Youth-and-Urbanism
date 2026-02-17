@@ -1,5 +1,4 @@
 import React from 'react';
-import { useThemeStore } from '../../store';
 import { Calendar, Zap, Star, TrendingUp } from 'lucide-react';
 
 interface WelcomeWidgetProps {
@@ -24,8 +23,7 @@ const WelcomeWidget: React.FC<WelcomeWidgetProps> = ({ onAction }) => {
       dashboardWidgets: []
     }
   };
-  const { isDarkMode } = useThemeStore();
-  
+
   // Mock data for demonstration
   const currentStreak = 15;
   const nextMilestone = 20;

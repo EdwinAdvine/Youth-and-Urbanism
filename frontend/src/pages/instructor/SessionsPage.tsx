@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Plus, Search, Filter, Video, Calendar, Users, Clock, PlayCircle } from 'lucide-react';
 import { InstructorPageHeader } from '../../components/instructor/shared/InstructorPageHeader';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api';
 import { format } from 'date-fns';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Session {
   id: string;
@@ -37,12 +36,10 @@ export const SessionsPage: React.FC = () => {
   const fetchSessions = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
       const params: any = {};
       if (statusFilter !== 'all') params.status = statusFilter;
 
-      const response = await axios.get(`${API_URL}/api/v1/instructor/sessions`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await apiClient.get('/api/v1/instructor/sessions', {
         params,
       });
 

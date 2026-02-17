@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useThemeStore, useUserStore, useCoPilotStore } from '../../store';
 import { useAuthStore } from '../../store/authStore';
-import Sidebar from './Sidebar';
 import StudentSidebar from '../student/sidebar/StudentSidebar';
 import PartnerSidebar from '../partner/sidebar/PartnerSidebar';
 import ParentSidebar from '../parent/ParentSidebar';
@@ -11,8 +10,7 @@ import AdminSidebar from '../admin/sidebar/AdminSidebar';
 import StaffSidebar from '../staff/sidebar/StaffSidebar';
 import Topbar from './Topbar';
 import CoPilotSidebar from '../co-pilot/CoPilotSidebar';
-import { initializeTheme } from '../../store';
-import { detectDashboardType as detectDashboardTypeUtil } from '../../utils/dashboardDetection';
+import ScrollToTopButton from './ScrollToTopButton';
 
 interface DashboardLayoutProps {
   children?: React.ReactNode;
@@ -33,7 +31,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onOpenAuthM
     if (authUser) {
       return {
         id: authUser.id || 'auth-user',
-        name: authUser.name || authUser.email?.split('@')[0] || 'User',
+        name: authUser.full_name || authUser.email?.split('@')[0] || 'User',
         email: authUser.email || '',
         role: (authUser.role || role) as 'student' | 'parent' | 'instructor' | 'admin' | 'partner' | 'staff',
         createdAt: new Date(),
@@ -65,11 +63,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onOpenAuthM
       }
     };
   }, [authUser, role]);
-
-  // Initialize theme on mount
-  useEffect(() => {
-    initializeTheme();
-  }, []);
 
   // Close sidebar on route change (mobile)
   useEffect(() => {
@@ -151,6 +144,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onOpenAuthM
         </div>
       </div>
 
+      <ScrollToTopButton />
     </div>
   );
 };

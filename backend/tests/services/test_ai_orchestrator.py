@@ -47,7 +47,6 @@ class TestAIOrchestratorInitialization:
             specialization="general",
             is_active=True,
             is_recommended=True,
-            is_text_provider=True
         )
         voice_provider = AIProvider(
             name="ElevenLabs",
@@ -56,7 +55,6 @@ class TestAIOrchestratorInitialization:
             api_key_encrypted="encrypted_key",
             specialization="voice",
             is_active=True,
-            is_voice_provider=True
         )
 
         db_session.add_all([text_provider, voice_provider])
@@ -90,7 +88,6 @@ class TestAIOrchestratorInitialization:
             api_endpoint="https://generativelanguage.googleapis.com",
             api_key_encrypted="encrypted_key",
             is_active=True,
-            is_text_provider=True
         )
 
         orchestrator = AIOrchestrator(db_session)
@@ -117,7 +114,6 @@ class TestAIOrchestratorInitialization:
             api_endpoint="https://api.anthropic.com",
             api_key_encrypted="encrypted_key",
             is_active=True,
-            is_text_provider=True
         )
 
         orchestrator = AIOrchestrator(db_session)
@@ -143,7 +139,6 @@ class TestAIOrchestratorInitialization:
             api_endpoint="https://api.openai.com",
             api_key_encrypted="encrypted_key",
             is_active=True,
-            is_text_provider=True
         )
 
         orchestrator = AIOrchestrator(db_session)
@@ -168,7 +163,6 @@ class TestAIOrchestratorInitialization:
             api_endpoint="https://api.elevenlabs.io",
             api_key_encrypted="encrypted_key",
             is_active=True,
-            is_voice_provider=True
         )
 
         orchestrator = AIOrchestrator(db_session)
@@ -181,7 +175,7 @@ class TestAIOrchestratorInitialization:
 class TestTaskClassification:
     """Test query task classification."""
 
-    def test_classify_reasoning_task(self, db_session):
+    async def test_classify_reasoning_task(self, db_session):
         """Test classification of reasoning queries."""
         orchestrator = AIOrchestrator(db_session)
 
@@ -195,7 +189,7 @@ class TestTaskClassification:
         for query in queries:
             assert orchestrator._classify_task(query) == "reasoning"
 
-    def test_classify_creative_task(self, db_session):
+    async def test_classify_creative_task(self, db_session):
         """Test classification of creative queries."""
         orchestrator = AIOrchestrator(db_session)
 
@@ -209,7 +203,7 @@ class TestTaskClassification:
         for query in queries:
             assert orchestrator._classify_task(query) == "creative"
 
-    def test_classify_research_task(self, db_session):
+    async def test_classify_research_task(self, db_session):
         """Test classification of research queries."""
         orchestrator = AIOrchestrator(db_session)
 
@@ -223,7 +217,7 @@ class TestTaskClassification:
         for query in queries:
             assert orchestrator._classify_task(query) == "research"
 
-    def test_classify_general_task(self, db_session):
+    async def test_classify_general_task(self, db_session):
         """Test classification defaults to general."""
         orchestrator = AIOrchestrator(db_session)
 
@@ -235,7 +229,7 @@ class TestTaskClassification:
 class TestPromptBuilding:
     """Test prompt building with context."""
 
-    def test_build_prompt_basic(self, db_session):
+    async def test_build_prompt_basic(self, db_session):
         """Test basic prompt building."""
         orchestrator = AIOrchestrator(db_session)
 
@@ -247,7 +241,7 @@ class TestPromptBuilding:
         assert "The Bird AI" in prompt
         assert "What is addition?" in prompt
 
-    def test_build_prompt_with_student_info(self, db_session):
+    async def test_build_prompt_with_student_info(self, db_session):
         """Test prompt with student name and grade."""
         orchestrator = AIOrchestrator(db_session)
 
@@ -262,7 +256,7 @@ class TestPromptBuilding:
         assert "John" in prompt
         assert "grade 5" in prompt
 
-    def test_build_prompt_with_conversation_history(self, db_session):
+    async def test_build_prompt_with_conversation_history(self, db_session):
         """Test prompt includes conversation history."""
         orchestrator = AIOrchestrator(db_session)
 
@@ -295,13 +289,11 @@ class TestProviderSelection:
                 name="General AI",
                 specialization="general",
                 is_recommended=False,
-                is_text_provider=True
             ),
             AIProvider(
                 name="Math AI",
                 specialization="reasoning, mathematics",
                 is_recommended=True,
-                is_text_provider=True
             )
         ]
 
@@ -319,13 +311,11 @@ class TestProviderSelection:
                 name="Basic AI",
                 specialization="general",
                 is_recommended=False,
-                is_text_provider=True
             ),
             AIProvider(
                 name="Premium AI",
                 specialization="general",
                 is_recommended=True,
-                is_text_provider=True
             )
         ]
 
@@ -366,7 +356,6 @@ class TestQueryExecution:
             id=uuid4(),
             name="Gemini Pro",
             specialization="general",
-            is_text_provider=True
         )
 
         orchestrator.providers_cache[str(provider.id)] = {
@@ -405,7 +394,6 @@ class TestQueryExecution:
             id=uuid4(),
             name="Claude",
             specialization="creative",
-            is_text_provider=True
         )
 
         orchestrator.providers_cache[str(provider.id)] = {
@@ -446,7 +434,6 @@ class TestQueryExecution:
             id=uuid4(),
             name="GPT-4",
             specialization="general",
-            is_text_provider=True
         )
 
         orchestrator.providers_cache[str(provider.id)] = {
@@ -475,7 +462,6 @@ class TestQueryExecution:
         provider = AIProvider(
             id=uuid4(),
             name="Broken AI",
-            is_text_provider=True
         )
 
         # Don't add to cache to simulate missing provider
@@ -503,7 +489,7 @@ class TestQueryRouting:
 
         orchestrator = AIOrchestrator(db_session)
         orchestrator.text_providers = [
-            AIProvider(name="Test AI", is_text_provider=True)
+            AIProvider(name="Test AI", provider_type="text")
         ]
 
         result = await orchestrator.route_query(
@@ -525,7 +511,7 @@ class TestQueryRouting:
 
         orchestrator = AIOrchestrator(db_session)
         orchestrator.text_providers = [
-            AIProvider(name="Test AI", is_text_provider=True)
+            AIProvider(name="Test AI", provider_type="text")
         ]
 
         result = await orchestrator.route_query(
@@ -546,7 +532,7 @@ class TestQueryRouting:
 
         orchestrator = AIOrchestrator(db_session)
         orchestrator.text_providers = [
-            AIProvider(name="Test AI", is_text_provider=True)
+            AIProvider(name="Test AI", provider_type="text")
         ]
 
         result = await orchestrator.route_query(
@@ -561,7 +547,7 @@ class TestQueryRouting:
         """Test routing with invalid response mode raises error."""
         orchestrator = AIOrchestrator(db_session)
         orchestrator.text_providers = [
-            AIProvider(name="Test AI", is_text_provider=True)
+            AIProvider(name="Test AI", provider_type="text")
         ]
 
         with pytest.raises(ValueError, match="Unsupported response mode"):
@@ -583,7 +569,6 @@ class TestMultiModalHandling:
         """Test handling text query."""
         mock_provider = AIProvider(
             name="Test AI",
-            is_text_provider=True
         )
         mock_select.return_value = mock_provider
         mock_execute.return_value = "This is the response"
@@ -610,7 +595,6 @@ class TestMultiModalHandling:
         """Test handling voice query."""
         mock_provider = AIProvider(
             name="Test AI",
-            is_text_provider=True
         )
         mock_select.return_value = mock_provider
         mock_execute.return_value = "Voice response text"
