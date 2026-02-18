@@ -1,0 +1,3 @@
+# Migration versions will be generated here
+# Run: alembic revision --autogenerate -m "message"
+# Then: alembic upgrade head

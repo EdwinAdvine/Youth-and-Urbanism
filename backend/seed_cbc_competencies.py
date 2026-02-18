@@ -5,7 +5,7 @@ Based on KICD framework with ~800 competency entries
 import asyncio
 from uuid import uuid4
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.database import async_session_maker
+from app.database import init_db
 from app.models.staff.cbc import CBCCompetency, CBCStrand
 
 # Kenyan CBC Learning Areas
@@ -184,8 +184,11 @@ async def main():
     """Main seed function"""
     print("Starting CBC competencies seed...\n")
     print("Based on KICD Competency-Based Curriculum Framework\n")
-    
-    async with async_session_maker() as session:
+
+    await init_db()
+    from app.database import AsyncSessionLocal
+
+    async with AsyncSessionLocal() as session:
         try:
             strand_map = await seed_cbc_strands(session)
             await seed_cbc_competencies(session, strand_map)
