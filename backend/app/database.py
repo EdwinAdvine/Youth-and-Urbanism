@@ -75,8 +75,8 @@ async def init_db() -> None:
         engine = create_async_engine(
             db_url,
             echo=settings.debug,  # Log SQL queries in debug mode
-            pool_size=settings.db_pool_size,  # Use configured pool size
-            max_overflow=settings.db_max_overflow,  # Use configured max overflow
+            pool_size=settings.database_pool_size,  # Use configured pool size
+            max_overflow=settings.database_max_overflow,  # Use configured max overflow
             pool_pre_ping=True,  # Verify connections before using
             pool_recycle=3600,  # Recycle connections after 1 hour
             # Use NullPool for testing environments if needed

@@ -88,7 +88,7 @@ apiClient.interceptors.response.use(
         refreshPromise = axios
           .post(`${API_BASE_URL}/api/v1/auth/refresh`, {}, { withCredentials: true })
           .then(() => {})
-          .catch((refreshError) => {
+          .catch(async (refreshError) => {
             // Refresh failed — clear BOTH localStorage AND Zustand store
             // CRITICAL FIX (C-07): Clear in-memory Zustand state, not just localStorage
             localStorage.removeItem('user');
