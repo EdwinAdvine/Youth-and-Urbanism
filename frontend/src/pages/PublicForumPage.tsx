@@ -649,6 +649,7 @@ const PublicForumPage: React.FC = () => {
   // Render
   // ---------------------------------------------------------------------------
   return (
+    <>
     <div className="min-h-screen bg-gray-50 dark:bg-[#0F1112]">
       {/* ------------------------------------------------------------------ */}
       {/* Hero / Header */}
@@ -966,6 +967,7 @@ const PublicForumPage: React.FC = () => {
         navigate('/dashboard/forum');
       }}
     />
+    </>
   );
 };
 
