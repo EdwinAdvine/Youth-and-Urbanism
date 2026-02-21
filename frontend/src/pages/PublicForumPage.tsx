@@ -29,6 +29,7 @@ import {
   Filter,
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import AuthModal from '../components/auth/AuthModal';
 
 // =============================================================================
 // Types
@@ -481,6 +482,8 @@ const PostCard: React.FC<PostCardProps> = ({ post, onTagClick }) => {
 
 const PublicForumPage: React.FC = () => {
   const { isAuthenticated } = useAuthStore();
+  const navigate = useNavigate();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Data state
   const [posts, setPosts] = useState<ForumPost[]>([]);
@@ -523,7 +526,7 @@ const PublicForumPage: React.FC = () => {
       setLoading(true);
       try {
         const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-        const res = await fetch(`${apiUrl}/api/v1/forum/posts?limit=50`, {
+        const res = await fetch(`${apiUrl}/api/v1/forum/public/posts?limit=50`, {
           signal: AbortSignal.timeout(4000),
         });
         if (!res.ok) throw new Error('API error');
@@ -851,12 +854,12 @@ const PublicForumPage: React.FC = () => {
                   Start a Discussion
                 </Link>
               ) : (
-                <Link
-                  to="/dashboard/forum"
+                <button
+                  onClick={() => setIsAuthModalOpen(true)}
                   className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#FF0000] hover:bg-[#E40000] text-gray-900 dark:text-white text-sm font-semibold rounded-lg transition-colors"
                 >
                   Sign In to Post
-                </Link>
+                </button>
               )}
             </div>
 
@@ -954,6 +957,15 @@ const PublicForumPage: React.FC = () => {
         </div>
       </section>
     </div>
+
+    <AuthModal
+      isOpen={isAuthModalOpen}
+      onClose={() => setIsAuthModalOpen(false)}
+      onAuthSuccess={() => {
+        setIsAuthModalOpen(false);
+        navigate('/dashboard/forum');
+      }}
+    />
   );
 };
 

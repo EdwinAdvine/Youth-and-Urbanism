@@ -41,7 +41,7 @@ interface ComparisonFeature {
   name: string;
   free: boolean | string;
   basic: boolean | string;
-  parents: boolean | string;
+  advanced: boolean | string;
   sponsor: boolean | string;
 }
 
@@ -54,17 +54,17 @@ const plans: Plan[] = [
     id: 'free',
     name: 'Free',
     icon: <Sparkles className="w-6 h-6" />,
-    description: 'Get started with the essentials',
+    description: 'Start learning with no commitment',
     monthlyPrice: 0,
     annualPrice: 0,
     annualTotal: null,
     savingsLabel: null,
     perLabel: '',
     features: [
-      { text: 'Enroll children & access free courses', included: true },
-      { text: 'Limited AI access (5 messages/day)', included: true },
-      { text: 'Basic progress reports', included: true },
-      { text: 'Voice & video AI responses', included: false },
+      { text: 'Access to free courses & tutorials', included: true },
+      { text: 'Community forum access', included: true },
+      { text: 'Limited offline content', included: true },
+      { text: 'Basic AI tutoring (5 messages/day)', included: true },
       { text: 'Paid course library', included: false },
       { text: 'Priority support', included: false },
     ],
@@ -78,91 +78,91 @@ const plans: Plan[] = [
     id: 'basic',
     name: 'Basic',
     icon: <Shield className="w-6 h-6" />,
-    description: 'Full access for 1 child',
+    description: 'Full CBC access for 1 student',
     monthlyPrice: 1000,
     annualPrice: 800,
     annualTotal: 9600,
     savingsLabel: 'Save 20%',
-    perLabel: '/month',
+    perLabel: '/student/month',
     features: [
-      { text: 'Full AI tutor access (unlimited)', included: true },
-      { text: 'All courses (free + paid)', included: true },
+      { text: 'Unlimited tutorials & AI tutoring', included: true },
+      { text: 'All CBC subjects', included: true },
+      { text: 'Full offline mode', included: true },
       { text: 'Detailed progress reports', included: true },
-      { text: 'Voice & video AI responses', included: true },
-      { text: 'CBC-aligned learning paths', included: true },
-      { text: 'Priority support', included: false },
-    ],
-    cta: 'Subscribe Now',
-    ctaLink: '/payments',
-    popular: false,
-    annualOnly: false,
-    note: null,
-  },
-  {
-    id: 'parents',
-    name: 'Parents',
-    icon: <Users className="w-6 h-6" />,
-    description: 'Best value for 2+ children',
-    monthlyPrice: 800,
-    annualPrice: 600,
-    annualTotal: null,
-    savingsLabel: 'Save 25%',
-    perLabel: '/child/month',
-    features: [
-      { text: 'Everything in Basic plan', included: true },
-      { text: 'Multi-child dashboard', included: true },
-      { text: 'Family progress comparison', included: true },
-      { text: 'Voice & video AI responses', included: true },
-      { text: 'CBC-aligned learning paths', included: true },
       { text: 'Priority support', included: true },
+      { text: 'Voice & video AI responses', included: true },
     ],
     cta: 'Subscribe Now',
-    ctaLink: '/payments',
+    ctaLink: '/payment',
     popular: true,
     annualOnly: false,
     note: null,
   },
   {
+    id: 'advanced',
+    name: 'Advanced',
+    icon: <Users className="w-6 h-6" />,
+    description: 'Family plan for up to 4 children',
+    monthlyPrice: 1500,
+    annualPrice: 1200,
+    annualTotal: null,
+    savingsLabel: 'Save 20%',
+    perLabel: '/month',
+    features: [
+      { text: 'Everything in Basic plan', included: true },
+      { text: 'Up to 4 children', included: true },
+      { text: 'Family analytics dashboard', included: true },
+      { text: 'Direct teacher communication', included: true },
+      { text: 'All paid courses included', included: true },
+      { text: 'Priority support', included: true },
+    ],
+    cta: 'Subscribe Now',
+    ctaLink: '/payment',
+    popular: false,
+    annualOnly: false,
+    note: null,
+  },
+  {
     id: 'sponsor',
-    name: 'Sponsor',
+    name: 'Sponsorship',
     icon: <Building2 className="w-6 h-6" />,
-    description: 'For organizations & sponsors',
-    monthlyPrice: null,
-    annualPrice: 500,
+    description: 'Support children in your community',
+    monthlyPrice: 1000,
+    annualPrice: null,
     annualTotal: null,
     savingsLabel: null,
     perLabel: '/child/month',
     features: [
-      { text: 'Everything in Parents plan', included: true },
-      { text: 'Scholarship management', included: true },
-      { text: 'Custom branding', included: true },
-      { text: 'Analytics dashboard', included: true },
+      { text: 'Everything in Advanced plan', included: true },
+      { text: 'Support up to 10 children', included: true },
+      { text: 'Scholarship management dashboard', included: true },
+      { text: 'Impact & progress reports', included: true },
       { text: 'Dedicated account manager', included: true },
-      { text: 'Min. 10 children (5,000 KES/mo)', included: true },
+      { text: 'Custom branding options', included: true },
     ],
     cta: 'Apply Now',
     ctaLink: '/contact',
     popular: false,
-    annualOnly: true,
-    note: 'For organizations and sponsors',
+    annualOnly: false,
+    note: 'For organizations, NGOs, and community sponsors',
   },
 ];
 
 const comparisonFeatures: ComparisonFeature[] = [
-  { name: 'Enroll children', free: true, basic: true, parents: true, sponsor: true },
-  { name: 'Free courses', free: true, basic: true, parents: true, sponsor: true },
-  { name: 'AI tutor messages', free: '5/day', basic: 'Unlimited', parents: 'Unlimited', sponsor: 'Unlimited' },
-  { name: 'Paid course library', free: false, basic: true, parents: true, sponsor: true },
-  { name: 'Progress reports', free: 'Basic', basic: 'Detailed', parents: 'Detailed', sponsor: 'Advanced' },
-  { name: 'Voice & video responses', free: false, basic: true, parents: true, sponsor: true },
-  { name: 'CBC-aligned learning paths', free: false, basic: true, parents: true, sponsor: true },
-  { name: 'Multi-child dashboard', free: false, basic: false, parents: true, sponsor: true },
-  { name: 'Family progress comparison', free: false, basic: false, parents: true, sponsor: true },
-  { name: 'Priority support', free: false, basic: false, parents: true, sponsor: true },
-  { name: 'Scholarship management', free: false, basic: false, parents: false, sponsor: true },
-  { name: 'Custom branding', free: false, basic: false, parents: false, sponsor: true },
-  { name: 'Analytics dashboard', free: false, basic: false, parents: false, sponsor: true },
-  { name: 'Dedicated account manager', free: false, basic: false, parents: false, sponsor: true },
+  { name: 'Free courses & tutorials', free: true, basic: true, advanced: true, sponsor: true },
+  { name: 'Community forum access', free: true, basic: true, advanced: true, sponsor: true },
+  { name: 'AI tutor messages', free: '5/day', basic: 'Unlimited', advanced: 'Unlimited', sponsor: 'Unlimited' },
+  { name: 'Full offline mode', free: 'Limited', basic: true, advanced: true, sponsor: true },
+  { name: 'All CBC subjects', free: false, basic: true, advanced: true, sponsor: true },
+  { name: 'Progress reports', free: false, basic: 'Detailed', advanced: 'Family', sponsor: 'Advanced' },
+  { name: 'Voice & video AI responses', free: false, basic: true, advanced: true, sponsor: true },
+  { name: 'Priority support', free: false, basic: true, advanced: true, sponsor: true },
+  { name: 'Up to 4 children', free: false, basic: false, advanced: true, sponsor: true },
+  { name: 'Family analytics dashboard', free: false, basic: false, advanced: true, sponsor: true },
+  { name: 'Teacher communication', free: false, basic: false, advanced: true, sponsor: true },
+  { name: 'All paid courses', free: false, basic: false, advanced: true, sponsor: true },
+  { name: 'Scholarship management', free: false, basic: false, advanced: false, sponsor: true },
+  { name: 'Dedicated account manager', free: false, basic: false, advanced: false, sponsor: true },
 ];
 
 const faqs: FAQ[] = [
@@ -404,8 +404,8 @@ const PricingCard: React.FC<{ plan: Plan; isAnnual: boolean; index: number }> = 
 };
 
 const ComparisonTable: React.FC = () => {
-  const planColumns = ['free', 'basic', 'parents', 'sponsor'] as const;
-  const planLabels = { free: 'Free', basic: 'Basic', parents: 'Parents', sponsor: 'Sponsor' };
+  const planColumns = ['free', 'basic', 'advanced', 'sponsor'] as const;
+  const planLabels = { free: 'Free', basic: 'Basic', advanced: 'Advanced', sponsor: 'Sponsorship' };
 
   const renderCell = (value: boolean | string) => {
     if (typeof value === 'string') {
@@ -448,7 +448,7 @@ const ComparisonTable: React.FC = () => {
               <td className="py-3.5 px-4 text-sm text-gray-700 dark:text-white/80">{feature.name}</td>
               <td className="py-3.5 px-3 text-center">{renderCell(feature.free)}</td>
               <td className="py-3.5 px-3 text-center">{renderCell(feature.basic)}</td>
-              <td className="py-3.5 px-3 text-center">{renderCell(feature.parents)}</td>
+              <td className="py-3.5 px-3 text-center">{renderCell(feature.advanced)}</td>
               <td className="py-3.5 px-3 text-center">{renderCell(feature.sponsor)}</td>
             </tr>
           ))}

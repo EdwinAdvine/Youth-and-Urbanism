@@ -752,3 +752,146 @@ async def logout(
     response = JSONResponse(content={"message": "Logged out successfully"})
     _clear_auth_cookies(response)
     return response
+
+
+# ============================================================================
+# Instructor Account Setup (invite token flow)
+# ============================================================================
+
+@router.post(
+    "/instructor-setup",
+    response_model=TokenResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Set up instructor account",
+    description=(
+        "Create an instructor account using the one-time invite token "
+        "emailed after application approval. Sets a password and activates the account."
+    ),
+)
+async def instructor_setup(
+    data: dict = Body(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Finalise instructor account creation after approval.
+
+    Expected body:
+        token: invite JWT from the approval email
+        password: new password (min 8 chars)
+        full_name: instructor's display name (optional – falls back to application name)
+    """
+    from app.models.instructor_application import InstructorApplication
+    from app.utils.security import create_access_token, get_password_hash
+    from app.models.user import User as UserModel
+    from datetime import timedelta, timezone, datetime as dt
+
+    token = data.get("token", "")
+    password = data.get("password", "")
+    full_name_override = data.get("full_name", "")
+
+    if not token or not password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="token and password are required",
+        )
+
+    if len(password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 8 characters",
+        )
+
+    # Validate invite token
+    try:
+        payload = verify_token(token, token_type="instructor_invite")
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired invite token",
+        )
+
+    application_id_str = payload.get("sub")
+    if not application_id_str:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid invite token",
+        )
+
+    # Fetch the application
+    result = await db.execute(
+        select(InstructorApplication).where(
+            InstructorApplication.id == UUID(application_id_str)
+        )
+    )
+    application = result.scalar_one_or_none()
+
+    if not application or application.status != "approved":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Application not found or not approved",
+        )
+
+    # Verify stored token matches (extra check)
+    if application.invite_token != token:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invite token has already been used or is invalid",
+        )
+
+    # Check expiry stored on the application record
+    if application.invite_expires_at and application.invite_expires_at < dt.utcnow():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invite token has expired. Please contact support for a new link.",
+        )
+
+    # Check email not already registered
+    existing = await db.execute(
+        select(UserModel).where(UserModel.email == application.email)
+    )
+    if existing.scalar_one_or_none():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="An account with this email already exists. Please log in.",
+        )
+
+    # Create the instructor user
+    display_name = full_name_override or application.full_name
+    new_user = UserModel(
+        email=application.email,
+        password_hash=get_password_hash(password),
+        role="instructor",
+        is_active=True,
+        is_verified=True,  # Email already verified via invite flow
+        profile_data={"full_name": display_name, "phone": application.phone},
+    )
+    db.add(new_user)
+    await db.flush()
+    await db.refresh(new_user)
+
+    # Link application to the new user and consume the invite token
+    application.user_id = new_user.id
+    application.invite_token = None  # One-time use — clear after consumption
+    application.status = "setup_complete"
+
+    await db.commit()
+
+    # Issue access + refresh tokens so the user is auto-logged-in
+    access_token = create_access_token(
+        data={"sub": str(new_user.id), "role": new_user.role},
+        expires_delta=timedelta(minutes=settings.access_token_expire_minutes),
+    )
+    refresh_token_str = create_access_token(
+        data={"sub": str(new_user.id), "type": "refresh"},
+        expires_delta=timedelta(days=settings.refresh_token_expire_days),
+    )
+
+    body = {
+        "access_token": access_token,
+        "refresh_token": refresh_token_str,
+        "token_type": "bearer",
+        "expires_in": settings.access_token_expire_minutes * 60,
+    }
+    response = JSONResponse(content=body, status_code=201)
+    _set_auth_cookies(response, access_token, refresh_token_str)
+    return response

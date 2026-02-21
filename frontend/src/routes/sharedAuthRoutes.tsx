@@ -24,9 +24,7 @@ const ProfilePage = lazy(() => import('../pages/ProfilePage'));
 const SettingsPage = lazy(() => import('../pages/SettingsPage'));
 const NotificationsPage = lazy(() => import('../pages/NotificationsPage'));
 
-// Store / E-Commerce pages
-const StorePage = lazy(() => import('../pages/StorePage'));
-const ProductDetailPage = lazy(() => import('../pages/ProductDetailPage'));
+// Store checkout
 const CheckoutPage = lazy(() => import('../pages/CheckoutPage'));
 const InstructorPublicProfilePage = lazy(() => import('../pages/InstructorPublicProfilePage'));
 
@@ -48,9 +46,7 @@ export const sharedAuthRoutes = (
     <Route path="/settings" element={<ProtectedRoute><S><SettingsPage /></S></ProtectedRoute>} />
     <Route path="/notifications" element={<ProtectedRoute><S><NotificationsPage /></S></ProtectedRoute>} />
 
-    {/* Store / E-Commerce */}
-    <Route path="/store" element={<ProtectedRoute><S><StorePage /></S></ProtectedRoute>} />
-    <Route path="/store/products/:slug" element={<ProtectedRoute><S><ProductDetailPage /></S></ProtectedRoute>} />
+    {/* Store checkout (auth required) */}
     <Route path="/store/checkout" element={<ProtectedRoute><S><CheckoutPage /></S></ProtectedRoute>} />
 
     {/* Public instructor profile (no auth required) */}

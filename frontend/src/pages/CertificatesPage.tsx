@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import courseService from '../services/courseService';
+import { certificateService } from '../services/certificateService';
 import {
   Award,
   Download,
@@ -157,6 +158,28 @@ const CertificatesPage: React.FC = () => {
   useEffect(() => {
     const fetchCertificates = async () => {
       try {
+        // Try the dedicated certificates API first
+        const res = await certificateService.listCertificates({ limit: 100 });
+        if (res.certificates && res.certificates.length > 0) {
+          const mapped: Certificate[] = res.certificates.map((c: any) => ({
+            id: c.id,  // real UUID — used for PDF download
+            type: 'course' as const,
+            title: 'Certificate of Completion',
+            courseName: c.course_name,
+            issueDate: new Date(c.completion_date || c.issued_at),
+            score: 100,
+            grade: c.grade || 'Completed',
+            verificationCode: c.serial_number,
+            description: `Successfully completed ${c.course_name}`,
+            level: '',
+          }));
+          setCertificates(mapped);
+          return;
+        }
+      } catch {
+        // Certificates API not available — try enrollments fallback
+      }
+      try {
         const completedEnrollments = await courseService.getCompletedEnrollments();
         if (completedEnrollments.length > 0) {
           const mapped: Certificate[] = completedEnrollments.map((e: any, idx: number) => ({
@@ -167,7 +190,7 @@ const CertificatesPage: React.FC = () => {
             issueDate: new Date(e.completed_at || e.updated_at || Date.now()),
             score: e.progress_percentage || 100,
             grade: (e.progress_percentage || 100) >= 90 ? 'A' : (e.progress_percentage || 100) >= 80 ? 'B+' : 'B',
-            verificationCode: `TUHS-${(e.id || '').slice(0, 8).toUpperCase() || `AUTO-${idx}`}`,
+            verificationCode: `UHS-${(e.id || '').slice(0, 8).toUpperCase() || `AUTO-${idx}`}`,
             description: `Successfully completed ${e.course_title || 'course'}`,
             level: e.grade_level || '',
           }));
@@ -227,10 +250,12 @@ const CertificatesPage: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleDownloadPDF = (certificate: Certificate) => {
-    // In production, this would call the API endpoint
-    console.log('Downloading certificate:', certificate.id);
-    alert(`Downloading ${certificate.title}...`);
+  const handleDownloadPDF = async (certificate: Certificate) => {
+    try {
+      await certificateService.downloadPdf(certificate.id, certificate.verificationCode || certificate.id);
+    } catch {
+      alert('Failed to download certificate. Please try again later.');
+    }
   };
 
   const handleShare = (certificate: Certificate) => {

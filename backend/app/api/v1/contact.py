@@ -5,11 +5,12 @@ Public contact form submission and admin management of contact messages.
 Supports listing, reading, and replying to messages.
 """
 
+import logging
 from typing import Optional
 from uuid import UUID
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -23,9 +24,33 @@ from app.schemas.contact_schemas import (
     ContactResponse,
     ContactListResponse,
 )
+from app.services.email_service import send_contact_notification_email
 
-
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/contact", tags=["Contact"])
+
+
+async def _rate_limit(key: str, max_attempts: int, window_seconds: int) -> None:
+    """Atomic INCR+EXPIRE rate limiter using Redis Lua script. Raises 429 if exceeded."""
+    try:
+        from app.redis import get_redis
+        r = get_redis()
+    except Exception:
+        return  # Redis unavailable — skip limiting rather than blocking all requests
+
+    try:
+        lua = "local c=redis.call('INCR',KEYS[1]) if c==1 then redis.call('EXPIRE',KEYS[1],ARGV[1]) end return c"
+        current = await r.eval(lua, 1, f"rl:{key}", window_seconds)
+        if current > max_attempts:
+            ttl = await r.ttl(f"rl:{key}")
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"Too many requests. Try again in {ttl} seconds.",
+            )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.warning(f"Rate limit check failed: {e}")
 
 
 # ============================================================================
@@ -40,10 +65,15 @@ router = APIRouter(prefix="/contact", tags=["Contact"])
     description="Public endpoint to submit a contact form message. No authentication required.",
 )
 async def submit_contact_message(
+    request: Request,
     data: ContactCreate,
     db: AsyncSession = Depends(get_db),
 ) -> ContactResponse:
     """Submit a contact form message (public, no auth required)."""
+    # Rate limit: 5 submissions per IP per hour
+    client_ip = request.client.host if request.client else "unknown"
+    await _rate_limit(f"contact:{client_ip}", max_attempts=5, window_seconds=3600)
+
     contact_message = ContactMessage(
         name=data.name,
         email=data.email,
@@ -54,6 +84,17 @@ async def submit_contact_message(
     db.add(contact_message)
     await db.flush()
     await db.refresh(contact_message)
+
+    # Forward to admin inbox (non-blocking — failure doesn't affect response)
+    try:
+        send_contact_notification_email(
+            sender_name=data.name,
+            sender_email=data.email,
+            subject=data.subject,
+            message=data.message,
+        )
+    except Exception:
+        pass  # Log is handled inside email service
 
     return ContactResponse.model_validate(contact_message)
 

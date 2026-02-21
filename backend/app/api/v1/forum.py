@@ -9,10 +9,12 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models.user import User
+from app.models.forum import ForumPost, ForumReply
 from app.utils.security import get_current_user
 from app.services import forum_service
 from app.schemas.forum_schemas import (
@@ -30,6 +32,78 @@ from app.schemas.forum_schemas import (
 
 
 router = APIRouter(prefix="/forum", tags=["Forum"])
+
+
+# ============================================================================
+# Public Endpoint (no authentication required)
+# ============================================================================
+
+@router.get(
+    "/public/posts",
+    response_model=ForumPostListResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List public forum posts",
+    description="Unauthenticated endpoint returning only is_public=True posts. Safe to call without a token.",
+)
+async def list_public_posts(
+    category: Optional[str] = Query(None, description="Filter by category"),
+    search: Optional[str] = Query(None, description="Search in title"),
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=50),
+    db: AsyncSession = Depends(get_db),
+) -> ForumPostListResponse:
+    """List public forum posts visible to unauthenticated visitors."""
+    from sqlalchemy import select, func
+    from app.models.forum import ForumPost
+
+    query = select(ForumPost).where(
+        ForumPost.is_public == True,  # noqa: E712
+        ForumPost.is_deleted == False,  # noqa: E712
+    )
+    count_query = select(func.count(ForumPost.id)).where(
+        ForumPost.is_public == True,  # noqa: E712
+        ForumPost.is_deleted == False,  # noqa: E712
+    )
+
+    if category:
+        query = query.where(ForumPost.category == category)
+        count_query = count_query.where(ForumPost.category == category)
+    if search:
+        query = query.where(ForumPost.title.ilike(f"%{search}%"))
+        count_query = count_query.where(ForumPost.title.ilike(f"%{search}%"))
+
+    total = (await db.execute(count_query)).scalar_one()
+    offset = (page - 1) * limit
+    result = await db.execute(
+        query.order_by(ForumPost.last_activity_at.desc()).offset(offset).limit(limit)
+    )
+    posts_db = result.scalars().all()
+
+    from app.services.forum_service import _get_author_info
+    posts = []
+    for p in posts_db:
+        author_data = await _get_author_info(db, p.author_id)
+        posts.append(
+            ForumPostResponse(
+                id=p.id,
+                title=p.title,
+                content=p.content,
+                excerpt=p.content[:160] + "..." if len(p.content) > 160 else p.content,
+                category=p.category,
+                tags=p.tags or [],
+                author=AuthorInfo(**author_data),
+                stats=ForumPostStats(views=p.view_count, replies=0, likes=0),
+                is_public=p.is_public,
+                is_pinned=p.is_pinned,
+                is_solved=p.is_solved,
+                liked_by_me=False,
+                created_at=p.created_at,
+                updated_at=p.updated_at,
+                last_activity_at=p.last_activity_at,
+            )
+        )
+
+    return ForumPostListResponse(posts=posts, total=total, page=page, limit=limit)
 
 
 # ============================================================================

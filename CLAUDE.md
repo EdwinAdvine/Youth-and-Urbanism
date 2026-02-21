@@ -32,6 +32,7 @@ npx tsc --noEmit             # TypeScript type checking
 npm run test                 # Vitest (single run)
 npm run test:watch           # Vitest watch mode
 npm run test:coverage        # Vitest with coverage
+npm run test src/path/to.test.tsx  # Run a single test file
 ```
 
 ### Backend (from `backend/`)
@@ -52,11 +53,30 @@ alembic upgrade head                    # Apply all migrations
 alembic revision --autogenerate -m "description"  # Create new migration
 
 # Seeding (from backend/)
-python seed_users.py                    # Seed demo users (all 6 roles)
+python seed_users.py                    # Seed 6 demo users (1 per role)
+python seed_comprehensive.py            # Full seed: 54 users + courses + AI providers
 python seed_categories.py               # Seed course categories
-python seed_comprehensive.py            # Comprehensive seed (all data)
 python seed_cbc_competencies.py         # CBC curriculum competencies
+python seed_parent_data.py              # Parent demo family (1 parent + 4 children)
+python seed_admin_data.py               # Admin-specific data
+python seed_instructor.py               # Instructor-specific data
+python seed_staff_data.py               # Staff-specific data
+python seed_student_dashboard.py        # Student dashboard demo data
+python seed_partner_data.py             # Partner-specific data
+python seed_products.py                 # Store products
 ```
+
+### Demo Credentials (after seeding)
+See `DEMO_CREDENTIALS.md` for full details. Quick reference after running `python seed_users.py`:
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | `admin@urbanhomeschool.co.ke` | `Admin@2026!` |
+| Staff | `staff@urbanhomeschool.co.ke` | `Staff@2026!` |
+| Instructor | `instructor@urbanhomeschool.co.ke` | `Instructor@2026!` |
+| Parent | `parent@urbanhomeschool.co.ke` | `Parent@2026!` |
+| Student | `student@urbanhomeschool.co.ke` | `Student@2026!` |
+| Partner | `partner@urbanhomeschool.co.ke` | `Partner@2026!` |
 
 ### E2E Tests (from project root)
 ```bash
@@ -136,8 +156,20 @@ backend/
 
 ```
 frontend/src/
-├── App.tsx                    # All routing (~800+ routes with React Router v7)
+├── App.tsx                    # Root component: imports and composes all route modules (~65 lines)
 ├── main.tsx                   # Entry point, PWA registration, theme init
+├── routes/                    # Route definitions extracted from App.tsx (per-role files)
+│   ├── index.tsx              # Central export for all role routes
+│   ├── routeHelpers.tsx       # S = Suspense wrapper shorthand for lazy routes
+│   ├── publicRoutes.tsx       # Public/unauthenticated routes
+│   ├── sharedAuthRoutes.tsx   # Routes shared across roles (auto-detects role)
+│   ├── docsRoutes.tsx         # Documentation pages at /docs/*
+│   ├── studentRoutes.tsx      # ~96 student routes
+│   ├── parentRoutes.tsx       # ~38 parent routes
+│   ├── instructorRoutes.tsx   # ~48 instructor routes
+│   ├── adminRoutes.tsx        # ~36 admin routes
+│   ├── partnerRoutes.tsx      # ~31 partner routes
+│   └── staffRoutes.tsx        # ~32 staff routes
 ├── pages/                     # Route-level components
 │   ├── student/, parent/, instructor/, admin/, partner/, staff/
 │   └── docs/                  # Documentation pages (uhs/, bird/, api/)
@@ -164,7 +196,7 @@ frontend/src/
 
 **Key frontend patterns:**
 - `@/` path alias maps to `src/` (configured in tsconfig + vite)
-- Code splitting with `React.lazy` for all dashboard pages
+- Code splitting with `React.lazy` for all dashboard pages; use `<S>` from `routes/routeHelpers.tsx` as shorthand for `<Suspense>` wrapping lazy routes
 - `<ProtectedRoute>` component guards authenticated routes
 - Zustand stores with `persist` middleware for localStorage sync
 - Axios interceptor handles silent JWT refresh on 401

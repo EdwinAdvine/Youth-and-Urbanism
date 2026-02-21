@@ -18,7 +18,7 @@ def register_all_routers(app: FastAPI) -> None:
         auth, ai_tutor, courses, payments, assessments, users,
         parents, notifications, forum, categories, store,
         contact, certificates, instructor_applications,
-        ai_agent_profile, copilot, health,
+        scholarships, ai_agent_profile, copilot, health,
     )
     from app.api.v1 import search as global_search
 
@@ -37,6 +37,7 @@ def register_all_routers(app: FastAPI) -> None:
     app.include_router(contact.router, prefix=prefix, tags=["Contact"])
     app.include_router(certificates.router, prefix=prefix, tags=["Certificates"])
     app.include_router(instructor_applications.router, prefix=prefix, tags=["Instructor Applications"])
+    app.include_router(scholarships.router, prefix=prefix, tags=["Scholarships"])
     app.include_router(global_search.router, prefix=prefix, tags=["Search"])
     app.include_router(ai_agent_profile.router, prefix=prefix, tags=["AI Agent Profile"])
     app.include_router(copilot.router, prefix=prefix, tags=["CoPilot"])

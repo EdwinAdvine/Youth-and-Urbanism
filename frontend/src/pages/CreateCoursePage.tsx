@@ -21,6 +21,7 @@ import {
   TrashIcon,
   CheckIcon,
 } from '@heroicons/react/24/outline';
+import LessonEditor from '../components/instructor/LessonEditor';
 
 import courseService from '../services/courseService';
 import type {
@@ -106,7 +107,7 @@ export default function CreateCoursePage() {
       } else {
         const newCourse = await courseService.createCourse(formData);
         alert('Course created successfully!');
-        navigate(`/instructor/courses/${newCourse.id}`);
+        navigate('/dashboard/instructor/courses');
       }
     } catch (err: any) {
       setError(err?.message || 'Failed to save course');
@@ -154,7 +155,7 @@ export default function CreateCoursePage() {
       <div className="bg-white border-b">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <button
-            onClick={() => navigate('/instructor/courses')}
+            onClick={() => navigate('/dashboard/instructor/courses')}
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
           >
             <ArrowLeftIcon className="h-5 w-5" />
@@ -524,84 +525,44 @@ function LessonsStep({ formData, setFormData }: StepProps) {
   const removeLesson = (index: number) => {
     const lessons = [...(formData.lessons || [])];
     lessons.splice(index, 1);
+    // Re-number order fields
+    lessons.forEach((l, i) => { l.order = i + 1; });
     setFormData({ ...formData, lessons });
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Course Lessons</h2>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Course Lessons</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            {formData.lessons?.length || 0} lesson{formData.lessons?.length !== 1 ? 's' : ''} added
+          </p>
+        </div>
         <button
           onClick={addLesson}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-gray-900 dark:text-white rounded-lg hover:bg-blue-700"
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
         >
-          <PlusIcon className="h-5 w-5" />
+          <PlusIcon className="h-4 w-4" />
           Add Lesson
         </button>
       </div>
 
       <div className="space-y-4">
         {formData.lessons?.map((lesson, index) => (
-          <div key={lesson.id} className="p-4 border border-gray-200 rounded-lg">
-            <div className="flex items-start justify-between mb-4">
-              <h3 className="font-semibold text-gray-900">Lesson {index + 1}</h3>
-              <button
-                onClick={() => removeLesson(index)}
-                className="text-red-600 hover:bg-red-50 p-1 rounded"
-              >
-                <TrashIcon className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <input
-                type="text"
-                value={lesson.title}
-                onChange={(e) => updateLesson(index, { title: e.target.value })}
-                placeholder="Lesson title"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-              />
-
-              <textarea
-                value={lesson.description}
-                onChange={(e) => updateLesson(index, { description: e.target.value })}
-                placeholder="Lesson description"
-                rows={2}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <select
-                  value={lesson.type}
-                  onChange={(e) =>
-                    updateLesson(index, { type: e.target.value as Lesson['type'] })
-                  }
-                  className="px-4 py-2 border border-gray-300 rounded-lg"
-                >
-                  <option value="video">Video</option>
-                  <option value="reading">Reading</option>
-                  <option value="quiz">Quiz</option>
-                  <option value="assignment">Assignment</option>
-                  <option value="interactive">Interactive</option>
-                </select>
-
-                <input
-                  type="number"
-                  value={lesson.duration_minutes || ''}
-                  onChange={(e) =>
-                    updateLesson(index, { duration_minutes: parseInt(e.target.value) || 0 })
-                  }
-                  placeholder="Duration (minutes)"
-                  className="px-4 py-2 border border-gray-300 rounded-lg"
-                />
-              </div>
-            </div>
-          </div>
+          <LessonEditor
+            key={lesson.id}
+            lesson={lesson}
+            index={index}
+            onUpdate={(updates) => updateLesson(index, updates)}
+            onRemove={() => removeLesson(index)}
+          />
         ))}
 
         {(!formData.lessons || formData.lessons.length === 0) && (
-          <div className="text-center py-12 text-gray-500">
-            No lessons added yet. Click "Add Lesson" to get started.
+          <div className="text-center py-14 border-2 border-dashed border-gray-200 rounded-xl text-gray-500">
+            <p className="font-medium mb-1">No lessons yet</p>
+            <p className="text-sm">Click "Add Lesson" above to build your course curriculum.</p>
           </div>
         )}
       </div>

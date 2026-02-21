@@ -58,11 +58,11 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
         HTTPException: 500 if database operation fails
     """
     # Defense-in-depth: validate role whitelist at service level
-    ALLOWED_SELF_REGISTRATION_ROLES = ['student', 'parent', 'instructor']
+    ALLOWED_SELF_REGISTRATION_ROLES = ['student', 'parent', 'partner']
     if user_data.role not in ALLOWED_SELF_REGISTRATION_ROLES:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Role '{user_data.role}' cannot self-register. Contact an administrator."
+            detail=f"Role '{user_data.role}' cannot self-register. Instructors must apply at /become-instructor."
         )
 
     # Check if email already exists

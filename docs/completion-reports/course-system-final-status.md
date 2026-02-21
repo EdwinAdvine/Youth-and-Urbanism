@@ -159,7 +159,7 @@ COURSE_SYSTEM_FINAL_STATUS.md              # NEW (this file)
 ```bash
 # Temporarily use sync driver
 # In backend/.env.development, change:
-DATABASE_URL=postgresql://tuhs_user:tuhs_dev_password_123@localhost:5432/tuhs_db
+DATABASE_URL=postgresql://tuhs_user:[YOUR_DB_PASSWORD]@localhost:5432/tuhs_db
 
 # Run migration
 cd backend
@@ -167,7 +167,7 @@ python -m alembic revision --autogenerate -m "Add enrollments table"
 python -m alembic upgrade head
 
 # Restore async driver
-DATABASE_URL=postgresql+asyncpg://tuhs_user:tuhs_dev_password_123@localhost:5432/tuhs_db
+DATABASE_URL=postgresql+asyncpg://tuhs_user:[YOUR_DB_PASSWORD]@localhost:5432/tuhs_db
 ```
 
 ### 2. Course-Enrollment Join Missing

@@ -155,7 +155,7 @@ cd "/Users/edwinodhiambo/Documents/Urban Home School/backend"
 You'll be prompted for your PostgreSQL `postgres` user password. This creates:
 - Database: `tuhs_db`
 - User: `tuhs_user`
-- Password: `tuhs_dev_password_123`
+- Password: `[YOUR_DB_PASSWORD]`
 
 ### Step 2: Generate and Run Migrations
 
@@ -241,8 +241,8 @@ Next steps according to the development plan:
 
 ⚠️ **IMPORTANT**: These are development keys. Generate new ones for production!
 
-- **SECRET_KEY**: `e39fec87bfc8b6d7c70a5f46e0c8ec993d201af3977e8ad76ea5ecc926b395dd`
-- **ENCRYPTION_KEY**: `5528e2049348c1260cccb7aa9fc460a85d4fdd13331f739b764128f2b45396fe`
+- **SECRET_KEY**: `[REDACTED - generate with: openssl rand -hex 32]`
+- **ENCRYPTION_KEY**: `[REDACTED - generate with: openssl rand -hex 32]`
 
 Generate new production keys:
 ```bash

@@ -351,8 +351,8 @@ OPENAI_API_KEY=your-openai-api-key-here
 ELEVENLABS_API_KEY=your-elevenlabs-api-key-here
 
 # Security (already configured in Phase 1)
-SECRET_KEY=e39fec87bfc8b6d7c70a5f46e0c8ec993d201af3977e8ad76ea5ecc926b395dd
-ENCRYPTION_KEY=5528e2049348c1260cccb7aa9fc460a85d4fdd13331f739b764128f2b45396fe
+SECRET_KEY=`[REDACTED - generate with: openssl rand -hex 32]`
+ENCRYPTION_KEY=`[REDACTED - generate with: openssl rand -hex 32]`
 ```
 
 **Note**: Platform also loads providers from database (admin-configured), so API keys in `.env` are optional fallbacks.

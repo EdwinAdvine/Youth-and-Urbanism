@@ -586,6 +586,7 @@ const ForumPage: React.FC = () => {
   const [newPostContent, setNewPostContent] = useState('');
   const [newPostTags, setNewPostTags] = useState<string[]>([]);
   const [currentTag, setCurrentTag] = useState('');
+  const [newPostIsPublic, setNewPostIsPublic] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
 
   // Reply state
@@ -720,6 +721,7 @@ const ForumPage: React.FC = () => {
     setNewPostContent('');
     setNewPostTags([]);
     setNewPostCategory('general');
+    setNewPostIsPublic(true);
     setShowNewPostModal(false);
     setShowPreview(false);
 
@@ -1040,6 +1042,42 @@ const ForumPage: React.FC = () => {
                         </span>
                       ))}
                     </div>
+                  </div>
+
+                  {/* Visibility Toggle */}
+                  <div>
+                    <label className="block text-gray-700 dark:text-white/80 font-medium mb-2">
+                      Visibility
+                    </label>
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setNewPostIsPublic(true)}
+                        className={"flex-1 flex flex-col items-center gap-1 px-4 py-3 rounded-xl border-2 text-sm font-medium transition-colors " + (newPostIsPublic ? "border-green-500 bg-green-500/10 text-green-400" : "border-gray-200 dark:border-white/10 text-gray-500 dark:text-white/50 hover:border-gray-300 dark:hover:border-white/20")}
+                      >
+                        <span className="text-lg">🌐</span>
+                        <span>Public</span>
+                        <span className="text-xs opacity-70 font-normal">Visible to everyone</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setNewPostIsPublic(false)}
+                        className={"flex-1 flex flex-col items-center gap-1 px-4 py-3 rounded-xl border-2 text-sm font-medium transition-colors " + (!newPostIsPublic ? "border-blue-500 bg-blue-500/10 text-blue-400" : "border-gray-200 dark:border-white/10 text-gray-500 dark:text-white/50 hover:border-gray-300 dark:hover:border-white/20")}
+                      >
+                        <span className="text-lg">🔒</span>
+                        <span>Members Only</span>
+                        <span className="text-xs opacity-70 font-normal">Visible to logged-in users</span>
+                      </button>
+                    </div>
+                    {newPostIsPublic && (
+                      <div className="flex items-start gap-2 mt-2 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                        <span className="text-amber-400 text-sm shrink-0">⚠️</span>
+                        <p className="text-xs text-amber-400/90">
+                          Public posts are visible to anyone visiting the forum — including non-members.
+                          Do not share personal information or private content in public posts.
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Content */}

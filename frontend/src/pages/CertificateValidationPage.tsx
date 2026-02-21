@@ -1,6 +1,8 @@
 // CertificateValidationPage - Public page at /validate-certificate. Allows anyone to verify
 // the authenticity of a certificate by entering its validation code.
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { certificateService } from '../services/certificateService';
 import { motion } from 'framer-motion';
 import {
   ShieldCheck,
@@ -31,33 +33,45 @@ const fadeInUp = {
 };
 
 const CertificateValidationPage: React.FC = () => {
-  const [serialNumber, setSerialNumber] = useState('');
+  const [searchParams] = useSearchParams();
+  const [serialNumber, setSerialNumber] = useState(searchParams.get('serial') || '');
   const [validationState, setValidationState] = useState<ValidationState>('idle');
   const [certificate, setCertificate] = useState<CertificateResult | null>(null);
 
-  const handleValidate = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!serialNumber.trim()) return;
-
+  const doValidate = async (serial: string) => {
+    if (!serial.trim()) return;
     setValidationState('loading');
     setCertificate(null);
-
-    // Simulate validation delay
-    setTimeout(() => {
-      if (serialNumber.trim().toUpperCase().startsWith('UHS-')) {
+    try {
+      const data = await certificateService.validateBySerial(serial.trim());
+      if (data.is_valid) {
         setCertificate({
-          studentName: 'Amara Wanjiku',
-          courseName: 'CBC Mathematics - Grade 5',
-          dateIssued: 'January 15, 2026',
-          grade: 'Distinction',
-          serialNumber: serialNumber.trim().toUpperCase(),
+          studentName: data.student_name,
+          courseName: data.course_name,
+          dateIssued: data.completion_date
+            ? new Date(data.completion_date).toLocaleDateString('en-KE', { year: 'numeric', month: 'long', day: 'numeric' })
+            : new Date(data.issued_at).toLocaleDateString('en-KE', { year: 'numeric', month: 'long', day: 'numeric' }),
+          grade: data.grade || 'Completed',
+          serialNumber: data.serial_number,
         });
         setValidationState('success');
       } else {
         setValidationState('error');
       }
-    }, 1500);
+    } catch {
+      setValidationState('error');
+    }
+  };
+
+  // Auto-validate if serial comes from URL query param
+  useEffect(() => {
+    const serial = searchParams.get('serial');
+    if (serial) doValidate(serial);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleValidate = (e: React.FormEvent) => {
+    e.preventDefault();
+    doValidate(serialNumber);
   };
 
   const handleReset = () => {

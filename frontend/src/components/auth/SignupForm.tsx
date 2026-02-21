@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AlertCircle, Eye, EyeOff, Loader2, Check, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import HoneypotField from '../common/HoneypotField';
 
 interface SignupFormProps {
   onSwitchToLogin: () => void;
@@ -24,7 +25,7 @@ const COUNTRY_CODES = [
 
 const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSuccess }) => {
   const [step, setStep] = useState<'role' | 'form'>('role');
-  const [selectedRole, setSelectedRole] = useState<'student' | 'parent' | 'instructor' | 'partner' | null>(null);
+  const [selectedRole, setSelectedRole] = useState<'student' | 'parent' | 'partner' | null>(null);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -38,10 +39,11 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [formError, setFormError] = useState('');
+  const [honeypot, setHoneypot] = useState('');
 
   const { register, isLoading, error, clearError } = useAuthStore();
 
-  const handleRoleSelect = (role: 'student' | 'parent' | 'instructor' | 'partner') => {
+  const handleRoleSelect = (role: 'student' | 'parent' | 'partner') => {
     setSelectedRole(role);
     setStep('form');
   };
@@ -93,6 +95,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Bot detection: honeypot should always be empty
+    if (honeypot) return;
     clearError();
     setFormError('');
 
@@ -149,7 +153,6 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
           {([
             { role: 'student' as const, label: 'Student', desc: 'Access courses and learning materials', color: 'bg-blue-500', letter: 'S' },
             { role: 'parent' as const, label: 'Parent', desc: "Monitor your child's progress", color: 'bg-green-500', letter: 'P' },
-            { role: 'instructor' as const, label: 'Instructor', desc: 'Create and manage courses', color: 'bg-purple-500', letter: 'I' },
             { role: 'partner' as const, label: 'Partner/Stakeholder', desc: 'Community partner and supporter', color: 'bg-orange-500', letter: 'P' },
           ]).map(({ role, label, desc, color, letter }) => (
             <button
@@ -179,7 +182,10 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
 
         <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
           <p className="text-xs text-yellow-400">
-            Note: Staff and admin accounts are created by institutional administrators only.
+            Note: Staff, admin, and instructor accounts are not created here.{' '}
+            <a href="/become-instructor" className="underline hover:text-yellow-300">
+              Instructors can apply here.
+            </a>
           </p>
         </div>
 
@@ -197,7 +203,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4" style={{ position: 'relative' }}>
+      <HoneypotField value={honeypot} onChange={setHoneypot} />
       {/* Back to role selection */}
       <button
         type="button"

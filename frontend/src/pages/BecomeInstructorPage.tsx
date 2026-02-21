@@ -1,6 +1,8 @@
 // BecomeInstructorPage - Public page at /become-instructor. Presents the instructor program
 // benefits, requirements, application form, and testimonials to attract new educators.
 import React, { useState } from 'react';
+import apiClient from '../services/api';
+import HoneypotField from '../components/common/HoneypotField';
 import { motion } from 'framer-motion';
 import {
   Users,
@@ -122,6 +124,8 @@ const BecomeInstructorPage: React.FC = () => {
   });
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [honeypot, setHoneypot] = useState('');
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -135,19 +139,29 @@ const BecomeInstructorPage: React.FC = () => {
     setFormData((prev) => ({ ...prev, cv: file }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Bot detection: honeypot should always be empty
+    if (honeypot) return;
     setIsSubmitting(true);
+    setSubmitError('');
 
-    // Simulate submission
-    setTimeout(() => {
-      console.log('Instructor application submitted:', {
-        ...formData,
-        cv: formData.cv?.name || 'No file',
+    try {
+      await apiClient.post('/instructor-applications', {
+        full_name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        qualifications: formData.bio,
+        experience_years: parseInt(formData.experience?.split('-')[0] || '0', 10),
+        subjects: [formData.expertise].filter(Boolean),
+        bio: formData.bio,
       });
-      setIsSubmitting(false);
       setSubmitted(true);
-    }, 1500);
+    } catch {
+      setSubmitError('Failed to submit your application. Please try again or email us at info@youthandurbanism.org.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -368,7 +382,8 @@ const BecomeInstructorPage: React.FC = () => {
               </motion.div>
             ) : (
               <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10">
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <form onSubmit={handleSubmit} className="space-y-5" style={{ position: 'relative' }}>
+                  <HoneypotField value={honeypot} onChange={setHoneypot} />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                       <label
@@ -563,6 +578,10 @@ const BecomeInstructorPage: React.FC = () => {
                       </>
                     )}
                   </button>
+
+                  {submitError && (
+                    <p className="text-sm text-red-400 text-center">{submitError}</p>
+                  )}
 
                   <p className="text-xs text-gray-400 dark:text-white/40 text-center mt-4">
                     By submitting this form, you agree to our Terms of Service and

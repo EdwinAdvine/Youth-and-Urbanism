@@ -171,3 +171,102 @@ def send_password_reset_email(to_email: str, user_id: str, user_name: Optional[s
 
     _send_email(to_email, "Reset your password - Urban Home School", html)
     return token
+
+
+def send_instructor_invite_email(to_email: str, applicant_name: str, invite_token: str) -> bool:
+    """
+    Send instructor setup link to an approved applicant.
+
+    Args:
+        to_email: Approved applicant's email address
+        applicant_name: Applicant's full name
+        invite_token: One-time JWT token (72h expiry) for account setup
+
+    Returns:
+        True if sent successfully, False otherwise
+    """
+    setup_url = f"{FRONTEND_URL}/instructor-setup?token={invite_token}"
+    name = applicant_name or "there"
+
+    html = f"""
+    <html>
+    <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #FF0000;">Congratulations — You've Been Approved!</h2>
+        <p>Hi {name},</p>
+        <p>
+            We're excited to let you know that your instructor application to
+            <strong>Urban Home School</strong> has been approved.
+        </p>
+        <p>
+            Click the button below to set up your instructor account. This link is valid for
+            <strong>72 hours</strong>.
+        </p>
+        <p style="text-align: center; margin: 30px 0;">
+            <a href="{setup_url}"
+               style="background-color: #FF0000; color: white; padding: 14px 28px;
+                      text-decoration: none; border-radius: 8px; display: inline-block;
+                      font-weight: bold; font-size: 16px;">
+                Set Up Your Instructor Account
+            </a>
+        </p>
+        <p>Or copy and paste this link into your browser:</p>
+        <p style="word-break: break-all; color: #666;">{setup_url}</p>
+        <p>
+            Once you've set up your account, you can log in to your instructor dashboard
+            and start creating CBC-aligned courses for Kenyan students.
+        </p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="color: #999; font-size: 12px;">
+            If you did not apply to be an instructor on Urban Home School, please ignore this email.
+        </p>
+    </body>
+    </html>
+    """
+
+    return _send_email(to_email, "Your Instructor Account is Ready — Urban Home School", html)
+
+
+def send_contact_notification_email(
+    sender_name: str,
+    sender_email: str,
+    subject: str,
+    message: str,
+) -> bool:
+    """
+    Forward a contact form submission to the admin inbox.
+
+    Sends an email to info@youthandurbanism.org with the contact form details.
+    """
+    ADMIN_EMAIL = "info@youthandurbanism.org"
+
+    html = f"""
+    <html>
+    <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #FF0000;">New Contact Form Submission</h2>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr>
+                <td style="padding: 8px; font-weight: bold; width: 120px; color: #555;">From:</td>
+                <td style="padding: 8px;">{sender_name} &lt;{sender_email}&gt;</td>
+            </tr>
+            <tr style="background: #f9f9f9;">
+                <td style="padding: 8px; font-weight: bold; color: #555;">Subject:</td>
+                <td style="padding: 8px;">{subject}</td>
+            </tr>
+        </table>
+        <div style="background: #f5f5f5; border-left: 4px solid #FF0000; padding: 16px; margin-bottom: 20px;">
+            <p style="margin: 0; white-space: pre-wrap;">{message}</p>
+        </div>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="color: #999; font-size: 12px;">
+            This message was submitted via the Urban Home School contact form.<br>
+            Reply directly to {sender_email} to respond.
+        </p>
+    </body>
+    </html>
+    """
+
+    return _send_email(
+        ADMIN_EMAIL,
+        f"[UHS Contact] {subject} — from {sender_name}",
+        html,
+    )

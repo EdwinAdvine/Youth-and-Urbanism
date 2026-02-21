@@ -9,7 +9,10 @@ import {
   Clock,
   Send,
   CheckCircle,
+  AlertCircle,
 } from 'lucide-react';
+import { contactService } from '../services/contactService';
+import HoneypotField from '../components/common/HoneypotField';
 
 interface ContactFormData {
   name: string;
@@ -29,7 +32,7 @@ const contactInfo: ContactInfo[] = [
   {
     icon: <Mail className="w-6 h-6" />,
     label: 'Email',
-    value: 'info@urbanhomeschool.co.ke',
+    value: 'info@youthandurbanism.org',
     detail: 'We respond within 24 hours',
   },
   {
@@ -76,6 +79,8 @@ const ContactPage: React.FC = () => {
   });
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [honeypot, setHoneypot] = useState('');
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -84,20 +89,23 @@ const ContactPage: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Bot detection: honeypot should always be empty
+    if (honeypot) return;
     setIsSubmitting(true);
+    setSubmitError('');
 
-    // Simulate submission
-    setTimeout(() => {
-      console.log('Contact form submitted:', formData);
-      setIsSubmitting(false);
+    try {
+      await contactService.submitContact(formData);
       setSubmitted(true);
       setFormData({ name: '', email: '', subject: '', message: '' });
-
-      // Reset success message after 5 seconds
       setTimeout(() => setSubmitted(false), 5000);
-    }, 1000);
+    } catch {
+      setSubmitError('Failed to send your message. Please try again or email us directly.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -153,7 +161,15 @@ const ContactPage: React.FC = () => {
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-5">
+                {submitError && (
+                  <div className="mb-6 flex items-center gap-3 bg-red-500/10 border border-red-500/30 text-red-400 px-5 py-4 rounded-xl">
+                    <AlertCircle className="w-5 h-5 shrink-0" />
+                    <p className="text-sm sm:text-base">{submitError}</p>
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-5" style={{ position: 'relative' }}>
+                  <HoneypotField value={honeypot} onChange={setHoneypot} />
                   <div>
                     <label
                       htmlFor="name"

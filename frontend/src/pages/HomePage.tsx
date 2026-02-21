@@ -1,24 +1,28 @@
 // HomePage - Public landing page at /. Showcases The Bird AI platform with hero section,
 // subject cards, features, testimonials, and call-to-action for signup.
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { courseService } from '../services/courseService';
 import {
   Calculator,
   FlaskConical,
   MessageCircle,
   Globe,
   Palette,
-  Activity,
   BookOpen,
   Sprout,
   Home,
-  Brain,
-  Heart,
   Wrench,
   Star,
   Users,
   ArrowRight,
+  GraduationCap,
+  School,
+  Award,
+  Microscope,
+  Landmark,
+  ClipboardCheck,
 } from 'lucide-react';
 import heroBackground from '../assets/images/background001.png';
 
@@ -104,18 +108,24 @@ const testimonials: Testimonial[] = [
 ];
 
 const categories: Category[] = [
+  { name: 'Primary Education', slug: 'primary-education', description: 'Grades 1–6: Lower Primary (1–3) & Upper Primary (4–6)', icon: GraduationCap },
+  { name: 'Junior Secondary', slug: 'junior-secondary', description: 'Grades 7–9: Bridging primary and senior education', icon: School },
+  { name: 'Senior Secondary', slug: 'senior-secondary', description: 'Grades 10–12: Advanced learning and career paths', icon: Award },
   { name: 'Mathematics', slug: 'mathematics', description: 'Numbers, algebra, geometry and data handling', icon: Calculator },
-  { name: 'Science & Technology', slug: 'science-technology', description: 'Exploring the natural world and innovations', icon: FlaskConical },
   { name: 'Languages', slug: 'languages', description: 'English, Kiswahili and indigenous languages', icon: MessageCircle },
+  { name: 'Religious Studies', slug: 'religious-studies', description: 'CRE, IRE and Hindu Religious Education', icon: BookOpen },
+  { name: 'Applied Science', slug: 'applied-science', description: 'Science applied to real-world solutions', icon: FlaskConical },
+  { name: 'Pure Sciences', slug: 'pure-sciences', description: 'Biology, Chemistry, Physics and Earth Science', icon: Microscope },
   { name: 'Social Studies', slug: 'social-studies', description: 'History, civics, geography and citizenship', icon: Globe },
-  { name: 'Creative Arts', slug: 'creative-arts', description: 'Music, art, craft and performing arts', icon: Palette },
-  { name: 'Physical & Health Ed', slug: 'physical-health-education', description: 'Sports, fitness and healthy living', icon: Activity },
-  { name: 'Religious Education', slug: 'religious-education', description: 'CRE, IRE and Hindu RE pathways', icon: BookOpen },
-  { name: 'Agriculture & Nutrition', slug: 'agriculture-nutrition', description: 'Farming, food science and sustainability', icon: Sprout },
+  { name: 'Humanities', slug: 'humanities', description: 'Literature, philosophy, culture and society', icon: Landmark },
+  { name: 'Creative Arts & Activities', slug: 'creative-arts-activities', description: 'Music, visual arts, drama and performing arts', icon: Palette },
+  { name: 'Agriculture', slug: 'agriculture', description: 'Farming, food science and sustainability', icon: Sprout },
   { name: 'Home Science', slug: 'home-science', description: 'Life skills, nutrition and household management', icon: Home },
-  { name: 'Core Competencies', slug: 'core-competencies', description: 'Critical thinking, creativity and problem solving', icon: Brain },
-  { name: 'Core Values', slug: 'core-values', description: 'Integrity, responsibility, respect and patriotism', icon: Heart },
-  { name: 'Pre-Technical Ed', slug: 'pre-technical-education', description: 'Hands-on technical and vocational skills', icon: Wrench },
+  { name: 'Technical & Pre-Technical', slug: 'technical-pre-technical', description: 'Hands-on technical and vocational skills', icon: Wrench },
+  { name: 'Diploma in Teachers Ed', slug: 'diploma-teachers-education', description: 'Professional teacher training and certification', icon: Users },
+  { name: 'KPSEA', slug: 'kpsea', description: 'Kenya Primary School Education Assessment — Grade 6', icon: ClipboardCheck },
+  { name: 'KJSEA', slug: 'kjsea', description: 'Kenya Junior School Education Assessment — Grade 9', icon: ClipboardCheck },
+  { name: 'KCSE', slug: 'kcse', description: 'Kenya Certificate of Secondary Education — Grade 12', icon: ClipboardCheck },
 ];
 
 const coursesData: CourseCard[] = [
@@ -132,28 +142,28 @@ const pricingTiers: PricingTier[] = [
     name: 'Free',
     price: 'Free',
     period: 'forever',
-    features: ['Basic AI tutoring', '3 subjects', 'Community forum access', 'Limited offline content'],
+    features: ['Free courses & tutorials', 'Community forum access', 'Limited offline content', 'Basic AI tutoring (5 msgs/day)'],
     highlighted: false,
   },
   {
     name: 'Basic',
     price: '1,000 KES',
-    period: '/mo',
+    period: '/student/mo',
     features: ['Unlimited AI tutoring', 'All CBC subjects', 'Full offline mode', 'Progress reports', 'Priority support'],
     highlighted: true,
   },
   {
-    name: 'Parents',
-    price: '800 KES',
+    name: 'Advanced',
+    price: '1,500 KES',
     period: '/mo',
-    features: ['Everything in Basic', 'Up to 3 children', 'Parent dashboard', 'Teacher communication', 'Family analytics'],
+    features: ['Everything in Basic', 'Up to 4 children', 'Family analytics', 'Teacher communication', 'All paid courses'],
     highlighted: false,
   },
   {
-    name: 'Sponsor',
-    price: '500 KES',
+    name: 'Sponsorship',
+    price: '1,000 KES',
     period: '/child/mo',
-    features: ['Sponsor a child', 'Full platform access', 'Impact reports', 'NGO dashboard', 'Tax receipt'],
+    features: ['Support up to 10 children', 'Full platform access', 'Impact reports', 'Scholarship dashboard', 'Dedicated manager'],
     highlighted: false,
   },
 ];
@@ -203,6 +213,33 @@ const HomePage: React.FC = () => {
 
   const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '40%']);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
+  // Dynamic featured courses from backend (falls back to static data)
+  const [featuredCourses, setFeaturedCourses] = useState<CourseCard[]>(coursesData);
+
+  useEffect(() => {
+    courseService.listCourses({ is_featured: true, limit: 10 } as any)
+      .then((res) => {
+        const courses = (res.courses || res.results || []) as any[];
+        if (courses.length > 0) {
+          setFeaturedCourses(
+            courses.map((c: any) => ({
+              id: c.id,
+              title: c.title,
+              instructor: c.instructor_name || c.instructor?.full_name || 'UHS Educator',
+              rating: c.average_rating ?? 4.7,
+              reviews: c.review_count ?? 0,
+              price: c.price > 0 ? `KES ${c.price.toLocaleString()}` : 'Free',
+              enrolled: c.enrollment_count ?? 0,
+              image: c.thumbnail_url || `https://picsum.photos/seed/${c.id}/400/240`,
+            }))
+          );
+        }
+      })
+      .catch(() => {
+        // Keep static fallback data on error
+      });
+  }, []);
 
   return (
     <div className="overflow-x-hidden">
@@ -355,7 +392,7 @@ const HomePage: React.FC = () => {
             whileInView="visible"
             viewport={{ once: true, amount: 0.1 }}
             variants={staggerContainer}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 sm:gap-6"
           >
             {categories.map((cat) => {
               const Icon = cat.icon;
@@ -452,19 +489,19 @@ const HomePage: React.FC = () => {
             </Link>
           </motion.div>
 
-          <div className="overflow-x-auto pb-4 -mx-4 px-4 snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: 'none' }}>
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.1 }}
-              variants={staggerContainer}
-              className="flex gap-5 sm:gap-6 w-max"
-            >
-              {coursesData.map((course) => (
-                <motion.div
-                  key={course.id}
-                  variants={staggerItem}
-                  className="snap-start shrink-0 w-[280px] sm:w-[320px] bg-white dark:bg-[#181C1F] rounded-2xl border border-gray-200 dark:border-[#22272B] overflow-hidden hover:border-[#FF0000]/30 transition-all duration-300 group"
+          {/* Infinite marquee — scrolls right → left, pauses on hover */}
+          <div
+            className="overflow-hidden w-full"
+            style={{
+              maskImage: 'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)',
+            }}
+          >
+            <div className="flex gap-5 sm:gap-6 animate-marquee" style={{ width: 'max-content' }}>
+              {[...featuredCourses, ...featuredCourses].map((course, index) => (
+                <div
+                  key={`${course.id}-${index}`}
+                  className="shrink-0 w-[280px] sm:w-[320px] bg-white dark:bg-[#181C1F] rounded-2xl border border-gray-200 dark:border-[#22272B] overflow-hidden hover:border-[#FF0000]/30 transition-all duration-300 group"
                 >
                   <div className="relative h-40 overflow-hidden">
                     <img
@@ -494,9 +531,9 @@ const HomePage: React.FC = () => {
                       </span>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               ))}
-            </motion.div>
+            </div>
           </div>
 
           <div className="mt-6 text-center sm:hidden">

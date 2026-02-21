@@ -20,12 +20,12 @@ Open `backend/.env.development` and check your `DATABASE_URL`:
 
 **Current (async - won't work with Alembic):**
 ```
-DATABASE_URL=postgresql+asyncpg://tuhs_user:tuhs_dev_password_123@localhost:5432/tuhs_db
+DATABASE_URL=postgresql+asyncpg://tuhs_user:[YOUR_DB_PASSWORD]@localhost:5432/tuhs_db
 ```
 
 **For Migrations (sync - works with Alembic):**
 ```
-DATABASE_URL=postgresql://tuhs_user:tuhs_dev_password_123@localhost:5432/tuhs_db
+DATABASE_URL=postgresql://tuhs_user:[YOUR_DB_PASSWORD]@localhost:5432/tuhs_db
 ```
 
 ### 2. Temporary Fix for Migration
@@ -34,7 +34,7 @@ For now, temporarily change the DATABASE_URL to use the sync driver:
 
 ```bash
 # In backend/.env.development
-DATABASE_URL=postgresql://tuhs_user:tuhs_dev_password_123@localhost:5432/tuhs_db
+DATABASE_URL=postgresql://tuhs_user:[YOUR_DB_PASSWORD]@localhost:5432/tuhs_db
 ```
 
 ### 3. Run the Migration
@@ -57,7 +57,7 @@ After migration, restore the async driver for application use:
 
 ```bash
 # In backend/.env.development
-DATABASE_URL=postgresql+asyncpg://tuhs_user:tuhs_dev_password_123@localhost:5432/tuhs_db
+DATABASE_URL=postgresql+asyncpg://tuhs_user:[YOUR_DB_PASSWORD]@localhost:5432/tuhs_db
 ```
 
 ## Alternative: Better Long-term Solution
@@ -73,7 +73,7 @@ In `backend/alembic.ini`, you can directly set:
 # ... other settings ...
 
 # Use sync driver for migrations
-sqlalchemy.url = postgresql://tuhs_user:tuhs_dev_password_123@localhost:5432/tuhs_db
+sqlalchemy.url = postgresql://tuhs_user:[YOUR_DB_PASSWORD]@localhost:5432/tuhs_db
 ```
 
 ### Option 2: Environment Variable Override
@@ -82,8 +82,8 @@ Create a `MIGRATION_DATABASE_URL` environment variable:
 
 ```bash
 # In backend/.env.development
-DATABASE_URL=postgresql+asyncpg://tuhs_user:tuhs_dev_password_123@localhost:5432/tuhs_db
-MIGRATION_DATABASE_URL=postgresql://tuhs_user:tuhs_dev_password_123@localhost:5432/tuhs_db
+DATABASE_URL=postgresql+asyncpg://tuhs_user:[YOUR_DB_PASSWORD]@localhost:5432/tuhs_db
+MIGRATION_DATABASE_URL=postgresql://tuhs_user:[YOUR_DB_PASSWORD]@localhost:5432/tuhs_db
 ```
 
 Then update `backend/alembic/env.py` line 36:

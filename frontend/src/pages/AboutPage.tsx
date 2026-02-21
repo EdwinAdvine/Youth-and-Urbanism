@@ -64,21 +64,33 @@ const values: Value[] = [
 const team: TeamMember[] = [
   {
     name: 'Edwin Odhiambo',
-    role: 'Founder & CEO',
-    bio: 'Passionate about leveraging technology to bridge educational gaps for children in underserved communities across Kenya.',
-    image: 'https://picsum.photos/seed/team1/300/300',
+    role: 'CEO & CTO',
+    bio: 'Visionary founder driving the mission to democratize quality education across Kenya through AI and technology innovation.',
+    image: 'https://picsum.photos/seed/edwin/300/300',
   },
   {
-    name: 'Amina Hassan',
-    role: 'Head of Education',
-    bio: 'Former CBC curriculum developer with 15 years of experience in Kenyan education. Ensures all content meets KICD standards.',
-    image: 'https://picsum.photos/seed/team2/300/300',
+    name: 'June Alfreds',
+    role: 'COO',
+    bio: 'Operations leader ensuring every aspect of Urban Home School runs seamlessly — from curriculum delivery to platform reliability.',
+    image: 'https://picsum.photos/seed/june/300/300',
   },
   {
-    name: 'David Mwangi',
-    role: 'CTO',
-    bio: 'AI and machine learning specialist focused on building scalable, child-safe AI systems that work in low-resource environments.',
-    image: 'https://picsum.photos/seed/team3/300/300',
+    name: 'Anthony Kwemoi',
+    role: 'CMO',
+    bio: 'Marketing strategist building awareness and partnerships to bring quality CBC-aligned education to every Kenyan household.',
+    image: 'https://picsum.photos/seed/anthony/300/300',
+  },
+  {
+    name: 'Ruth Sure',
+    role: 'CFO',
+    bio: 'Financial leader managing sustainable growth strategies and ensuring resources are directed to maximum educational impact.',
+    image: 'https://picsum.photos/seed/ruth/300/300',
+  },
+  {
+    name: 'Chelsea Jones',
+    role: 'Executive Assistant',
+    bio: 'Keeps the leadership team aligned and operations running efficiently, supporting strategic initiatives across the organization.',
+    image: 'https://picsum.photos/seed/chelsea/300/300',
   },
 ];
 
@@ -273,7 +285,7 @@ const AboutPage: React.FC = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 sm:gap-8">
             {team.map((member, index) => (
               <motion.div
                 key={member.name}

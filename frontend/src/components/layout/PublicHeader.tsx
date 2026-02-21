@@ -5,18 +5,24 @@ import { useThemeStore } from '../../store';
 import AuthModal from '../auth/AuthModal';
 
 const categories = [
-  { title: "Core Competencies", slug: "core-competencies" },
-  { title: "Core Values", slug: "core-values" },
-  { title: "Languages", slug: "languages" },
+  { title: "Primary Education", slug: "primary-education" },
+  { title: "Junior Secondary (Gr 7–9)", slug: "junior-secondary" },
+  { title: "Senior Secondary (Gr 10–12)", slug: "senior-secondary" },
   { title: "Mathematics", slug: "mathematics" },
-  { title: "Science and Technology", slug: "science-technology" },
+  { title: "Languages", slug: "languages" },
+  { title: "Religious Studies", slug: "religious-studies" },
+  { title: "Applied Science", slug: "applied-science" },
+  { title: "Pure Sciences", slug: "pure-sciences" },
   { title: "Social Studies", slug: "social-studies" },
-  { title: "Religious Education", slug: "religious-education" },
-  { title: "Creative Arts", slug: "creative-arts" },
-  { title: "Physical and Health Education", slug: "physical-health" },
-  { title: "Agriculture and Nutrition", slug: "agriculture-nutrition" },
+  { title: "Humanities", slug: "humanities" },
+  { title: "Creative Arts & Activities", slug: "creative-arts-activities" },
+  { title: "Agriculture", slug: "agriculture" },
   { title: "Home Science", slug: "home-science" },
-  { title: "Pre-Technical and Pre-Career Education", slug: "pre-technical-career" },
+  { title: "Technical & Pre-Technical", slug: "technical-pre-technical" },
+  { title: "Diploma in Teachers Education", slug: "diploma-teachers-education" },
+  { title: "KPSEA (Grade 6)", slug: "kpsea" },
+  { title: "KJSEA (Grade 9)", slug: "kjsea" },
+  { title: "KCSE (Grade 12)", slug: "kcse" },
 ];
 
 const PublicHeader: React.FC = () => {
@@ -51,10 +57,12 @@ const PublicHeader: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleAuthSuccess = (_authUser: any) => {
+  const handleAuthSuccess = (authUser: any) => {
     setIsAuthModalOpen(false);
-    // Navigation is handled by AppContent's useEffect that watches isAuthenticated.
-    // Navigating here as well creates a dual-navigation race condition.
+    const role = authUser?.role || useAuthStore.getState().user?.role;
+    if (role) {
+      navigate(`/dashboard/${role}`);
+    }
   };
 
   const handleLogout = () => {
@@ -94,12 +102,12 @@ const PublicHeader: React.FC = () => {
                   </button>
 
                   <div
-                    className={`absolute top-full left-0 mt-2 w-[48rem] bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl shadow-xl shadow-black/30 overflow-hidden transition-all duration-200 ease-in-out transform ${
+                    className={`absolute top-full left-0 mt-2 w-[56rem] bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl shadow-xl shadow-black/30 overflow-hidden transition-all duration-200 ease-in-out transform ${
                       categoriesDropdownOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-2 pointer-events-none'
                     }`}
                     onMouseLeave={() => setCategoriesDropdownOpen(false)}
                   >
-                    <div className="p-3 grid grid-cols-2 gap-1">
+                    <div className="p-3 grid grid-cols-3 gap-1">
                       {categories.map((cat) => (
                         <Link
                           key={cat.slug}

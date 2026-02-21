@@ -362,8 +362,8 @@ DATABASE_URL=postgresql://tuhs_user:password@localhost:5432/tuhs_db
 REDIS_URL=redis://localhost:6379
 
 # Security
-SECRET_KEY=e39fec87bfc8b6d7c70a5f46e0c8ec993d201af3977e8ad76ea5ecc926b395dd
-ENCRYPTION_KEY=5528e2049348c1260cccb7aa9fc460a85d4fdd13331f739b764128f2b45396fe
+SECRET_KEY=`[REDACTED - generate with: openssl rand -hex 32]`
+ENCRYPTION_KEY=`[REDACTED - generate with: openssl rand -hex 32]`
 
 # AI Provider API Keys
 GEMINI_API_KEY=your-actual-gemini-api-key-here

@@ -39,7 +39,7 @@ const Footer: React.FC = () => {
                   <li><Link to="/contact" className="text-sm text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white transition-colors">Contact</Link></li>
                   <li><Link to="/validate-certificate" className="text-sm text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white transition-colors">Certificate Validation</Link></li>
                   <li><Link to="/become-instructor" className="text-sm text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white transition-colors">Become an Instructor</Link></li>
-                  <li><Link to="/pricing" className="text-sm text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white transition-colors">Scholarship</Link></li>
+                  <li><Link to="/scholarships" className="text-sm text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white transition-colors">Scholarship</Link></li>
                   <li><Link to="/docs" className="text-sm text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white transition-colors">Documentation</Link></li>
                 </ul>
               </div>
@@ -71,7 +71,7 @@ const Footer: React.FC = () => {
                 <div className="space-y-4">
                   <p className="text-sm text-gray-700 dark:text-white/80">Nairobi, Kenya</p>
                   <p className="text-sm text-gray-700 dark:text-white/80">+254 799 075 061</p>
-                  <a href="mailto:info@urbanhomeschool.co.ke" className="text-sm text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white transition-colors block">info@urbanhomeschool.co.ke</a>
+                  <a href="mailto:info@youthandurbanism.org" className="text-sm text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white transition-colors block">info@youthandurbanism.org</a>
                 </div>
               </div>
             </div>

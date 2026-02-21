@@ -24,12 +24,19 @@ import CategoryRedirectPage from '../pages/CategoryRedirectPage';
 
 // Lazy-loaded public pages
 const SearchResultsPage = lazy(() => import('../pages/SearchResultsPage'));
+const StorePage = lazy(() => import('../pages/StorePage'));
+const ProductDetailPage = lazy(() => import('../pages/ProductDetailPage'));
+const InstructorSetupPage = lazy(() => import('../pages/InstructorSetupPage'));
+const ScholarshipPage = lazy(() => import('../pages/ScholarshipPage'));
 
 export const publicRoutes = (
   <Fragment>
     {/* Bird AI routes - standalone without header/footer */}
     <Route path="/bot" element={<BotPage />} />
     <Route path="/the-bird" element={<BotPage />} />
+
+    {/* Instructor account setup (standalone - no header/footer, uses invite token) */}
+    <Route path="/instructor-setup" element={<S><InstructorSetupPage /></S>} />
 
     {/* Regular public routes with header/footer */}
     <Route element={<PublicLayout />}>
@@ -46,6 +53,9 @@ export const publicRoutes = (
       <Route path="/categories/:slug" element={<CategoryRedirectPage />} />
       <Route path="/search" element={<S><SearchResultsPage /></S>} />
       <Route path="/placeholder" element={<PlaceholderPage />} />
+      <Route path="/store" element={<S><StorePage /></S>} />
+      <Route path="/store/products/:slug" element={<S><ProductDetailPage /></S>} />
+      <Route path="/scholarships" element={<S><ScholarshipPage /></S>} />
     </Route>
   </Fragment>
 );
