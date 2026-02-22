@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Video,
@@ -10,7 +10,9 @@ import {
   Circle,
   ExternalLink,
   Mail,
+  AlertTriangle,
 } from 'lucide-react';
+import apiClient from '../../services/api';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } };
@@ -36,7 +38,8 @@ interface Meeting {
   type: MeetingType;
 }
 
-const mockMessages: Message[] = [
+/** Fallback data used when the API is unavailable */
+const FALLBACK_MESSAGES: Message[] = [
   {
     id: '1',
     senderName: 'Dr. Faith Muthoni',
@@ -79,7 +82,8 @@ const mockMessages: Message[] = [
   },
 ];
 
-const mockMeetings: Meeting[] = [
+/** Fallback data used when the API is unavailable */
+const FALLBACK_MEETINGS: Meeting[] = [
   {
     id: '1',
     title: 'Q1 Partnership Review',
@@ -113,8 +117,70 @@ const CollaborationPage: React.FC = () => {
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
   const [showComposeModal, setShowComposeModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const unreadCount = mockMessages.filter((m) => !m.isRead).length;
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const [messagesRes, meetingsRes] = await Promise.allSettled([
+          apiClient.get('/api/v1/partner/collaboration/messages'),
+          apiClient.get('/api/v1/partner/collaboration/meetings'),
+        ]);
+
+        if (!cancelled) {
+          // Messages
+          if (messagesRes.status === 'fulfilled' && messagesRes.value.data?.items?.length > 0) {
+            setMessages(messagesRes.value.data.items);
+          } else if (messagesRes.status === 'fulfilled' && Array.isArray(messagesRes.value.data) && messagesRes.value.data.length > 0) {
+            setMessages(messagesRes.value.data);
+          } else {
+            setMessages(FALLBACK_MESSAGES);
+          }
+
+          // Meetings
+          if (meetingsRes.status === 'fulfilled' && meetingsRes.value.data?.items?.length > 0) {
+            setMeetings(meetingsRes.value.data.items);
+          } else if (meetingsRes.status === 'fulfilled' && Array.isArray(meetingsRes.value.data) && meetingsRes.value.data.length > 0) {
+            setMeetings(meetingsRes.value.data);
+          } else {
+            setMeetings(FALLBACK_MEETINGS);
+          }
+
+          // If both failed, show error
+          if (messagesRes.status === 'rejected' && meetingsRes.status === 'rejected') {
+            setError('Failed to load collaboration data');
+          }
+        }
+      } catch (err: unknown) {
+        if (!cancelled) {
+          console.error('Failed to fetch collaboration data:', err);
+          setError('Failed to load collaboration data');
+          setMessages(FALLBACK_MESSAGES);
+          setMeetings(FALLBACK_MEETINGS);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const unreadCount = messages.filter((m) => !m.isRead).length;
 
   const formatTimestamp = (ts: string) => {
     const date = new Date(ts);
@@ -133,6 +199,17 @@ const CollaborationPage: React.FC = () => {
       month: 'short',
     });
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-[#0F1112] p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-[#E40000]/30 border-t-[#E40000] rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-500 dark:text-white/60 text-sm">Loading collaboration data...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white dark:bg-[#0F1112] p-6">
       <motion.div variants={stagger} initial="hidden" animate="visible" className="max-w-7xl mx-auto space-y-6">
@@ -141,6 +218,16 @@ const CollaborationPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Collaboration</h1>
           <p className="text-gray-400 dark:text-white/40 mt-1">Messages and meetings hub</p>
         </motion.div>
+
+        {/* Error Banner */}
+        {error && (
+          <div className="flex items-center gap-2 px-4 py-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+            <AlertTriangle className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+            <p className="text-sm text-yellow-400">
+              {error}. Showing cached data instead.
+            </p>
+          </div>
+        )}
 
         {/* Two-Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
@@ -169,7 +256,7 @@ const CollaborationPage: React.FC = () => {
 
               {/* Message List */}
               <div className="divide-y divide-gray-200 dark:divide-[#22272B]">
-                {mockMessages.map((message) => (
+                {messages.map((message) => (
                   <button
                     key={message.id}
                     onClick={() => setSelectedMessage(message.id)}
@@ -223,7 +310,7 @@ const CollaborationPage: React.FC = () => {
 
               {/* Meeting Cards */}
               <div className="p-4 space-y-3">
-                {mockMeetings.map((meeting) => (
+                {meetings.map((meeting) => (
                   <div
                     key={meeting.id}
                     className="bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-xl p-4 space-y-3"

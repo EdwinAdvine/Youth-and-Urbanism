@@ -22,6 +22,8 @@ import {
 } from 'recharts';
 import AdminPageHeader from '../../components/admin/shared/AdminPageHeader';
 import AdminStatsCard from '../../components/admin/shared/AdminStatsCard';
+import adminAnalyticsService from '../../services/admin/adminAnalyticsService';
+import adminFinanceService from '../../services/admin/adminFinanceService';
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -47,10 +49,10 @@ interface PartnerPerformance {
 }
 
 /* ------------------------------------------------------------------ */
-/* Mock data                                                           */
+/* Fallback data                                                       */
 /* ------------------------------------------------------------------ */
 
-const MONTHLY_METRICS: MonthlyMetric[] = [
+const FALLBACK_MONTHLY_METRICS: MonthlyMetric[] = [
   { month: 'Aug', mrr: 1240000, churn: 3.2, ltv: 48500, signups: 312 },
   { month: 'Sep', mrr: 1385000, churn: 2.9, ltv: 51200, signups: 387 },
   { month: 'Oct', mrr: 1520000, churn: 2.7, ltv: 53800, signups: 445 },
@@ -59,7 +61,7 @@ const MONTHLY_METRICS: MonthlyMetric[] = [
   { month: 'Jan', mrr: 1820000, churn: 2.4, ltv: 56300, signups: 521 },
 ];
 
-const PARTNER_DATA: PartnerPerformance[] = [
+const FALLBACK_PARTNER_DATA: PartnerPerformance[] = [
   {
     id: 'p1',
     name: 'Nairobi Learning Hub',
@@ -170,20 +172,67 @@ const itemVariants = {
 const BusinessAnalyticsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [monthlyMetrics, setMonthlyMetrics] = useState<MonthlyMetric[]>(FALLBACK_MONTHLY_METRICS);
+  const [partnerData, setPartnerData] = useState<PartnerPerformance[]>(FALLBACK_PARTNER_DATA);
+
+  const fetchData = async () => {
+    try {
+      const [revenueData, partnersResponse] = await Promise.allSettled([
+        adminAnalyticsService.getRevenueMetrics(),
+        adminFinanceService.listPartners(1, 50),
+      ]);
+
+      if (revenueData.status === 'fulfilled' && revenueData.value.revenue_by_period?.length > 0) {
+        const mapped: MonthlyMetric[] = revenueData.value.revenue_by_period.map((item) => ({
+          month: new Date(item.date).toLocaleDateString('en-KE', { month: 'short' }),
+          mrr: item.amount,
+          churn: 0,
+          ltv: 0,
+          signups: 0,
+        }));
+        if (mapped.length >= 2) {
+          setMonthlyMetrics(mapped);
+        }
+      }
+
+      if (partnersResponse.status === 'fulfilled' && partnersResponse.value.items?.length > 0) {
+        const mapped: PartnerPerformance[] = partnersResponse.value.items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          region: item.description || 'Kenya',
+          studentsReferred: item.students_referred,
+          revenue: item.revenue_generated,
+          conversionRate: item.revenue_share_percent,
+          churnRate: 0,
+          status: item.status === 'expired' ? 'inactive' as const : item.status === 'pending' ? 'probation' as const : 'active' as const,
+        }));
+        setPartnerData(mapped);
+      }
+    } catch {
+      // API unavailable — keep fallback data
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(timer);
+    fetchData();
   }, []);
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 800);
+    try {
+      await fetchData();
+    } catch {
+      // keep existing data
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const handleExportCSV = () => {
     const headers = ['Month', 'MRR (KES)', 'Churn %', 'LTV (KES)', 'Signups'];
-    const rows = MONTHLY_METRICS.map((m) => [m.month, m.mrr, m.churn, m.ltv, m.signups]);
+    const rows = monthlyMetrics.map((m) => [m.month, m.mrr, m.churn, m.ltv, m.signups]);
     const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -194,8 +243,8 @@ const BusinessAnalyticsPage: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  const latestMonth = MONTHLY_METRICS[MONTHLY_METRICS.length - 1];
-  const prevMonth = MONTHLY_METRICS[MONTHLY_METRICS.length - 2];
+  const latestMonth = monthlyMetrics[monthlyMetrics.length - 1];
+  const prevMonth = monthlyMetrics[monthlyMetrics.length - 2];
   const mrrChange = ((latestMonth.mrr - prevMonth.mrr) / prevMonth.mrr) * 100;
   const churnChange = latestMonth.churn - prevMonth.churn;
   const ltvChange = ((latestMonth.ltv - prevMonth.ltv) / prevMonth.ltv) * 100;
@@ -299,7 +348,7 @@ const BusinessAnalyticsPage: React.FC = () => {
             </div>
           </div>
           <ResponsiveContainer width="100%" height={350}>
-            <AreaChart data={MONTHLY_METRICS} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+            <AreaChart data={monthlyMetrics} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
               <defs>
                 <linearGradient id="gradientMRR" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#E40000" stopOpacity={0.3} />
@@ -379,7 +428,7 @@ const BusinessAnalyticsPage: React.FC = () => {
             </p>
           </div>
           <ResponsiveContainer width="100%" height={320}>
-            <LineChart data={MONTHLY_METRICS} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+            <LineChart data={monthlyMetrics} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#22272B" />
               <XAxis
                 dataKey="month"
@@ -466,7 +515,7 @@ const BusinessAnalyticsPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {PARTNER_DATA.map((partner) => (
+                {partnerData.map((partner) => (
                   <tr
                     key={partner.id}
                     className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-gray-100 dark:hover:bg-[#22272B]/30 transition-colors"

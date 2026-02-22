@@ -7,6 +7,12 @@ Creates a fully populated development database with:
 - 15 CBC-aligned sample courses
 - Sample notifications for every user
 - Student records with AI tutors
+- 5 subscription plans (Free, Basic, Premium, Annual Premium, Sponsorship)
+- Parent subscriptions with M-Pesa payment methods
+- Wallets for all users with role-appropriate balances
+- Payment transactions tied to subscriptions
+- Student enrollments in courses with progress tracking
+- Assessments and student submissions with grades
 - Credential table printed at the end
 
 Usage:
@@ -32,7 +38,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dotenv import load_dotenv
 load_dotenv(".env.development")
 
-from sqlalchemy import text, select
+from sqlalchemy import text, select, func
 from app.database import Base, init_db
 from app.models import *  # noqa: F403 - Import all models so Base.metadata is populated
 from app.models.user import User
@@ -41,6 +47,10 @@ from app.models.ai_tutor import AITutor
 from app.models.ai_provider import AIProvider
 from app.models.course import Course
 from app.models.notification import Notification, NotificationType
+from app.models.subscription import SubscriptionPlan, Subscription, BillingCycle, PlanType, SubscriptionStatus
+from app.models.payment import Transaction, Wallet, PaymentMethod
+from app.models.enrollment import Enrollment, EnrollmentStatus
+from app.models.assessment import Assessment, AssessmentSubmission
 from app.utils.security import get_password_hash
 
 
@@ -845,13 +855,13 @@ async def main():
     print("=" * 75)
 
     # ── 1. Initialize database ────────────────────────────────────────────
-    print("\n[1/6] Initializing database connection...")
+    print("\n[1/11] Initializing database connection...")
     await init_db()
 
     from app.database import engine, AsyncSessionLocal
 
     # ── 2. Create all tables ──────────────────────────────────────────────
-    print("[2/6] Creating database tables...")
+    print("[2/11] Creating database tables...")
     async with engine.begin() as conn:
         await conn.execute(text('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'))
         await conn.execute(text('CREATE EXTENSION IF NOT EXISTS "pgcrypto"'))
@@ -865,7 +875,7 @@ async def main():
     print(f"      {len(tables)} tables ready.")
 
     # ── 3. Seed users ────────────────────────────────────────────────────
-    print("[3/6] Seeding users across all 6 roles...")
+    print("[3/11] Seeding users across all 6 roles...")
     all_users = build_users()
     user_id_map: dict[str, uuid.UUID] = {}  # email -> user id
     instructor_ids: list[uuid.UUID] = []
@@ -976,7 +986,7 @@ async def main():
     print(f"      {'TOTAL':<12s}: {sum(counts.values())} users")
 
     # ── 4. Seed AI providers ─────────────────────────────────────────────
-    print("[4/6] Seeding AI provider configurations...")
+    print("[4/11] Seeding AI provider configurations...")
     async with AsyncSessionLocal() as session:
         providers_created = 0
         for prov in AI_PROVIDERS:
@@ -1007,7 +1017,7 @@ async def main():
     print(f"      {providers_created} providers seeded.")
 
     # ── 5. Seed courses ──────────────────────────────────────────────────
-    print("[5/6] Seeding CBC-aligned courses...")
+    print("[5/11] Seeding CBC-aligned courses...")
     async with AsyncSessionLocal() as session:
         courses_created = 0
         for i, course_data in enumerate(COURSES):
@@ -1064,7 +1074,7 @@ async def main():
     print(f"      {courses_created} courses seeded.")
 
     # ── 6. Seed notifications ────────────────────────────────────────────
-    print("[6/6] Seeding notifications for all users...")
+    print("[6/11] Seeding notifications for all users...")
     async with AsyncSessionLocal() as session:
         notif_count = 0
         for user_data in all_users:
@@ -1099,6 +1109,430 @@ async def main():
         await session.commit()
     print(f"      {notif_count} notifications seeded.")
 
+    # ── 7. Seed subscription plans ────────────────────────────────────────
+    print("[7/11] Seeding subscription plans...")
+    SUBSCRIPTION_PLANS = [
+        {
+            "name": "Free Plan",
+            "description": "Basic access to free platform courses and community features.",
+            "plan_type": PlanType.PLATFORM_ACCESS,
+            "billing_cycle": BillingCycle.MONTHLY,
+            "price": Decimal("0.00"),
+            "trial_days": 0,
+            "features": [
+                "Access to free courses",
+                "Community forums",
+                "Basic AI tutor (5 queries/day)",
+                "1 child account",
+            ],
+            "max_enrollments": 3,
+            "is_active": True,
+            "is_popular": False,
+            "display_order": 1,
+        },
+        {
+            "name": "Basic Plan",
+            "description": "Full access to all courses with standard AI tutoring support.",
+            "plan_type": PlanType.PLATFORM_ACCESS,
+            "billing_cycle": BillingCycle.MONTHLY,
+            "price": Decimal("999.00"),
+            "trial_days": 14,
+            "features": [
+                "Access to all courses",
+                "Standard AI tutor (50 queries/day)",
+                "Progress reports",
+                "Up to 2 children",
+                "Email support",
+                "5 GB storage",
+            ],
+            "max_enrollments": 10,
+            "is_active": True,
+            "is_popular": False,
+            "display_order": 2,
+        },
+        {
+            "name": "Premium Plan",
+            "description": "Unlimited access with advanced AI tutoring, live sessions, and priority support.",
+            "plan_type": PlanType.PREMIUM_FEATURES,
+            "billing_cycle": BillingCycle.MONTHLY,
+            "price": Decimal("2499.00"),
+            "trial_days": 7,
+            "features": [
+                "Unlimited course access",
+                "Advanced AI tutor (unlimited)",
+                "Live tutoring sessions",
+                "Detailed analytics & CBC reports",
+                "Up to 5 children",
+                "Priority support",
+                "10 GB storage",
+                "Downloadable resources",
+                "Certificate of completion",
+            ],
+            "max_enrollments": -1,
+            "is_active": True,
+            "is_popular": True,
+            "display_order": 3,
+        },
+        {
+            "name": "Annual Premium",
+            "description": "Premium plan billed annually with 2 months free.",
+            "plan_type": PlanType.PREMIUM_FEATURES,
+            "billing_cycle": BillingCycle.ANNUAL,
+            "price": Decimal("24990.00"),
+            "trial_days": 14,
+            "features": [
+                "Everything in Premium",
+                "2 months free (save KES 4,998)",
+                "Unlimited children",
+                "20 GB storage",
+                "Priority live sessions",
+                "Dedicated support",
+            ],
+            "max_enrollments": -1,
+            "is_active": True,
+            "is_popular": False,
+            "display_order": 4,
+        },
+        {
+            "name": "Sponsorship Tier",
+            "description": "For partners sponsoring children's education.",
+            "plan_type": PlanType.BUNDLE,
+            "billing_cycle": BillingCycle.MONTHLY,
+            "price": Decimal("500.00"),
+            "trial_days": 0,
+            "features": [
+                "Per-child pricing",
+                "Impact reports & analytics",
+                "Bulk enrollment",
+                "Dedicated account manager",
+                "Custom branding",
+                "API access",
+            ],
+            "max_enrollments": -1,
+            "is_active": True,
+            "is_popular": False,
+            "display_order": 5,
+            "meta": {"per_child": True, "min_children": 10},
+        },
+    ]
+
+    plan_id_map: dict[str, uuid.UUID] = {}
+    async with AsyncSessionLocal() as session:
+        plans_created = 0
+        for plan_data in SUBSCRIPTION_PLANS:
+            result = await session.execute(
+                select(SubscriptionPlan).where(SubscriptionPlan.name == plan_data["name"])
+            )
+            existing = result.scalars().first()
+            if existing:
+                plan_id_map[plan_data["name"]] = existing.id
+                print(f"      [SKIP] {plan_data['name']} (already exists)")
+                continue
+
+            new_plan = SubscriptionPlan(
+                name=plan_data["name"],
+                description=plan_data["description"],
+                plan_type=plan_data["plan_type"],
+                billing_cycle=plan_data["billing_cycle"],
+                price=plan_data["price"],
+                trial_days=plan_data["trial_days"],
+                features=plan_data["features"],
+                course_ids=[],
+                max_enrollments=plan_data["max_enrollments"],
+                is_active=plan_data["is_active"],
+                is_popular=plan_data["is_popular"],
+                display_order=plan_data["display_order"],
+                meta=plan_data.get("meta", {}),
+            )
+            session.add(new_plan)
+            await session.flush()
+            plan_id_map[plan_data["name"]] = new_plan.id
+            plans_created += 1
+            print(f"      [NEW]  {plan_data['name']} - KES {plan_data['price']}/{plan_data['billing_cycle'].value}")
+
+        await session.commit()
+    print(f"      {plans_created} subscription plans seeded.")
+
+    # ── 8. Seed wallets for all users ──────────────────────────────────────
+    print("[8/11] Seeding wallets for all users...")
+    async with AsyncSessionLocal() as session:
+        wallets_created = 0
+        for user_data in all_users:
+            uid = user_id_map.get(user_data["email"])
+            if not uid:
+                continue
+
+            result = await session.execute(
+                select(Wallet).where(Wallet.user_id == uid)
+            )
+            if result.scalars().first():
+                continue
+
+            balance = Decimal("0.00")
+            if user_data["role"] == "student":
+                balance = Decimal(str(random.randint(0, 500)))
+            elif user_data["role"] == "parent":
+                balance = Decimal(str(random.randint(100, 2000)))
+            elif user_data["role"] == "instructor":
+                balance = Decimal(str(random.randint(5000, 50000)))
+
+            wallet = Wallet(
+                user_id=uid,
+                balance=balance,
+                currency="KES",
+            )
+            session.add(wallet)
+            wallets_created += 1
+
+        await session.commit()
+    print(f"      {wallets_created} wallets seeded.")
+
+    # ── 9. Seed subscriptions and payment methods for parents ──────────────
+    print("[9/11] Seeding subscriptions, payment methods & transactions for parents...")
+    now = datetime.utcnow()
+    async with AsyncSessionLocal() as session:
+        subs_created = 0
+        txn_created = 0
+        pm_created = 0
+
+        for user_data in all_users:
+            if user_data["role"] != "parent":
+                continue
+
+            uid = user_id_map.get(user_data["email"])
+            if not uid:
+                continue
+
+            # Check if parent already has a subscription
+            result = await session.execute(
+                select(Subscription).where(Subscription.user_id == uid)
+            )
+            if result.scalars().first():
+                continue
+
+            # Assign plan: first 3 parents get Premium, next 4 get Basic, rest Free
+            parent_index = subs_created
+            if parent_index < 3:
+                plan_name = "Premium Plan"
+            elif parent_index < 7:
+                plan_name = "Basic Plan"
+            else:
+                plan_name = "Free Plan"
+
+            plan_id = plan_id_map.get(plan_name)
+            if not plan_id:
+                continue
+
+            # Find the plan to get its price
+            plan_result = await session.execute(
+                select(SubscriptionPlan).where(SubscriptionPlan.id == plan_id)
+            )
+            plan = plan_result.scalars().first()
+            if not plan:
+                continue
+
+            # Create payment method (M-Pesa) for non-free plans
+            payment_method_id = None
+            if plan.price > 0:
+                phone = user_data["profile_data"].get("phone", "+254700000000")
+                pm = PaymentMethod(
+                    user_id=uid,
+                    gateway="mpesa",
+                    method_type="phone",
+                    details={
+                        "phone": phone,
+                        "last4": phone[-4:],
+                        "name": user_data["profile_data"].get("full_name", ""),
+                    },
+                    is_default=True,
+                    is_active=True,
+                )
+                session.add(pm)
+                await session.flush()
+                payment_method_id = pm.id
+                pm_created += 1
+
+            # Create subscription
+            period_start = now - timedelta(days=random.randint(5, 25))
+            billing_days = plan.get_billing_interval_days()
+            period_end = period_start + timedelta(days=billing_days)
+
+            sub = Subscription(
+                user_id=uid,
+                plan_id=plan_id,
+                payment_method_id=payment_method_id,
+                status=SubscriptionStatus.ACTIVE,
+                current_period_start=period_start,
+                current_period_end=period_end,
+                next_billing_date=period_end,
+                last_payment_date=period_start,
+                last_payment_amount=plan.price,
+                renewal_count=random.randint(0, 6),
+                meta={},
+            )
+            session.add(sub)
+            subs_created += 1
+
+            # Create a transaction for the subscription payment
+            if plan.price > 0:
+                txn_ref = f"MPESA-{uuid.uuid4().hex[:10].upper()}"
+                txn = Transaction(
+                    user_id=uid,
+                    amount=plan.price,
+                    currency="KES",
+                    gateway="mpesa",
+                    status="completed",
+                    transaction_reference=txn_ref,
+                    transaction_metadata={
+                        "type": "subscription_payment",
+                        "plan_name": plan_name,
+                        "mpesa_receipt": txn_ref,
+                        "phone": user_data["profile_data"].get("phone", ""),
+                    },
+                    created_at=period_start,
+                )
+                session.add(txn)
+                txn_created += 1
+
+        await session.commit()
+    print(f"      {subs_created} subscriptions, {pm_created} payment methods, {txn_created} transactions seeded.")
+
+    # ── 10. Seed enrollments ───────────────────────────────────────────────
+    print("[10/11] Seeding enrollments (students → courses)...")
+    async with AsyncSessionLocal() as session:
+        enrollments_created = 0
+
+        # Check if enrollments already exist
+        result = await session.execute(select(func.count()).select_from(Enrollment))
+        existing_enrollments = result.scalar()
+        if existing_enrollments and existing_enrollments > 0:
+            print(f"      [SKIP] {existing_enrollments} enrollments already exist.")
+        else:
+            # Get all students
+            student_result = await session.execute(select(Student).where(Student.is_active == True))
+            students = student_result.scalars().all()
+
+            # Get all published courses
+            course_result = await session.execute(
+                select(Course).where(Course.is_published == True)
+            )
+            courses = course_result.scalars().all()
+
+            for student in students:
+                # Each student enrolls in 2-5 random courses
+                num_courses = min(len(courses), random.randint(2, 5))
+                selected_courses = random.sample(list(courses), num_courses)
+
+                for course in selected_courses:
+                    progress = Decimal(str(random.randint(0, 100)))
+                    is_completed = progress >= 95
+                    completed_at = now - timedelta(days=random.randint(1, 30)) if is_completed else None
+                    status = EnrollmentStatus.COMPLETED if is_completed else EnrollmentStatus.ACTIVE
+
+                    enrollment = Enrollment(
+                        student_id=student.id,
+                        course_id=course.id,
+                        status=status,
+                        progress_percentage=progress,
+                        completed_lessons=[],
+                        total_time_spent_minutes=random.randint(30, 1200),
+                        last_accessed_at=now - timedelta(hours=random.randint(1, 72)),
+                        current_grade=Decimal(str(random.randint(55, 98))),
+                        quiz_scores=[
+                            {"quiz_id": str(uuid.uuid4()), "score": random.randint(50, 100), "max": 100}
+                            for _ in range(random.randint(1, 4))
+                        ],
+                        assignment_scores=[],
+                        is_completed=is_completed,
+                        completed_at=completed_at,
+                        payment_amount=course.price or Decimal("0.00"),
+                        enrolled_at=now - timedelta(days=random.randint(7, 90)),
+                        rating=random.randint(3, 5) if is_completed else None,
+                        review="Great course! Very helpful." if is_completed and random.random() > 0.5 else None,
+                    )
+                    session.add(enrollment)
+                    enrollments_created += 1
+
+            await session.commit()
+        print(f"      {enrollments_created} enrollments seeded.")
+
+    # ── 11. Seed assessments & submissions ─────────────────────────────────
+    print("[11/11] Seeding assessments and submissions...")
+    async with AsyncSessionLocal() as session:
+        assessments_created = 0
+        submissions_created = 0
+
+        # Check if assessments already exist
+        result = await session.execute(select(func.count()).select_from(Assessment))
+        existing_assessments = result.scalar()
+        if existing_assessments and existing_assessments > 0:
+            print(f"      [SKIP] {existing_assessments} assessments already exist.")
+        else:
+            course_result = await session.execute(
+                select(Course).where(Course.is_published == True).limit(6)
+            )
+            courses = course_result.scalars().all()
+
+            for i, course in enumerate(courses):
+                # Create 2 assessments per course
+                for j, atype in enumerate(["quiz", "assignment"]):
+                    title = f"{course.learning_area} {'Quiz' if atype == 'quiz' else 'Assignment'} {j + 1}"
+                    questions = [
+                        {
+                            "id": str(uuid.uuid4()),
+                            "type": "multiple_choice",
+                            "question": f"Sample question {q + 1} for {course.learning_area}",
+                            "options": ["Option A", "Option B", "Option C", "Option D"],
+                            "correct_answer": random.choice(["A", "B", "C", "D"]),
+                            "points": 10,
+                        }
+                        for q in range(5)
+                    ]
+
+                    assessment = Assessment(
+                        course_id=course.id,
+                        creator_id=course.instructor_id,
+                        title=title,
+                        description=f"Assessment for {course.title}",
+                        assessment_type=atype,
+                        questions=questions,
+                        total_points=50,
+                        passing_score=25,
+                        auto_gradable=True,
+                        duration_minutes=30 if atype == "quiz" else 60,
+                        is_published=True,
+                        available_from=now - timedelta(days=30),
+                        max_attempts=3 if atype == "quiz" else 1,
+                    )
+                    session.add(assessment)
+                    await session.flush()
+                    assessments_created += 1
+
+                    # Create submissions from students
+                    student_result = await session.execute(select(Student).limit(5))
+                    students = student_result.scalars().all()
+
+                    for student in students:
+                        score = random.randint(20, 50)
+                        submission = AssessmentSubmission(
+                            assessment_id=assessment.id,
+                            student_id=student.id,
+                            answers={q["id"]: random.choice(["A", "B", "C", "D"]) for q in questions},
+                            score=score,
+                            is_graded=True,
+                            is_submitted=True,
+                            attempt_number=1,
+                            started_at=now - timedelta(days=random.randint(1, 20)),
+                            submitted_at=now - timedelta(days=random.randint(0, 19)),
+                            graded_at=now - timedelta(days=random.randint(0, 18)),
+                            feedback=f"{'Good job!' if score >= 35 else 'Keep practising.'}" if random.random() > 0.3 else None,
+                        )
+                        session.add(submission)
+                        submissions_created += 1
+
+            await session.commit()
+        print(f"      {assessments_created} assessments, {submissions_created} submissions seeded.")
+
     # ── Print credentials table ──────────────────────────────────────────
     print("\n")
     print("=" * 90)
@@ -1124,12 +1558,16 @@ async def main():
     print()
     print("  SUMMARY")
     print("  " + "-" * 40)
-    print(f"  Users seeded    : {sum(counts.values())}")
-    print(f"  AI Providers    : {len(AI_PROVIDERS)}")
-    print(f"  Courses         : {len(COURSES)}")
-    print(f"  Notifications   : {notif_count}")
-    print(f"  Student records : {len(student_ids)}")
-    print(f"  AI Tutors       : {len(student_ids)}")
+    print(f"  Users seeded          : {sum(counts.values())}")
+    print(f"  AI Providers          : {len(AI_PROVIDERS)}")
+    print(f"  Courses               : {len(COURSES)}")
+    print(f"  Notifications         : {notif_count}")
+    print(f"  Student records       : {len(student_ids)}")
+    print(f"  AI Tutors             : {len(student_ids)}")
+    print(f"  Subscription Plans    : {len(SUBSCRIPTION_PLANS)}")
+    print(f"  Wallets               : (all users)")
+    print(f"  Enrollments           : (students x courses)")
+    print(f"  Assessments           : (per course)")
     print()
     print("  Login at: http://localhost:3000")
     print("  API docs: http://localhost:8000/docs")

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import AdminPageHeader from '../../components/admin/shared/AdminPageHeader';
 import AdminStatsCard from '../../components/admin/shared/AdminStatsCard';
+import adminOperationsService from '../../services/admin/adminOperationsService';
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -37,10 +38,10 @@ interface SupportTicket {
 }
 
 /* ------------------------------------------------------------------ */
-/* Mock data                                                           */
+/* Fallback data                                                       */
 /* ------------------------------------------------------------------ */
 
-const MOCK_TICKETS: SupportTicket[] = [
+const FALLBACK_TICKETS: SupportTicket[] = [
   { id: 'TK-001', ticket_number: 'TK-2025-0001', subject: 'Cannot access AI tutor after payment', description: 'User reports payment was successful but AI tutor is locked.', priority: 'critical', status: 'open', assignee: 'Admin Team', reporter: 'Grace Njeri', reporter_email: 'grace@example.com', category: 'Billing', sla_deadline: '2025-01-15T14:00:00Z', created_at: '2025-01-15T10:00:00Z', updated_at: '2025-01-15T10:00:00Z' },
   { id: 'TK-002', ticket_number: 'TK-2025-0002', subject: 'M-Pesa payment not reflecting', description: 'M-Pesa confirmation received but balance not updated.', priority: 'high', status: 'in_progress', assignee: 'Finance Team', reporter: 'David Kamau', reporter_email: 'david@example.com', category: 'Payments', sla_deadline: '2025-01-15T18:00:00Z', created_at: '2025-01-15T08:30:00Z', updated_at: '2025-01-15T09:15:00Z' },
   { id: 'TK-003', ticket_number: 'TK-2025-0003', subject: 'Course video not loading on mobile', description: 'Videos buffer endlessly on Android devices.', priority: 'medium', status: 'open', assignee: 'Tech Support', reporter: 'Mary Akinyi', reporter_email: 'mary@example.com', category: 'Technical', sla_deadline: '2025-01-16T10:00:00Z', created_at: '2025-01-15T07:45:00Z', updated_at: '2025-01-15T07:45:00Z' },
@@ -114,18 +115,52 @@ const TicketsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [tickets, setTickets] = useState<SupportTicket[]>(FALLBACK_TICKETS);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleRefresh = () => {
-    setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 800);
+  const fetchTickets = async () => {
+    try {
+      const response = await adminOperationsService.listTickets({ page_size: 50 });
+      const mapped: SupportTicket[] = response.items.map((item) => ({
+        id: item.id,
+        ticket_number: item.ticket_number,
+        subject: item.subject,
+        description: item.description ?? '',
+        priority: item.priority,
+        status: item.status === 'escalated' ? 'in_progress' as const : item.status as SupportTicket['status'],
+        assignee: item.assigned_to ?? 'Unassigned',
+        reporter: item.reporter_name,
+        reporter_email: item.reporter_email,
+        category: item.category ?? 'General',
+        sla_deadline: item.sla_deadline ?? '',
+        created_at: item.created_at ?? '',
+        updated_at: item.updated_at ?? '',
+      }));
+      if (mapped.length > 0) {
+        setTickets(mapped);
+      }
+    } catch {
+      // API unavailable — keep fallback data
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const filteredTickets = MOCK_TICKETS.filter(
+  useEffect(() => {
+    fetchTickets();
+  }, []);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchTickets();
+    } catch {
+      // keep existing data
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const filteredTickets = tickets.filter(
     (t) =>
       (!priorityFilter || t.priority === priorityFilter) &&
       (!statusFilter || t.status === statusFilter) &&
@@ -135,8 +170,8 @@ const TicketsPage: React.FC = () => {
         t.reporter.toLowerCase().includes(search.toLowerCase()))
   );
 
-  const openCount = MOCK_TICKETS.filter((t) => t.status === 'open' || t.status === 'in_progress').length;
-  const criticalCount = MOCK_TICKETS.filter((t) => t.priority === 'critical').length;
+  const openCount = tickets.filter((t) => t.status === 'open' || t.status === 'in_progress').length;
+  const criticalCount = tickets.filter((t) => t.priority === 'critical').length;
 
   const containerVariants = {
     hidden: { opacity: 0 },

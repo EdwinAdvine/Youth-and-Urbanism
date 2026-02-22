@@ -6,25 +6,45 @@ Business logic lives in services/; route handlers in api/; middleware in middlew
 """
 
 import logging
+import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.staticfiles import StaticFiles
 
 from app.config import settings
 from app.database import check_db_connection
 from app.lifespan import lifespan
 
-# Configure logging
-logging.basicConfig(
-    level=getattr(logging, settings.log_level),
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        *([logging.FileHandler(settings.log_file)] if settings.log_file else [])
-    ]
-)
+# Configure logging (supports JSON format for production observability)
+def _setup_logging():
+    handler = logging.StreamHandler()
+
+    if settings.log_format == "json":
+        from pythonjsonlogger import jsonlogger
+        formatter = jsonlogger.JsonFormatter(
+            "%(asctime)s %(name)s %(levelname)s %(message)s",
+            rename_fields={"asctime": "timestamp", "levelname": "level"},
+        )
+    else:
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+
+    handler.setFormatter(formatter)
+
+    root_logger = logging.getLogger()
+    root_logger.setLevel(getattr(logging, settings.log_level))
+    root_logger.handlers = [handler]
+
+    if settings.log_file:
+        file_handler = logging.FileHandler(settings.log_file)
+        file_handler.setFormatter(formatter)
+        root_logger.addHandler(file_handler)
+
+_setup_logging()
 
 logger = logging.getLogger(__name__)
 
@@ -78,10 +98,12 @@ app = FastAPI(
 from app.middleware.security_headers import SecurityHeadersMiddleware
 from app.middleware.cookie_auth import CookieAuthMiddleware
 from app.middleware.csrf import CSRFMiddleware
+from app.middleware.rate_limit import RateLimitMiddleware
 
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(CookieAuthMiddleware)
 app.add_middleware(CSRFMiddleware)
+app.add_middleware(RateLimitMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
@@ -149,5 +171,14 @@ from app.websocket.routes import ws_router
 
 register_all_routers(app)
 app.include_router(ws_router)
+
+# ── Prometheus metrics ─────────────────────────────────────────────────
+from app.metrics import setup_metrics
+setup_metrics(app)
+
+# ── Static file serving for generated media (TTS audio, etc.) ───────
+_media_dir = os.path.join(os.getcwd(), "media")
+os.makedirs(os.path.join(_media_dir, "audio"), exist_ok=True)
+app.mount("/media", StaticFiles(directory=_media_dir), name="media")
 
 logger.info("FastAPI application configured successfully")

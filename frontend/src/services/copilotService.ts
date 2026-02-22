@@ -6,7 +6,7 @@
  * and contextual insights for all user roles.
  *
  * Features:
- * - Text, voice, and video response modes
+ * - Text and voice response modes
  * - Server-Sent Events (SSE) streaming for real-time responses
  * - Session CRUD operations (list, get, update, delete)
  * - Agent profile management (get, update, reset)
@@ -26,8 +26,8 @@ export interface CopilotChatRequest {
   message: string;
   /** Session ID (null creates a new session) */
   session_id?: string | null;
-  /** Response format: text, voice, or video */
-  response_mode?: 'text' | 'voice' | 'video';
+  /** Response format: text or voice */
+  response_mode?: 'text' | 'voice';
   /** Whether to include conversation history in context */
   include_context?: boolean;
   /** Number of recent messages to include as context (1-50) */
@@ -46,8 +46,6 @@ export interface CopilotChatResponse {
   response_mode: string;
   /** URL to audio file (voice mode) */
   audio_url?: string | null;
-  /** URL to video file (video mode) */
-  video_url?: string | null;
   /** AI provider that generated the response */
   provider_used?: string | null;
   /** Response timestamp */
@@ -82,7 +80,6 @@ export interface CopilotMessageOut {
   role: string;
   content: string;
   audio_url?: string | null;
-  video_url?: string | null;
   provider_used?: string | null;
   created_at: string;
 }
@@ -104,7 +101,7 @@ export interface CopilotSessionDetail {
 export interface CopilotSessionUpdate {
   title?: string;
   is_pinned?: boolean;
-  response_mode?: 'text' | 'voice' | 'video';
+  response_mode?: 'text' | 'voice';
 }
 
 /** Single contextual insight or tip for the user */
@@ -171,14 +168,14 @@ class CopilotService {
    *
    * This is the main chat interface. It handles session creation automatically
    * if no session_id is provided, generates session titles from the first message,
-   * and supports text, voice, and video response modes.
+   * and supports text and voice response modes.
    *
    * @param request - Chat request with message and optional session ID
    * @returns AI response with message, session ID, and metadata
    */
   async chat(request: CopilotChatRequest): Promise<CopilotChatResponse> {
     const response = await apiClient.post<CopilotChatResponse>(
-      '/copilot/chat',
+      '/api/v1/copilot/chat',
       request
     );
     return response.data;
@@ -284,7 +281,7 @@ class CopilotService {
     page_size: number = 20
   ): Promise<CopilotSessionList> {
     const response = await apiClient.get<CopilotSessionList>(
-      '/copilot/sessions',
+      '/api/v1/copilot/sessions',
       {
         params: { page, page_size },
       }
@@ -302,7 +299,7 @@ class CopilotService {
    */
   async getSession(sessionId: string): Promise<CopilotSessionDetail> {
     const response = await apiClient.get<CopilotSessionDetail>(
-      `/copilot/sessions/${sessionId}`
+      `/api/v1/copilot/sessions/${sessionId}`
     );
     return response.data;
   }
@@ -319,7 +316,7 @@ class CopilotService {
     updateData: CopilotSessionUpdate
   ): Promise<CopilotSessionDetail> {
     const response = await apiClient.patch<CopilotSessionDetail>(
-      `/copilot/sessions/${sessionId}`,
+      `/api/v1/copilot/sessions/${sessionId}`,
       updateData
     );
     return response.data;
@@ -334,7 +331,7 @@ class CopilotService {
    * @param sessionId - UUID of the session to delete
    */
   async deleteSession(sessionId: string): Promise<void> {
-    await apiClient.delete(`/copilot/sessions/${sessionId}`);
+    await apiClient.delete(`/api/v1/copilot/sessions/${sessionId}`);
   }
 
   /**
@@ -347,7 +344,7 @@ class CopilotService {
    */
   async getInsights(): Promise<CopilotInsightsResponse> {
     const response = await apiClient.get<CopilotInsightsResponse>(
-      '/copilot/insights'
+      '/api/v1/copilot/insights'
     );
     return response.data;
   }
@@ -359,7 +356,7 @@ class CopilotService {
    */
   async getAgentProfile(): Promise<AIAgentProfile> {
     const response = await apiClient.get<AIAgentProfile>(
-      '/ai-agent-profile'
+      '/api/v1/ai-agent/profile'
     );
     return response.data;
   }
@@ -374,7 +371,7 @@ class CopilotService {
     updateData: AIAgentProfileUpdate
   ): Promise<AIAgentProfile> {
     const response = await apiClient.patch<AIAgentProfile>(
-      '/ai-agent-profile',
+      '/api/v1/ai-agent/profile',
       updateData
     );
     return response.data;
@@ -387,7 +384,7 @@ class CopilotService {
    */
   async resetAgentProfile(): Promise<AIAgentProfile> {
     const response = await apiClient.post<AIAgentProfile>(
-      '/ai-agent-profile/reset'
+      '/api/v1/ai-agent/profile/reset'
     );
     return response.data;
   }

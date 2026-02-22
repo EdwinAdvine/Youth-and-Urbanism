@@ -12,9 +12,8 @@ export interface ChatRequest {
 
 export interface ChatResponse {
   message: string;
-  response_mode: 'text' | 'voice' | 'video';
+  response_mode: 'text' | 'voice';
   audio_url?: string;
-  video_url?: string;
   timestamp: string;
 }
 
@@ -24,7 +23,6 @@ export interface ConversationMessage {
   timestamp: string;
   response_mode?: string;
   audio_url?: string;
-  video_url?: string;
 }
 
 export interface ConversationHistoryResponse {
@@ -33,7 +31,7 @@ export interface ConversationHistoryResponse {
 }
 
 export interface ResponseModeUpdate {
-  response_mode: 'text' | 'voice' | 'video';
+  response_mode: 'text' | 'voice';
 }
 
 export interface TutorStatusResponse {
@@ -74,9 +72,9 @@ class AITutorService {
 
   /**
    * Update the AI tutor's response mode
-   * @param mode - Response mode (text, voice, or video)
+   * @param mode - Response mode (text or voice)
    */
-  async updateResponseMode(mode: 'text' | 'voice' | 'video'): Promise<void> {
+  async updateResponseMode(mode: 'text' | 'voice'): Promise<void> {
     await apiClient.put('/api/v1/ai-tutor/response-mode', {
       response_mode: mode
     });

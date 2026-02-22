@@ -24,7 +24,7 @@ class AITutor(Base):
     - Persistent conversation history
     - Personalized learning paths
     - Performance tracking and analytics
-    - Multi-modal response modes (text, voice, video)
+    - Multi-modal response modes (text, voice)
     """
     __tablename__ = "ai_tutors"
 
@@ -53,13 +53,13 @@ class AITutor(Base):
     # Performance metrics
     performance_metrics = Column(JSONB, default=dict, nullable=False)  # Strengths, weaknesses, progress
 
-    # Response mode preference (text, voice, video)
+    # Response mode preference (text, voice)
     response_mode = Column(
         String(20),
         default='text',
         nullable=False,
         index=True
-    )  # 'text', 'voice', 'video'
+    )  # 'text', 'voice'
 
     # Interaction tracking
     total_interactions = Column(Integer, default=0, nullable=False)
@@ -86,11 +86,6 @@ class AITutor(Base):
     def is_voice_mode(self) -> bool:
         """Check if tutor is in voice response mode."""
         return self.response_mode == 'voice'
-
-    @property
-    def is_video_mode(self) -> bool:
-        """Check if tutor is in video response mode."""
-        return self.response_mode == 'video'
 
     def add_message(self, role: str, content: str) -> None:
         """

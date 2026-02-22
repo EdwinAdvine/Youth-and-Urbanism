@@ -9,7 +9,6 @@ import InputBar from './InputBar';
 const BirdChatPage: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [responseMode, setResponseMode] = useState<'text' | 'voice' | 'video'>('text');
   const [error, setError] = useState<string | null>(null);
 
   // Store state
@@ -32,8 +31,7 @@ const BirdChatPage: React.FC = () => {
           type: msg.role === 'user' ? 'user' as const : 'ai' as const,
           content: msg.content,
           timestamp: new Date(msg.timestamp),
-          audioUrl: msg.audio_url,
-          videoUrl: msg.video_url
+          audioUrl: msg.audio_url
         }));
         loadChatHistory(chatMessages);
       } catch (error) {
@@ -60,6 +58,8 @@ const BirdChatPage: React.FC = () => {
     setIsTyping(true);
     setError(null);
 
+    const requestStartMs = Date.now();
+
     try {
       // Send message to backend AI tutor
       const response = await aiTutorService.sendMessage({
@@ -68,12 +68,12 @@ const BirdChatPage: React.FC = () => {
         context_messages: 10
       });
 
-      // Add AI response
+      // Add AI response with latency
       addMessage({
         type: 'ai',
         content: response.message,
         audioUrl: response.audio_url,
-        videoUrl: response.video_url
+        response_time_ms: Date.now() - requestStartMs
       });
 
     } catch (error: any) {
@@ -113,15 +113,6 @@ const BirdChatPage: React.FC = () => {
     }
   };
 
-  const handleResponseModeChange = async (mode: 'text' | 'voice' | 'video') => {
-    try {
-      await aiTutorService.updateResponseMode(mode);
-      setResponseMode(mode);
-    } catch (error) {
-      console.error('Failed to update response mode:', error);
-    }
-  };
-
   return (
     <div className="flex flex-col h-screen bg-gradient-to-b from-gray-50 dark:from-[#0F1112] to-gray-100 dark:to-[#181C1F]">
       {/* Header */}
@@ -136,50 +127,16 @@ const BirdChatPage: React.FC = () => {
         <ChatMessages
           messages={messages}
           isTyping={isTyping}
+          onResendMessage={handleSendMessage}
         />
       </div>
 
-      {/* Response Mode Selector */}
-      <div className="px-4 py-2 border-t border-gray-200 dark:border-white/10">
-        <div className="flex gap-2 items-center">
-          <span className="text-gray-500 dark:text-white/60 text-sm">Response:</span>
-          <button
-            onClick={() => handleResponseModeChange('text')}
-            className={`px-3 py-1 rounded text-sm transition-colors ${
-              responseMode === 'text'
-                ? 'bg-blue-600 text-gray-900 dark:text-white'
-                : 'bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/20'
-            }`}
-          >
-            Text
-          </button>
-          <button
-            onClick={() => handleResponseModeChange('voice')}
-            className={`px-3 py-1 rounded text-sm transition-colors ${
-              responseMode === 'voice'
-                ? 'bg-blue-600 text-gray-900 dark:text-white'
-                : 'bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/20'
-            }`}
-          >
-            Voice
-          </button>
-          <button
-            onClick={() => handleResponseModeChange('video')}
-            className={`px-3 py-1 rounded text-sm transition-colors ${
-              responseMode === 'video'
-                ? 'bg-blue-600 text-gray-900 dark:text-white'
-                : 'bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/20'
-            }`}
-          >
-            Video
-          </button>
+      {/* Error display */}
+      {error && (
+        <div className="px-4 py-2 text-red-400 text-xs border-t border-gray-200 dark:border-white/10">
+          {error}
         </div>
-        {error && (
-          <div className="mt-2 text-red-400 text-xs">
-            {error}
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Input Bar */}
       <InputBar

@@ -1,15 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
+import { getAtRiskLearners } from '../../services/staff/staffStudentService';
+
+interface StudentJourneyItem {
+  id: string;
+  name: string;
+  grade: string;
+  status: 'thriving' | 'at-risk' | 'needs-attention';
+  riskScore: number;
+  flags: number;
+}
+
+const FALLBACK_STUDENTS: StudentJourneyItem[] = [
+  { id: '1', name: 'John Kamau', grade: 'Grade 8', status: 'thriving', riskScore: 15, flags: 0 },
+  { id: '2', name: 'Mary Wanjiku', grade: 'Grade 7', status: 'at-risk', riskScore: 75, flags: 3 },
+  { id: '3', name: 'David Otieno', grade: 'Grade 9', status: 'needs-attention', riskScore: 45, flags: 1 },
+];
 
 const StudentJourneysPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'at-risk' | 'thriving' | 'needs-attention'>('all');
+  const [students, setStudents] = useState<StudentJourneyItem[]>(FALLBACK_STUDENTS);
+  const [loading, setLoading] = useState(true);
 
-  const students = [
-    { id: '1', name: 'John Kamau', grade: 'Grade 8', status: 'thriving', riskScore: 15, flags: 0 },
-    { id: '2', name: 'Mary Wanjiku', grade: 'Grade 7', status: 'at-risk', riskScore: 75, flags: 3 },
-    { id: '3', name: 'David Otieno', grade: 'Grade 9', status: 'needs-attention', riskScore: 45, flags: 1 },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getAtRiskLearners({ page: 1, page_size: 50 });
+        if (response.items && response.items.length > 0) {
+          setStudents(response.items.map((item) => ({
+            id: item.student_id,
+            name: item.student_name,
+            grade: 'Grade ' + (item.learning_style || '?'),
+            status: item.risk_level === 'high' || item.risk_level === 'critical' ? 'at-risk' :
+                    item.risk_level === 'medium' ? 'needs-attention' : 'thriving',
+            riskScore: item.risk_level === 'critical' ? 90 : item.risk_level === 'high' ? 75 :
+                       item.risk_level === 'medium' ? 45 : 15,
+            flags: item.risk_factors?.length || 0,
+          })));
+        }
+      } catch (err) {
+        console.warn('[StudentJourneys] API unavailable, using fallback data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const filteredStudents = students.filter((s) => {
+    if (search && !s.name.toLowerCase().includes(search.toLowerCase())) return false;
+    if (filterStatus !== 'all' && s.status !== filterStatus) return false;
+    return true;
+  });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-[#0F1112] p-6">
+        <div className="max-w-7xl mx-auto space-y-4">
+          <div className="h-8 w-48 bg-white dark:bg-[#181C1F] rounded animate-pulse" />
+          {[1, 2, 3].map(i => (
+            <div key={i} className="h-20 bg-white dark:bg-[#181C1F] rounded-xl border border-gray-200 dark:border-[#22272B] animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0F1112] p-6">
@@ -40,7 +96,7 @@ const StudentJourneysPage: React.FC = () => {
         </div>
 
         <div className="grid gap-4">
-          {students.map((student) => (
+          {filteredStudents.map((student) => (
             <div
               key={student.id}
               className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-5 hover:border-[#E40000]/30 transition-colors cursor-pointer"

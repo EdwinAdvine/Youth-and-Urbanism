@@ -1,21 +1,22 @@
 /**
- * ChatMessages Component (upgraded with streaming and markdown)
+ * ChatMessages Component
  *
- * Displays chat conversation with enhanced features:
+ * Displays chat conversation with:
  * - Real-time streaming text with blinking cursor
- * - Markdown rendering for AI responses (bold, italic, lists, code blocks)
+ * - Markdown rendering for AI responses
  * - Smooth pop-in animations for new messages
- * - Inline audio/video players for voice/video modes
+ * - Inline audio player for voice mode
  * - Smart auto-scroll (only when user is near bottom)
  * - Typing indicator with agent name
- * - User/AI avatar display
+ * - MessageToolbar under every AI response (TTS, copy, share, feedback, etc.)
  */
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, User as UserIcon, Volume2 } from 'lucide-react';
+import { Bot, User as UserIcon } from 'lucide-react';
 import { ChatMessage } from '../../store/coPilotStore';
 import { useCoPilotStore } from '../../store';
+import MessageToolbar from '../shared/MessageToolbar';
 
 interface ChatMessagesProps {
   messages: ChatMessage[];
@@ -31,82 +32,68 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
     isStreaming,
     streamingContent,
     isAiTyping,
-    agentProfile
+    agentProfile,
+    sendMessage,
   } = useCoPilotStore();
 
-  // Check if user is near bottom of scroll container
   const checkIfNearBottom = () => {
     const container = messagesContainerRef.current;
     if (container) {
-      const threshold = 100; // pixels from bottom
+      const threshold = 100;
       const isNear = container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
       setIsNearBottom(isNear);
     }
   };
 
-  // Smart auto-scroll: only scroll if user is near bottom
   useEffect(() => {
     if (isNearBottom) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, streamingContent, isNearBottom]);
 
-  // Update message status to delivered when visible
   useEffect(() => {
     const visibleMessages = messages.filter(msg => msg.status === 'sent');
     visibleMessages.forEach(msg => {
-      setTimeout(() => {
-        updateMessageStatus(msg.id, 'delivered');
-      }, 1000);
+      setTimeout(() => updateMessageStatus(msg.id, 'delivered'), 1000);
     });
   }, [messages, updateMessageStatus]);
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
+  const formatTime = (date: Date) =>
+    date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   const getMessageStatusIcon = (status: ChatMessage['status']) => {
     switch (status) {
-      case 'sending':
-        return <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" title="Sending"></div>;
-      case 'sent':
-        return <div className="w-2 h-2 bg-blue-400 rounded-full" title="Sent"></div>;
-      case 'delivered':
-        return <div className="w-2 h-2 bg-green-400 rounded-full" title="Delivered"></div>;
-      case 'read':
-        return <div className="w-2 h-2 bg-green-400 rounded-full" title="Read"></div>;
-      default:
-        return null;
+      case 'sending': return <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" title="Sending" />;
+      case 'sent':    return <div className="w-2 h-2 bg-blue-400 rounded-full" title="Sent" />;
+      case 'delivered': return <div className="w-2 h-2 bg-green-400 rounded-full" title="Delivered" />;
+      case 'read':    return <div className="w-2 h-2 bg-green-400 rounded-full" title="Read" />;
+      default:        return null;
     }
   };
 
-  // Simple markdown rendering (bold, italic, code, lists)
   const renderMarkdown = (text: string) => {
     let html = text;
-
-    // Code blocks
     html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre class="bg-gray-800 text-gray-100 p-3 rounded-lg my-2 overflow-x-auto"><code>$2</code></pre>');
-
-    // Inline code
     html = html.replace(/`([^`]+)`/g, '<code class="bg-gray-700 px-1.5 py-0.5 rounded text-sm">$1</code>');
-
-    // Bold
     html = html.replace(/\*\*([^*]+)\*\*/g, '<strong class="font-bold">$1</strong>');
-
-    // Italic
     html = html.replace(/\*([^*]+)\*/g, '<em class="italic">$1</em>');
-
-    // Unordered lists
     html = html.replace(/^- (.+)$/gm, '<li class="ml-4">• $1</li>');
-
-    // Links
     html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">$1</a>');
-
-    // Preserve line breaks
     html = html.replace(/\n/g, '<br/>');
-
     return html;
   };
+
+  const getPrecedingUserMessage = useCallback((aiIdx: number): string | null => {
+    for (let i = aiIdx - 1; i >= 0; i--) {
+      if (messages[i].sender === 'user') return messages[i].content;
+    }
+    return null;
+  }, [messages]);
+
+  const handleRegenerate = useCallback((aiIdx: number) => {
+    const userText = getPrecedingUserMessage(aiIdx);
+    if (userText) sendMessage(userText);
+  }, [getPrecedingUserMessage, sendMessage]);
 
   if (messages.length === 0 && !isStreaming && !isAiTyping) {
     return (
@@ -129,7 +116,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
       className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth"
     >
       <AnimatePresence initial={false}>
-        {messages.map((message) => (
+        {messages.map((message, index) => (
           <motion.div
             key={message.id}
             initial={{ opacity: 0, y: 10 }}
@@ -138,66 +125,66 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
             transition={{ duration: 0.3 }}
             className={`flex items-end gap-2 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            {/* AI Avatar (left side) */}
+            {/* AI Avatar */}
             {message.sender === 'ai' && (
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center self-start mt-1">
                 <Bot className="w-5 h-5 text-white" />
               </div>
             )}
 
-            {/* Message Bubble */}
-            <div
-              className={`
-                max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-sm
-                ${message.sender === 'user'
-                  ? 'bg-gradient-to-r from-[#FF0000] to-[#E40000] text-white rounded-br-sm'
-                  : 'bg-gray-100 dark:bg-[#22272B] text-gray-900 dark:text-white rounded-bl-sm'
-                }
-              `}
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-medium opacity-75">
-                  {message.sender === 'user' ? 'You' : (agentProfile?.agent_name || 'AI Assistant')}
-                </span>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs opacity-60">{formatTime(message.timestamp)}</span>
-                  {message.sender === 'user' && getMessageStatusIcon(message.status)}
+            {/* Bubble + toolbar */}
+            <div className="flex flex-col max-w-xs lg:max-w-md">
+              <div
+                className={`
+                  px-4 py-3 rounded-2xl shadow-sm
+                  ${message.sender === 'user'
+                    ? 'bg-gradient-to-r from-[#FF0000] to-[#E40000] text-white rounded-br-sm'
+                    : 'bg-gray-100 dark:bg-[#22272B] text-gray-900 dark:text-white rounded-bl-sm'
+                  }
+                `}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-medium opacity-75">
+                    {message.sender === 'user' ? 'You' : (agentProfile?.agent_name || 'AI Assistant')}
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs opacity-60">{formatTime(message.timestamp)}</span>
+                    {message.sender === 'user' && getMessageStatusIcon(message.status)}
+                  </div>
                 </div>
+
+                {message.sender === 'ai' ? (
+                  <div
+                    className="text-sm prose prose-sm dark:prose-invert max-w-none"
+                    dangerouslySetInnerHTML={{ __html: renderMarkdown(message.content) }}
+                  />
+                ) : (
+                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                )}
+
+                {message.audio_url && (
+                  <div className="mt-2 pt-2 border-t border-white/10">
+                    <audio controls className="w-full h-8" style={{ filter: 'invert(0.9)' }}>
+                      <source src={message.audio_url} type="audio/mpeg" />
+                    </audio>
+                  </div>
+                )}
+
               </div>
 
-              {/* Content */}
-              {message.sender === 'ai' ? (
-                <div
-                  className="text-sm prose prose-sm dark:prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: renderMarkdown(message.content) }}
+              {/* Toolbar — AI messages only */}
+              {message.sender === 'ai' && (
+                <MessageToolbar
+                  messageId={message.id}
+                  content={message.content}
+                  audioUrl={message.audio_url}
+                  responseTimeMs={message.response_time_ms}
+                  onRegenerate={() => handleRegenerate(index)}
                 />
-              ) : (
-                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-              )}
-
-              {/* Audio Player (Voice Mode) */}
-              {message.audio_url && (
-                <div className="mt-2 pt-2 border-t border-white/10">
-                  <audio controls className="w-full h-8" style={{ filter: 'invert(0.9)' }}>
-                    <source src={message.audio_url} type="audio/mpeg" />
-                    Your browser does not support the audio element.
-                  </audio>
-                </div>
-              )}
-
-              {/* Video Player (Video Mode) */}
-              {message.video_url && (
-                <div className="mt-2 pt-2 border-t border-white/10">
-                  <video controls className="w-full rounded-lg">
-                    <source src={message.video_url} type="video/mp4" />
-                    Your browser does not support the video element.
-                  </video>
-                </div>
               )}
             </div>
 
-            {/* User Avatar (right side) */}
+            {/* User Avatar */}
             {message.sender === 'user' && (
               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center">
                 <UserIcon className="w-5 h-5 text-white" />
@@ -206,7 +193,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
           </motion.div>
         ))}
 
-        {/* Streaming Message (AI is generating response in real-time) */}
+        {/* Streaming Message */}
         {isStreaming && streamingContent && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -216,7 +203,6 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
               <Bot className="w-5 h-5 text-white" />
             </div>
-
             <div className="max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-sm bg-gray-100 dark:bg-[#22272B] text-gray-900 dark:text-white rounded-bl-sm">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-medium opacity-75">
@@ -224,7 +210,6 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
                 </span>
                 <span className="text-xs opacity-60">Generating...</span>
               </div>
-
               <div className="text-sm prose prose-sm dark:prose-invert max-w-none">
                 <span dangerouslySetInnerHTML={{ __html: renderMarkdown(streamingContent) }} />
                 <span className="inline-block w-2 h-4 ml-1 bg-current animate-pulse">|</span>
@@ -233,7 +218,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
           </motion.div>
         )}
 
-        {/* Typing Indicator (AI is thinking) */}
+        {/* Typing Indicator */}
         {isAiTyping && !isStreaming && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -243,16 +228,15 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
               <Bot className="w-5 h-5 text-white animate-pulse" />
             </div>
-
             <div className="px-4 py-3 rounded-2xl shadow-sm bg-gray-100 dark:bg-[#22272B] rounded-bl-sm">
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-600 dark:text-gray-400">
                   {agentProfile?.agent_name || 'AI Assistant'} is thinking
                 </span>
                 <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
               </div>
             </div>

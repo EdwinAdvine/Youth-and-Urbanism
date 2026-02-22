@@ -39,7 +39,8 @@ interface SponsorshipProgram {
   description: string;
 }
 
-const hardcodedPrograms: SponsorshipProgram[] = [
+/** Fallback data used when the API is unavailable */
+const FALLBACK_PROGRAMS: SponsorshipProgram[] = [
   {
     id: '1',
     name: 'STEM Excellence Program',
@@ -129,12 +130,12 @@ const SponsorshipsPage: React.FC = () => {
           setPrograms(data.items as unknown as SponsorshipProgram[]);
         } else {
           // Use hardcoded fallback
-          setPrograms(hardcodedPrograms);
+          setPrograms(FALLBACK_PROGRAMS);
         }
       } catch (err) {
         console.error('Failed to fetch programs:', err);
         setError('Failed to load programs');
-        setPrograms(hardcodedPrograms);
+        setPrograms(FALLBACK_PROGRAMS);
       } finally {
         setLoading(false);
       }

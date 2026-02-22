@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Search, Sparkles, Filter, X } from 'lucide-react';
+import { Search, Sparkles, Filter, X, Mic, MicOff } from 'lucide-react';
+import { useSpeechRecognition } from '../../../hooks/useSpeechRecognition';
 
 interface KBSearchBarProps {
   onSearch: (query: string, filters?: SearchFilters) => void;
@@ -16,6 +17,18 @@ interface SearchFilters {
 const KBSearchBar: React.FC<KBSearchBarProps> = ({ onSearch, onAISearch, isSearching }) => {
   const [query, setQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+
+  // Speech recognition for voice search
+  const { isRecording: isVoiceSearching, isSupported: isVoiceSupported, toggle: toggleVoiceSearch } =
+    useSpeechRecognition({
+      onFinalTranscript: (text) => {
+        setQuery((prev) => {
+          const trimmed = prev.trimEnd();
+          return trimmed ? `${trimmed} ${text}` : text;
+        });
+      },
+      onError: (err) => console.error('Voice search error:', err),
+    });
   const [filters, setFilters] = useState<SearchFilters>({});
 
   const handleSearch = (e?: React.FormEvent) => {
@@ -45,10 +58,27 @@ const KBSearchBar: React.FC<KBSearchBarProps> = ({ onSearch, onAISearch, isSearc
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search knowledge base..."
-            className="w-full bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A2F34] rounded-lg pl-10 pr-24 py-2.5 text-sm text-gray-900 dark:text-white placeholder-white/30 focus:border-[#E40000]/30 outline-none"
+            placeholder={isVoiceSearching ? 'Listening...' : 'Search knowledge base...'}
+            className={`w-full bg-gray-100 dark:bg-[#22272B] border ${isVoiceSearching ? 'border-red-500/40' : 'border-gray-200 dark:border-[#2A2F34]'} rounded-lg pl-10 pr-28 py-2.5 text-sm text-gray-900 dark:text-white placeholder-white/30 focus:border-[#E40000]/30 outline-none`}
           />
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            {/* Voice search button */}
+            {isVoiceSupported && (
+              <button
+                type="button"
+                onClick={toggleVoiceSearch}
+                title={isVoiceSearching ? 'Stop voice search' : 'Voice search'}
+                className={`
+                  p-1 rounded transition-all
+                  ${isVoiceSearching
+                    ? 'text-red-500 animate-pulse'
+                    : 'text-gray-400 dark:text-white/40 hover:text-red-500 dark:hover:text-red-400'
+                  }
+                `}
+              >
+                {isVoiceSearching ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+              </button>
+            )}
             {onAISearch && (
               <button
                 type="button"

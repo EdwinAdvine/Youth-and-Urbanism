@@ -271,14 +271,10 @@ async def list_cbc_analyses(
 # ============================================================================
 
 
-async def _get_redis():
-    """Get a Redis client from the application's Redis URL."""
-    import redis.asyncio as aioredis
-    from app.config import settings
-
-    return aioredis.from_url(
-        settings.redis_url, decode_responses=True
-    )
+def _get_redis():
+    """Get the global Redis client."""
+    from app.redis import get_redis
+    return get_redis()
 
 
 def _prompts_key(instructor_id: str) -> str:

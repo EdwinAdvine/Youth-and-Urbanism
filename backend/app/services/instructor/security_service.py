@@ -191,9 +191,9 @@ async def enable_sms_otp(
 
         # Store OTP in Redis with 5-minute TTL
         try:
-            r = aioredis.from_url(settings.redis_url, decode_responses=True)
+            from app.redis import get_redis
+            r = get_redis()
             await r.setex(f"2fa:sms:{user_id}", 300, otp_code)
-            await r.aclose()
         except Exception as redis_err:
             logger.warning(f"Redis OTP storage failed: {redis_err}")
 
@@ -225,9 +225,9 @@ async def verify_sms_otp(
 ) -> bool:
     """Verify SMS OTP code from Redis."""
     try:
-        r = aioredis.from_url(settings.redis_url, decode_responses=True)
+        from app.redis import get_redis
+        r = get_redis()
         stored_code = await r.get(f"2fa:sms:{user_id}")
-        await r.aclose()
 
         if stored_code and stored_code == code:
             # Enable SMS 2FA
@@ -242,9 +242,8 @@ async def verify_sms_otp(
                 await db.commit()
 
             # Delete used OTP
-            r = aioredis.from_url(settings.redis_url, decode_responses=True)
+            r = get_redis()
             await r.delete(f"2fa:sms:{user_id}")
-            await r.aclose()
             return True
         return False
     except Exception as e:

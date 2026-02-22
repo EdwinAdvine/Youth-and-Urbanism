@@ -5,7 +5,8 @@ export interface ChatMessage {
   timestamp: Date;
   avatarExpression?: BirdExpression;
   audioUrl?: string;
-  videoUrl?: string;
+  /** Round-trip latency in ms (AI messages only) */
+  response_time_ms?: number;
 }
 
 export type BirdExpression = 'happy' | 'thinking' | 'excited' | 'listening';

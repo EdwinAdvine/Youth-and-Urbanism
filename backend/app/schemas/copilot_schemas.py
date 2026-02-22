@@ -21,8 +21,8 @@ class CopilotChatRequest(BaseModel):
     session_id: Optional[UUID] = Field(None, description="Session ID (null creates new session)")
     response_mode: str = Field(
         default="text",
-        pattern="^(text|voice|video)$",
-        description="Response format: text, voice, or video"
+        pattern="^(text|voice)$",
+        description="Response format: text or voice"
     )
     include_context: bool = Field(
         default=True,
@@ -43,7 +43,6 @@ class CopilotChatResponse(BaseModel):
     message_id: UUID = Field(..., description="Unique ID for this message")
     response_mode: str = Field(..., description="Actual response mode delivered")
     audio_url: Optional[str] = Field(None, description="URL to audio file (voice mode)")
-    video_url: Optional[str] = Field(None, description="URL to video file (video mode)")
     provider_used: Optional[str] = Field(None, description="AI provider that generated response")
     timestamp: datetime = Field(..., description="Response timestamp")
 
@@ -85,7 +84,6 @@ class CopilotMessageOut(BaseModel):
     role: str  # "user" or "assistant"
     content: str
     audio_url: Optional[str] = None
-    video_url: Optional[str] = None
     provider_used: Optional[str] = None
     created_at: datetime
 
@@ -113,7 +111,7 @@ class CopilotSessionUpdate(BaseModel):
     """Schema for updating session metadata."""
     title: Optional[str] = Field(None, max_length=255)
     is_pinned: Optional[bool] = None
-    response_mode: Optional[str] = Field(None, pattern="^(text|voice|video)$")
+    response_mode: Optional[str] = Field(None, pattern="^(text|voice)$")
 
 
 # ============================================================================

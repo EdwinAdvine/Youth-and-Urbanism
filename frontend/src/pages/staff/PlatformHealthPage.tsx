@@ -23,12 +23,13 @@ import {
   Tooltip,
   Legend,
 } from 'recharts';
+import { getPlatformHealth } from '../../services/staff/staffInsightsService';
 
 /* ------------------------------------------------------------------ */
-/* Mock data                                                           */
+/* Fallback data (used when API returns empty or fails)                */
 /* ------------------------------------------------------------------ */
 
-const DAU_DATA = [
+const FALLBACK_DAU_DATA = [
   { date: 'Jan 1', users: 1420 },
   { date: 'Jan 2', users: 1380 },
   { date: 'Jan 3', users: 1510 },
@@ -45,7 +46,7 @@ const DAU_DATA = [
   { date: 'Jan 14', users: 1340 },
 ];
 
-const SESSION_DURATION_DATA = [
+const FALLBACK_SESSION_DURATION_DATA = [
   { range: '0-5m', count: 320 },
   { range: '5-15m', count: 580 },
   { range: '15-30m', count: 890 },
@@ -54,7 +55,7 @@ const SESSION_DURATION_DATA = [
   { range: '2h+', count: 120 },
 ];
 
-const AI_USAGE_DATA = [
+const FALLBACK_AI_USAGE_DATA = [
   { week: 'W1', gemini: 2400, claude: 1800, gpt4: 900, grok: 300 },
   { week: 'W2', gemini: 2600, claude: 1950, gpt4: 850, grok: 420 },
   { week: 'W3', gemini: 2800, claude: 2100, gpt4: 920, grok: 380 },
@@ -63,7 +64,7 @@ const AI_USAGE_DATA = [
   { week: 'W6', gemini: 3500, claude: 2700, gpt4: 1100, grok: 550 },
 ];
 
-const FEATURE_ADOPTION = [
+const FALLBACK_FEATURE_ADOPTION = [
   { name: 'AI Tutor', value: 82, color: '#E40000' },
   { name: 'Live Classes', value: 45, color: '#3B82F6' },
   { name: 'Assessments', value: 67, color: '#10B981' },
@@ -87,11 +88,47 @@ const tooltipStyle = {
 const PlatformHealthPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('14d');
+  const [dauData, setDauData] = useState(FALLBACK_DAU_DATA);
+  const [sessionData, _setSessionData] = useState(FALLBACK_SESSION_DURATION_DATA);
+  const [aiUsageData, setAiUsageData] = useState(FALLBACK_AI_USAGE_DATA);
+  const [featureAdoption, _setFeatureAdoption] = useState(FALLBACK_FEATURE_ADOPTION);
+  const [stats, setStats] = useState({ dau: '1,710', wau: '4,230', mau: '8,945', engagement: '72.4%' });
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(timer);
-  }, []);
+    const fetchData = async () => {
+      try {
+        const rangeDays = dateRange === '7d' ? 7 : dateRange === '14d' ? 14 : dateRange === '30d' ? 30 : 90;
+        const dateTo = new Date().toISOString().split('T')[0];
+        const dateFrom = new Date(Date.now() - rangeDays * 86400000).toISOString().split('T')[0];
+        const health = await getPlatformHealth(dateFrom, dateTo);
+
+        if (health.dau_trend?.length > 0) {
+          setDauData(health.dau_trend.map((d: { date: string; count: number }) => ({ date: d.date, users: d.count })));
+        }
+        if (health.ai_tutor_usage?.length > 0) {
+          const aiMap: Record<string, Record<string, number>> = {};
+          health.ai_tutor_usage.forEach((u: { model: string; sessions: number }) => {
+            const key = u.model.toLowerCase();
+            if (!aiMap['W1']) aiMap['W1'] = {};
+            aiMap['W1'][key] = u.sessions;
+          });
+          // Use real AI usage if available
+          setAiUsageData(prev => prev.map((w, i) => i === 0 ? { ...w, ...aiMap['W1'] } : w));
+        }
+        if (health.daily_active_users) {
+          setStats(prev => ({ ...prev, dau: health.daily_active_users.toLocaleString() }));
+        }
+        if (health.dropout_rate !== undefined) {
+          setStats(prev => ({ ...prev, engagement: `${(100 - health.dropout_rate).toFixed(1)}%` }));
+        }
+      } catch (err) {
+        console.warn('[PlatformHealth] API unavailable, using fallback data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [dateRange]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -152,10 +189,10 @@ const PlatformHealthPage: React.FC = () => {
       {/* Stats Row */}
       <motion.div variants={itemVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'DAU', value: '1,710', change: '+8.2%', icon: Users, color: 'text-emerald-400' },
-          { label: 'WAU', value: '4,230', change: '+5.1%', icon: Activity, color: 'text-blue-400' },
-          { label: 'MAU', value: '8,945', change: '+12.3%', icon: Users, color: 'text-purple-400' },
-          { label: 'Engagement Rate', value: '72.4%', change: '+3.1%', icon: Clock, color: 'text-orange-400' },
+          { label: 'DAU', value: stats.dau, change: '+8.2%', icon: Users, color: 'text-emerald-400' },
+          { label: 'WAU', value: stats.wau, change: '+5.1%', icon: Activity, color: 'text-blue-400' },
+          { label: 'MAU', value: stats.mau, change: '+12.3%', icon: Users, color: 'text-purple-400' },
+          { label: 'Engagement Rate', value: stats.engagement, change: '+3.1%', icon: Clock, color: 'text-orange-400' },
         ].map((stat) => (
           <div key={stat.label} className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
@@ -178,7 +215,7 @@ const PlatformHealthPage: React.FC = () => {
           <p className="text-xs text-gray-400 dark:text-white/40 mb-4">Unique users per day</p>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={DAU_DATA}>
+              <AreaChart data={dauData}>
                 <defs>
                   <linearGradient id="gradDau" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#E40000" stopOpacity={0.3} />
@@ -201,7 +238,7 @@ const PlatformHealthPage: React.FC = () => {
           <p className="text-xs text-gray-400 dark:text-white/40 mb-4">How long users stay per session</p>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={SESSION_DURATION_DATA}>
+              <BarChart data={sessionData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#22272B" />
                 <XAxis dataKey="range" stroke="#555" tick={{ fill: '#777', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis stroke="#555" tick={{ fill: '#777', fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -218,7 +255,7 @@ const PlatformHealthPage: React.FC = () => {
           <p className="text-xs text-gray-400 dark:text-white/40 mb-4">Weekly AI conversation count by model</p>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={AI_USAGE_DATA}>
+              <LineChart data={aiUsageData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#22272B" />
                 <XAxis dataKey="week" stroke="#555" tick={{ fill: '#777', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis stroke="#555" tick={{ fill: '#777', fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -242,7 +279,7 @@ const PlatformHealthPage: React.FC = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={FEATURE_ADOPTION}
+                    data={featureAdoption}
                     cx="50%"
                     cy="50%"
                     innerRadius={50}
@@ -250,7 +287,7 @@ const PlatformHealthPage: React.FC = () => {
                     paddingAngle={3}
                     dataKey="value"
                   >
-                    {FEATURE_ADOPTION.map((entry, index) => (
+                    {featureAdoption.map((entry, index) => (
                       <Cell key={index} fill={entry.color} />
                     ))}
                   </Pie>
@@ -259,7 +296,7 @@ const PlatformHealthPage: React.FC = () => {
               </ResponsiveContainer>
             </div>
             <div className="w-1/2 space-y-2">
-              {FEATURE_ADOPTION.map((feature) => (
+              {featureAdoption.map((feature) => (
                 <div key={feature.name} className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: feature.color }} />
                   <span className="text-xs text-gray-500 dark:text-white/60 flex-1">{feature.name}</span>

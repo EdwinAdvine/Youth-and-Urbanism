@@ -84,6 +84,34 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
         sla_task = asyncio.create_task(sla_monitor_loop())
         logger.info("SLA background monitor started (60s interval)")
 
+        # Start DB pool metrics collector (for Prometheus)
+        pool_metrics_task = None
+        if settings.enable_metrics:
+            async def pool_metrics_loop():
+                """Collect DB connection pool stats every 10 seconds."""
+                from app.database import engine as db_engine
+                from app.metrics import (
+                    db_pool_size, db_pool_checked_in,
+                    db_pool_checked_out, db_pool_overflow,
+                )
+                while True:
+                    try:
+                        await asyncio.sleep(10)
+                        if db_engine and hasattr(db_engine, 'pool'):
+                            pool = db_engine.pool
+                            db_pool_size.set(pool.size())
+                            db_pool_checked_in.set(pool.checkedin())
+                            db_pool_checked_out.set(pool.checkedout())
+                            db_pool_overflow.set(pool.overflow())
+                    except asyncio.CancelledError:
+                        break
+                    except Exception as e:
+                        logger.warning(f"Pool metrics error: {e}")
+                        await asyncio.sleep(10)
+
+            pool_metrics_task = asyncio.create_task(pool_metrics_loop())
+            logger.info("DB pool metrics collector started (10s interval)")
+
     except Exception as e:
         logger.error(f"Failed to start application: {str(e)}")
         raise
@@ -97,6 +125,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     except asyncio.CancelledError:
         pass
     logger.info("SLA background monitor stopped")
+
+    if pool_metrics_task:
+        pool_metrics_task.cancel()
+        try:
+            await pool_metrics_task
+        except asyncio.CancelledError:
+            pass
+        logger.info("DB pool metrics collector stopped")
     logger.info("=" * 70)
     logger.info("Shutting down application...")
     logger.info("-" * 70)

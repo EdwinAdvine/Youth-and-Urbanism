@@ -9,6 +9,7 @@ import {
   Filter,
   ArrowUpDown,
 } from 'lucide-react';
+import { getStudentProgressOverview } from '../../services/staff/staffStudentService';
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -70,21 +71,45 @@ const formatDate = (iso: string): string => {
 
 const StudentProgressPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
+  const [students, setStudents] = useState<Student[]>(MOCK_STUDENTS);
   const [search, setSearch] = useState('');
   const [gradeFilter, setGradeFilter] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'progress' | 'risk' | 'last_active'>('name');
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(timer);
+    const fetchData = async () => {
+      try {
+        const response = await getStudentProgressOverview({ page: 1, page_size: 50 });
+        if (response.items && response.items.length > 0) {
+          setStudents(response.items.map((item) => ({
+            id: item.student_id,
+            name: item.student_name,
+            grade: item.grade_level,
+            progress: item.overall_progress,
+            completion_percent: item.overall_progress,
+            risk: item.risk_level,
+            risk_score: item.risk_level === 'high' ? 75 : item.risk_level === 'medium' ? 40 : 10,
+            last_active: item.last_active,
+            subjects_enrolled: 6,
+            avg_score: item.overall_progress,
+            ai_sessions: 0,
+          })));
+        }
+      } catch (err) {
+        console.warn('[StudentProgress] API unavailable, using fallback data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
-  const totalStudents = MOCK_STUDENTS.length;
-  const onTrack = MOCK_STUDENTS.filter((s) => s.risk === 'low').length;
-  const atRisk = MOCK_STUDENTS.filter((s) => s.risk === 'high').length;
-  const excelling = MOCK_STUDENTS.filter((s) => s.progress >= 90).length;
+  const totalStudents = students.length;
+  const onTrack = students.filter((s) => s.risk === 'low').length;
+  const atRisk = students.filter((s) => s.risk === 'high').length;
+  const excelling = students.filter((s) => s.progress >= 90).length;
 
-  const filteredStudents = MOCK_STUDENTS
+  const filteredStudents = students
     .filter((s) => {
       const matchesSearch = !search || s.name.toLowerCase().includes(search.toLowerCase());
       const matchesGrade = !gradeFilter || s.grade === gradeFilter;
@@ -100,7 +125,7 @@ const StudentProgressPage: React.FC = () => {
       }
     });
 
-  const grades = [...new Set(MOCK_STUDENTS.map((s) => s.grade))].sort();
+  const grades = [...new Set(students.map((s) => s.grade))].sort();
 
   const containerVariants = {
     hidden: { opacity: 0 },

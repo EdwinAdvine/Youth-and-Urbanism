@@ -14,7 +14,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Loader } from 'lucide-react';
+import { Mic, MicOff } from 'lucide-react';
 
 interface VoiceRecorderProps {
   /** Callback when transcript is available */

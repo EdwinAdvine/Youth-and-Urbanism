@@ -9,7 +9,7 @@
  * - Agent profile management (custom name, persona, avatar)
  * - Role-specific contextual insights
  * - Real-time SSE streaming for AI responses
- * - Voice and video response modes
+ * - Voice response mode
  * - Automatic role synchronization from auth state
  * - Integration with new CoPilot backend API
  *
@@ -47,7 +47,8 @@ export interface ChatMessage {
   timestamp: Date;
   status: 'sending' | 'sent' | 'delivered' | 'read';
   audio_url?: string | null;
-  video_url?: string | null;
+  /** Round-trip latency in ms (AI messages only) */
+  response_time_ms?: number;
 }
 
 /** Agent profile summary (cached from backend). */
@@ -73,7 +74,7 @@ export interface CoPilotState {
   pendingAiPrompt: string | null;
 
   // Response mode
-  responseMode: 'text' | 'voice' | 'video';
+  responseMode: 'text' | 'voice';
 
   // Sessions
   sessions: CoPilotSession[];
@@ -116,7 +117,7 @@ export interface CoPilotState {
   setPendingAiPrompt: (prompt: string | null) => void;
 
   // Response mode actions
-  setResponseMode: (mode: 'text' | 'voice' | 'video') => void;
+  setResponseMode: (mode: 'text' | 'voice') => void;
 
   // Role sync actions
   syncRoleFromAuth: (authRole: string) => void;
@@ -197,7 +198,7 @@ export const useCoPilotStore = create<CoPilotState>()(
         set({ pendingAiPrompt: prompt });
       },
 
-      setResponseMode: (mode: 'text' | 'voice' | 'video') => {
+      setResponseMode: (mode: 'text' | 'voice') => {
         set({ responseMode: mode });
       },
 
@@ -274,7 +275,7 @@ export const useCoPilotStore = create<CoPilotState>()(
       },
 
       sendMessage: async (message: string) => {
-        const { currentSessionId, responseMode, pendingAiPrompt, createSession, activeRole } = get();
+        const { currentSessionId, responseMode, pendingAiPrompt, activeRole: _activeRole } = get();
 
         // Use pending AI prompt if available
         const effectiveMessage = pendingAiPrompt
@@ -301,12 +302,13 @@ export const useCoPilotStore = create<CoPilotState>()(
           isAiTyping: true
         }));
 
+        const requestStartMs = Date.now();
+
         try {
-          // Create session if none exists
-          let sessionId = currentSessionId;
-          if (!sessionId) {
-            sessionId = createSession(activeRole);
-          }
+          // Only send session_id if it's a backend UUID (contains dashes),
+          // not a local store ID (numeric timestamp from Date.now())
+          const isBackendSessionId = currentSessionId && currentSessionId.includes('-');
+          const sessionId = isBackendSessionId ? currentSessionId : null;
 
           // Build chat request
           const request: CopilotChatRequest = {
@@ -320,8 +322,8 @@ export const useCoPilotStore = create<CoPilotState>()(
           // Call backend
           const response = await copilotService.chat(request);
 
-          // Update session ID if it was created by backend
-          if (response.session_id !== sessionId) {
+          // Store the backend-assigned session ID for subsequent messages
+          if (response.session_id) {
             set({ currentSessionId: response.session_id });
           }
 
@@ -333,7 +335,7 @@ export const useCoPilotStore = create<CoPilotState>()(
             timestamp: new Date(response.timestamp),
             status: 'sent',
             audio_url: response.audio_url,
-            video_url: response.video_url
+            response_time_ms: Date.now() - requestStartMs
           };
 
           set((state) => ({
@@ -428,7 +430,6 @@ export const useCoPilotStore = create<CoPilotState>()(
           timestamp: new Date(response.timestamp),
           status: 'sent',
           audio_url: response.audio_url,
-          video_url: response.video_url
         };
 
         set((state) => ({

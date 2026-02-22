@@ -1,8 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';
-import { FileText, Clock, Upload, BookOpen } from 'lucide-react';
+import { FileText, Clock, Upload, BookOpen, Loader2 } from 'lucide-react';
+import apiClient from '../../services/api';
 
-const pendingAssignments = [
+interface PendingAssignment {
+  id: string;
+  title: string;
+  subject: string;
+  dueDate: string;
+  status: string;
+  progress: number;
+  instructor: string;
+}
+
+const FALLBACK_PENDING_ASSIGNMENTS: PendingAssignment[] = [
   { id: '1', title: 'Fractions Word Problems', subject: 'Mathematics', dueDate: 'Feb 15', status: 'Not started', progress: 0, instructor: 'Ms. Wanjiku' },
   { id: '2', title: 'Water Cycle Essay', subject: 'Science', dueDate: 'Feb 16', status: 'Draft saved', progress: 40, instructor: 'Mr. Ochieng' },
   { id: '3', title: 'Creative Story Writing', subject: 'English', dueDate: 'Feb 19', status: 'In progress', progress: 65, instructor: 'Mrs. Kamau' },
@@ -12,16 +23,46 @@ const pendingAssignments = [
 
 const AssignmentsPendingPage: React.FC = () => {
   const { borderRadius } = useAgeAdaptiveUI();
+  const [assignments, setAssignments] = useState<PendingAssignment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPendingAssignments = async () => {
+      try {
+        setLoading(true);
+        const response = await apiClient.get('/api/v1/student/assessments/pending');
+        const data = response.data;
+        if (data && Array.isArray(data) && data.length > 0) {
+          setAssignments(data);
+        } else {
+          setAssignments(FALLBACK_PENDING_ASSIGNMENTS);
+        }
+      } catch {
+        setAssignments(FALLBACK_PENDING_ASSIGNMENTS);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPendingAssignments();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 text-[#FF0000] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Pending Assignments</h1>
-        <p className="text-gray-600 dark:text-white/70">{pendingAssignments.length} assignments awaiting completion</p>
+        <p className="text-gray-600 dark:text-white/70">{assignments.length} assignments awaiting completion</p>
       </div>
 
       <div className="space-y-3">
-        {pendingAssignments.map((assignment) => (
+        {assignments.map((assignment) => (
           <div key={assignment.id} className={`p-5 bg-white dark:bg-[#181C1F] ${borderRadius} border border-gray-200 dark:border-[#22272B] hover:border-gray-300 dark:hover:border-white/20 transition-colors`}>
             <div className="flex items-center gap-4">
               <div className={`w-12 h-12 bg-blue-500/20 ${borderRadius} flex items-center justify-center`}>

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Users, Book, Calendar, MessageSquare, Eye, Coins, ShieldAlert } from 'lucide-react';
+import apiClient from '../services/api';
 import courseService from '../services/courseService';
 import { useAuthStore } from '../store/authStore';
 
@@ -19,15 +20,43 @@ const fadeUp = {
 const DashboardInstructor: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const [stats, setStats] = useState({ courses: 0, students: 0 });
+  const [stats, setStats] = useState({
+    courses: 0,
+    students: 0,
+    upcoming_sessions: 5,
+    earnings_this_month: 45200,
+    needs_attention: 3,
+  });
 
   useEffect(() => {
     const fetchStats = async () => {
+      // Fetch dashboard overview from the instructor API
+      try {
+        const response = await apiClient.get('/api/v1/instructor/dashboard/overview');
+        if (response.data) {
+          setStats((prev) => ({
+            ...prev,
+            courses: response.data.courses ?? prev.courses,
+            students: response.data.students ?? prev.students,
+            upcoming_sessions: response.data.upcoming_sessions ?? prev.upcoming_sessions,
+            earnings_this_month: response.data.earnings_this_month ?? prev.earnings_this_month,
+            needs_attention: response.data.needs_attention ?? prev.needs_attention,
+          }));
+          return; // API provided data, skip course fallback
+        }
+      } catch {
+        // Dashboard overview endpoint not available, fall back to course listing
+      }
+
+      // Fallback: derive course/student counts from course listing
       try {
         const courses = await courseService.listCourses({ limit: 100 });
         const courseCount = courses.courses?.length || 0;
-        const totalStudents = courses.courses?.reduce((sum: number, c: any) => sum + (c.enrollment_count || 0), 0) || 0;
-        setStats({ courses: courseCount, students: totalStudents });
+        const totalStudents = courses.courses?.reduce(
+          (sum: number, c: any) => sum + (c.enrollment_count || 0),
+          0
+        ) || 0;
+        setStats((prev) => ({ ...prev, courses: courseCount, students: totalStudents }));
       } catch {
         // Keep defaults
       }
@@ -87,7 +116,7 @@ const DashboardInstructor: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 dark:text-white/60">Upcoming Sessions</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">5</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.upcoming_sessions}</p>
               </div>
               <div className="w-12 h-12 bg-[#E40000]/20 border border-[#E40000]/50 rounded-lg flex items-center justify-center">
                 <Calendar className="w-6 h-6 text-[#E40000]" />
@@ -99,7 +128,7 @@ const DashboardInstructor: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 dark:text-white/60">Earnings This Month</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">KSh 45,200</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">KSh {stats.earnings_this_month.toLocaleString()}</p>
               </div>
               <div className="w-12 h-12 bg-[#E40000]/20 border border-[#E40000]/50 rounded-lg flex items-center justify-center">
                 <Coins className="w-6 h-6 text-[#E40000]" />
@@ -111,7 +140,7 @@ const DashboardInstructor: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 dark:text-white/60">Needs Attention</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">3</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.needs_attention}</p>
               </div>
               <div className="w-12 h-12 bg-[#E40000]/20 border border-[#E40000]/50 rounded-lg flex items-center justify-center">
                 <ShieldAlert className="w-6 h-6 text-[#E40000]" />

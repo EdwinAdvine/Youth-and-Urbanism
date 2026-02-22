@@ -40,9 +40,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
-  // If roles are specified and user role is not allowed, redirect to home
+  // If roles are specified and user role is not allowed, redirect to correct dashboard
   if (allowedRoles.length > 0 && user && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/" replace />;
+    const correctDashboard = `/dashboard/${user.role}`;
+    // Avoid infinite redirect loop: if already on correct dashboard, render children
+    if (location.pathname.startsWith(correctDashboard)) {
+      return <>{children}</>;
+    }
+    return <Navigate to={correctDashboard} replace />;
   }
 
   // Render the protected component

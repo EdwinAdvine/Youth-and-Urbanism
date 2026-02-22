@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import apiClient from '../../services/api';
 
 interface CBCCompetencyArea {
   id: string;
@@ -200,11 +201,22 @@ const CBCStandardsPage: React.FC = () => {
   ];
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setAreas(mockAreas);
-      setIsLoading(false);
-    }, 800);
-    return () => clearTimeout(timer);
+    const fetchData = async () => {
+      try {
+        const { data } = await apiClient.get('/api/v1/staff/moderation/cbc-alignment/overview');
+        if (data?.data?.areas && data.data.areas.length > 0) {
+          setAreas(data.data.areas);
+        } else {
+          setAreas(mockAreas);
+        }
+      } catch (err) {
+        console.warn('[CBCStandards] API unavailable, using fallback data:', err);
+        setAreas(mockAreas);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
   const getAlignmentColor = (score: number) => {

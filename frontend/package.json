@@ -20,6 +20,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@heroicons/react": "^2.2.0",
     "@livekit/components-react": "^2.7.0",
+    "@react-oauth/google": "^0.13.4",
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.13.18",
     "@tiptap/extension-collaboration": "^2.10.0",

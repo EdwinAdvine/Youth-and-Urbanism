@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';
-import { BookOpen, Play, Clock, TrendingUp, Search } from 'lucide-react';
+import { BookOpen, Play, Clock, TrendingUp, Search, Loader2 } from 'lucide-react';
 import ProgressRing from '../../components/student/charts/ProgressRing';
+import { getEnrolledCourses } from '../../services/student/studentLearningService';
 
 interface Course {
   id: string;
@@ -15,7 +16,7 @@ interface Course {
   color: string;
 }
 
-const sampleCourses: Course[] = [
+const FALLBACK_COURSES: Course[] = [
   { id: '1', title: 'Mathematics: Fractions & Decimals', progress: 72, lastAccessed: '2 hours ago', totalLessons: 20, completedLessons: 14, instructor: 'Ms. Wanjiku', color: 'from-blue-500 to-cyan-500' },
   { id: '2', title: 'Science: The Living World', progress: 45, lastAccessed: 'Yesterday', totalLessons: 15, completedLessons: 7, instructor: 'Mr. Ochieng', color: 'from-green-500 to-emerald-500' },
   { id: '3', title: 'English: Creative Writing', progress: 88, lastAccessed: '3 days ago', totalLessons: 12, completedLessons: 11, instructor: 'Mrs. Kamau', color: 'from-purple-500 to-pink-500' },
@@ -28,14 +29,43 @@ const EnrolledCoursesPage: React.FC = () => {
   const { borderRadius } = useAgeAdaptiveUI();
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<'recent' | 'progress' | 'name'>('recent');
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = sampleCourses
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        const data = await getEnrolledCourses();
+        if (data && Array.isArray(data) && data.length > 0) {
+          setCourses(data);
+        } else {
+          setCourses(FALLBACK_COURSES);
+        }
+      } catch {
+        setCourses(FALLBACK_COURSES);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCourses();
+  }, []);
+
+  const filtered = courses
     .filter(c => c.title.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       if (sortBy === 'progress') return b.progress - a.progress;
       if (sortBy === 'name') return a.title.localeCompare(b.title);
       return 0;
     });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 text-[#FF0000] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

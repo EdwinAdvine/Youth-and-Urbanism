@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import AdminPageHeader from '../../components/admin/shared/AdminPageHeader';
 import AdminStatsCard from '../../components/admin/shared/AdminStatsCard';
+import adminFinanceService from '../../services/admin/adminFinanceService';
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -35,10 +36,10 @@ interface Partner {
 }
 
 /* ------------------------------------------------------------------ */
-/* Mock data                                                           */
+/* Fallback data                                                       */
 /* ------------------------------------------------------------------ */
 
-const MOCK_PARTNERS: Partner[] = [
+const FALLBACK_PARTNERS: Partner[] = [
   { id: 'P-001', name: 'EduTech Kenya', type: 'content', contact_email: 'info@edutechke.com', status: 'active', revenue_share: 30, joined_at: '2024-03-15', total_revenue: 450000, courses_count: 24 },
   { id: 'P-002', name: 'LearnAfrica', type: 'content', contact_email: 'partner@learnafrica.co.ke', status: 'active', revenue_share: 25, joined_at: '2024-05-20', total_revenue: 320000, courses_count: 18 },
   { id: 'P-003', name: 'KICD Digital', type: 'content', contact_email: 'digital@kicd.ac.ke', status: 'active', revenue_share: 20, joined_at: '2024-01-10', total_revenue: 680000, courses_count: 42 },
@@ -94,6 +95,7 @@ const PartnersAdminPage: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [partners, setPartners] = useState<Partner[]>(FALLBACK_PARTNERS);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -101,17 +103,45 @@ const PartnersAdminPage: React.FC = () => {
     setTimeout(() => setToast(null), 3000);
   };
 
+  const fetchPartners = async () => {
+    try {
+      const response = await adminFinanceService.listPartners(1, 100);
+      const mapped: Partner[] = response.items.map((item) => ({
+        id: item.id,
+        name: item.name,
+        type: item.type,
+        contact_email: item.contact_email,
+        status: item.status as Partner['status'],
+        revenue_share: item.revenue_share_percent,
+        joined_at: item.contract_start,
+        total_revenue: item.revenue_generated,
+        courses_count: item.type === 'content' ? item.api_usage : undefined,
+        contract_end: item.type === 'business' ? item.contract_end : undefined,
+      }));
+      if (mapped.length > 0) {
+        setPartners(mapped);
+      }
+    } catch {
+      // API unavailable — keep fallback data
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(timer);
+    fetchPartners();
   }, []);
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
+    try {
+      await fetchPartners();
       showToast('Data refreshed');
-    }, 800);
+    } catch {
+      showToast('Failed to refresh data', 'error');
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const handleAddPartner = () => {
@@ -137,20 +167,20 @@ const PartnersAdminPage: React.FC = () => {
     showToast(`Edit partner flow for "${partner.name}" coming soon`);
   };
 
-  const filteredPartners = MOCK_PARTNERS.filter(
+  const filteredPartners = partners.filter(
     (p) =>
       p.type === activeTab &&
       (!statusFilter || p.status === statusFilter) &&
       (!search || p.name.toLowerCase().includes(search.toLowerCase()) || p.contact_email.toLowerCase().includes(search.toLowerCase()))
   );
 
-  const totalPartners = MOCK_PARTNERS.filter((p) => p.status === 'active').length;
-  const activeContracts = MOCK_PARTNERS.filter((p) => p.status === 'active').length;
-  const totalRevenueShared = MOCK_PARTNERS.reduce((sum, p) => sum + p.total_revenue, 0);
+  const totalPartners = partners.filter((p) => p.status === 'active').length;
+  const activeContracts = partners.filter((p) => p.status === 'active').length;
+  const totalRevenueShared = partners.reduce((sum, p) => sum + p.total_revenue, 0);
 
   const tabs: { key: PartnerTab; label: string; count: number }[] = [
-    { key: 'content', label: 'Content Partners', count: MOCK_PARTNERS.filter((p) => p.type === 'content').length },
-    { key: 'business', label: 'Business Partners', count: MOCK_PARTNERS.filter((p) => p.type === 'business').length },
+    { key: 'content', label: 'Content Partners', count: partners.filter((p) => p.type === 'content').length },
+    { key: 'business', label: 'Business Partners', count: partners.filter((p) => p.type === 'business').length },
   ];
 
   const containerVariants = {

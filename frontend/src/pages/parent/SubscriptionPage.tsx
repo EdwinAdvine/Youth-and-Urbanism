@@ -32,6 +32,10 @@ interface SubscriptionData {
   max_children: number;
   auto_renew: boolean;
   payment_method: string;
+  storage_used_gb?: number;
+  storage_limit_gb?: number;
+  ai_queries_used?: number;
+  ai_queries_limit?: number;
 }
 
 const SubscriptionPage: React.FC = () => {
@@ -221,11 +225,14 @@ const SubscriptionPage: React.FC = () => {
                     <span className="text-gray-500 dark:text-white/60 text-sm">Storage Used</span>
                   </div>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    2.4 GB{' '}
-                    <span className="text-sm font-normal text-gray-400 dark:text-white/40">/ 10 GB</span>
+                    {subscription.storage_used_gb ?? 0} GB{' '}
+                    <span className="text-sm font-normal text-gray-400 dark:text-white/40">/ {subscription.storage_limit_gb ?? 10} GB</span>
                   </p>
                   <div className="mt-2 w-full bg-white dark:bg-[#181C1F] rounded-full h-2">
-                    <div className="bg-green-500 h-2 rounded-full" style={{ width: '24%' }} />
+                    <div
+                      className="bg-green-500 h-2 rounded-full transition-all"
+                      style={{ width: `${Math.min(100, ((subscription.storage_used_gb ?? 0) / (subscription.storage_limit_gb || 10)) * 100)}%` }}
+                    />
                   </div>
                 </div>
 
@@ -237,11 +244,14 @@ const SubscriptionPage: React.FC = () => {
                     <span className="text-gray-500 dark:text-white/60 text-sm">AI Queries Remaining</span>
                   </div>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    847{' '}
-                    <span className="text-sm font-normal text-gray-400 dark:text-white/40">/ 1,000</span>
+                    {(subscription.ai_queries_limit ?? 1000) - (subscription.ai_queries_used ?? 0)}{' '}
+                    <span className="text-sm font-normal text-gray-400 dark:text-white/40">/ {(subscription.ai_queries_limit ?? 1000).toLocaleString()}</span>
                   </p>
                   <div className="mt-2 w-full bg-white dark:bg-[#181C1F] rounded-full h-2">
-                    <div className="bg-purple-500 h-2 rounded-full" style={{ width: '84.7%' }} />
+                    <div
+                      className="bg-purple-500 h-2 rounded-full transition-all"
+                      style={{ width: `${Math.min(100, (((subscription.ai_queries_limit ?? 1000) - (subscription.ai_queries_used ?? 0)) / (subscription.ai_queries_limit || 1000)) * 100)}%` }}
+                    />
                   </div>
                 </div>
               </div>

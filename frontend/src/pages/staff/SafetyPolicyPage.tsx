@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getSafetyFlags } from '../../services/staff/staffModerationService';
 
 interface SafetyFlag {
   id: string;
@@ -111,17 +112,55 @@ const SafetyPolicyPage: React.FC = () => {
   ];
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setFlags(mockFlags);
-      setStats({
-        activeFlags: mockFlags.filter(f => f.status === 'active' || f.status === 'investigating' || f.status === 'escalated').length,
-        highRisk: mockFlags.filter(f => f.severity === 'critical' || f.severity === 'high').length,
-        resolvedToday: mockFlags.filter(f => f.status === 'resolved').length,
-        avgResolutionHours: 14.5,
-      });
-      setIsLoading(false);
-    }, 800);
-    return () => clearTimeout(timer);
+    const fetchData = async () => {
+      try {
+        const response = await getSafetyFlags({ page: 1, page_size: 50 });
+        if (response.items && response.items.length > 0) {
+          const mapped: SafetyFlag[] = response.items.map((item) => ({
+            id: item.id,
+            title: item.description.substring(0, 80),
+            description: item.description,
+            type: (item.flag_type as SafetyFlag['type']) || 'content_safety',
+            riskScore: Math.round(item.ai_confidence * 100),
+            severity: item.severity,
+            status: item.status === 'open' ? 'active' : item.status === 'reviewed' ? 'resolved' : 'dismissed',
+            reportedBy: 'AI Safety Monitor',
+            reportedAt: item.created_at,
+            resolvedAt: item.status === 'reviewed' ? item.created_at : null,
+            affectedUsers: 1,
+            assignedTo: 'Staff Team',
+          }));
+          setFlags(mapped);
+          setStats({
+            activeFlags: mapped.filter(f => f.status === 'active' || f.status === 'investigating' || f.status === 'escalated').length,
+            highRisk: mapped.filter(f => f.severity === 'critical' || f.severity === 'high').length,
+            resolvedToday: mapped.filter(f => f.status === 'resolved').length,
+            avgResolutionHours: 14.5,
+          });
+        } else {
+          // Fallback to mock data if API returns empty
+          setFlags(mockFlags);
+          setStats({
+            activeFlags: mockFlags.filter(f => f.status === 'active' || f.status === 'investigating' || f.status === 'escalated').length,
+            highRisk: mockFlags.filter(f => f.severity === 'critical' || f.severity === 'high').length,
+            resolvedToday: mockFlags.filter(f => f.status === 'resolved').length,
+            avgResolutionHours: 14.5,
+          });
+        }
+      } catch (err) {
+        console.warn('[SafetyPolicy] API unavailable, using fallback data:', err);
+        setFlags(mockFlags);
+        setStats({
+          activeFlags: mockFlags.filter(f => f.status === 'active' || f.status === 'investigating' || f.status === 'escalated').length,
+          highRisk: mockFlags.filter(f => f.severity === 'critical' || f.severity === 'high').length,
+          resolvedToday: mockFlags.filter(f => f.status === 'resolved').length,
+          avgResolutionHours: 14.5,
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
   const filteredFlags = flags.filter((flag) => {

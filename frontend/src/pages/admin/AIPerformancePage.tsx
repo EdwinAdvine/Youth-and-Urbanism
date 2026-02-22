@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   RefreshCw, Activity, AlertCircle, ThumbsUp,
   Clock, Zap, Server, CheckCircle, XCircle, Eye,
@@ -9,6 +9,7 @@ import {
   ResponsiveContainer, Legend,
 } from 'recharts';
 import AdminPageHeader from '../../components/admin/shared/AdminPageHeader';
+import adminAIMonitoringService from '../../services/admin/adminAIMonitoringService';
 
 // ------------------------------------------------------------------
 // Types
@@ -54,16 +55,16 @@ interface RecentIncident {
 }
 
 // ------------------------------------------------------------------
-// Mock data
+// Fallback data
 // ------------------------------------------------------------------
-const mockStats: PerformanceStats = {
+const FALLBACK_STATS: PerformanceStats = {
   avg_response_time: 1.24,
   error_rate: 0.8,
   avg_satisfaction: 4.7,
   uptime: 99.94,
 };
 
-const mockResponseTimeData: ResponseTimeDataPoint[] = [
+const FALLBACK_RESPONSE_TIME_DATA: ResponseTimeDataPoint[] = [
   { time: '00:00', gemini: 1.2, claude: 1.4, gpt4: 1.8, grok: 2.1 },
   { time: '02:00', gemini: 1.1, claude: 1.3, gpt4: 1.6, grok: 1.9 },
   { time: '04:00', gemini: 1.0, claude: 1.2, gpt4: 1.5, grok: 1.8 },
@@ -82,7 +83,7 @@ const mockResponseTimeData: ResponseTimeDataPoint[] = [
   { time: '22:00', gemini: 1.0, claude: 1.2, gpt4: 1.5, grok: 1.7 },
 ];
 
-const mockProviderPerformance: ProviderPerformance[] = [
+const FALLBACK_PROVIDER_PERFORMANCE: ProviderPerformance[] = [
   {
     id: 'pp-001',
     provider: 'Gemini Pro',
@@ -157,7 +158,7 @@ const mockProviderPerformance: ProviderPerformance[] = [
   },
 ];
 
-const mockRecentIncidents: RecentIncident[] = [
+const FALLBACK_RECENT_INCIDENTS: RecentIncident[] = [
   {
     id: 'ri-001',
     provider: 'GPT-4',
@@ -289,6 +290,11 @@ const formatLatency = (ms: number): string => {
 const AIPerformancePage: React.FC = () => {
   const [selectedTimeRange, setSelectedTimeRange] = useState<string>('24h');
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<PerformanceStats>(FALLBACK_STATS);
+  const [responseTimeData, setResponseTimeData] = useState<ResponseTimeDataPoint[]>(FALLBACK_RESPONSE_TIME_DATA);
+  const [providerPerformance, setProviderPerformance] = useState<ProviderPerformance[]>(FALLBACK_PROVIDER_PERFORMANCE);
+  const [recentIncidents, setRecentIncidents] = useState<RecentIncident[]>(FALLBACK_RECENT_INCIDENTS);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -296,12 +302,92 @@ const AIPerformancePage: React.FC = () => {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const handleRefresh = () => {
+  const fetchData = async () => {
+    try {
+      const [perfData, safetyData] = await Promise.allSettled([
+        adminAIMonitoringService.getPerformanceOverview(),
+        adminAIMonitoringService.getSafetyDashboard(),
+      ]);
+
+      if (perfData.status === 'fulfilled') {
+        const overview = perfData.value;
+
+        // Map stats
+        setStats({
+          avg_response_time: overview.summary.avg_response_time_ms / 1000,
+          error_rate: overview.summary.overall_error_rate,
+          avg_satisfaction: overview.summary.avg_satisfaction,
+          uptime: 100 - overview.summary.overall_error_rate,
+        });
+
+        // Map provider performance
+        if (overview.providers?.length > 0) {
+          const mapped: ProviderPerformance[] = overview.providers.map((p) => ({
+            id: p.id,
+            provider: p.name,
+            avg_latency_ms: p.avg_response_time_ms,
+            p95_latency_ms: p.p95_latency_ms,
+            error_rate: p.error_rate,
+            satisfaction: p.satisfaction_score,
+            total_requests_today: p.total_requests_today,
+            status: p.status === 'healthy' ? 'operational' as const : p.status === 'degraded' ? 'degraded' as const : 'down' as const,
+            last_error: p.last_error,
+            last_checked: new Date().toISOString(),
+          }));
+          setProviderPerformance(mapped);
+        }
+
+        // Map response time trends if available
+        if (overview.response_time_trends?.length > 0) {
+          const mapped: ResponseTimeDataPoint[] = overview.response_time_trends.map((point) => ({
+            time: String(point['time'] ?? point['timestamp'] ?? ''),
+            gemini: Number(point['gemini'] ?? point['Gemini Pro'] ?? 0),
+            claude: Number(point['claude'] ?? point['Claude 3.5'] ?? 0),
+            gpt4: Number(point['gpt4'] ?? point['GPT-4'] ?? 0),
+            grok: Number(point['grok'] ?? point['Grok'] ?? 0),
+          }));
+          if (mapped.length > 0) {
+            setResponseTimeData(mapped);
+          }
+        }
+      }
+
+      if (safetyData.status === 'fulfilled') {
+        const safety = safetyData.value;
+        if (safety.incidents_today?.length > 0) {
+          const mapped: RecentIncident[] = safety.incidents_today.map((inc) => ({
+            id: inc.id,
+            provider: inc.model,
+            incident_type: inc.type,
+            description: inc.description,
+            started_at: inc.reported_at,
+            resolved_at: inc.resolved ? inc.reported_at : null,
+            duration_minutes: inc.resolved ? 0 : null,
+          }));
+          setRecentIncidents(mapped);
+        }
+      }
+    } catch {
+      // API unavailable — keep fallback data
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleRefresh = async () => {
     setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
+    try {
+      await fetchData();
       showToast('Performance data refreshed', 'success');
-    }, 1200);
+    } catch {
+      showToast('Failed to refresh data', 'error');
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const timeRanges = [
@@ -311,6 +397,20 @@ const AIPerformancePage: React.FC = () => {
     { value: '7d', label: '7D' },
     { value: '30d', label: '30D' },
   ];
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-16 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-28 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
+          ))}
+        </div>
+        <div className="h-80 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -344,7 +444,7 @@ const AIPerformancePage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard
             label="Avg Response Time"
-            value={`${mockStats.avg_response_time}s`}
+            value={`${stats.avg_response_time}s`}
             icon={<Clock className="w-5 h-5" />}
             iconColor="text-blue-400"
             change="-0.3s from yesterday"
@@ -352,7 +452,7 @@ const AIPerformancePage: React.FC = () => {
           />
           <StatsCard
             label="Error Rate"
-            value={`${mockStats.error_rate}%`}
+            value={`${stats.error_rate}%`}
             icon={<AlertCircle className="w-5 h-5" />}
             iconColor="text-red-400"
             change="+0.2% from yesterday"
@@ -360,7 +460,7 @@ const AIPerformancePage: React.FC = () => {
           />
           <StatsCard
             label="Avg Satisfaction"
-            value={`${mockStats.avg_satisfaction}/5`}
+            value={`${stats.avg_satisfaction}/5`}
             icon={<ThumbsUp className="w-5 h-5" />}
             iconColor="text-emerald-400"
             change="+0.1 from last week"
@@ -368,7 +468,7 @@ const AIPerformancePage: React.FC = () => {
           />
           <StatsCard
             label="Uptime"
-            value={`${mockStats.uptime}%`}
+            value={`${stats.uptime}%`}
             icon={<Activity className="w-5 h-5" />}
             iconColor="text-purple-400"
             change="30-day rolling average"
@@ -398,7 +498,7 @@ const AIPerformancePage: React.FC = () => {
           </div>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={mockResponseTimeData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+              <LineChart data={responseTimeData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#22272B" />
                 <XAxis
                   dataKey="time"
@@ -481,7 +581,7 @@ const AIPerformancePage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {mockProviderPerformance.map((provider) => (
+                {providerPerformance.map((provider) => (
                   <tr
                     key={provider.id}
                     className="border-b border-gray-200 dark:border-[#22272B]/50 hover:bg-[#1E2327] transition-colors"
@@ -562,7 +662,7 @@ const AIPerformancePage: React.FC = () => {
         <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Incidents</h3>
           <div className="space-y-3">
-            {mockRecentIncidents.map((incident) => (
+            {recentIncidents.map((incident) => (
               <div
                 key={incident.id}
                 className="flex items-start justify-between p-4 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg"

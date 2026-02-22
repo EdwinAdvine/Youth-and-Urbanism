@@ -157,14 +157,20 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
             persona=role_defaults['persona'],
             expertise_focus=role_defaults['expertise_focus'],
             avatar_url=None,  # User can customize later
-            custom_instructions='',
-            is_active=True,
         )
         db.add(ai_agent_profile)
 
         # Commit all changes
         await db.commit()
         await db.refresh(new_user)
+
+        # Create welcome session for the new user (non-blocking)
+        try:
+            copilot_service = CopilotService()
+            await copilot_service.create_welcome_session(db, new_user)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"Welcome session creation failed: {e}")
 
         return new_user
 
@@ -292,8 +298,6 @@ async def authenticate_user(credentials: UserLogin, db: AsyncSession) -> TokenRe
                 persona=role_defaults['persona'],
                 expertise_focus=role_defaults['expertise_focus'],
                 avatar_url=None,
-                custom_instructions='',
-                is_active=True,
             )
             db.add(agent_profile)
             await db.flush()
@@ -629,18 +633,14 @@ async def confirm_password_reset(
         # CRITICAL FIX (H-01): Blacklist the reset token to prevent reuse
         # Password reset tokens are one-time use only for security
         try:
-            import redis.asyncio as aioredis
             import time
-            r = aioredis.from_url(
-                settings.redis_url, decode_responses=True
-            ) if hasattr(settings, 'redis_url') else None
+            from app.redis import get_redis
+            r = get_redis()
 
-            if r is not None:
-                # Calculate remaining TTL
-                exp = payload.get("exp", 0)
-                ttl = max(int(exp - time.time()), 1)
-                await r.setex(f"blacklist:{reset_token}", ttl, "1")
-                await r.close()
+            # Calculate remaining TTL
+            exp = payload.get("exp", 0)
+            ttl = max(int(exp - time.time()), 1)
+            await r.setex(f"blacklist:{reset_token}", ttl, "1")
         except Exception as e:
             # Log warning but don't fail the password reset
             # Token is already used, so even if blacklist fails, it's expired in 1 hour

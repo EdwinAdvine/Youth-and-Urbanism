@@ -10,11 +10,11 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 import math
 
-import redis.asyncio as aioredis
 from sqlalchemy import select, and_, func, case
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
+from app.redis import get_redis
 from app.models.user import User
 from app.models.instructor.instructor_gamification import (
     InstructorBadge,
@@ -36,26 +36,20 @@ LEADERBOARD_KEY_MONTHLY = "instructor:leaderboard:monthly"
 # Redis helper
 # ---------------------------------------------------------------------------
 
-def _get_redis() -> aioredis.Redis:
-    """Get an async Redis connection using application settings."""
-    return aioredis.from_url(settings.redis_url, decode_responses=True)
-
-
 async def update_leaderboard(instructor_id: str, points: int) -> None:
     """
     Update the Redis sorted-set leaderboard with the instructor's current
     total points.  Uses ZADD so the score is always the latest value.
     """
     try:
-        r = _get_redis()
-        async with r:
-            # All-time leaderboard -- always updated
-            await r.zadd(LEADERBOARD_KEY_ALL_TIME, {str(instructor_id): points})
+        r = get_redis()
+        # All-time leaderboard -- always updated
+        await r.zadd(LEADERBOARD_KEY_ALL_TIME, {str(instructor_id): points})
 
-            # Weekly and monthly leaderboards -- same score; the keys are
-            # rotated/expired externally or via a scheduled task.
-            await r.zadd(LEADERBOARD_KEY_WEEKLY, {str(instructor_id): points})
-            await r.zadd(LEADERBOARD_KEY_MONTHLY, {str(instructor_id): points})
+        # Weekly and monthly leaderboards -- same score; the keys are
+        # rotated/expired externally or via a scheduled task.
+        await r.zadd(LEADERBOARD_KEY_WEEKLY, {str(instructor_id): points})
+        await r.zadd(LEADERBOARD_KEY_MONTHLY, {str(instructor_id): points})
 
         logger.debug(
             f"Leaderboard updated for instructor {instructor_id}: {points} pts"

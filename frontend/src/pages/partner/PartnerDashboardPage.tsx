@@ -232,8 +232,8 @@ const PartnerDashboardPage: React.FC = () => {
     ? [
         {
           title: 'Total Children',
-          value: overview.total_children_sponsored.toString(),
-          change: `${overview.active_children} active`,
+          value: (overview.total_children_sponsored ?? 0).toString(),
+          change: `${overview.active_children ?? 0} active`,
           icon: Users,
           color: 'text-blue-400',
           bg: 'bg-blue-500/10',
@@ -241,8 +241,8 @@ const PartnerDashboardPage: React.FC = () => {
         },
         {
           title: 'Active Programs',
-          value: overview.active_programs.toString(),
-          change: `${overview.total_programs} total`,
+          value: (overview.active_programs ?? 0).toString(),
+          change: `${overview.total_programs ?? 0} total`,
           icon: BookOpen,
           color: 'text-green-400',
           bg: 'bg-green-500/10',
@@ -250,17 +250,17 @@ const PartnerDashboardPage: React.FC = () => {
         },
         {
           title: 'Pending Consents',
-          value: overview.pending_consent.toString(),
-          change: overview.pending_consent > 0 ? 'Needs attention' : 'All clear',
+          value: (overview.pending_consent ?? 0).toString(),
+          change: (overview.pending_consent ?? 0) > 0 ? 'Needs attention' : 'All clear',
           icon: FileCheck,
           color: 'text-orange-400',
           bg: 'bg-orange-500/10',
-          trend: overview.pending_consent > 0 ? 'attention' : 'stable',
+          trend: (overview.pending_consent ?? 0) > 0 ? 'attention' : 'stable',
         },
         {
           title: 'Monthly Spend',
-          value: formatCurrency(overview.current_monthly_cost, overview.currency),
-          change: `${formatCurrency(overview.total_invested, overview.currency)} total invested`,
+          value: formatCurrency(overview.current_monthly_cost ?? 0, overview.currency ?? 'KSh'),
+          change: `${formatCurrency(overview.total_invested ?? 0, overview.currency ?? 'KSh')} total invested`,
           icon: DollarSign,
           color: 'text-purple-400',
           bg: 'bg-purple-500/10',
@@ -272,11 +272,11 @@ const PartnerDashboardPage: React.FC = () => {
         { ...fallbackStats[0] },
         {
           ...fallbackStats[1],
-          value: counters.activeSponsorships.toString(),
+          value: (counters?.activeSponsorships ?? 0).toString(),
         },
         {
           ...fallbackStats[2],
-          value: counters.pendingConsents.toString(),
+          value: (counters?.pendingConsents ?? 0).toString(),
         },
         { ...fallbackStats[3] },
       ];

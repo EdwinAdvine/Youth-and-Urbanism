@@ -1,9 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';
-import { Brain, Clock, Calendar, BookOpen, Play, Bell, CheckCircle } from 'lucide-react';
+import { Brain, Clock, Calendar, BookOpen, Play, Bell, CheckCircle, Loader2 } from 'lucide-react';
+import apiClient from '../../services/api';
 
-const quizzes = [
+interface UpcomingQuiz {
+  id: string;
+  title: string;
+  subject: string;
+  date: string;
+  duration: string;
+  questions: number;
+  type: string;
+  instructor: string;
+  canStart: boolean;
+}
+
+const FALLBACK_QUIZZES: UpcomingQuiz[] = [
   { id: '1', title: 'Fractions & Decimals Quiz', subject: 'Mathematics', date: 'Today, 3:00 PM', duration: '20 min', questions: 15, type: 'Graded', instructor: 'Ms. Wanjiku', canStart: true },
   { id: '2', title: 'Water Cycle Assessment', subject: 'Science', date: 'Tomorrow, 10:00 AM', duration: '30 min', questions: 20, type: 'Graded', instructor: 'Mr. Ochieng', canStart: false },
   { id: '3', title: 'Grammar Check', subject: 'English', date: 'Wed, Feb 19', duration: '15 min', questions: 10, type: 'Practice', instructor: 'Mrs. Kamau', canStart: false },
@@ -14,6 +27,36 @@ const QuizzesUpcomingPage: React.FC = () => {
   const navigate = useNavigate();
   const { borderRadius } = useAgeAdaptiveUI();
   const [reminders, setReminders] = useState<Record<string, boolean>>({});
+  const [quizzes, setQuizzes] = useState<UpcomingQuiz[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUpcomingQuizzes = async () => {
+      try {
+        setLoading(true);
+        const response = await apiClient.get('/api/v1/student/assessments/quizzes/upcoming');
+        const data = response.data;
+        if (data && Array.isArray(data) && data.length > 0) {
+          setQuizzes(data);
+        } else {
+          setQuizzes(FALLBACK_QUIZZES);
+        }
+      } catch {
+        setQuizzes(FALLBACK_QUIZZES);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUpcomingQuizzes();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 text-[#FF0000] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

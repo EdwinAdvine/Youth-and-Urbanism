@@ -36,7 +36,7 @@ interface PublicProfile {
   };
 }
 
-export const InstructorPublicProfilePage: React.FC = () => {
+const InstructorPublicProfilePage: React.FC = () => {
   const { slug } = useParams();
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -255,3 +255,5 @@ export const InstructorPublicProfilePage: React.FC = () => {
     </div>
   );
 };
+
+export default InstructorPublicProfilePage;

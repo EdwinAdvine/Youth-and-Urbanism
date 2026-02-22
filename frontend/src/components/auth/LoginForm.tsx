@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
+import apiClient from '../../services/api';
 
 interface LoginFormProps {
   onPasswordReset: () => void;
@@ -14,6 +16,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState('');
+  const [googleError, setGoogleError] = useState('');
 
   const { login, isLoading, error, clearError } = useAuthStore();
 
@@ -21,9 +24,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
     e.preventDefault();
     clearError();
     setSuccess('');
+    setGoogleError('');
 
     try {
-      await login({ email, password });
+      await login({ email, password, rememberMe });
       setSuccess('Login successful! Redirecting...');
 
       // Get the user from store after successful login
@@ -36,6 +40,53 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
     } catch {
       // Error is already set in store by useAuthStore
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    clearError();
+    setGoogleError('');
+    setSuccess('');
+
+    if (!credentialResponse.credential) {
+      setGoogleError('Google sign-in failed. No credential received.');
+      return;
+    }
+
+    try {
+      // Send the Google credential to our backend (sets httpOnly cookies)
+      await apiClient.post('/api/v1/auth/google', {
+        credential: credentialResponse.credential,
+      });
+
+      // Get user info after Google auth (cookies are set by backend)
+      const userResponse = await apiClient.get('/api/v1/auth/me');
+      const user = {
+        ...userResponse.data,
+        full_name: userResponse.data.full_name || userResponse.data.profile_data?.full_name || '',
+      };
+
+      // Update auth store
+      useAuthStore.setState({
+        user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+        rememberMe: true, // Google login always persists
+      });
+
+      setSuccess('Login successful! Redirecting...');
+
+      if (onLoginSuccess) {
+        onLoginSuccess(user);
+      }
+    } catch (err: any) {
+      const message = err.response?.data?.detail || 'Google sign-in failed. Please try again.';
+      setGoogleError(message);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setGoogleError('Google sign-in was cancelled or failed. Please try again.');
   };
 
   return (
@@ -102,10 +153,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
       </div>
 
       {/* Error Message */}
-      {error && (
+      {(error || googleError) && (
         <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/50 text-red-400 rounded-lg">
           <AlertCircle className="w-4 h-4" />
-          <span className="text-sm">{error}</span>
+          <span className="text-sm">{error || googleError}</span>
         </div>
       )}
 
@@ -132,6 +183,29 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
           'Log In'
         )}
       </button>
+
+      {/* Divider */}
+      <div className="relative my-4">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-200 dark:border-[#2A3035]" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-4 bg-white dark:bg-[#181C1F] text-gray-500 dark:text-white/60">or continue with</span>
+        </div>
+      </div>
+
+      {/* Google Sign-In Button */}
+      <div className="flex justify-center">
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={handleGoogleError}
+          theme="filled_black"
+          size="large"
+          width="100%"
+          text="signin_with"
+          shape="rectangular"
+        />
+      </div>
 
       {/* Sign Up Link */}
       <div className="text-center text-sm text-gray-500 dark:text-white/60">

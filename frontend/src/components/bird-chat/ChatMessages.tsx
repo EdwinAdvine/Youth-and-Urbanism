@@ -2,20 +2,23 @@ import React, { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User as UserIcon } from 'lucide-react';
 import { useChatStore } from '../../store/chatStore';
+import MessageToolbar from '../shared/MessageToolbar';
 
 interface ChatMessage {
   id: string;
   type: 'user' | 'ai';
   content: string;
   timestamp: Date;
+  response_time_ms?: number;
 }
 
 interface ChatMessagesProps {
   messages: ChatMessage[];
   isTyping: boolean;
+  onResendMessage?: (content: string) => void;
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isTyping }) => {
+const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isTyping, onResendMessage }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const setBirdExpression = useChatStore((state) => state.setBirdExpression);
 
@@ -129,18 +132,36 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isTyping }) => {
             className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {message.type === 'ai' && (
-              <div className="flex items-end gap-3 max-w-[80%]">
-                <div className="w-10 h-10 bg-gradient-to-r from-[#FF0000] to-[#E40000] rounded-full flex items-center justify-center text-gray-900 dark:text-white text-lg shadow-lg shadow-[#FF0000]/30">
+              <div className="flex items-start gap-3 max-w-[80%]">
+                <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-[#FF0000] to-[#E40000] rounded-full flex items-center justify-center text-gray-900 dark:text-white text-lg shadow-lg shadow-[#FF0000]/30">
                   🐦
                 </div>
-                <div className="bg-gradient-to-r from-[#FF0000] to-[#E40000] border border-[#FF0000]/30 rounded-3xl rounded-tl-none px-4 py-3 shadow-lg shadow-[#FF0000]/20">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs text-gray-800 dark:text-white/90">Chirpy</span>
-                    <span className="text-xs text-gray-700 dark:text-white/80">{formatTime(message.timestamp)}</span>
+                <div className="flex flex-col">
+                  <div className="bg-gradient-to-r from-[#FF0000] to-[#E40000] border border-[#FF0000]/30 rounded-3xl rounded-tl-none px-4 py-3 shadow-lg shadow-[#FF0000]/20">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs text-gray-800 dark:text-white/90">Chirpy</span>
+                      <span className="text-xs text-gray-700 dark:text-white/80">{formatTime(message.timestamp)}</span>
+                    </div>
+                    <div className="text-lg text-gray-900 dark:text-white leading-relaxed">
+                      {renderMessageContent(message.content)}
+                    </div>
                   </div>
-                  <div className="text-lg text-gray-900 dark:text-white leading-relaxed">
-                    {renderMessageContent(message.content)}
-                  </div>
+                  {/* Toolbar under each AI message */}
+                  <MessageToolbar
+                    messageId={message.id}
+                    content={message.content}
+                    responseTimeMs={message.response_time_ms}
+                    onRegenerate={onResendMessage ? () => {
+                      // Find the preceding user message
+                      const msgIndex = messages.indexOf(message);
+                      for (let i = msgIndex - 1; i >= 0; i--) {
+                        if (messages[i].type === 'user') {
+                          onResendMessage(messages[i].content);
+                          break;
+                        }
+                      }
+                    } : undefined}
+                  />
                 </div>
               </div>
             )}

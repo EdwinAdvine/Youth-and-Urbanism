@@ -12,8 +12,9 @@
  */
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import authService, { User, LoginRequest, RegisterRequest } from '../services/authService';
+import apiClient from '../services/api';
 
 /** Shape of the authentication store state and actions. */
 interface AuthState {
@@ -21,9 +22,10 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  rememberMe: boolean;
 
   // Actions
-  login: (credentials: LoginRequest) => Promise<void>;
+  login: (credentials: LoginRequest & { rememberMe?: boolean }) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => void;
   checkAuth: () => Promise<void>;
@@ -37,17 +39,32 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
       error: null,
+      rememberMe: false,
 
-      login: async (credentials: LoginRequest) => {
-        set({ isLoading: true, error: null });
+      login: async (credentials: LoginRequest & { rememberMe?: boolean }) => {
+        // Step 1: Clear ALL stale auth state immediately to prevent wrong dashboard routing
+        set({ user: null, isAuthenticated: false, isLoading: true, error: null, rememberMe: credentials.rememberMe ?? false });
+        // Flush stale state to localStorage synchronously
+        localStorage.removeItem('user');
+
+        // Step 2: Clear old server session (fire-and-forget) to invalidate stale cookies
+        try { await apiClient.post('/api/v1/auth/logout'); } catch { /* ignore */ }
+
         try {
-          const { user } = await authService.login(credentials);
+          // Step 3: Login with fresh credentials
+          const { user } = await authService.login({ email: credentials.email, password: credentials.password });
           set({
             user,
             isAuthenticated: true,
             isLoading: false,
             error: null
           });
+
+          // Step 4: If rememberMe is unchecked, don't persist to localStorage
+          if (!credentials.rememberMe) {
+            // Store in sessionStorage instead — cleared when browser closes
+            sessionStorage.setItem('auth-session', JSON.stringify({ user, isAuthenticated: true }));
+          }
         } catch (error: any) {
           const errorMessage = error.response?.data?.detail || 'Login failed. Please check your credentials.';
           set({
@@ -92,11 +109,28 @@ export const useAuthStore = create<AuthState>()(
         set({
           user: null,
           isAuthenticated: false,
-          error: null
+          error: null,
+          rememberMe: false
         });
+        // Also clear session storage
+        sessionStorage.removeItem('auth-session');
       },
 
       checkAuth: async () => {
+        // First check if there's a session-only login (rememberMe was unchecked)
+        const sessionAuth = sessionStorage.getItem('auth-session');
+        if (sessionAuth) {
+          try {
+            const { user, isAuthenticated } = JSON.parse(sessionAuth);
+            if (user && isAuthenticated) {
+              // Verify the session is still valid server-side
+              const freshUser = await authService.getCurrentUser();
+              set({ user: freshUser, isAuthenticated: true });
+              return;
+            }
+          } catch { /* fall through */ }
+        }
+
         // Verify auth by calling /auth/me — cookie is sent automatically
         try {
           const user = await authService.getCurrentUser();
@@ -105,6 +139,7 @@ export const useAuthStore = create<AuthState>()(
           // Token invalid or expired — clear local state
           set({ user: null, isAuthenticated: false });
           localStorage.removeItem('user');
+          sessionStorage.removeItem('auth-session');
         }
       },
 
@@ -114,8 +149,10 @@ export const useAuthStore = create<AuthState>()(
       name: 'auth-storage',
       partialize: (state) => ({
         user: state.user,
-        isAuthenticated: state.isAuthenticated
-      })
+        isAuthenticated: state.isAuthenticated,
+        rememberMe: state.rememberMe
+      }),
+      storage: createJSONStorage(() => localStorage)
     }
   )
 );

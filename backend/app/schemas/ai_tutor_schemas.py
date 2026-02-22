@@ -6,7 +6,7 @@ functionality of Urban Home School. These schemas handle validation for
 AI-powered tutoring interactions, conversation history, and tutor status.
 
 The AI tutor supports multi-AI orchestration with multiple providers
-(Gemini, Claude, GPT-4, Grok) and multiple response modes (text, voice, video).
+(Gemini, Claude, GPT-4, Grok) and multiple response modes (text, voice).
 """
 
 from datetime import datetime
@@ -68,7 +68,6 @@ class ChatResponse(BaseModel):
             "message": "Photosynthesis is the process by which plants...",
             "response_mode": "text",
             "audio_url": null,
-            "video_url": null,
             "conversation_id": "123e4567-e89b-12d3-a456-426614174000",
             "timestamp": "2024-01-15T10:30:00"
         }
@@ -76,15 +75,11 @@ class ChatResponse(BaseModel):
     message: str = Field(..., description="AI tutor's response text")
     response_mode: str = Field(
         ...,
-        description="Response mode used: 'text', 'voice', or 'video'"
+        description="Response mode used: 'text' or 'voice'"
     )
     audio_url: Optional[str] = Field(
         default=None,
         description="URL to audio response (when response_mode is 'voice')"
-    )
-    video_url: Optional[str] = Field(
-        default=None,
-        description="URL to video response (when response_mode is 'video')"
     )
     conversation_id: UUID = Field(
         ...,
@@ -97,12 +92,12 @@ class ResponseModeUpdate(BaseModel):
     """
     Schema for updating the AI tutor's response mode preference.
 
-    Students can choose how they want the AI to respond: text, voice, or video.
+    Students can choose how they want the AI to respond: text or voice.
     """
     response_mode: str = Field(
         ...,
-        pattern="^(text|voice|video)$",
-        description="Preferred response mode: 'text', 'voice', or 'video'"
+        pattern="^(text|voice)$",
+        description="Preferred response mode: 'text' or 'voice'"
     )
 
 
@@ -118,7 +113,7 @@ class TutorStatus(BaseModel):
     name: str = Field(..., description="AI tutor's name")
     response_mode: str = Field(
         ...,
-        description="Current response mode: 'text', 'voice', or 'video'"
+        description="Current response mode: 'text' or 'voice'"
     )
     total_interactions: int = Field(
         ...,

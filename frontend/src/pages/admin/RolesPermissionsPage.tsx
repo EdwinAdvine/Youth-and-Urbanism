@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Shield,
   Key,
@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import AdminPageHeader from '../../components/admin/shared/AdminPageHeader';
+import adminUserService from '../../services/admin/adminUserService';
 
 // ------------------------------------------------------------------
 // Types
@@ -36,10 +37,10 @@ interface Permission {
 type PermissionMatrix = Record<string, Record<string, boolean>>;
 
 // ------------------------------------------------------------------
-// Mock data
+// Fallback data
 // ------------------------------------------------------------------
 
-const mockRoles: Role[] = [
+const FALLBACK_ROLES: Role[] = [
   { id: 'admin', name: 'admin', display_name: 'Admin', description: 'Full platform access', user_count: 3, color: 'text-red-400' },
   { id: 'instructor', name: 'instructor', display_name: 'Instructor', description: 'Course management and teaching', user_count: 24, color: 'text-purple-400' },
   { id: 'student', name: 'student', display_name: 'Student', description: 'Learning and assessments', user_count: 847, color: 'text-blue-400' },
@@ -48,7 +49,7 @@ const mockRoles: Role[] = [
   { id: 'staff', name: 'staff', display_name: 'Staff', description: 'Support and moderation', user_count: 12, color: 'text-cyan-400' },
 ];
 
-const mockPermissions: Permission[] = [
+const FALLBACK_PERMISSIONS: Permission[] = [
   // Users
   { id: 'users.view', name: 'users.view', display_name: 'View Users', category: 'Users', description: 'View user profiles and lists' },
   { id: 'users.create', name: 'users.create', display_name: 'Create Users', category: 'Users', description: 'Create new user accounts' },
@@ -76,7 +77,7 @@ const mockPermissions: Permission[] = [
 ];
 
 const defaultMatrix: PermissionMatrix = {
-  admin: Object.fromEntries(mockPermissions.map((p) => [p.id, true])),
+  admin: Object.fromEntries(FALLBACK_PERMISSIONS.map((p) => [p.id, true])),
   instructor: {
     'users.view': true, 'users.create': false, 'users.edit': false, 'users.delete': false,
     'courses.view': true, 'courses.create': true, 'courses.edit': true, 'courses.enroll': true,
@@ -136,9 +137,43 @@ function groupPermissionsByCategory(permissions: Permission[]): Record<string, P
 // ------------------------------------------------------------------
 
 const RolesPermissionsPage: React.FC = () => {
+  const [roles, setRoles] = useState<Role[]>(FALLBACK_ROLES);
   const [matrix, setMatrix] = useState<PermissionMatrix>(defaultMatrix);
   const [hasChanges, setHasChanges] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  useEffect(() => {
+    const fetchRoleUserCounts = async () => {
+      try {
+        const roleNames = ['admin', 'instructor', 'student', 'parent', 'partner', 'staff'];
+        const counts: Record<string, number> = {};
+        await Promise.all(
+          roleNames.map(async (role) => {
+            try {
+              const response = await adminUserService.listUsers({ role, page_size: 1 });
+              counts[role] = response.total;
+            } catch {
+              // individual role query failed, keep fallback
+            }
+          })
+        );
+        if (Object.keys(counts).length > 0) {
+          setRoles((prev) =>
+            prev.map((r) => ({
+              ...r,
+              user_count: counts[r.name] ?? r.user_count,
+            }))
+          );
+        }
+      } catch {
+        // API unavailable — keep fallback data
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRoleUserCounts();
+  }, []);
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type });
@@ -171,9 +206,23 @@ const RolesPermissionsPage: React.FC = () => {
     showToast('Permissions reset to defaults', 'success');
   };
 
-  const permissionsByCategory = groupPermissionsByCategory(mockPermissions);
-  const totalPermissions = mockPermissions.length;
-  const totalRoles = mockRoles.length;
+  const permissionsByCategory = groupPermissionsByCategory(FALLBACK_PERMISSIONS);
+  const totalPermissions = FALLBACK_PERMISSIONS.length;
+  const totalRoles = roles.length;
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-16 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-28 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
+          ))}
+        </div>
+        <div className="h-80 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -221,7 +270,7 @@ const RolesPermissionsPage: React.FC = () => {
             </div>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalRoles}</p>
             <p className="text-xs text-gray-400 dark:text-white/40 mt-1">
-              {mockRoles.reduce((sum, r) => sum + r.user_count, 0).toLocaleString()} users assigned
+              {roles.reduce((sum, r) => sum + r.user_count, 0).toLocaleString()} users assigned
             </p>
           </div>
           <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6">
@@ -283,7 +332,7 @@ const RolesPermissionsPage: React.FC = () => {
                   <th className="px-6 py-3 text-left text-gray-500 dark:text-white/60 font-medium sticky left-0 bg-white dark:bg-[#181C1F] z-10 min-w-[200px]">
                     Permission
                   </th>
-                  {mockRoles.map((role) => (
+                  {roles.map((role) => (
                     <th key={role.id} className="px-4 py-3 text-center min-w-[100px]">
                       <div className="flex flex-col items-center gap-1">
                         <span className={`text-xs font-semibold ${role.color}`}>
@@ -303,7 +352,7 @@ const RolesPermissionsPage: React.FC = () => {
                     {/* Category header row */}
                     <tr className="bg-gray-50 dark:bg-[#0F1112]">
                       <td
-                        colSpan={mockRoles.length + 1}
+                        colSpan={roles.length + 1}
                         className="px-6 py-2 text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-wider"
                       >
                         {category}
@@ -320,7 +369,7 @@ const RolesPermissionsPage: React.FC = () => {
                             <p className="text-[11px] text-gray-400 dark:text-white/30 mt-0.5">{perm.description}</p>
                           </div>
                         </td>
-                        {mockRoles.map((role) => (
+                        {roles.map((role) => (
                           <td key={role.id} className="px-4 py-3 text-center">
                             <button
                               onClick={() => handleToggle(role.id, perm.id)}
@@ -359,7 +408,7 @@ const RolesPermissionsPage: React.FC = () => {
 
         {/* Role Details */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {mockRoles.map((role) => {
+          {roles.map((role) => {
             const grantedCount = Object.values(matrix[role.id] || {}).filter(Boolean).length;
             return (
               <motion.div

@@ -21,7 +21,7 @@ class CopilotSession(Base):
 
     Each session represents a conversation thread with the user's AI agent.
     Sessions can be titled (auto-generated from first message), pinned for
-    quick access, and support multiple response modes (text/voice/video).
+    quick access, and support multiple response modes (text/voice).
     """
     __tablename__ = "copilot_sessions"
 
@@ -39,7 +39,7 @@ class CopilotSession(Base):
     # Session metadata
     title = Column(String(255), default="New Chat", nullable=False)
     summary = Column(Text, nullable=True)  # AI-generated summary of conversation
-    response_mode = Column(String(20), default="text", nullable=False)  # text, voice, video
+    response_mode = Column(String(20), default="text", nullable=False)  # text, voice
 
     # Organization flags
     is_pinned = Column(Boolean, default=False, nullable=False)
@@ -47,20 +47,20 @@ class CopilotSession(Base):
 
     # Denormalized counts for performance
     message_count = Column(Integer, default=0, nullable=False)
-    last_message_at = Column(DateTime, nullable=True)
+    last_message_at = Column(DateTime(timezone=True), nullable=True)
 
     # Flexible metadata storage (JSONB for role-specific context, tags, etc.)
     metadata_ = Column(JSONB, default=dict, nullable=False)
 
     # Timestamps
     created_at = Column(
-        DateTime,
+        DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         nullable=False,
         index=True
     )
     updated_at = Column(
-        DateTime,
+        DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
         nullable=False
@@ -92,9 +92,8 @@ class CopilotMessage(Base):
     Individual message in a CoPilot session.
 
     Stores both user messages and AI responses with support for
-    multimodal content (audio URLs for voice mode, video URLs for
-    video mode). Tracks which AI provider generated each response
-    for analytics and debugging.
+    audio content (audio URLs for voice mode). Tracks which AI provider
+    generated each response for analytics and debugging.
     """
     __tablename__ = "copilot_messages"
 
@@ -113,9 +112,8 @@ class CopilotMessage(Base):
     role = Column(String(20), nullable=False)  # "user" or "assistant"
     content = Column(Text, nullable=False)
 
-    # Multimodal URLs (for voice/video modes)
+    # Audio URL (for voice mode)
     audio_url = Column(String(500), nullable=True)
-    video_url = Column(String(500), nullable=True)
 
     # AI provider metadata
     provider_used = Column(String(100), nullable=True)  # Which AI provider responded
@@ -126,7 +124,7 @@ class CopilotMessage(Base):
 
     # Timestamp
     created_at = Column(
-        DateTime,
+        DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         nullable=False,
         index=True

@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Sparkles, Brain, BookOpen, Play, Paperclip, Image, FileText, Code } from 'lucide-react';
+import { Send, Sparkles, Brain, BookOpen, Play, Paperclip, Image, FileText, Code, Mic, MicOff } from 'lucide-react';
 import { useChatStore } from '../../store/chatStore';
+import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 
 interface InputBarProps {
   onSendMessage: (message: string) => void;
@@ -16,6 +17,18 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, onQuickAction, isTyp
   
   
   const updateCurrentInput = useChatStore((state) => state.updateCurrentInput);
+
+  // Speech recognition — appends final transcript to the input field
+  const { isRecording, isSupported, interimTranscript, toggle: toggleMic } =
+    useSpeechRecognition({
+      onFinalTranscript: (text) => {
+        setInputValue((prev) => {
+          const trimmed = prev.trimEnd();
+          return trimmed ? `${trimmed} ${text}` : text;
+        });
+      },
+      onError: (err) => console.error('Speech recognition error:', err),
+    });
 
   useEffect(() => {
     if (inputRef.current) {
@@ -89,24 +102,55 @@ const InputBar: React.FC<InputBarProps> = ({ onSendMessage, onQuickAction, isTyp
         )}
       </AnimatePresence>
 
+      {/* Recording indicator */}
+      {isRecording && (
+        <div className="flex items-center gap-2 mb-2 px-1 text-xs text-red-500">
+          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+          <span>Recording... speak clearly</span>
+          {interimTranscript && (
+            <span className="italic text-gray-500 dark:text-gray-400 truncate max-w-[200px]">
+              &ldquo;{interimTranscript}&rdquo;
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Input Area */}
       <div className="relative">
-        <div className="bg-gradient-to-r from-gray-50 dark:from-[#0F1112] to-gray-100 dark:to-[#181C1F] rounded-3xl border-2 border-gray-200 dark:border-[#22272B] focus-within:border-[#00F5FF] shadow-xl shadow-black/50 overflow-hidden backdrop-blur-sm transition-all duration-300">
+        <div className={`bg-gradient-to-r from-gray-50 dark:from-[#0F1112] to-gray-100 dark:to-[#181C1F] rounded-3xl border-2 ${isRecording ? 'border-red-500/40' : 'border-gray-200 dark:border-[#22272B]'} focus-within:border-[#00F5FF] shadow-xl shadow-black/50 overflow-hidden backdrop-blur-sm transition-all duration-300`}>
           {/* Input Container */}
           <div className="flex items-end gap-3 p-3">
 
             {/* Text Input */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 relative">
               <textarea
                 ref={inputRef}
                 value={inputValue}
                 onChange={handleInputChange}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask The Bird anything..."
-                className="w-full text-lg bg-transparent outline-none placeholder-gray-400 resize-none max-h-32 min-h-12"
+                placeholder={isRecording ? (interimTranscript || 'Listening...') : 'How can I help you today?'}
+                className={`w-full text-lg bg-transparent outline-none placeholder-gray-400 resize-none max-h-32 min-h-12 ${isSupported ? 'pr-10' : ''}`}
                 disabled={isTyping}
                 rows={1}
               />
+
+              {/* Inline mic button */}
+              {isSupported && (
+                <button
+                  type="button"
+                  onClick={toggleMic}
+                  title={isRecording ? 'Stop recording' : 'Start voice input'}
+                  className={`
+                    absolute right-1 bottom-2 p-1.5 rounded-lg transition-all
+                    ${isRecording
+                      ? 'text-red-500 bg-red-50 dark:bg-red-900/20 animate-pulse'
+                      : 'text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-gray-200 dark:hover:bg-[#2A3035]'
+                    }
+                  `}
+                >
+                  {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                </button>
+              )}
             </div>
 
             {/* Send Button */}

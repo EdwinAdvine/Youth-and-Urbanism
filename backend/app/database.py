@@ -27,9 +27,13 @@ logger = logging.getLogger(__name__)
 # Create declarative base for models
 Base = declarative_base()
 
-# Initialize engine as None (will be created in init_db)
+# Initialize engines as None (will be created in init_db)
 engine: AsyncEngine = None  # type: ignore
 AsyncSessionLocal: async_sessionmaker[AsyncSession] = None  # type: ignore
+
+# Read replica (optional — falls back to write engine when not configured)
+read_engine: AsyncEngine = None  # type: ignore
+AsyncReadSessionLocal: async_sessionmaker[AsyncSession] = None  # type: ignore
 
 
 def get_database_url() -> str:
@@ -70,17 +74,24 @@ async def init_db() -> None:
 
         logger.info("Initializing database connection...")
 
-        # Create async engine with connection pooling
+        # Create async engine with production-grade connection pooling
         # CRITICAL FIX (H-04): Use config values instead of hardcoded pool settings
         engine = create_async_engine(
             db_url,
-            echo=settings.debug,  # Log SQL queries in debug mode
-            pool_size=settings.database_pool_size,  # Use configured pool size
-            max_overflow=settings.database_max_overflow,  # Use configured max overflow
+            echo=settings.database_echo,  # Use dedicated setting, not debug flag
+            pool_size=settings.database_pool_size,  # Default: 20 per worker
+            max_overflow=settings.database_max_overflow,  # Default: 30 burst capacity
+            pool_timeout=settings.database_pool_timeout,  # Default: 10s fail-fast
             pool_pre_ping=True,  # Verify connections before using
-            pool_recycle=3600,  # Recycle connections after 1 hour
-            # Use NullPool for testing environments if needed
-            # poolclass=NullPool if settings.TESTING else None,
+            pool_recycle=settings.database_pool_recycle,  # Default: 1800s
+            connect_args={
+                "server_settings": {
+                    "statement_timeout": str(settings.database_statement_timeout),
+                    "idle_in_transaction_session_timeout": str(
+                        settings.database_idle_in_transaction_timeout
+                    ),
+                }
+            },
         )
 
         # Create async session maker
@@ -99,6 +110,9 @@ async def init_db() -> None:
             await conn.execute(text("SELECT 1"))
             logger.info("Database connection test successful")
 
+        # ── Read replica engine (optional) ─────────────────────────
+        await _init_read_engine()
+
     except SQLAlchemyError as e:
         logger.error(f"Failed to initialize database: {str(e)}")
         raise
@@ -107,13 +121,96 @@ async def init_db() -> None:
         raise
 
 
+async def _init_read_engine() -> None:
+    """
+    Initialize read replica engine if DATABASE_READ_URL is configured.
+
+    Falls back to the write engine when no replica URL is provided.
+    Sets `default_transaction_read_only=on` so accidental writes are blocked.
+    """
+    global read_engine, AsyncReadSessionLocal
+
+    if settings.database_read_url:
+        read_url = settings.database_read_url
+        if read_url.startswith("postgresql://"):
+            read_url = read_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+
+        read_engine = create_async_engine(
+            read_url,
+            echo=settings.database_echo,
+            pool_size=settings.database_pool_size,
+            max_overflow=settings.database_max_overflow,
+            pool_timeout=settings.database_pool_timeout,
+            pool_pre_ping=True,
+            pool_recycle=settings.database_pool_recycle,
+            connect_args={
+                "server_settings": {
+                    "statement_timeout": str(settings.database_statement_timeout),
+                    "default_transaction_read_only": "on",
+                }
+            },
+        )
+
+        AsyncReadSessionLocal = async_sessionmaker(
+            read_engine,
+            class_=AsyncSession,
+            expire_on_commit=False,
+            autocommit=False,
+            autoflush=False,
+        )
+
+        async with read_engine.begin() as conn:
+            await conn.execute(text("SELECT 1"))
+        logger.info("Read replica engine initialized successfully")
+    else:
+        # No replica configured — reuse write engine for reads
+        read_engine = engine
+        AsyncReadSessionLocal = AsyncSessionLocal
+        logger.info("No read replica configured; reads use the primary engine")
+
+
+async def get_read_db() -> AsyncGenerator[AsyncSession, None]:
+    """
+    Dependency for read-only database sessions.
+
+    Routes to the read replica when configured, otherwise falls back to the
+    primary engine.  Use this for dashboard queries, catalog listings, and
+    other read-heavy endpoints to offload the primary.
+
+    Example:
+        @router.get("/courses")
+        async def list_courses(db: AsyncSession = Depends(get_read_db)):
+            ...
+    """
+    if AsyncReadSessionLocal is None:
+        raise RuntimeError(
+            "Database not initialized. Call init_db() during startup."
+        )
+
+    async with AsyncReadSessionLocal() as session:
+        try:
+            yield session
+        except SQLAlchemyError as e:
+            await session.rollback()
+            logger.error(f"Read session error: {e}")
+            raise
+        finally:
+            await session.close()
+
+
 async def close_db() -> None:
     """
     Close database engine and clean up connections.
 
     This should be called during application shutdown.
     """
-    global engine
+    global engine, read_engine
+
+    # Close read replica first (if it's a separate engine)
+    if read_engine and read_engine is not engine:
+        logger.info("Closing read replica connection...")
+        await read_engine.dispose()
+        read_engine = None
 
     if engine:
         logger.info("Closing database connection...")

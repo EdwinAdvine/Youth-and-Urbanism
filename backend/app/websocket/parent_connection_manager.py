@@ -26,11 +26,11 @@ class ParentConnectionManager:
         self._redis = None
         self._pubsub_task: Optional[asyncio.Task] = None
 
-    async def init_redis(self, redis_url: str):
-        """Initialize Redis for Pub/Sub broadcasting."""
+    async def init_redis(self, redis_url: str = ""):
+        """Initialize Redis for Pub/Sub broadcasting using the global client."""
         try:
-            import redis.asyncio as aioredis
-            self._redis = aioredis.from_url(redis_url, decode_responses=True)
+            from app.redis import get_redis
+            self._redis = get_redis()
             # Start listening for published messages
             self._pubsub_task = asyncio.create_task(self._listen_redis())
             logger.info("Parent WebSocket Redis Pub/Sub initialized")

@@ -54,8 +54,7 @@ const CoPilotContent: React.FC<CoPilotContentProps> = ({ isExpanded }) => {
       addMessage({
         type: 'ai',
         content: response.message,
-        audioUrl: response.audio_url,
-        videoUrl: response.video_url
+        audioUrl: response.audio_url
       });
     } catch (error) {
       console.error('CoPilot AI request failed:', error);

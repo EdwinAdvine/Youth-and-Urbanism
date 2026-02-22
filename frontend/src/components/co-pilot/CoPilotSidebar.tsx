@@ -4,16 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { useCoPilotStore } from '../../store';
 import { useAuthStore } from '../../store/authStore';
 import AgentProfileSettings from './AgentProfileSettings';
-import copilotService, { CopilotInsight } from '../../services/copilotService';
+import copilotService from '../../services/copilotService';
 import {
-  Bot,
   Settings,
   User,
   MessageCircle,
   Sparkles,
   Brain,
   BookOpen,
-  Play,
   Star,
   X,
   WifiOff,
@@ -23,13 +21,14 @@ import { getDashboardConfig, DashboardType } from '../../utils/dashboardDetectio
 import ChatMessages from './ChatMessages';
 import ChatInput from './ChatInput';
 
+
 interface CoPilotSidebarProps {
   onOpenAuthModal?: () => void;
 }
 
 const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpenAuthModal }) => {
   const navigate = useNavigate();
-  const { authUser } = useAuthStore();
+  const authUser = useAuthStore((s) => s.user);
 
   const [showOfflineMessage, setShowOfflineMessage] = useState(false);
   const [showAgentSettings, setShowAgentSettings] = useState(false);
@@ -44,7 +43,6 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
     toggleExpanded,
     setActiveRole,
     setOnlineStatus,
-    createSession,
     switchSession,
     deleteSession,
     markAsRead,
@@ -58,7 +56,7 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
     setAgentProfile,
     insights,
     setInsights,
-    setPendingAiPrompt
+    setPendingAiPrompt,
   } = useCoPilotStore();
 
   // Handle online/offline status
@@ -87,7 +85,7 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
   useEffect(() => {
     if (authUser?.role) {
       const normalizedRole =
-        authUser.role === 'teacher' ? 'instructor' :
+        (authUser.role as string) === 'teacher' ? 'instructor' :
         ['student', 'parent', 'instructor', 'admin', 'partner', 'staff'].includes(authUser.role)
           ? authUser.role
           : 'student';
@@ -102,7 +100,7 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
   useEffect(() => {
     if (authUser) {
       copilotService.getAgentProfile()
-        .then(p => setAgentProfile({ agent_name: p.agent_name, avatar_url: p.avatar_url }))
+        .then(p => setAgentProfile({ agent_name: p.agent_name, avatar_url: p.avatar_url ?? null }))
         .catch(() => {
           // Use defaults
         });
@@ -120,13 +118,47 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
     }
   }, [authUser, setInsights]);
 
-  // Helper functions
-  const getGreeting = (): string => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
-  };
+  // Auto-open CoPilot for new users with a welcome session
+  useEffect(() => {
+    if (!authUser) return;
+
+    const welcomeShownKey = `copilot_welcome_shown_${authUser.id}`;
+    const alreadyShown = localStorage.getItem(welcomeShownKey);
+    if (alreadyShown) return;
+
+    // Check if user has a welcome session by loading sessions
+    copilotService.listSessions(1, 5)
+      .then(response => {
+        const welcomeSession = response.sessions?.find(
+          (s: { title: string }) => s.title?.startsWith('Welcome to')
+        );
+        if (welcomeSession) {
+          // Auto-expand sidebar and load the welcome session
+          useCoPilotStore.getState().setExpanded(true);
+          useCoPilotStore.getState().activateChatMode();
+
+          // Load the welcome message into chat
+          copilotService.getSession(welcomeSession.id)
+            .then(sessionDetail => {
+              if (sessionDetail.messages?.length > 0) {
+                const msg = sessionDetail.messages[0];
+                useCoPilotStore.getState().addChatMessage({
+                  id: msg.id,
+                  content: msg.content,
+                  sender: 'ai',
+                  timestamp: new Date(msg.created_at),
+                  status: 'sent',
+                });
+                useCoPilotStore.setState({ currentSessionId: welcomeSession.id });
+              }
+            })
+            .catch(() => {});
+
+          localStorage.setItem(welcomeShownKey, 'true');
+        }
+      })
+      .catch(() => {});
+  }, [authUser]);
 
   const formatRelativeTime = (date: Date): string => {
     const now = new Date();
@@ -148,15 +180,15 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
   // Role-specific content
   const roleConfig = {
     student: {
-      title: "AI Learning Assistant",
-      subtitle: "Your personal tutor",
+      title: "Birdy",
+      subtitle: "Your personal AI tutor",
       icon: <BookOpen className="w-6 h-6" />,
       color: "from-blue-500 to-cyan-500",
       bgColor: "bg-gradient-to-br from-blue-500/10 to-cyan-500/10",
       borderColor: "border-blue-500/30"
     },
     parent: {
-      title: "Parent Assistant", 
+      title: "Parents Companion",
       subtitle: "Track progress & get insights",
       icon: <User className="w-6 h-6" />,
       color: "from-green-500 to-emerald-500",
@@ -164,32 +196,32 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
       borderColor: "border-green-500/30"
     },
     admin: {
-      title: "Admin Assistant",
-      subtitle: "System insights",
+      title: "Bird Admin AI",
+      subtitle: "Platform analytics & operations",
       icon: <Settings className="w-6 h-6" />,
       color: "from-orange-500 to-red-500",
       bgColor: "bg-gradient-to-br from-orange-500/10 to-red-500/10",
       borderColor: "border-orange-500/30"
     },
     partner: {
-      title: "Partner Assistant",
-      subtitle: "Collaboration tools",
+      title: "Sponsors AI",
+      subtitle: "Impact tracking & collaboration",
       icon: <MessageCircle className="w-6 h-6" />,
       color: "from-teal-500 to-blue-500",
       bgColor: "bg-gradient-to-br from-teal-500/10 to-blue-500/10",
       borderColor: "border-teal-500/30"
     },
     staff: {
-      title: "Staff Assistant",
-      subtitle: "Teaching & support tools",
+      title: "Staff AI",
+      subtitle: "Support & operations tools",
       icon: <Brain className="w-6 h-6" />,
       color: "from-red-500 to-orange-500",
       bgColor: "bg-gradient-to-br from-red-500/10 to-orange-500/10",
       borderColor: "border-red-500/30"
     },
     instructor: {
-      title: "Instructor Assistant",
-      subtitle: "Course & student tools",
+      title: "Instructor AI",
+      subtitle: "Lesson planning & student tools",
       icon: <Star className="w-6 h-6" />,
       color: "from-purple-500 to-violet-500",
       bgColor: "bg-gradient-to-br from-purple-500/10 to-violet-500/10",
@@ -198,13 +230,14 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
   };
 
   const currentConfig = roleConfig[activeRole as keyof typeof roleConfig];
-  
+
+  // Determine the display name: use role-specific name unless user explicitly customized it
+  const genericDefaults = ['The Bird AI', 'AI Assistant', 'Bird Admin AI'];
+  const isCustomName = agentProfile?.agent_name && !genericDefaults.includes(agentProfile.agent_name);
+  const displayAgentName = isCustomName ? agentProfile!.agent_name : currentConfig.title;
+
   // Get dashboard-specific quick actions
   const dashboardConfig = getDashboardConfig(activeRole as DashboardType);
-
-  const handleNewSession = () => {
-    createSession(activeRole);
-  };
 
   const handleSessionSelect = (sessionId: string) => {
     switchSession(sessionId);
@@ -216,6 +249,9 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
   };
 
   const handleCloseSidebar = () => {
+    if (isChatMode) {
+      resetToNormalMode();
+    }
     toggleExpanded();
     markAsRead();
   };
@@ -293,56 +329,67 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
         {/* Expanded View */}
         {isExpanded && (
           <div className="h-full flex flex-col">
-            {/* Header */}
+            {/* Unified Header */}
             <div className={`
-              p-4 border-b border-gray-200 dark:border-[#22272B] bg-gradient-to-r ${currentConfig.bgColor}
+              px-3 py-2.5 border-b border-gray-200 dark:border-[#22272B] bg-gradient-to-r ${currentConfig.bgColor}
             `}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5 min-w-0">
                   <div className={`
-                    p-2 rounded-lg bg-gradient-to-br ${currentConfig.color} text-gray-900 dark:text-white
-                    shadow-lg shadow-blue-500/20
+                    p-1.5 rounded-lg bg-gradient-to-br ${currentConfig.color} text-gray-900 dark:text-white
+                    shadow-lg shadow-blue-500/20 flex-shrink-0
                   `}>
                     {agentProfile?.avatar_url ? (
                       <img
                         src={agentProfile.avatar_url}
                         alt={agentProfile.agent_name}
-                        className="w-6 h-6 rounded-full object-cover"
+                        className="w-5 h-5 rounded-full object-cover"
                       />
                     ) : (
-                      currentConfig.icon
+                      React.cloneElement(currentConfig.icon, { className: 'w-5 h-5' })
                     )}
                   </div>
-                  <div>
-                    <h2 className="font-semibold text-gray-900 dark:text-white text-sm">
-                      {getGreeting()}! {agentProfile?.agent_name || 'The Bird AI'} here
+                  <div className="min-w-0">
+                    <h2 className="font-semibold text-gray-900 dark:text-white text-sm truncate">
+                      {displayAgentName}
                     </h2>
-                    <p className="text-gray-600 dark:text-white/70 text-xs">{currentConfig.subtitle}</p>
+                    <div className="flex items-center gap-1.5">
+                      <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isOnline ? 'bg-green-400' : 'bg-red-400'}`} />
+                      <p className="text-gray-600 dark:text-white/60 text-xs truncate">
+                        {isOnline ? (isChatMode ? 'Connected' : currentConfig.subtitle) : 'Offline'}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {/* Online Status */}
-                  <div className={`flex items-center gap-2 text-xs ${isOnline ? 'text-green-400' : 'text-red-400'}`}>
-                    <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-400' : 'bg-red-400'}`} />
-                    {isOnline ? 'Online' : 'Offline'}
-                  </div>
-
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  {/* Clear chat (only in chat mode) */}
+                  {isChatMode && (
+                    <motion.button
+                      className="p-1.5 text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
+                      onClick={clearChatMessages}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      aria-label="Clear chat"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </motion.button>
+                  )}
                   {/* Close Button */}
                   <motion.button
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
+                    className="p-1.5 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
                     onClick={handleCloseSidebar}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                     aria-label="Close Co-Pilot"
                   >
-                    <X className="w-5 h-5 text-gray-900 dark:text-white" />
+                    <X className="w-4 h-4 text-gray-900 dark:text-white" />
                   </motion.button>
                 </div>
               </div>
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className={`flex-1 min-h-0 ${isChatMode && !showAgentSettings ? 'overflow-hidden flex flex-col' : 'overflow-y-auto p-4 space-y-4'}`}>
               {showAgentSettings ? (
                 <AgentProfileSettings
                   onClose={() => setShowAgentSettings(false)}
@@ -350,41 +397,16 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
                 />
               ) : isChatMode ? (
                 // Chat Interface
-                <div className="flex flex-col h-full">
-                  {/* Chat Header */}
-                  <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-200 dark:border-[#22272B]">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg">
-                        <Bot className="w-5 h-5 text-gray-900 dark:text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white">AI Assistant</h3>
-                        <p className="text-xs text-gray-500 dark:text-white/60">Connected • Ready to help</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <motion.button
-                        className="p-2 text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
-                        onClick={clearChatMessages}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                        aria-label="Clear chat"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </motion.button>
-                      <span className="text-xs text-gray-500 dark:text-white/60">Session: {currentSessionId || 'New'}</span>
-                    </div>
-                  </div>
-
+                <>
                   {/* Chat Messages */}
                   <ChatMessages messages={chatMessages} />
 
                   {/* Chat Input */}
-                  <ChatInput 
+                  <ChatInput
                     onSendMessage={sendMessage}
                     isDisabled={!isOnline}
                   />
-                </div>
+                </>
               ) : (
                 // Normal Dashboard Content
                 <>
@@ -517,21 +539,6 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
                   <MessageCircle className="w-5 h-5" />
                   <Sparkles className="w-4 h-4" />
                   Chat with AI
-                </motion.button>
-              </div>
-            )}
-
-            {/* Exit Chat Button (shown in chat mode) */}
-            {isChatMode && !showAgentSettings && (
-              <div className="p-4 border-t border-gray-200 dark:border-[#22272B]">
-                <motion.button
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 text-gray-900 dark:text-white font-semibold rounded-lg transition-all"
-                  onClick={resetToNormalMode}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <X className="w-5 h-5" />
-                  Exit Chat
                 </motion.button>
               </div>
             )}

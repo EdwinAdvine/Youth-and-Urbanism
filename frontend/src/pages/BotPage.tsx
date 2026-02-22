@@ -1,7 +1,8 @@
-// BotPage - Public AI chat demo page at /bot. Provides an interactive preview of The Bird AI
-// tutor with text, voice, and video input modes, conversation history, and subject selection.
+// BotPage - Public Bird AI chat page at /bot. Connects to the real AI backend.
+// No authentication required — general knowledge responses with course suggestions.
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { publicChat } from '../services/publicChatService';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send,
@@ -28,7 +29,7 @@ interface Message {
   role: 'user' | 'ai';
   content: string;
   timestamp: Date;
-  suggestedCourse?: { name: string; slug: string };
+  suggestedCourse?: { name: string; url: string };
 }
 
 type ResponseMode = 'text' | 'voice' | 'video';
@@ -39,7 +40,7 @@ interface ConversationStub {
 }
 
 // -------------------------------------------------------------------
-// Mock data
+// Static data
 // -------------------------------------------------------------------
 
 const MOCK_CONVERSATIONS: ConversationStub[] = [
@@ -54,33 +55,6 @@ const QUICK_SUGGESTIONS = [
   'Explain photosynthesis',
   'Practice English',
   'CBC Grade 5 Math',
-];
-
-const MOCK_AI_RESPONSES: { text: string; course: { name: string; slug: string } }[] = [
-  {
-    text: "Great question! Fractions represent parts of a whole. Think of a chapati cut into 4 equal pieces \u2014 each piece is 1/4 of the chapati. When we add fractions with the same denominator, we simply add the numerators. For example, 1/4 + 2/4 = 3/4. Would you like to try a practice problem?",
-    course: { name: 'CBC Grade 5 Mathematics', slug: 'cbc-grade-5-math' },
-  },
-  {
-    text: "Photosynthesis is how plants make their own food! They use sunlight, water from the soil, and carbon dioxide from the air. Inside the leaves, chlorophyll (the green pigment) captures sunlight and converts these ingredients into glucose and oxygen. That\u2019s why plants are so important \u2014 they produce the oxygen we breathe!",
-    course: { name: 'Science Explorer: Life Sciences', slug: 'science-life' },
-  },
-  {
-    text: "Let\u2019s practise English together! A common mistake is mixing up 'there', 'their', and 'they\u2019re'. 'There' refers to a place, 'their' shows possession, and 'they\u2019re' is short for 'they are'. Try this: ___ going to ___ house over ___. The answers are: They\u2019re, their, there!",
-    course: { name: 'English Language Arts', slug: 'english-language-arts' },
-  },
-  {
-    text: "The CBC (Competency-Based Curriculum) for Grade 5 covers exciting topics! In Mathematics you\u2019ll learn about whole numbers up to 1,000,000, fractions, decimals, and basic geometry. The focus is on understanding concepts through real-life examples and group activities rather than just memorisation.",
-    course: { name: 'CBC Grade 5 Full Course', slug: 'cbc-grade-5' },
-  },
-  {
-    text: "Kenya has amazing geography! Did you know that Mount Kenya is the second-highest mountain in Africa at 5,199 metres? The Great Rift Valley runs through Kenya and is home to beautiful lakes like Lake Nakuru, famous for its flamingos. Understanding our geography helps us appreciate our environment.",
-    course: { name: 'Social Studies: Kenya & the World', slug: 'social-studies-kenya' },
-  },
-  {
-    text: "Let\u2019s explore Kiswahili! 'Habari' means 'news' but we use it as a greeting \u2014 like asking 'How are you?'. The reply is 'Nzuri' (fine). Kiswahili has a beautiful structure: 'ni-na-penda' means 'I love' where 'ni' is I, 'na' is present tense, and 'penda' is love. Shall we learn more vocabulary?",
-    course: { name: 'Kiswahili Foundations', slug: 'kiswahili-foundations' },
-  },
 ];
 
 // -------------------------------------------------------------------
@@ -154,7 +128,7 @@ const ChatBubble: React.FC<{ message: Message }> = ({ message }) => {
             transition={{ delay: 0.2 }}
           >
             <Link
-              to={`/courses`}
+              to={message.suggestedCourse.url}
               className="flex items-center gap-3 bg-[#FF0000]/10 border border-[#FF0000]/20 rounded-xl px-4 py-3 hover:bg-[#FF0000]/15 transition-colors group"
             >
               <BookOpen size={18} className="text-[#FF0000] flex-shrink-0" />
@@ -188,7 +162,6 @@ const BotPage: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [responseMode, setResponseMode] = useState<ResponseMode>('text');
-  const [responseIndex, setResponseIndex] = useState(0);
 
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -208,11 +181,11 @@ const BotPage: React.FC = () => {
   // Handlers
   // ---------------------------------------------------------------
 
-  const sendMessage = (text: string) => {
+  const sendMessage = async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || isTyping) return;
 
-    // Add user message
+    // Add user message immediately
     const userMsg: Message = {
       id: `user-${Date.now()}`,
       role: 'user',
@@ -223,20 +196,33 @@ const BotPage: React.FC = () => {
     setInput('');
     setIsTyping(true);
 
-    // Simulate AI response after delay
-    setTimeout(() => {
-      const mockResponse = MOCK_AI_RESPONSES[responseIndex % MOCK_AI_RESPONSES.length];
+    try {
+      const result = await publicChat(trimmed);
       const aiMsg: Message = {
         id: `ai-${Date.now()}`,
         role: 'ai',
-        content: mockResponse.text,
+        content: result.message,
         timestamp: new Date(),
-        suggestedCourse: mockResponse.course,
+        suggestedCourse: result.suggested_course
+          ? { name: result.suggested_course.name, url: result.suggested_course.url }
+          : undefined,
       };
       setMessages((prev) => [...prev, aiMsg]);
+    } catch (err: unknown) {
+      const errorText =
+        err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `ai-error-${Date.now()}`,
+          role: 'ai' as const,
+          content: errorText,
+          timestamp: new Date(),
+        },
+      ]);
+    } finally {
       setIsTyping(false);
-      setResponseIndex((prev) => prev + 1);
-    }, 1500);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -248,7 +234,6 @@ const BotPage: React.FC = () => {
     setMessages([]);
     setIsTyping(false);
     setInput('');
-    setResponseIndex(0);
     inputRef.current?.focus();
   };
 

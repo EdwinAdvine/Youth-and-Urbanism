@@ -105,7 +105,7 @@ export default function CreateCoursePage() {
         await courseService.updateCourse(courseId!, formData);
         alert('Course updated successfully!');
       } else {
-        const newCourse = await courseService.createCourse(formData);
+        await courseService.createCourse(formData);
         alert('Course created successfully!');
         navigate('/dashboard/instructor/courses');
       }

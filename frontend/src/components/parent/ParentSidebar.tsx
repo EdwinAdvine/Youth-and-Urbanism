@@ -389,10 +389,10 @@ const ParentSidebar: React.FC<ParentSidebarProps> = ({ isOpen, onClose }) => {
           sidebarCollapsed ? 'w-72 lg:w-16' : 'w-72'
         } ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:sticky lg:top-0`}
       >
-        {/* Header - hidden when collapsed, show Users icon instead */}
+        {/* Header - hidden when collapsed, show Home icon instead */}
         {sidebarCollapsed ? (
           <div className="hidden lg:flex items-center justify-center p-3 border-b border-gray-200 dark:border-[#22272B]">
-            <Users className="w-5 h-5 text-gray-400 dark:text-white/50" />
+            <Home className="w-5 h-5 text-gray-400 dark:text-white/50" />
           </div>
         ) : (
           <div className="p-4 border-b border-gray-200 dark:border-[#22272B]">
@@ -437,7 +437,7 @@ const ParentSidebar: React.FC<ParentSidebarProps> = ({ isOpen, onClose }) => {
 
                   {/* Flyout panel */}
                   {hoveredSection === section.id && section.children && (
-                    <div className="absolute left-full top-0 ml-1 w-56 bg-white dark:bg-[#1A1D20] border border-gray-200 dark:border-[#22272B] rounded-lg shadow-xl z-50 py-2">
+                    <div className="absolute left-full top-0 ml-1 w-56 bg-white dark:bg-[#1A1D20] border border-gray-200 dark:border-[#22272B] rounded-lg shadow-xl z-50 py-2 max-h-80 overflow-y-auto">
                       <div className="px-3 py-1.5 text-[10px] font-semibold text-gray-400 dark:text-white/40 uppercase tracking-wider">
                         {section.title}
                       </div>
@@ -494,7 +494,7 @@ const ParentSidebar: React.FC<ParentSidebarProps> = ({ isOpen, onClose }) => {
                           className={`w-full flex items-center justify-between px-4 py-2 rounded-lg text-sm transition-all ${
                             isActive(item.path)
                               ? 'bg-[#E40000]/10 text-[#E40000] border-l-2 border-[#E40000]'
-                              : 'text-gray-600 dark:text-white/80 hover:bg-gray-100 dark:bg-[#22272B] hover:text-gray-900 dark:hover:text-white'
+                              : 'text-gray-600 dark:text-white/80 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
                           } ${item.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                           <div className="flex items-center gap-3">
@@ -502,7 +502,7 @@ const ParentSidebar: React.FC<ParentSidebarProps> = ({ isOpen, onClose }) => {
                             <span>{item.title}</span>
                           </div>
                           {item.badge && item.badge > 0 && (
-                            <span className="px-2 py-0.5 text-xs font-semibold bg-[#E40000] text-gray-900 dark:text-white rounded-full">
+                            <span className="px-2 py-0.5 text-xs font-semibold bg-[#E40000]/20 text-[#E40000] rounded-full">
                               {item.badge}
                             </span>
                           )}

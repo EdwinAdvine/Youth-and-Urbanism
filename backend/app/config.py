@@ -54,21 +54,37 @@ class Settings(BaseSettings):
         ...,
         description="PostgreSQL database connection URL (required)"
     )
+    database_read_url: Optional[str] = Field(
+        default=None,
+        description="Read replica database URL (optional, for read/write splitting)"
+    )
     database_pool_size: int = Field(
-        default=5,
-        description="Database connection pool size"
+        default=20,
+        description="Database connection pool size per worker (production: 20-50)"
     )
     database_max_overflow: int = Field(
-        default=10,
-        description="Maximum overflow connections"
+        default=30,
+        description="Maximum overflow connections per worker for burst traffic"
     )
     database_pool_timeout: int = Field(
-        default=30,
-        description="Connection pool timeout in seconds"
+        default=10,
+        description="Seconds to wait for a connection before raising an error (fail fast)"
+    )
+    database_pool_recycle: int = Field(
+        default=1800,
+        description="Recycle connections after N seconds to avoid stale connections"
     )
     database_echo: bool = Field(
         default=False,
         description="Log SQL queries (useful for debugging)"
+    )
+    database_statement_timeout: int = Field(
+        default=30000,
+        description="PostgreSQL statement_timeout in milliseconds (kills long-running queries)"
+    )
+    database_idle_in_transaction_timeout: int = Field(
+        default=60000,
+        description="PostgreSQL idle_in_transaction_session_timeout in milliseconds"
     )
 
     # Redis Configuration
@@ -110,6 +126,16 @@ class Settings(BaseSettings):
         gt=0,
         description="Refresh token expiration in days"
     )
+    # Google OAuth
+    google_client_id: str = Field(
+        default="",
+        description="Google OAuth client ID for Sign in with Google"
+    )
+    google_client_secret: str = Field(
+        default="",
+        description="Google OAuth client secret"
+    )
+
     password_min_length: int = Field(
         default=8,
         description="Minimum password length"
@@ -173,10 +199,6 @@ class Settings(BaseSettings):
     elevenlabs_api_key: Optional[str] = Field(
         default=None,
         description="ElevenLabs API key for text-to-speech (optional)"
-    )
-    synthesia_api_key: Optional[str] = Field(
-        default=None,
-        description="Synthesia API key for video generation (optional)"
     )
 
     # M-Pesa Payment Configuration
@@ -418,7 +440,11 @@ class Settings(BaseSettings):
     )
     enable_metrics: bool = Field(
         default=False,
-        description="Enable Prometheus metrics"
+        description="Enable Prometheus metrics at /metrics endpoint"
+    )
+    log_format: str = Field(
+        default="text",
+        description="Log format: 'text' for human-readable, 'json' for structured JSON logging"
     )
 
     @field_validator("environment")

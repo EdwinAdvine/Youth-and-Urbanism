@@ -6,7 +6,7 @@ Each user has their own dedicated AI agent that adapts to their role and prefere
 
 Features:
 - Role-specific AI assistance (student, parent, instructor, admin, staff, partner)
-- Multi-modal responses (text, voice, video)
+- Multi-modal responses (text, voice)
 - Persistent conversation sessions with auto-generated titles
 - Real-time streaming responses via Server-Sent Events
 - Contextual insights and tips based on user activity
@@ -69,7 +69,7 @@ async def chat_with_copilot(
     - Routes query to appropriate AI provider (Gemini, Claude, etc.)
     - Saves user message and AI response to database
     - Auto-generates session title from first message
-    - Supports text, voice, and video response modes
+    - Supports text and voice response modes
 
     Args:
         request: Chat request with message and optional session ID

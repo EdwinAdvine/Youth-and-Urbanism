@@ -351,7 +351,9 @@ async def login(
         }
         response = JSONResponse(content=body, status_code=200)
 
-        # Also set httpOnly cookies for browser clients
+        # Clear any stale cookies before setting fresh ones
+        _clear_auth_cookies(response)
+        # Set httpOnly cookies for browser clients
         _set_auth_cookies(response, token_data.access_token, token_data.refresh_token)
 
         return response

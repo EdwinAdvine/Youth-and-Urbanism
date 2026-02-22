@@ -1,9 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';
-import { AlertTriangle, Clock, Upload, ChevronRight } from 'lucide-react';
+import { AlertTriangle, Clock, Upload, ChevronRight, Loader2 } from 'lucide-react';
+import apiClient from '../../services/api';
 
-const assignments = [
+interface DueSoonAssignment {
+  id: string;
+  title: string;
+  subject: string;
+  dueIn: string;
+  dueDate: string;
+  instructor: string;
+  urgent: boolean;
+}
+
+const FALLBACK_ASSIGNMENTS: DueSoonAssignment[] = [
   { id: '1', title: 'Fractions Word Problems', subject: 'Mathematics', dueIn: '4 hours', dueDate: 'Today, 5:00 PM', instructor: 'Ms. Wanjiku', urgent: true },
   { id: '2', title: 'Water Cycle Essay', subject: 'Science', dueIn: '1 day', dueDate: 'Tomorrow, 11:59 PM', instructor: 'Mr. Ochieng', urgent: false },
   { id: '3', title: 'Creative Story Writing', subject: 'English', dueIn: '2 days', dueDate: 'Wed, Feb 19', instructor: 'Mrs. Kamau', urgent: false },
@@ -13,6 +24,36 @@ const assignments = [
 const AssignmentsDueSoonPage: React.FC = () => {
   const navigate = useNavigate();
   const { borderRadius } = useAgeAdaptiveUI();
+  const [assignments, setAssignments] = useState<DueSoonAssignment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDueSoonAssignments = async () => {
+      try {
+        setLoading(true);
+        const response = await apiClient.get('/api/v1/student/assessments/due-soon');
+        const data = response.data;
+        if (data && Array.isArray(data) && data.length > 0) {
+          setAssignments(data);
+        } else {
+          setAssignments(FALLBACK_ASSIGNMENTS);
+        }
+      } catch {
+        setAssignments(FALLBACK_ASSIGNMENTS);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDueSoonAssignments();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 text-[#FF0000] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

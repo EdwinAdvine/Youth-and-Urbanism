@@ -5,13 +5,18 @@ import './index.css'
 import './i18n' // Initialize i18n
 import { registerSW } from 'virtual:pwa-register'
 import { initializeTheme } from './store'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 
 // Initialize theme before first render to prevent flash
 initializeTheme()
 
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <GoogleOAuthProvider clientId={googleClientId}>
+      <App />
+    </GoogleOAuthProvider>
   </React.StrictMode>,
 )
 

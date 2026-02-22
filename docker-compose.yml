@@ -13,6 +13,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-tuhs_db}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./backend/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U tuhs_user -d tuhs_db"]
@@ -45,6 +47,32 @@ services:
       timeout: 5s
       retries: 5
 
+  pgbouncer:
+    image: edoburu/pgbouncer:1.21.0
+    container_name: tuhs_pgbouncer
+    ports:
+      - "6432:6432"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-tuhs_user}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-tuhs_db}
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 200
+      DEFAULT_POOL_SIZE: 40
+      MIN_POOL_SIZE: 10
+      RESERVE_POOL_SIZE: 10
+      RESERVE_POOL_TIMEOUT: 5
+      SERVER_IDLE_TIMEOUT: 600
+      SERVER_LIFETIME: 3600
+      AUTH_TYPE: scram-sha-256
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 6432"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend
@@ -57,14 +85,14 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      # Override DB/Redis URLs to use Docker networking
-      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-tuhs_user}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-tuhs_db}
+      # Route through PgBouncer for connection multiplexing
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-tuhs_user}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-tuhs_db}
       REDIS_URL: redis://redis:6379
       HOST: 0.0.0.0
       PORT: "8000"
       RELOAD: "False"
     depends_on:
-      postgres:
+      pgbouncer:
         condition: service_healthy
       redis:
         condition: service_healthy

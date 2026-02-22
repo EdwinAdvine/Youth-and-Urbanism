@@ -62,7 +62,7 @@ export function useWebRTC({
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [myUserId, setMyUserId] = useState('');
-  const [iceServers, setIceServers] = useState<RTCIceServer[]>([]);
+  const [, setIceServers] = useState<RTCIceServer[]>([]);
   const iceServersRef = useRef<RTCIceServer[]>([]);
   const stopScreenShareRef = useRef<() => void>(() => {});
 

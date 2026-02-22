@@ -220,7 +220,7 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     courseService.listCourses({ is_featured: true, limit: 10 } as any)
       .then((res) => {
-        const courses = (res.courses || res.results || []) as any[];
+        const courses = (res.courses || (res as any).results || []) as any[];
         if (courses.length > 0) {
           setFeaturedCourses(
             courses.map((c: any) => ({

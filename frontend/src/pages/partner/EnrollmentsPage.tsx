@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Users,
@@ -11,9 +11,11 @@ import {
   Bell,
   Search,
   Filter,
+  AlertTriangle,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { requestConsent } from '../../services/partner/sponsorshipService';
+import { requestConsent, getSponsoredChildren } from '../../services/partner/sponsorshipService';
+import type { SponsoredChild } from '../../types/partner';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } };
@@ -30,7 +32,8 @@ interface Enrollment {
   enrolledDate: string;
 }
 
-const mockEnrollments: Enrollment[] = [
+/** Fallback data used when the API is unavailable */
+const FALLBACK_ENROLLMENTS: Enrollment[] = [
   { id: '1', childName: 'Amara Ochieng', program: 'Primary Mathematics', status: 'active', consentStatus: 'granted', enrolledDate: '2026-01-15' },
   { id: '2', childName: 'Brian Kamau', program: 'Science Explorer', status: 'pending_consent', consentStatus: 'pending', enrolledDate: '2026-02-10' },
   { id: '3', childName: 'Cynthia Wanjiku', program: 'English Literacy', status: 'active', consentStatus: 'granted', enrolledDate: '2025-11-20' },
@@ -41,12 +44,26 @@ const mockEnrollments: Enrollment[] = [
   { id: '8', childName: 'Hassan Ali', program: 'Science Explorer', status: 'pending_consent', consentStatus: 'pending', enrolledDate: '2026-02-13' },
 ];
 
-const stats = [
-  { label: 'Total Enrolled', value: '247', icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/10' },
-  { label: 'Pending Consent', value: '12', icon: Clock, color: 'text-amber-400', bg: 'bg-amber-500/10' },
-  { label: 'Consent Rate', value: '95%', icon: TrendingUp, color: 'text-green-400', bg: 'bg-green-500/10' },
-  { label: 'Recently Added', value: '8', icon: UserPlus, color: 'text-red-400', bg: 'bg-red-500/10' },
-];
+/** Map API-returned sponsored child data to the Enrollment UI shape */
+const mapApiChildToEnrollment = (apiChild: SponsoredChild): Enrollment => {
+  let consentStatus: ConsentStatus = 'pending';
+  if (apiChild.consent_given === true) consentStatus = 'granted';
+  else if (apiChild.consent_given === false) consentStatus = 'revoked';
+
+  const rawStatus = apiChild.status;
+  let status: EnrollmentStatus = 'active';
+  if (rawStatus === 'pending_consent') status = 'pending_consent';
+  else if (rawStatus === 'paused' || rawStatus === 'removed') status = 'paused';
+
+  return {
+    id: apiChild.id,
+    childName: apiChild.student_name || 'Unknown',
+    program: apiChild.program_id || 'General',
+    status,
+    consentStatus,
+    enrolledDate: apiChild.created_at || new Date().toISOString(),
+  };
+};
 
 type TabKey = 'all' | 'pending' | 'recent';
 
@@ -73,8 +90,63 @@ const EnrollmentsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sendingReminder, setSendingReminder] = useState<string | null>(null);
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredEnrollments = mockEnrollments.filter((e) => {
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchEnrollments = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await getSponsoredChildren();
+        if (!cancelled) {
+          if (response?.items && response.items.length > 0) {
+            setEnrollments(
+              response.items.map((item) => mapApiChildToEnrollment(item))
+            );
+          } else {
+            setEnrollments(FALLBACK_ENROLLMENTS);
+          }
+        }
+      } catch (err: unknown) {
+        if (!cancelled) {
+          console.error('Failed to fetch enrollments:', err);
+          setError('Failed to load enrollments');
+          setEnrollments(FALLBACK_ENROLLMENTS);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchEnrollments();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const totalEnrolled = enrollments.length;
+  const pendingConsent = enrollments.filter((e) => e.consentStatus === 'pending').length;
+  const grantedCount = enrollments.filter((e) => e.consentStatus === 'granted').length;
+  const consentRate = totalEnrolled > 0 ? Math.round((grantedCount / totalEnrolled) * 100) : 0;
+  const twoWeeksAgo = new Date();
+  twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+  const recentlyAdded = enrollments.filter((e) => new Date(e.enrolledDate) >= twoWeeksAgo).length;
+
+  const stats = [
+    { label: 'Total Enrolled', value: String(totalEnrolled), icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/10' },
+    { label: 'Pending Consent', value: String(pendingConsent), icon: Clock, color: 'text-amber-400', bg: 'bg-amber-500/10' },
+    { label: 'Consent Rate', value: `${consentRate}%`, icon: TrendingUp, color: 'text-green-400', bg: 'bg-green-500/10' },
+    { label: 'Recently Added', value: String(recentlyAdded), icon: UserPlus, color: 'text-red-400', bg: 'bg-red-500/10' },
+  ];
+
+  const filteredEnrollments = enrollments.filter((e) => {
     const matchesSearch =
       e.childName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       e.program.toLowerCase().includes(searchQuery.toLowerCase());
@@ -102,6 +174,17 @@ const EnrollmentsPage: React.FC = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-[#0F1112] p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-[#E40000]/30 border-t-[#E40000] rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-500 dark:text-white/60 text-sm">Loading enrollments...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white dark:bg-[#0F1112] p-6">
       <motion.div variants={stagger} initial="hidden" animate="visible" className="max-w-7xl mx-auto space-y-6">
@@ -110,6 +193,16 @@ const EnrollmentsPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Enrollments & Consent Management</h1>
           <p className="text-gray-400 dark:text-white/40 mt-1">Track enrollments and manage parental consent workflows</p>
         </motion.div>
+
+        {/* Error Banner */}
+        {error && (
+          <div className="flex items-center gap-2 px-4 py-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+            <AlertTriangle className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+            <p className="text-sm text-yellow-400">
+              {error}. Showing cached data instead.
+            </p>
+          </div>
+        )}
 
         {/* Stats Row */}
         <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

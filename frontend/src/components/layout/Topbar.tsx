@@ -26,7 +26,10 @@ import {
   FileText,
   Wifi,
   WifiOff,
+  Mic,
+  MicOff,
 } from 'lucide-react';
+import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import { Notification } from '../../types/index';
 
 interface TopbarProps {
@@ -65,6 +68,15 @@ const Topbar: React.FC<TopbarProps> = ({ onSidebarToggle, isSidebarOpen, role })
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout>>();
+
+  // Speech recognition for voice search
+  const { isRecording: isVoiceSearching, isSupported: isVoiceSupported, toggle: toggleVoiceSearch } =
+    useSpeechRecognition({
+      onFinalTranscript: (text) => {
+        handleSearchInput(text);
+      },
+      onError: (err) => console.error('Voice search error:', err),
+    });
 
   const notificationsRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -239,8 +251,25 @@ const Topbar: React.FC<TopbarProps> = ({ onSidebarToggle, isSidebarOpen, role })
                     value={searchQuery}
                     onChange={(e) => handleSearchInput(e.target.value)}
                     onFocus={() => { if (searchQuery.trim().length >= 2) setShowSearchDropdown(true); }}
-                    className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A3035] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 focus:border-transparent transition-all"
+                    className={`w-full pl-10 ${isVoiceSupported ? 'pr-16' : 'pr-4'} py-2 bg-gray-100 dark:bg-[#22272B] border ${isVoiceSearching ? 'border-red-500/40 ring-2 ring-red-500/20' : 'border-gray-200 dark:border-[#2A3035]'} rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 focus:border-transparent transition-all`}
                   />
+                  {/* Voice search button */}
+                  {isVoiceSupported && (
+                    <button
+                      type="button"
+                      onClick={toggleVoiceSearch}
+                      title={isVoiceSearching ? 'Stop voice search' : 'Voice search'}
+                      className={`
+                        absolute right-8 top-1/2 -translate-y-1/2 p-1 rounded transition-all
+                        ${isVoiceSearching
+                          ? 'text-red-500 animate-pulse'
+                          : 'text-gray-400 dark:text-white/60 hover:text-red-500 dark:hover:text-red-400'
+                        }
+                      `}
+                    >
+                      {isVoiceSearching ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                    </button>
+                  )}
                   {isSearching ? (
                     <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 animate-spin" />
                   ) : (
@@ -490,11 +519,28 @@ const Topbar: React.FC<TopbarProps> = ({ onSidebarToggle, isSidebarOpen, role })
                 <input
                   ref={searchRef}
                   type="text"
-                  placeholder="Search courses, assignments, forums..."
+                  placeholder={isVoiceSearching ? 'Listening...' : 'Search courses, assignments, forums...'}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#2A3035] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 focus:border-transparent transition-all"
+                  className={`w-full pl-10 ${isVoiceSupported ? 'pr-10' : 'pr-4'} py-3 bg-gray-100 dark:bg-[#22272B] border ${isVoiceSearching ? 'border-red-500/40' : 'border-gray-200 dark:border-[#2A3035]'} rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-[#FF0000]/50 focus:border-transparent transition-all`}
                 />
+                {/* Mobile voice search button */}
+                {isVoiceSupported && (
+                  <button
+                    type="button"
+                    onClick={toggleVoiceSearch}
+                    title={isVoiceSearching ? 'Stop voice search' : 'Voice search'}
+                    className={`
+                      absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-all
+                      ${isVoiceSearching
+                        ? 'text-red-500 animate-pulse'
+                        : 'text-gray-400 dark:text-white/60 hover:text-red-500 dark:hover:text-red-400'
+                      }
+                    `}
+                  >
+                    {isVoiceSearching ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                  </button>
+                )}
               </div>
               <button
                 type="button"

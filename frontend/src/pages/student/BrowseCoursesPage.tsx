@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';
-import { Search, Star, Users, Clock, Grid, List } from 'lucide-react';
+import { Search, Star, Users, Clock, Grid, List, Loader2 } from 'lucide-react';
+import { browseCourses } from '../../services/student/studentLearningService';
 
 interface MarketplaceCourse {
   id: string;
@@ -17,7 +18,7 @@ interface MarketplaceCourse {
   image: string;
 }
 
-const courses: MarketplaceCourse[] = [
+const FALLBACK_COURSES: MarketplaceCourse[] = [
   { id: '1', title: 'CBC Mathematics Grade 7', subject: 'Mathematics', instructor: 'Ms. Wanjiku', rating: 4.8, reviews: 156, students: 1240, duration: '12 weeks', price: 'KES 500', level: 'Grade 7', image: '' },
   { id: '2', title: 'Integrated Science Explorer', subject: 'Science', instructor: 'Mr. Ochieng', rating: 4.6, reviews: 89, students: 876, duration: '10 weeks', price: 'KES 450', level: 'Grade 6-8', image: '' },
   { id: '3', title: 'English Language Arts', subject: 'English', instructor: 'Mrs. Kamau', rating: 4.9, reviews: 213, students: 2100, duration: '14 weeks', price: 'Free', level: 'Grade 7', image: '' },
@@ -35,10 +36,39 @@ const BrowseCoursesPage: React.FC = () => {
   const [selectedSubject, setSelectedSubject] = useState('All');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('popular');
+  const [courses, setCourses] = useState<MarketplaceCourse[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        const data = await browseCourses({});
+        if (data && Array.isArray(data) && data.length > 0) {
+          setCourses(data);
+        } else {
+          setCourses(FALLBACK_COURSES);
+        }
+      } catch {
+        setCourses(FALLBACK_COURSES);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCourses();
+  }, []);
 
   const filtered = courses
     .filter(c => (selectedSubject === 'All' || c.subject === selectedSubject) && c.title.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => sortBy === 'rating' ? b.rating - a.rating : b.students - a.students);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 text-[#FF0000] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Search,
@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import AdminPageHeader from '../../components/admin/shared/AdminPageHeader';
 import AdminStatsCard from '../../components/admin/shared/AdminStatsCard';
+import adminContentService from '../../services/admin/adminContentService';
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -35,10 +36,10 @@ interface Course {
 }
 
 /* ------------------------------------------------------------------ */
-/* Mock data                                                           */
+/* Fallback data                                                       */
 /* ------------------------------------------------------------------ */
 
-const MOCK_COURSES: Course[] = [
+const FALLBACK_COURSES: Course[] = [
   { id: 'c1', title: 'Introduction to Kiswahili Grammar', instructor: 'Jane Wanjiku', grade_level: 'Grade 4', status: 'published', students_enrolled: 128, created_at: '2025-11-14' },
   { id: 'c2', title: 'CBC Mathematics - Fractions & Decimals', instructor: 'David Ochieng', grade_level: 'Grade 5', status: 'published', students_enrolled: 95, created_at: '2025-11-02' },
   { id: 'c3', title: 'Environmental Science - Water Cycle', instructor: 'Mary Akinyi', grade_level: 'Grade 3', status: 'pending', students_enrolled: 0, created_at: '2025-12-20' },
@@ -93,13 +94,39 @@ const CoursesAdminPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('all');
   const [search, setSearch] = useState('');
   const [gradeFilter, setGradeFilter] = useState('');
-  const [courses, setCourses] = useState<Course[]>(MOCK_COURSES);
+  const [courses, setCourses] = useState<Course[]>(FALLBACK_COURSES);
+  const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await adminContentService.listCourses({ page_size: 100 });
+        const mapped: Course[] = response.items.map((item) => ({
+          id: item.id,
+          title: item.title,
+          instructor: item.creator_name,
+          grade_level: item.grade_levels?.[0] ?? 'N/A',
+          status: (item.status === 'pending_review' ? 'pending' : item.status === 'rejected' ? 'draft' : item.status) as CourseStatus,
+          students_enrolled: item.enrollment_count,
+          created_at: item.created_at ?? '',
+        }));
+        if (mapped.length > 0) {
+          setCourses(mapped);
+        }
+      } catch {
+        // API unavailable — keep fallback data
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCourses();
+  }, []);
 
   /* -- Button handlers ------------------------------------------------- */
 
@@ -176,6 +203,20 @@ const CoursesAdminPage: React.FC = () => {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-16 bg-gray-100 dark:bg-[#22272B] rounded-lg animate-pulse" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-28 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
+          ))}
+        </div>
+        <div className="h-80 bg-gray-100 dark:bg-[#22272B] rounded-xl animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <>
