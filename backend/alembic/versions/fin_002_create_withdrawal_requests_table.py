@@ -7,7 +7,7 @@ Create Date: 2026-02-22
 
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.dialects.postgresql import UUID, JSONB, ENUM
 
 
 revision = "fin_002"
@@ -17,18 +17,9 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Create enum types
-    withdrawal_method_enum = sa.Enum(
-        "mpesa_b2c", "bank_transfer", "paypal",
-        name="withdrawal_method_enum",
-    )
-    withdrawal_status_enum = sa.Enum(
-        "requested", "approved", "processing", "completed", "failed", "rejected",
-        name="withdrawal_status_enum",
-    )
-
-    withdrawal_method_enum.create(op.get_bind(), checkfirst=True)
-    withdrawal_status_enum.create(op.get_bind(), checkfirst=True)
+    # Create enum types via raw SQL with IF NOT EXISTS
+    op.execute("DO $$ BEGIN CREATE TYPE withdrawal_method_enum AS ENUM ('mpesa_b2c', 'bank_transfer', 'paypal'); EXCEPTION WHEN duplicate_object THEN null; END $$;")
+    op.execute("DO $$ BEGIN CREATE TYPE withdrawal_status_enum AS ENUM ('requested', 'approved', 'processing', 'completed', 'failed', 'rejected'); EXCEPTION WHEN duplicate_object THEN null; END $$;")
 
     op.create_table(
         "withdrawal_requests",
@@ -36,9 +27,9 @@ def upgrade() -> None:
         sa.Column("user_id", UUID(as_uuid=True), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True),
         sa.Column("amount", sa.Numeric(10, 2), nullable=False),
         sa.Column("currency", sa.String(3), server_default="KES", nullable=False),
-        sa.Column("payout_method", withdrawal_method_enum, nullable=False),
+        sa.Column("payout_method", ENUM("mpesa_b2c", "bank_transfer", "paypal", name="withdrawal_method_enum", create_type=False), nullable=False),
         sa.Column("payout_details", JSONB, nullable=False),
-        sa.Column("status", withdrawal_status_enum, server_default="requested", nullable=False, index=True),
+        sa.Column("status", ENUM("requested", "approved", "processing", "completed", "failed", "rejected", name="withdrawal_status_enum", create_type=False), server_default="requested", nullable=False, index=True),
         sa.Column("reviewed_by", UUID(as_uuid=True), sa.ForeignKey("users.id", ondelete="SET NULL"), nullable=True),
         sa.Column("reviewed_at", sa.DateTime, nullable=True),
         sa.Column("rejection_reason", sa.Text, nullable=True),

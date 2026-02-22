@@ -7,7 +7,7 @@ Create Date: 2026-02-22
 
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.dialects.postgresql import UUID, JSONB, ENUM
 
 
 revision = "fin_003"
@@ -17,18 +17,9 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Create enum types
-    purchase_approval_mode_enum = sa.Enum(
-        "realtime", "spending_limit",
-        name="purchase_approval_mode_enum",
-    )
-    approval_status_enum = sa.Enum(
-        "pending", "approved", "rejected", "expired", "auto_approved",
-        name="approval_status_enum",
-    )
-
-    purchase_approval_mode_enum.create(op.get_bind(), checkfirst=True)
-    approval_status_enum.create(op.get_bind(), checkfirst=True)
+    # Create enum types via raw SQL with IF NOT EXISTS
+    op.execute("DO $$ BEGIN CREATE TYPE purchase_approval_mode_enum AS ENUM ('realtime', 'spending_limit'); EXCEPTION WHEN duplicate_object THEN null; END $$;")
+    op.execute("DO $$ BEGIN CREATE TYPE approval_status_enum AS ENUM ('pending', 'approved', 'rejected', 'expired', 'auto_approved'); EXCEPTION WHEN duplicate_object THEN null; END $$;")
 
     # Purchase approval settings
     op.create_table(
@@ -36,7 +27,7 @@ def upgrade() -> None:
         sa.Column("id", UUID(as_uuid=True), primary_key=True),
         sa.Column("parent_id", UUID(as_uuid=True), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True),
         sa.Column("child_id", UUID(as_uuid=True), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True),
-        sa.Column("mode", purchase_approval_mode_enum, server_default="realtime", nullable=False),
+        sa.Column("mode", ENUM("realtime", "spending_limit", name="purchase_approval_mode_enum", create_type=False), server_default="realtime", nullable=False),
         sa.Column("daily_limit", sa.Numeric(10, 2), nullable=True),
         sa.Column("monthly_limit", sa.Numeric(10, 2), nullable=True),
         sa.Column("per_purchase_limit", sa.Numeric(10, 2), nullable=True),
@@ -63,7 +54,7 @@ def upgrade() -> None:
         sa.Column("item_name", sa.String(200), nullable=False),
         sa.Column("amount", sa.Numeric(10, 2), nullable=False),
         sa.Column("currency", sa.String(3), server_default="KES", nullable=False),
-        sa.Column("status", approval_status_enum, server_default="pending", nullable=False, index=True),
+        sa.Column("status", ENUM("pending", "approved", "rejected", "expired", "auto_approved", name="approval_status_enum", create_type=False), server_default="pending", nullable=False, index=True),
         sa.Column("decision_at", sa.DateTime, nullable=True),
         sa.Column("rejection_reason", sa.Text, nullable=True),
         sa.Column("expires_at", sa.DateTime, nullable=False),
