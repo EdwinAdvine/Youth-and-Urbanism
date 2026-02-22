@@ -17,7 +17,7 @@ bind = f"{os.getenv('HOST', '0.0.0.0')}:{os.getenv('PORT', '8000')}"
 # ── Workers ───────────────────────────────────────────────────────────
 # Formula: 2 * CPU cores + 1
 # Override with WEB_WORKERS env var for container resource limits
-workers = int(os.getenv("WEB_WORKERS", 2 * multiprocessing.cpu_count() + 1))
+workers = int(os.getenv("WEB_WORKERS", min(2 * multiprocessing.cpu_count() + 1, 4)))
 worker_class = "uvicorn.workers.UvicornWorker"
 
 # ── Timeouts ──────────────────────────────────────────────────────────
@@ -31,7 +31,7 @@ max_requests = 10000
 max_requests_jitter = 1000  # Randomize to avoid thundering herd restarts
 
 # ── Preloading ────────────────────────────────────────────────────────
-preload_app = True  # Load app before forking for faster worker startup
+preload_app = False  # Must be False for async lifespan (DB init per-worker)
 
 # ── Logging ───────────────────────────────────────────────────────────
 accesslog = "-"  # stdout

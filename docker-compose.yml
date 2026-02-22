@@ -47,32 +47,6 @@ services:
       timeout: 5s
       retries: 5
 
-  pgbouncer:
-    image: edoburu/pgbouncer:1.21.0
-    container_name: tuhs_pgbouncer
-    ports:
-      - "6432:6432"
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-tuhs_user}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-tuhs_db}
-      POOL_MODE: transaction
-      MAX_CLIENT_CONN: 200
-      DEFAULT_POOL_SIZE: 40
-      MIN_POOL_SIZE: 10
-      RESERVE_POOL_SIZE: 10
-      RESERVE_POOL_TIMEOUT: 5
-      SERVER_IDLE_TIMEOUT: 600
-      SERVER_LIFETIME: 3600
-      AUTH_TYPE: scram-sha-256
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -h localhost -p 6432"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   backend:
     build:
       context: ./backend
@@ -80,19 +54,16 @@ services:
     container_name: tuhs_backend
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend:/app
     env_file:
       - ./backend/.env
     environment:
-      # Route through PgBouncer for connection multiplexing
-      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-tuhs_user}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-tuhs_db}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-tuhs_user}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-tuhs_db}
       REDIS_URL: redis://redis:6379
       HOST: 0.0.0.0
       PORT: "8000"
       RELOAD: "False"
     depends_on:
-      pgbouncer:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
