@@ -52,7 +52,7 @@ export const useAuthStore = create<AuthState>()(
 
         try {
           // Step 3: Login with fresh credentials
-          const { user } = await authService.login({ email: credentials.email, password: credentials.password });
+          const { user } = await authService.login({ identifier: credentials.identifier, password: credentials.password });
           set({
             user,
             isAuthenticated: true,
@@ -83,7 +83,7 @@ export const useAuthStore = create<AuthState>()(
           await authService.register(data);
           // After registration, automatically login
           await authService.login({
-            email: data.email,
+            identifier: data.email,
             password: data.password
           });
           const user = await authService.getCurrentUser();

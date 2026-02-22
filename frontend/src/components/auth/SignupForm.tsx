@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AlertCircle, Eye, EyeOff, Loader2, Check, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import HoneypotField from '../common/HoneypotField';
+import ParentRegistrationWizard from './ParentRegistrationWizard';
 
 interface SignupFormProps {
   onSwitchToLogin: () => void;
@@ -25,7 +26,7 @@ const COUNTRY_CODES = [
 
 const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSuccess }) => {
   const [step, setStep] = useState<'role' | 'form'>('role');
-  const [selectedRole, setSelectedRole] = useState<'student' | 'parent' | 'partner' | null>(null);
+  const [selectedRole, setSelectedRole] = useState<'student' | 'parent' | null>(null);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -34,6 +35,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
     phoneNumber: '',
     password: '',
     confirmPassword: '',
+    dateOfBirth: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -43,7 +45,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
 
   const { register, isLoading, error, clearError } = useAuthStore();
 
-  const handleRoleSelect = (role: 'student' | 'parent' | 'partner') => {
+  const handleRoleSelect = (role: 'student' | 'parent') => {
     setSelectedRole(role);
     setStep('form');
   };
@@ -119,6 +121,25 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
       return;
     }
 
+    // Student must be 18+
+    if (selectedRole === 'student') {
+      if (!formData.dateOfBirth) {
+        setFormError('Date of birth is required for student registration');
+        return;
+      }
+      const dob = new Date(formData.dateOfBirth);
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const monthDiff = today.getMonth() - dob.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+      if (age < 18) {
+        setFormError('Students must be 18 or older to self-register. Children under 18 must be registered by a parent.');
+        return;
+      }
+    }
+
     const fullPhone = formData.phoneNumber.trim()
       ? `${formData.countryCode}${formData.phoneNumber.trim()}`
       : undefined;
@@ -130,6 +151,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
         full_name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
         role: selectedRole,
         phone_number: fullPhone,
+        ...(selectedRole === 'student' && formData.dateOfBirth ? { date_of_birth: formData.dateOfBirth } : {}),
       });
 
       const currentUser = useAuthStore.getState().user;
@@ -141,6 +163,16 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
     }
   };
 
+  // If parent role selected, render the parent registration wizard
+  if (selectedRole === 'parent' && step === 'form') {
+    return (
+      <ParentRegistrationWizard
+        onSwitchToLogin={onSwitchToLogin}
+        onSignupSuccess={onSignupSuccess}
+      />
+    );
+  }
+
   if (step === 'role') {
     return (
       <div className="space-y-4">
@@ -151,9 +183,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
 
         <div className="grid grid-cols-1 gap-3">
           {([
-            { role: 'student' as const, label: 'Student', desc: 'Access courses and learning materials', color: 'bg-blue-500', letter: 'S' },
-            { role: 'parent' as const, label: 'Parent', desc: "Monitor your child's progress", color: 'bg-green-500', letter: 'P' },
-            { role: 'partner' as const, label: 'Partner/Stakeholder', desc: 'Community partner and supporter', color: 'bg-orange-500', letter: 'P' },
+            { role: 'student' as const, label: 'Student (18+)', desc: 'Independent learner — access courses and materials', color: 'bg-blue-500', letter: 'S' },
+            { role: 'parent' as const, label: 'Parent', desc: "Register yourself and your children (under 18)", color: 'bg-green-500', letter: 'P' },
           ]).map(({ role, label, desc, color, letter }) => (
             <button
               key={role}
@@ -182,9 +213,13 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
 
         <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
           <p className="text-xs text-yellow-400">
-            Note: Staff, admin, and instructor accounts are not created here.{' '}
+            Children under 18 must be registered by a parent. Staff and admin accounts are created by administrators.{' '}
             <a href="/become-instructor" className="underline hover:text-yellow-300">
-              Instructors can apply here.
+              Instructors can apply here
+            </a>
+            {' | '}
+            <a href="/become-partner" className="underline hover:text-yellow-300">
+              Partners can apply here
             </a>
           </p>
         </div>
@@ -247,6 +282,25 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSignupSucces
           />
         </div>
       </div>
+
+      {/* Date of Birth (students only — must be 18+) */}
+      {selectedRole === 'student' && (
+        <div>
+          <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
+            Date of Birth <span className="text-xs text-gray-400">(must be 18 or older)</span>
+          </label>
+          <input
+            type="date"
+            id="dateOfBirth"
+            name="dateOfBirth"
+            value={formData.dateOfBirth}
+            onChange={handleInputChange}
+            max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+            className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
+            required
+          />
+        </div>
+      )}
 
       {/* Email */}
       <div>

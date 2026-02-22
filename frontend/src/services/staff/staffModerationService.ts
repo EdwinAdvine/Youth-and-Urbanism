@@ -71,19 +71,19 @@ export interface SafetyFlagParams {
 export async function getModerationQueue(
   params: ModerationQueueParams = {},
 ): Promise<PaginatedResponse<ModerationItem>> {
-  const { data } = await apiClient.get<PaginatedResponse<ModerationItem>>(
+  const { data } = await apiClient.get<{ status: string; data: PaginatedResponse<ModerationItem> }>(
     '/api/v1/staff/moderation/queue',
     { params },
   );
-  return data;
+  return data.data;
 }
 
 /** Fetch a single moderation item by ID. */
 export async function getModerationItem(itemId: string): Promise<ModerationItem> {
-  const { data } = await apiClient.get<ModerationItem>(
+  const { data } = await apiClient.get<{ status: string; data: ModerationItem }>(
     `/api/v1/staff/moderation/queue/${itemId}`,
   );
-  return data;
+  return data.data;
 }
 
 /** Submit a review decision for a moderation item. */
@@ -98,28 +98,28 @@ export async function submitReview(
 export async function bulkModerate(
   action: BulkModerationPayload,
 ): Promise<BulkActionResult> {
-  const { data } = await apiClient.post<BulkActionResult>(
+  const { data } = await apiClient.post<{ status: string; data: BulkActionResult }>(
     '/api/v1/staff/moderation/queue/bulk',
     action,
   );
-  return data;
+  return data.data;
 }
 
 /** Get CBC alignment analysis for a specific piece of content. */
 export async function getCBCAlignment(contentId: string): Promise<CBCAlignmentResult> {
-  const { data } = await apiClient.get<CBCAlignmentResult>(
+  const { data } = await apiClient.get<{ status: string; data: CBCAlignmentResult }>(
     `/api/v1/staff/moderation/cbc-alignment/${contentId}`,
   );
-  return data;
+  return data.data;
 }
 
 /** Fetch paginated safety flags raised by the AI moderation pipeline. */
 export async function getSafetyFlags(
   params: SafetyFlagParams = {},
 ): Promise<PaginatedResponse<SafetyFlag>> {
-  const { data } = await apiClient.get<PaginatedResponse<SafetyFlag>>(
+  const { data } = await apiClient.get<{ status: string; data: PaginatedResponse<SafetyFlag> }>(
     '/api/v1/staff/moderation/safety-flags',
     { params },
   );
-  return data;
+  return data.data;
 }

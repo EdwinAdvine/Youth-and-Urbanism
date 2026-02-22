@@ -104,32 +104,32 @@ export interface AdaptiveSessionState {
 export async function getAssessments(
   params: AssessmentListParams = {},
 ): Promise<PaginatedResponse<AdaptiveAssessment>> {
-  const { data } = await apiClient.get<PaginatedResponse<AdaptiveAssessment>>(
+  const { data } = await apiClient.get<{ status: string; data: PaginatedResponse<AdaptiveAssessment> }>(
     '/api/v1/staff/assessments',
     { params },
   );
-  return data;
+  return data.data;
 }
 
 /** Fetch a single assessment by ID. */
 export async function getAssessment(
   assessmentId: string,
 ): Promise<AdaptiveAssessment> {
-  const { data } = await apiClient.get<AdaptiveAssessment>(
+  const { data } = await apiClient.get<{ status: string; data: AdaptiveAssessment }>(
     `/api/v1/staff/assessments/${assessmentId}`,
   );
-  return data;
+  return data.data;
 }
 
 /** Create a new adaptive assessment. */
 export async function createAssessment(
   payload: CreateAssessmentPayload,
 ): Promise<AdaptiveAssessment> {
-  const { data } = await apiClient.post<AdaptiveAssessment>(
+  const { data } = await apiClient.post<{ status: string; data: AdaptiveAssessment }>(
     '/api/v1/staff/assessments',
     payload,
   );
-  return data;
+  return data.data;
 }
 
 /** Update an existing assessment. */
@@ -137,11 +137,11 @@ export async function updateAssessment(
   assessmentId: string,
   payload: UpdateAssessmentPayload,
 ): Promise<AdaptiveAssessment> {
-  const { data } = await apiClient.patch<AdaptiveAssessment>(
+  const { data } = await apiClient.patch<{ status: string; data: AdaptiveAssessment }>(
     `/api/v1/staff/assessments/${assessmentId}`,
     payload,
   );
-  return data;
+  return data.data;
 }
 
 /** Delete an assessment. */
@@ -154,11 +154,11 @@ export async function addQuestion(
   assessmentId: string,
   payload: CreateQuestionPayload,
 ): Promise<AssessmentQuestion> {
-  const { data } = await apiClient.post<AssessmentQuestion>(
+  const { data } = await apiClient.post<{ status: string; data: AssessmentQuestion }>(
     `/api/v1/staff/assessments/${assessmentId}/questions`,
     payload,
   );
-  return data;
+  return data.data;
 }
 
 /** Update an existing question. */
@@ -166,11 +166,11 @@ export async function updateQuestion(
   questionId: string,
   payload: UpdateQuestionPayload,
 ): Promise<AssessmentQuestion> {
-  const { data } = await apiClient.patch<AssessmentQuestion>(
+  const { data } = await apiClient.patch<{ status: string; data: AssessmentQuestion }>(
     `/api/v1/staff/assessments/questions/${questionId}`,
     payload,
   );
-  return data;
+  return data.data;
 }
 
 /** Delete a question from an assessment. */
@@ -183,11 +183,11 @@ export async function getNextAdaptiveQuestion(
   assessmentId: string,
   sessionState: AdaptiveSessionState,
 ): Promise<AssessmentQuestion> {
-  const { data } = await apiClient.post<AssessmentQuestion>(
+  const { data } = await apiClient.post<{ status: string; data: AssessmentQuestion }>(
     `/api/v1/staff/assessments/${assessmentId}/adaptive/next`,
     sessionState,
   );
-  return data;
+  return data.data;
 }
 
 /** Submit a student answer for AI-powered grading. */
@@ -195,9 +195,9 @@ export async function gradeResponse(
   questionId: string,
   answer: string,
 ): Promise<AIGradingResult> {
-  const { data } = await apiClient.post<AIGradingResult>(
+  const { data } = await apiClient.post<{ status: string; data: AIGradingResult }>(
     `/api/v1/staff/assessments/questions/${questionId}/grade`,
     { answer },
   );
-  return data;
+  return data.data;
 }

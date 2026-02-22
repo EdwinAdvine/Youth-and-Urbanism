@@ -123,6 +123,7 @@ export const studentRoutes = (
     {/* Learning */}
     <Route path="courses/enrolled" element={<S><EnrolledCoursesPage /></S>} />
     <Route path="courses/ai-recommended" element={<S><AIRecommendedPage /></S>} />
+    <Route path="courses/:id" element={<S><CoursePreviewPage /></S>} />
     <Route path="browse/marketplace" element={<S><BrowseCoursesPage /></S>} />
     <Route path="browse/wishlist" element={<S><WishlistPage /></S>} />
     <Route path="browse/topics" element={<S><TopicExplorerPage /></S>} />

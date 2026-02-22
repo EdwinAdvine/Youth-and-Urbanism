@@ -81,6 +81,21 @@ export default {
           800: '#006f64',
           900: '#004d42',
         },
+        /* Child-friendly pastel palette (Grades 1–9) */
+        'child-mint':        '#f0f5f0',
+        'child-yellow':      '#fffde7',
+        'child-pink':        '#fce4ec',
+        'child-blue':        '#e3f2fd',
+        'child-peach':       '#fff3e0',
+        'child-mint-dark':   '#1a2320',
+        'child-yellow-dark': '#2a2a1a',
+        'child-pink-dark':   '#2a1a1e',
+        'child-blue-dark':   '#1a1e2a',
+        'child-peach-dark':  '#2a221a',
+      },
+      fontFamily: {
+        'bryndan':        ['"Bryndan Write"', 'Caveat', 'cursive'],
+        'kg-penmanship':  ['"KG Primary Penmanship"', '"Comic Neue"', 'cursive'],
       },
       boxShadow: {
         'copilot-lg': '0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',

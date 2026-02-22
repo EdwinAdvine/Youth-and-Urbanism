@@ -27,6 +27,7 @@ from app.services.email_service import send_verification_email, send_password_re
 from app.utils.security import get_current_user, decode_token, verify_token
 from app.models.user import User
 from app.config import settings
+from app.schemas.parent_registration_schemas import ParentRegistrationWithChildren, UsernameGenerationRequest
 
 
 # ---------------------------------------------------------------------------
@@ -328,19 +329,19 @@ async def login(
     Raises:
         HTTPException 401: If credentials are invalid
     """
-    # Rate limit: 10 login attempts per IP per hour, 5 per email per 15 min
+    # Rate limit: 10 login attempts per IP per hour, 5 per identifier per 15 min
     client_ip = request.client.host if request.client else "unknown"
     await _check_auth_rate_limit(f"login:ip:{client_ip}", max_attempts=10, window_seconds=3600)
-    await _check_auth_rate_limit(f"login:email:{credentials.email}", max_attempts=5, window_seconds=900)
+    await _check_auth_rate_limit(f"login:id:{credentials.identifier}", max_attempts=5, window_seconds=900)
 
     # Check if account is locked due to too many failed attempts
-    await _check_account_lockout(credentials.email)
+    await _check_account_lockout(credentials.identifier)
 
     try:
         token_data = await auth_service.authenticate_user(credentials, db)
 
         # Successful login — clear failed attempt counter
-        await _clear_failed_logins(credentials.email)
+        await _clear_failed_logins(credentials.identifier)
 
         # Build JSON body (backward compatible — tokens still in body for mobile/API clients)
         body = {
@@ -360,15 +361,15 @@ async def login(
     except HTTPException as e:
         # Record failed login attempt for account lockout (only for auth failures)
         if e.status_code in (401, 403):
-            await _record_failed_login(credentials.email)
+            await _record_failed_login(credentials.identifier)
         raise
     except ValueError as e:
         # Record failed login attempt
-        await _record_failed_login(credentials.email)
-        logger.warning(f"Login ValueError for {credentials.email}: {e}")
+        await _record_failed_login(credentials.identifier)
+        logger.warning(f"Login ValueError for {credentials.identifier}: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password",
+            detail="Invalid credentials",
             headers={"WWW-Authenticate": "Bearer"}
         )
     except Exception as e:
@@ -896,4 +897,382 @@ async def instructor_setup(
     }
     response = JSONResponse(content=body, status_code=201)
     _set_auth_cookies(response, access_token, refresh_token_str)
+    return response
+
+
+# ============================================================================
+# Staff Account Setup (invite token flow)
+# ============================================================================
+
+@router.post(
+    "/staff-setup",
+    response_model=TokenResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Set up staff account",
+    description="Create a staff account using the one-time invite token emailed after admin approval.",
+)
+async def staff_setup(
+    data: dict = Body(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """Staff clicks invite link, sets password, account created with must_change_password=True."""
+    from app.models.staff_account_request import StaffAccountRequest
+    from app.utils.security import create_access_token, get_password_hash
+    from app.models.user import User as UserModel
+    from datetime import timedelta, timezone, datetime as dt
+
+    token = data.get("token", "")
+    password = data.get("password", "")
+    full_name_override = data.get("full_name", "")
+
+    if not token or not password:
+        raise HTTPException(status_code=400, detail="token and password are required")
+    if len(password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+
+    try:
+        payload = verify_token(token, token_type="staff_invite")
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid or expired invite token")
+
+    request_id_str = payload.get("sub")
+    if not request_id_str:
+        raise HTTPException(status_code=400, detail="Invalid invite token")
+
+    result = await db.execute(
+        select(StaffAccountRequest).where(StaffAccountRequest.id == UUID(request_id_str))
+    )
+    request_obj = result.scalar_one_or_none()
+
+    if not request_obj or request_obj.status != "approved":
+        raise HTTPException(status_code=400, detail="Request not found or not approved")
+    if request_obj.invite_token != token:
+        raise HTTPException(status_code=400, detail="Invite token has already been used")
+    if request_obj.invite_expires_at and request_obj.invite_expires_at.replace(tzinfo=None) < dt.utcnow():
+        raise HTTPException(status_code=400, detail="Invite token has expired")
+
+    existing = await db.execute(select(User).where(User.email == request_obj.email))
+    if existing.scalar_one_or_none():
+        raise HTTPException(status_code=409, detail="An account with this email already exists")
+
+    display_name = full_name_override or request_obj.full_name
+    new_user = UserModel(
+        email=request_obj.email,
+        password_hash=get_password_hash(password),
+        role="staff",
+        is_active=True,
+        is_verified=True,
+        must_change_password=True,
+        password_change_deadline=dt.now(timezone.utc) + timedelta(hours=24),
+        profile_data={"full_name": display_name, "phone": request_obj.phone, "department": request_obj.department},
+    )
+    db.add(new_user)
+    await db.flush()
+    await db.refresh(new_user)
+
+    request_obj.user_id = new_user.id
+    request_obj.invite_token = None
+    request_obj.status = "setup_complete"
+    await db.commit()
+
+    access_token = create_access_token(
+        data={"sub": str(new_user.id), "role": new_user.role},
+        expires_delta=timedelta(minutes=settings.access_token_expire_minutes),
+    )
+    refresh_token_str = create_access_token(
+        data={"sub": str(new_user.id), "type": "refresh"},
+        expires_delta=timedelta(days=settings.refresh_token_expire_days),
+    )
+
+    body = {
+        "access_token": access_token,
+        "refresh_token": refresh_token_str,
+        "token_type": "bearer",
+        "expires_in": settings.access_token_expire_minutes * 60,
+    }
+    response = JSONResponse(content=body, status_code=201)
+    _set_auth_cookies(response, access_token, refresh_token_str)
+    return response
+
+
+# ============================================================================
+# Partner Account Setup (invite token flow)
+# ============================================================================
+
+@router.post(
+    "/partner-setup",
+    response_model=TokenResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Set up partner account",
+    description=(
+        "Create a partner account using the one-time invite token "
+        "emailed after application approval. Sets a password and creates a PartnerProfile."
+    ),
+)
+async def partner_setup(
+    data: dict = Body(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Finalise partner account creation after approval.
+
+    Expected body:
+        token: invite JWT from the approval email
+        password: new password (min 8 chars)
+        full_name: partner contact display name (optional -- falls back to application contact_person)
+    """
+    from app.models.partner_application import PartnerApplication
+    from app.models.partner.partner_profile import PartnerProfile
+    from app.utils.security import create_access_token, get_password_hash
+    from app.models.user import User as UserModel
+    from datetime import timedelta, timezone, datetime as dt
+
+    token = data.get("token", "")
+    password = data.get("password", "")
+    full_name_override = data.get("full_name", "")
+
+    if not token or not password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="token and password are required",
+        )
+
+    if len(password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 8 characters",
+        )
+
+    # Validate invite token
+    try:
+        payload = verify_token(token, token_type="partner_invite")
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired invite token",
+        )
+
+    application_id_str = payload.get("sub")
+    if not application_id_str:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid invite token",
+        )
+
+    # Fetch the application
+    result = await db.execute(
+        select(PartnerApplication).where(
+            PartnerApplication.id == UUID(application_id_str)
+        )
+    )
+    application = result.scalar_one_or_none()
+
+    if not application or application.status != "approved":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Application not found or not approved",
+        )
+
+    # Verify stored token matches (one-time use check)
+    if application.invite_token != token:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invite token has already been used or is invalid",
+        )
+
+    # Check expiry stored on the application record
+    if application.invite_expires_at and application.invite_expires_at.replace(tzinfo=None) < dt.utcnow():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invite token has expired. Please contact support for a new link.",
+        )
+
+    # Check email not already registered
+    existing = await db.execute(
+        select(UserModel).where(UserModel.email == application.email)
+    )
+    if existing.scalar_one_or_none():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="An account with this email already exists. Please log in.",
+        )
+
+    # Create the partner user
+    display_name = full_name_override or application.contact_person
+    new_user = UserModel(
+        email=application.email,
+        password_hash=get_password_hash(password),
+        role="partner",
+        is_active=True,
+        is_verified=True,  # Email already verified via invite flow
+        profile_data={
+            "full_name": display_name,
+            "phone": application.phone,
+            "organization_name": application.organization_name,
+        },
+    )
+    db.add(new_user)
+    await db.flush()
+    await db.refresh(new_user)
+
+    # Create the PartnerProfile with data from the application
+    partner_profile = PartnerProfile(
+        user_id=new_user.id,
+        organization_name=application.organization_name,
+        organization_type=application.organization_type,
+        display_name=display_name,
+        bio=application.description,
+        contact_person=application.contact_person,
+        contact_email=application.email,
+        contact_phone=application.phone,
+        website=application.website,
+        partnership_tier="standard",
+        onboarding_completed=False,
+        onboarding_step="profile_review",
+    )
+    db.add(partner_profile)
+
+    # Link application to the new user and consume the invite token
+    application.user_id = new_user.id
+    application.invite_token = None  # One-time use -- clear after consumption
+    application.status = "setup_complete"
+
+    await db.commit()
+
+    # Issue access + refresh tokens so the user is auto-logged-in
+    access_token = create_access_token(
+        data={"sub": str(new_user.id), "role": new_user.role},
+        expires_delta=timedelta(minutes=settings.access_token_expire_minutes),
+    )
+    refresh_token_str = create_access_token(
+        data={"sub": str(new_user.id), "type": "refresh"},
+        expires_delta=timedelta(days=settings.refresh_token_expire_days),
+    )
+
+    body = {
+        "access_token": access_token,
+        "refresh_token": refresh_token_str,
+        "token_type": "bearer",
+        "expires_in": settings.access_token_expire_minutes * 60,
+    }
+    response = JSONResponse(content=body, status_code=201)
+    _set_auth_cookies(response, access_token, refresh_token_str)
+    return response
+
+
+# ============================================================================
+# Parent Registration with Children
+# ============================================================================
+
+@router.post(
+    "/register-parent",
+    status_code=status.HTTP_201_CREATED,
+    summary="Register parent with children",
+    description="Multi-step registration: create parent account + 1-5 child accounts.",
+)
+async def register_parent(
+    request: Request,
+    data: ParentRegistrationWithChildren,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+):
+    # Rate limit: 5 per IP per hour
+    client_ip = request.client.host if request.client else "unknown"
+    await _check_auth_rate_limit(f"register:ip:{client_ip}", max_attempts=5, window_seconds=3600)
+
+    from app.services.parent_registration_service import register_parent_with_children
+    from app.services.email_service import send_verification_email, send_parent_children_welcome_email
+
+    result = await register_parent_with_children(db, data)
+    parent_user = result["parent_user"]
+    children = result["children"]
+
+    # Send verification email for parent
+    background_tasks.add_task(send_verification_email, parent_user.email, str(parent_user.id), data.full_name)
+
+    # Send welcome email with children details
+    children_details = [{"full_name": c.full_name, "username": c.username, "setup_link": c.setup_link} for c in children]
+    background_tasks.add_task(send_parent_children_welcome_email, parent_user.email, data.full_name, children_details)
+
+    # Auto-login the parent
+    from app.utils.security import create_access_token, create_refresh_token
+    token_data = {"sub": str(parent_user.id), "email": parent_user.email, "role": "parent"}
+    access_token = create_access_token(data=token_data)
+    refresh_token = create_refresh_token(data={"sub": str(parent_user.id)})
+
+    body = {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "expires_in": settings.access_token_expire_minutes * 60,
+        "children": [c.model_dump() for c in children],
+    }
+    response = JSONResponse(content=body, status_code=201)
+    _set_auth_cookies(response, access_token, refresh_token)
+    return response
+
+
+# ============================================================================
+# Username Generation
+# ============================================================================
+
+@router.post("/generate-username", status_code=200, summary="Generate username suggestions")
+async def generate_username_suggestions(
+    data: UsernameGenerationRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    from app.services.username_generation_service import suggest_usernames
+    suggestions = await suggest_usernames(db, data.first_name, data.last_name, count=5)
+    return {"suggestions": suggestions}
+
+
+# ============================================================================
+# Child First Login
+# ============================================================================
+
+@router.post("/child-first-login", status_code=200, summary="Child sets password on first login")
+async def child_first_login(
+    data: dict = Body(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """Child clicks link from parent email, sets their password."""
+    token = data.get("token", "")
+    password = data.get("password", "")
+
+    if not token or not password:
+        raise HTTPException(status_code=400, detail="token and password are required")
+    if len(password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+
+    try:
+        payload = verify_token(token, token_type="child_first_login")
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid or expired setup token")
+
+    child_user_id = payload.get("sub")
+    if not child_user_id:
+        raise HTTPException(status_code=400, detail="Invalid token")
+
+    result = await db.execute(select(User).where(User.id == UUID(child_user_id)))
+    child_user = result.scalar_one_or_none()
+
+    if not child_user or child_user.role != "student":
+        raise HTTPException(status_code=400, detail="User not found")
+
+    from app.utils.security import get_password_hash, create_access_token, create_refresh_token
+    child_user.password_hash = get_password_hash(password)
+    await db.commit()
+
+    token_data = {"sub": str(child_user.id), "role": child_user.role}
+    access_token = create_access_token(data=token_data)
+    refresh_token = create_refresh_token(data={"sub": str(child_user.id)})
+
+    body = {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "expires_in": settings.access_token_expire_minutes * 60,
+    }
+    response = JSONResponse(content=body, status_code=200)
+    _set_auth_cookies(response, access_token, refresh_token)
     return response

@@ -20,6 +20,7 @@ from app.models.parent.parent_message import ParentMessage
 from app.models.parent.ai_alert import AIAlert
 from app.models.parent.notification_preference import NotificationPreference
 from app.models.parent.parent_report import ParentReport
+from app.models.parent.discussion_card import ParentDiscussionCard
 
 __all__ = [
     'MoodEntry',
@@ -30,4 +31,5 @@ __all__ = [
     'AIAlert',
     'NotificationPreference',
     'ParentReport',
+    'ParentDiscussionCard',
 ]

@@ -37,11 +37,11 @@ export interface PushSubscriptionPayload {
 export async function getNotifications(
   params: NotificationListParams = {},
 ): Promise<PaginatedResponse<StaffNotification>> {
-  const { data } = await apiClient.get<PaginatedResponse<StaffNotification>>(
+  const { data } = await apiClient.get<{ status: string; data: PaginatedResponse<StaffNotification> }>(
     '/api/v1/staff/notifications',
     { params },
   );
-  return data;
+  return data.data;
 }
 
 /** Mark specific notifications as read. */

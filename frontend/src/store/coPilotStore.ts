@@ -204,11 +204,18 @@ export const useCoPilotStore = create<CoPilotState>()(
 
       syncRoleFromAuth: (authRole: string) => {
         // Map auth role to CoPilot role (standardize 'teacher' -> 'instructor')
+        // SECURITY: Unknown roles are rejected, NOT defaulted to 'student'
+        const validRoles = new Set(['student', 'parent', 'instructor', 'admin', 'partner', 'staff']);
         const normalizedRole =
           authRole === 'teacher' ? 'instructor' :
-          ['student', 'parent', 'instructor', 'admin', 'partner', 'staff'].includes(authRole)
+          validRoles.has(authRole)
             ? (authRole as UserRole)
-            : 'student';
+            : null;
+
+        if (normalizedRole === null) {
+          console.error(`CoPilot: Unrecognized auth role "${authRole}". CoPilot role unchanged.`);
+          return;
+        }
 
         const currentRole = get().activeRole;
         if (normalizedRole !== currentRole) {

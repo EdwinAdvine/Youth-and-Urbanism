@@ -18,7 +18,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.utils.permissions import verify_admin_access
+from app.utils.permissions import require_permission
 from app.services.admin.finance_service import FinanceService
 
 logger = logging.getLogger(__name__)
@@ -36,13 +36,14 @@ async def list_transactions(
     status_filter: Optional[str] = Query(None, alias="status"),
     payment_method: Optional[str] = Query(None),
     search: Optional[str] = Query(None),
-    current_user: dict = Depends(verify_admin_access()),
+    current_user: dict = Depends(require_permission("finance.transactions.read")),
     db: AsyncSession = Depends(get_db),
 ) -> Dict[str, Any]:
     """
     Paginated list of all platform transactions.
 
     Supports filtering by status, payment method, and search by reference or user name.
+    Requires finance.transactions.read permission (Super Admin or explicitly granted).
     """
     try:
         data = await FinanceService.list_transactions(
@@ -67,13 +68,14 @@ async def list_transactions(
 @router.get("/finance/refunds")
 async def list_refunds(
     status_filter: Optional[str] = Query(None, alias="status"),
-    current_user: dict = Depends(verify_admin_access()),
+    current_user: dict = Depends(require_permission("finance.transactions.manage")),
     db: AsyncSession = Depends(get_db),
 ) -> Dict[str, Any]:
     """
     List refund requests in the review queue.
 
     Returns pending, approved, and recently processed refund requests.
+    Requires finance.transactions.manage permission.
     """
     try:
         refunds = await FinanceService.get_refund_queue(db, status_filter=status_filter)
@@ -98,13 +100,14 @@ async def list_refunds(
 @router.get("/finance/payouts")
 async def list_payouts(
     status_filter: Optional[str] = Query(None, alias="status"),
-    current_user: dict = Depends(verify_admin_access()),
+    current_user: dict = Depends(require_permission("finance.payouts.read")),
     db: AsyncSession = Depends(get_db),
 ) -> Dict[str, Any]:
     """
     List instructor payout queue.
 
     Returns pending and processing payouts scheduled for disbursement.
+    Requires finance.payouts.read permission.
     """
     try:
         payouts = await FinanceService.get_payout_queue(db, status_filter=status_filter)
@@ -128,13 +131,14 @@ async def list_payouts(
 # ------------------------------------------------------------------
 @router.get("/finance/plans")
 async def list_plans(
-    current_user: dict = Depends(verify_admin_access()),
+    current_user: dict = Depends(require_permission("finance.settings.manage")),
     db: AsyncSession = Depends(get_db),
 ) -> Dict[str, Any]:
     """
     List all subscription plans with active subscriber counts.
 
     Returns plan details including pricing, features, and subscriber metrics.
+    Requires finance.settings.manage permission.
     """
     try:
         plans = await FinanceService.list_subscription_plans(db)
@@ -162,13 +166,14 @@ async def list_invoices(
     page_size: int = Query(20, ge=1, le=100),
     status_filter: Optional[str] = Query(None, alias="status"),
     search: Optional[str] = Query(None),
-    current_user: dict = Depends(verify_admin_access()),
+    current_user: dict = Depends(require_permission("finance.reports.read")),
     db: AsyncSession = Depends(get_db),
 ) -> Dict[str, Any]:
     """
     Paginated list of invoices.
 
     Supports filtering by status and search by invoice number or customer name.
+    Requires finance.reports.read permission.
     """
     try:
         data = await FinanceService.list_invoices(

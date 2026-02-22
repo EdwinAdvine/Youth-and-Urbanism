@@ -54,25 +54,30 @@ export interface UpdateContentPayload {
 export async function getContentItems(
   params: ContentListParams = {},
 ): Promise<PaginatedResponse<ContentItem>> {
-  const { data } = await apiClient.get<PaginatedResponse<ContentItem>>(
+  const { data } = await apiClient.get<{ status: string; data: PaginatedResponse<ContentItem> }>(
     '/api/v1/staff/content/items',
     { params },
   );
-  return data;
+  return data.data;
 }
 
 /** Fetch a single content item by ID. */
 export async function getContentItem(contentId: string): Promise<ContentItem> {
-  const { data } = await apiClient.get<ContentItem>(`/api/v1/staff/content/items/${contentId}`);
-  return data;
+  const { data } = await apiClient.get<{ status: string; data: ContentItem }>(
+    `/api/v1/staff/content/items/${contentId}`,
+  );
+  return data.data;
 }
 
 /** Create a new content item. */
 export async function createContent(
   payload: CreateContentPayload,
 ): Promise<ContentItem> {
-  const { data } = await apiClient.post<ContentItem>('/api/v1/staff/content/items', payload);
-  return data;
+  const { data } = await apiClient.post<{ status: string; data: ContentItem }>(
+    '/api/v1/staff/content/items',
+    payload,
+  );
+  return data.data;
 }
 
 /** Update an existing content item. */
@@ -80,11 +85,11 @@ export async function updateContent(
   contentId: string,
   payload: UpdateContentPayload,
 ): Promise<ContentItem> {
-  const { data } = await apiClient.patch<ContentItem>(
+  const { data } = await apiClient.patch<{ status: string; data: ContentItem }>(
     `/api/v1/staff/content/items/${contentId}`,
     payload,
   );
-  return data;
+  return data.data;
 }
 
 /** Publish a content item (transitions status to published). */
@@ -96,10 +101,10 @@ export async function publishContent(contentId: string): Promise<void> {
 export async function getVersionHistory(
   contentId: string,
 ): Promise<ContentVersion[]> {
-  const { data } = await apiClient.get<ContentVersion[]>(
+  const { data } = await apiClient.get<{ status: string; data: ContentVersion[] }>(
     `/api/v1/staff/content/items/${contentId}/versions`,
   );
-  return data;
+  return data.data;
 }
 
 /** Rollback a content item to a specific version number. */
@@ -116,8 +121,8 @@ export async function rollbackVersion(
 export async function startCollabSession(
   contentId: string,
 ): Promise<CollabSession> {
-  const { data } = await apiClient.post<CollabSession>(
+  const { data } = await apiClient.post<{ status: string; data: CollabSession }>(
     `/api/v1/staff/content/collab/start/${contentId}`,
   );
-  return data;
+  return data.data;
 }

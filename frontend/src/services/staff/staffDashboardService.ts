@@ -14,18 +14,18 @@ import apiClient from '../api';
 
 /** Fetch aggregate dashboard statistics for the current staff member. */
 export async function getDashboardStats(): Promise<StaffDashboardStats> {
-  const { data } = await apiClient.get<StaffDashboardStats>('/api/v1/staff/dashboard/overview');
-  return data;
+  const { data } = await apiClient.get<{ status: string; data: StaffDashboardStats }>('/api/v1/staff/dashboard/overview');
+  return data.data;
 }
 
 /** Fetch the personalised "My Focus" view with urgent items and AI anomalies. */
 export async function getMyFocus(): Promise<MyFocusData> {
-  const { data } = await apiClient.get<MyFocusData>('/api/v1/staff/dashboard/my-focus');
-  return data;
+  const { data } = await apiClient.get<{ status: string; data: MyFocusData }>('/api/v1/staff/dashboard/my-focus');
+  return data.data;
 }
 
 /** Fetch the AI-prioritised agenda for the current staff member. */
 export async function getAIAgenda(): Promise<AIAgendaItem[]> {
-  const { data } = await apiClient.get<AIAgendaItem[]>('/api/v1/staff/dashboard/ai-agenda');
-  return data;
+  const { data } = await apiClient.get<{ status: string; data: AIAgendaItem[] }>('/api/v1/staff/dashboard/ai-agenda');
+  return data.data;
 }

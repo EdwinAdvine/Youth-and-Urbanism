@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bot, Save, RotateCcw, X, Sparkles } from 'lucide-react';
 import apiClient from '../../services/api';
+import { useAuthStore } from '../../store/authStore';
 
 interface AgentProfile {
   agent_name: string;
@@ -12,14 +13,27 @@ interface AgentProfile {
   quick_action_shortcuts: { label: string; action: string }[];
 }
 
-const defaultProfile: AgentProfile = {
-  agent_name: 'The Bird AI',
-  avatar_url: null,
-  persona: 'A helpful, encouraging AI tutor for Kenyan students.',
-  preferred_language: 'en',
-  expertise_focus: [],
-  response_style: 'conversational',
-  quick_action_shortcuts: [],
+// Role-specific defaults — each role gets its own agent identity
+const roleDefaults: Record<string, Partial<AgentProfile>> = {
+  student: { agent_name: 'Birdy', persona: 'A friendly, encouraging AI tutor for Kenyan students following the CBC curriculum.' },
+  parent: { agent_name: 'Parents Companion', persona: 'A warm, supportive guide helping parents track and nurture their children\'s education.' },
+  instructor: { agent_name: 'Instructor AI', persona: 'An expert teaching assistant for CBC-aligned lesson planning and assessment design.' },
+  admin: { agent_name: 'Bird Admin AI', persona: 'A data-driven platform management assistant for analytics and operations.' },
+  staff: { agent_name: 'Staff AI', persona: 'An operations assistant for efficient support ticket resolution and student care.' },
+  partner: { agent_name: 'Sponsors AI', persona: 'A partnership advisor focused on sponsorship impact and community collaboration.' },
+};
+
+const getDefaultProfile = (role?: string): AgentProfile => {
+  const rd = roleDefaults[role || 'student'] || {};
+  return {
+    agent_name: rd.agent_name || 'Urban Home School AI',
+    avatar_url: null,
+    persona: rd.persona || 'A helpful AI assistant on the Urban Home School platform.',
+    preferred_language: 'en',
+    expertise_focus: [],
+    response_style: 'conversational',
+    quick_action_shortcuts: [],
+  };
 };
 
 const responseStyles = [
@@ -47,6 +61,10 @@ interface AgentProfileSettingsProps {
 }
 
 const AgentProfileSettings: React.FC<AgentProfileSettingsProps> = ({ onClose, onProfileUpdate }) => {
+  const authUser = useAuthStore((s) => s.user);
+  const userRole = authUser?.role || 'student';
+  const defaultProfile = getDefaultProfile(userRole);
+
   const [profile, setProfile] = useState<AgentProfile>(defaultProfile);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -61,7 +79,7 @@ const AgentProfileSettings: React.FC<AgentProfileSettingsProps> = ({ onClose, on
       const res = await apiClient.get('/api/v1/ai-agent/profile');
       setProfile({ ...defaultProfile, ...res.data });
     } catch {
-      // Use defaults
+      // Use role-specific defaults
     } finally {
       setLoading(false);
     }
@@ -90,10 +108,17 @@ const AgentProfileSettings: React.FC<AgentProfileSettingsProps> = ({ onClose, on
   const resetProfile = async () => {
     setSaving(true);
     try {
-      await apiClient.post('/api/v1/ai-agent/profile/reset', {});
-      setProfile(defaultProfile);
+      const res = await apiClient.post('/api/v1/ai-agent/profile/reset', {});
+      // Use the role-specific defaults returned by the backend
+      setProfile({ ...defaultProfile, ...res.data });
       setMessage('Reset to defaults');
       setTimeout(() => setMessage(''), 2000);
+
+      // Notify parent so sidebar identity updates
+      onProfileUpdate?.({
+        agent_name: res.data.agent_name || defaultProfile.agent_name,
+        avatar_url: res.data.avatar_url || null,
+      });
     } catch {
       setMessage('Failed to reset');
     } finally {
@@ -142,8 +167,11 @@ const AgentProfileSettings: React.FC<AgentProfileSettingsProps> = ({ onClose, on
             value={profile.agent_name}
             onChange={(e) => setProfile(prev => ({ ...prev, agent_name: e.target.value }))}
             className="w-full px-3 py-2 text-sm bg-gray-100 dark:bg-[#22272B] border border-gray-200 dark:border-[#333] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#FF0000]/50 transition-colors"
-            placeholder="e.g. The Bird AI"
+            placeholder={`e.g. ${defaultProfile.agent_name}`}
           />
+          <p className="text-[10px] text-gray-400 dark:text-white/40 mt-1">
+            Your display name. The AI&apos;s core identity ({defaultProfile.agent_name}) is role-locked for security.
+          </p>
         </div>
 
         {/* Persona */}

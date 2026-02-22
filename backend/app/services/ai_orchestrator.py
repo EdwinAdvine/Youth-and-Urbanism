@@ -1002,11 +1002,46 @@ class AIOrchestrator:
                 message = entry.get('content', entry.get('message', ''))
                 prompt_parts.append(f"{role}: {message}")
 
+        # Avatar mode: instruct the LLM to embed gesture annotations
+        response_mode = context.get('response_mode', 'text')
+        if response_mode == 'avatar':
+            prompt_parts.append(
+                "\nAVATAR MODE: Your response will be narrated by a 3D avatar. "
+                "Embed gesture annotations naturally in your text using these markers: "
+                "[smile] [nod] [think] [point] [excited] [calm] [wave] [emphasize]. "
+                "Place them where a real tutor would gesture. Example: "
+                '"[smile] Great question! [think] Let me explain. [point] The key concept is..."'
+            )
+
         # Sanitize and add current query
         sanitized_query = self._sanitize_query(query)
         prompt_parts.append(f"\nCurrent question: {sanitized_query}")
 
         return "\n".join(prompt_parts)
+
+    async def route_avatar_query(
+        self, query: str, context: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Route a query with avatar response mode.
+
+        Gets a text response with embedded gesture annotations, then parses
+        them out and returns clean text + gesture timeline.
+        """
+        from app.services.avatar_service import AvatarService
+
+        context = {**context, "response_mode": "avatar"}
+        result = await self.route_query(query, context, response_mode="text")
+
+        raw_text = result.get("response", "")
+        clean_text, annotations = AvatarService.parse_gesture_annotations(raw_text)
+
+        return {
+            "response": clean_text,
+            "gesture_annotations": [a.model_dump() for a in annotations],
+            "raw_annotated_text": raw_text,
+            "provider_used": result.get("provider_used"),
+        }
 
 
 # Singleton instance management

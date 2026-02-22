@@ -47,6 +47,7 @@ SEED_USERS = [
         "email": "admin@urbanhomeschool.co.ke",
         "password": "Admin@2026!",
         "role": "admin",
+        "is_super_admin": True,
         "profile_data": {
             "full_name": "Admin User",
             "phone": "+254700000001",
@@ -172,6 +173,7 @@ async def main():
                 profile_data=user_data["profile_data"],
                 is_active=True,
                 is_verified=True,
+                is_super_admin=user_data.get("is_super_admin", False),
             )
             session.add(new_user)
             await session.flush()

@@ -27,6 +27,7 @@ import {
   createReport,
   deleteReport,
   exportReport,
+  createSchedule,
 } from '@/services/staff/staffReportService';
 import type { ReportDefinition } from '@/types/staff';
 
@@ -87,13 +88,44 @@ const CustomReportsPage: React.FC = () => {
   // Schedule modal state
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [scheduleReportId, setScheduleReportId] = useState<string | null>(null);
+  const [scheduleCron, setScheduleCron] = useState('0 8 * * 1');
+  const [scheduleFormat, setScheduleFormat] = useState<'csv' | 'excel' | 'pdf'>('pdf');
+  const [scheduleRecipients, setScheduleRecipients] = useState('');
+  const [scheduleSubmitting, setScheduleSubmitting] = useState(false);
+  const [scheduleSuccess, setScheduleSuccess] = useState(false);
+
+  const handleSubmitSchedule = async () => {
+    if (!scheduleReportId || !scheduleRecipients.trim()) return;
+    setScheduleSubmitting(true);
+    try {
+      const emails = scheduleRecipients.split(',').map(e => e.trim()).filter(Boolean);
+      await createSchedule({
+        report_id: scheduleReportId,
+        schedule_cron: scheduleCron,
+        format: scheduleFormat,
+        recipients: emails.map(email => ({ email, name: email.split('@')[0] })),
+        is_active: true,
+      });
+      setScheduleSuccess(true);
+      setTimeout(() => {
+        setShowScheduleModal(false);
+        setScheduleReportId(null);
+        setScheduleSuccess(false);
+        setScheduleRecipients('');
+      }, 2000);
+    } catch {
+      // keep modal open for retry
+    } finally {
+      setScheduleSubmitting(false);
+    }
+  };
 
   const fetchReports = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const response = await getReports();
-      setReports(response.items);
+      setReports(response.items ?? []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load reports');
     } finally {
@@ -350,19 +382,64 @@ const CustomReportsPage: React.FC = () => {
       {/* Schedule Modal */}
       {showScheduleModal && scheduleReportId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Schedule Report</h3>
-            <p className="text-sm text-gray-500 dark:text-white/50 mb-4">
-              Report scheduling configuration will be available soon. Report ID: {scheduleReportId}
-            </p>
-            <div className="flex justify-end">
-              <button
-                onClick={() => { setShowScheduleModal(false); setScheduleReportId(null); }}
-                className="px-4 py-2 bg-gray-100 dark:bg-[#22272B] text-gray-900 dark:text-white text-sm rounded-lg hover:bg-gray-200 dark:hover:bg-[#2A2F34]"
-              >
-                Close
-              </button>
-            </div>
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6 w-full max-w-md shadow-2xl">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Schedule Report Delivery</h3>
+            {scheduleSuccess ? (
+              <p className="text-sm text-green-400 text-center py-4">Schedule created successfully.</p>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-white/50 mb-1">Frequency</label>
+                  <select
+                    value={scheduleCron}
+                    onChange={(e) => setScheduleCron(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-900 dark:text-white"
+                  >
+                    <option value="0 8 * * 1">Weekly (Mon 8 AM)</option>
+                    <option value="0 8 * * *">Daily (8 AM)</option>
+                    <option value="0 8 1 * *">Monthly (1st at 8 AM)</option>
+                    <option value="0 8 * * 1,4">Twice a week (Mon & Thu)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-white/50 mb-1">Export Format</label>
+                  <select
+                    value={scheduleFormat}
+                    onChange={(e) => setScheduleFormat(e.target.value as 'csv' | 'excel' | 'pdf')}
+                    className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-900 dark:text-white"
+                  >
+                    <option value="pdf">PDF</option>
+                    <option value="excel">Excel</option>
+                    <option value="csv">CSV</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-white/50 mb-1">Recipients (comma-separated emails)</label>
+                  <input
+                    type="text"
+                    value={scheduleRecipients}
+                    onChange={(e) => setScheduleRecipients(e.target.value)}
+                    placeholder="admin@example.com, manager@example.com"
+                    className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-1">
+                  <button
+                    onClick={() => { setShowScheduleModal(false); setScheduleReportId(null); setScheduleRecipients(''); }}
+                    className="px-4 py-2 bg-gray-100 dark:bg-[#22272B] text-gray-900 dark:text-white text-sm rounded-lg hover:bg-gray-200 dark:hover:bg-[#2A2F34]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSubmitSchedule}
+                    disabled={scheduleSubmitting || !scheduleRecipients.trim()}
+                    className="px-4 py-2 bg-[#E40000] hover:bg-[#C80000] disabled:opacity-50 text-white text-sm rounded-lg font-medium transition-colors"
+                  >
+                    {scheduleSubmitting ? 'Saving…' : 'Create Schedule'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -502,7 +579,7 @@ const CustomReportsPage: React.FC = () => {
                     Template
                   </div>
                 )}
-                <p className="text-[10px] text-gray-400 dark:text-white/30 mt-2">by {report.created_by.name}</p>
+                <p className="text-[10px] text-gray-400 dark:text-white/30 mt-2">by {report.created_by?.name ?? 'Unknown'}</p>
               </div>
             );
           })}

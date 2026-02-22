@@ -17,6 +17,7 @@ import {
   RotateCcw,
   Volume2,
   VolumeX,
+  Video,
   MessageSquare,
   Copy,
   Check,
@@ -28,6 +29,8 @@ import {
   FileText,
   X,
 } from 'lucide-react';
+import { useAvatarStore } from '../../store/avatarStore';
+import { useAvatarLipSync } from '../../hooks/useAvatarLipSync';
 
 interface MessageToolbarProps {
   /** Unique message ID (used for share links and feedback) */
@@ -53,6 +56,26 @@ const MessageToolbar: React.FC<MessageToolbarProps> = ({
   const [feedback, setFeedback] = useState<'up' | 'down' | null>(null);
   const [copied, setCopied] = useState(false);
   const [shared, setShared] = useState(false);
+
+  // Avatar narration
+  const activeAvatar = useAvatarStore((s) => s.activeAvatar);
+  const webglTier = useAvatarStore((s) => s.webglTier);
+  const showAvatarPanel = useAvatarStore((s) => s.showAvatarPanel);
+  const isAvatarSpeaking = useAvatarStore((s) => s.isAvatarSpeaking);
+  const { playAudioWithSync, stopNarration } = useAvatarLipSync();
+  const canUseAvatar = !!activeAvatar && webglTier !== 'none';
+
+  const handleAvatarNarrate = useCallback(() => {
+    if (isAvatarSpeaking) {
+      stopNarration();
+      return;
+    }
+    showAvatarPanel();
+    // Play audio through avatar lip sync engine
+    if (audioUrl) {
+      playAudioWithSync(audioUrl);
+    }
+  }, [isAvatarSpeaking, stopNarration, showAvatarPanel, audioUrl, playAudioWithSync]);
   const [showMenu, setShowMenu] = useState(false);
   const [showComment, setShowComment] = useState(false);
   const [comment, setComment] = useState('');
@@ -247,6 +270,16 @@ const MessageToolbar: React.FC<MessageToolbarProps> = ({
           onClick={handleSpeak}
           active={isSpeaking}
         />
+
+        {/* Avatar narration */}
+        {canUseAvatar && (
+          <ToolbarBtn
+            icon={<Video className={`w-3.5 h-3.5 ${isAvatarSpeaking ? 'text-red-500' : ''}`} />}
+            title={isAvatarSpeaking ? 'Stop avatar' : 'Avatar narrate'}
+            onClick={handleAvatarNarrate}
+            active={isAvatarSpeaking}
+          />
+        )}
 
         {/* Comment / speech bubble */}
         <ToolbarBtn

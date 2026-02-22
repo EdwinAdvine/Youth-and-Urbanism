@@ -28,13 +28,27 @@ class CopilotInsightsService:
     for relevant, actionable information to display in the CoPilot sidebar.
     """
 
+    # Canonical valid roles
+    VALID_ROLES = frozenset({"student", "parent", "instructor", "admin", "staff", "partner"})
+
     async def get_insights(
         self,
         db: AsyncSession,
         user: User
     ) -> CopilotInsightsResponse:
-        """Route to role-specific insight generator."""
+        """Route to role-specific insight generator.
+
+        SECURITY: Fails closed — unknown roles get empty insights.
+        """
         insights = []
+
+        if user.role not in self.VALID_ROLES:
+            logger.warning(f"Insights requested for unknown role: {user.role}, user: {user.id}")
+            return CopilotInsightsResponse(
+                role=user.role,
+                insights=[],
+                generated_at=datetime.now(timezone.utc)
+            )
 
         try:
             if user.role == 'student':
@@ -62,6 +76,9 @@ class CopilotInsightsService:
 
     async def _student_insights(self, db: AsyncSession, user: User) -> List[CopilotInsight]:
         """Generate insights for students."""
+        if user.role != "student":
+            logger.error(f"_student_insights called with role={user.role}")
+            return []
         insights = []
 
         try:
@@ -142,6 +159,9 @@ class CopilotInsightsService:
 
     async def _parent_insights(self, db: AsyncSession, user: User) -> List[CopilotInsight]:
         """Generate insights for parents."""
+        if user.role != "parent":
+            logger.error(f"_parent_insights called with role={user.role}")
+            return []
         insights = []
 
         try:
@@ -179,6 +199,9 @@ class CopilotInsightsService:
 
     async def _instructor_insights(self, db: AsyncSession, user: User) -> List[CopilotInsight]:
         """Generate insights for instructors."""
+        if user.role != "instructor":
+            logger.error(f"_instructor_insights called with role={user.role}")
+            return []
         insights = []
 
         try:
@@ -236,6 +259,9 @@ class CopilotInsightsService:
 
     async def _admin_insights(self, db: AsyncSession, user: User) -> List[CopilotInsight]:
         """Generate insights for admins."""
+        if user.role != "admin":
+            logger.error(f"_admin_insights called with role={user.role}")
+            return []
         insights = []
 
         try:
@@ -275,13 +301,19 @@ class CopilotInsightsService:
 
     async def _staff_insights(self, db: AsyncSession, user: User) -> List[CopilotInsight]:
         """Generate insights for staff."""
+        if user.role != "staff":
+            logger.error(f"_staff_insights called with role={user.role}")
+            return []
         insights = []
 
         try:
-            # Check open support tickets
+            # Check open support tickets ASSIGNED TO THIS STAFF MEMBER (not all tickets)
             from app.models.staff import StaffTicket
             stmt = select(func.count()).select_from(StaffTicket).where(
-                StaffTicket.status.in_(['open', 'in_progress'])
+                and_(
+                    StaffTicket.assigned_to == user.id,
+                    StaffTicket.status.in_(['open', 'in_progress'])
+                )
             )
             result = await db.execute(stmt)
             open_tickets = result.scalar() or 0
@@ -289,8 +321,8 @@ class CopilotInsightsService:
             if open_tickets > 0:
                 insights.append(CopilotInsight(
                     type="alert",
-                    title=f"{open_tickets} open ticket{'s' if open_tickets > 1 else ''}",
-                    body=f"{open_tickets} support ticket{'s' if open_tickets > 1 else ''} need{'s' if open_tickets == 1 else ''} attention.",
+                    title=f"{open_tickets} assigned ticket{'s' if open_tickets > 1 else ''}",
+                    body=f"You have {open_tickets} assigned ticket{'s' if open_tickets > 1 else ''} that need{'s' if open_tickets == 1 else ''} attention.",
                     priority=2,
                     action_url="/dashboard/staff/support/tickets",
                     metadata={"count": open_tickets}
@@ -313,6 +345,9 @@ class CopilotInsightsService:
 
     async def _partner_insights(self, db: AsyncSession, user: User) -> List[CopilotInsight]:
         """Generate insights for partners."""
+        if user.role != "partner":
+            logger.error(f"_partner_insights called with role={user.role}")
+            return []
         insights = []
 
         try:

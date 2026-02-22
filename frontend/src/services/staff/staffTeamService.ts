@@ -55,37 +55,43 @@ export interface TeamMember {
 
 /** Fetch the current staff member's performance metrics. */
 export async function getMyPerformance(): Promise<MyPerformanceData> {
-  const { data } = await apiClient.get<MyPerformanceData>('/api/v1/staff/team/my-performance');
-  return data;
+  const { data } = await apiClient.get<{ status: string; data: MyPerformanceData }>(
+    '/api/v1/staff/team/my-performance',
+  );
+  return data.data;
 }
 
 /** Fetch team pulse data including member metrics and workload balance. */
 export async function getTeamPulse(): Promise<TeamPulseData> {
-  const { data } = await apiClient.get<TeamPulseData>('/api/v1/staff/team/pulse');
-  return data;
+  const { data } = await apiClient.get<{ status: string; data: TeamPulseData }>(
+    '/api/v1/staff/team/pulse',
+  );
+  return data.data;
 }
 
 /** Request AI-generated workload rebalancing suggestions. */
 export async function getWorkloadSuggestions(
   params: WorkloadRebalanceParams = {},
 ): Promise<WorkloadRebalanceResponse> {
-  const { data } = await apiClient.post<WorkloadRebalanceResponse>(
+  const { data } = await apiClient.post<{ status: string; data: WorkloadRebalanceResponse }>(
     '/api/v1/staff/team/workload/rebalance',
     params,
   );
-  return data;
+  return data.data;
 }
 
 /** Fetch available learning resources for professional development. */
 export async function getLearningResources(): Promise<LearningResource[]> {
-  const { data } = await apiClient.get<LearningResource[]>(
+  const { data } = await apiClient.get<{ status: string; data: LearningResource[] }>(
     '/api/v1/staff/team/learning-resources',
   );
-  return data;
+  return data.data;
 }
 
 /** Fetch all team members. */
 export async function getTeamMembers(): Promise<TeamMember[]> {
-  const { data } = await apiClient.get<TeamMember[]>('/api/v1/staff/team/members');
-  return data;
+  const { data } = await apiClient.get<{ status: string; data: TeamMember[] }>(
+    '/api/v1/staff/team/members',
+  );
+  return data.data;
 }

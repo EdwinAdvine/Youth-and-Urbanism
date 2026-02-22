@@ -489,3 +489,30 @@ async def update_teacher_access(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to update teacher access: {str(e)}"
         )
+
+
+# ─── Account Delinking Endpoints ────────────────────────────────
+
+@router.post("/request-delinking")
+async def request_delinking_endpoint(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Dict:
+    """Student requests to be delinked from parent account."""
+    if current_user.role != "student":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only students can access this endpoint"
+        )
+
+    from app.services.age_transition_service import request_delinking
+
+    try:
+        delink_req = await request_delinking(db, str(current_user.id))
+        return {
+            "id": str(delink_req.id),
+            "status": delink_req.status,
+            "message": "Delinking request submitted. Your parent will be notified.",
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

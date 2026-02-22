@@ -191,7 +191,7 @@ const StaffDashboardPage: React.FC = () => {
 
         // Map urgent tickets
         setUrgentTickets(
-          focus.urgent_tickets.map((t: StaffTicketSummary) => ({
+          (focus.urgent_tickets ?? []).map((t: StaffTicketSummary) => ({
             id: t.ticket_number || t.id,
             subject: t.subject,
             priority: (t.priority === 'critical' || t.priority === 'high' ? t.priority : 'high') as 'critical' | 'high',
@@ -202,7 +202,7 @@ const StaffDashboardPage: React.FC = () => {
 
         // Map moderation highlights
         setModerationQueue(
-          focus.moderation_highlights.map((m: ModerationItemSummary) => ({
+          (focus.moderation_highlights ?? []).map((m: ModerationItemSummary) => ({
             id: m.id,
             contentType: m.content_type,
             contentTitle: m.title,
@@ -213,7 +213,7 @@ const StaffDashboardPage: React.FC = () => {
 
         // Map tasks and deadlines
         setTasks(
-          focus.tasks_deadlines.map((t: TaskDeadline) => ({
+          (focus.tasks_deadlines ?? []).map((t: TaskDeadline) => ({
             id: t.id,
             title: t.title,
             dueDate: t.due_at ? new Date(t.due_at).toLocaleDateString() : '',
@@ -225,7 +225,7 @@ const StaffDashboardPage: React.FC = () => {
 
         // Map student flags
         setStudentFlags(
-          focus.student_flags.map((f: APIStudentFlag) => ({
+          (focus.student_flags ?? []).map((f: APIStudentFlag) => ({
             id: f.student_id || f.id,
             studentName: f.student_name,
             flagType: mapFlagType(f.flag_type),
@@ -236,7 +236,7 @@ const StaffDashboardPage: React.FC = () => {
 
         // Map AI anomalies
         setAnomalies(
-          focus.ai_anomalies.map((a: AIAnomalyItem) => ({
+          (focus.ai_anomalies ?? []).map((a: AIAnomalyItem) => ({
             id: a.id,
             title: a.type,
             description: a.description,
@@ -250,7 +250,7 @@ const StaffDashboardPage: React.FC = () => {
         // Use agenda from focus data if separate call failed
         if (aiAgenda.status !== 'fulfilled') {
           setAgendaItems(
-            focus.ai_agenda.map((a: APIAgendaItem) => ({
+            (focus.ai_agenda ?? []).map((a: APIAgendaItem) => ({
               id: a.id,
               title: a.title,
               priority: priorityToNumber(a.priority),

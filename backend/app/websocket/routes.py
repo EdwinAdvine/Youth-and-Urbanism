@@ -212,6 +212,21 @@ async def partner_websocket(
         ws_manager.disconnect(websocket, user_id, user_role)
 
 
+# ── Avatar streaming WebSocket endpoint ───────────────────────────────
+
+
+@ws_router.websocket("/ws/avatar-stream")
+@ws_router.websocket("/ws/avatar-stream/{token_path}")
+async def avatar_stream_websocket(
+    websocket: WebSocket,
+    token_path: str = "",
+    token: str = Query("", alias="token"),
+):
+    """WebSocket endpoint for streaming avatar TTS audio + viseme data."""
+    from app.websocket.avatar_stream import avatar_stream_handler
+    await avatar_stream_handler(websocket, token_path, token)
+
+
 # ── Collaborative / Signaling WebSocket endpoints ───────────────────
 
 

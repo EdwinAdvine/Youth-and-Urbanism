@@ -58,11 +58,12 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
         HTTPException: 500 if database operation fails
     """
     # Defense-in-depth: validate role whitelist at service level
-    ALLOWED_SELF_REGISTRATION_ROLES = ['student', 'parent', 'partner']
+    ALLOWED_SELF_REGISTRATION_ROLES = ['student', 'parent']
     if user_data.role not in ALLOWED_SELF_REGISTRATION_ROLES:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Role '{user_data.role}' cannot self-register. Instructors must apply at /become-instructor."
+            detail=f"Role '{user_data.role}' cannot self-register. "
+                   f"Instructors must apply at /become-instructor. Partners must apply at /become-partner."
         )
 
     # Check if email already exists
@@ -77,6 +78,34 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
             detail="Email already registered. Please use a different email or login."
         )
 
+    # Student self-registration: require date_of_birth and verify 18+
+    date_of_birth = None
+    if user_data.role == 'student':
+        from datetime import date
+        dob_str = (user_data.profile_data or {}).get('date_of_birth')
+        if not dob_str:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Date of birth is required for student self-registration."
+            )
+        try:
+            date_of_birth = date.fromisoformat(dob_str) if isinstance(dob_str, str) else dob_str
+        except (ValueError, TypeError):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid date of birth format. Use YYYY-MM-DD."
+            )
+        today = date.today()
+        age = today.year - date_of_birth.year - (
+            (today.month, today.day) < (date_of_birth.month, date_of_birth.day)
+        )
+        if age < 18:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Students must be 18 or older to self-register. "
+                       "Children under 18 must be registered by a parent."
+            )
+
     try:
         # Hash the password
         hashed_password = get_password_hash(user_data.password)
@@ -89,6 +118,7 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
             profile_data=user_data.profile_data or {},
             is_active=True,
             is_verified=False,  # Email verification pending
+            date_of_birth=date_of_birth,
         )
 
         db.add(new_user)
@@ -160,6 +190,17 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
         )
         db.add(ai_agent_profile)
 
+        # Create wallet for every new user
+        from app.models.payment import Wallet
+        from decimal import Decimal
+        new_wallet = Wallet(
+            user_id=new_user.id,
+            balance=Decimal("0.00"),
+            currency="KES",
+            is_withdrawal_blocked=(user_data.role == "student"),
+        )
+        db.add(new_wallet)
+
         # Commit all changes
         await db.commit()
         await db.refresh(new_user)
@@ -209,17 +250,23 @@ async def authenticate_user(credentials: UserLogin, db: AsyncSession) -> TokenRe
         HTTPException: 401 if credentials are invalid or account is inactive
         HTTPException: 500 if database operation fails
     """
-    # Find user by email
-    result = await db.execute(
-        select(User).where(User.email == credentials.email)
-    )
+    # Find user by email or username
+    identifier = credentials.identifier
+    if '@' in identifier:
+        result = await db.execute(
+            select(User).where(User.email == identifier)
+        )
+    else:
+        result = await db.execute(
+            select(User).where(User.username == identifier)
+        )
     user = result.scalars().first()
 
     # Verify user exists
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password",
+            detail="Invalid credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -227,7 +274,7 @@ async def authenticate_user(credentials: UserLogin, db: AsyncSession) -> TokenRe
     if not verify_password(credentials.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password",
+            detail="Invalid credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
 

@@ -65,28 +65,28 @@ export interface SLADashboardStats {
 export async function getTickets(
   params: TicketListParams = {},
 ): Promise<PaginatedResponse<StaffTicket>> {
-  const { data } = await apiClient.get<PaginatedResponse<StaffTicket>>(
+  const { data } = await apiClient.get<{ status: string; data: PaginatedResponse<StaffTicket> }>(
     '/api/v1/staff/support/tickets',
     { params },
   );
-  return data;
+  return data.data;
 }
 
 /** Fetch a single ticket by ID. */
 export async function getTicket(ticketId: string): Promise<StaffTicket> {
-  const { data } = await apiClient.get<StaffTicket>(
+  const { data } = await apiClient.get<{ status: string; data: StaffTicket }>(
     `/api/v1/staff/support/tickets/${ticketId}`,
   );
-  return data;
+  return data.data;
 }
 
 /** Create a new support ticket. */
 export async function createTicket(payload: CreateTicketPayload): Promise<StaffTicket> {
-  const { data } = await apiClient.post<StaffTicket>(
+  const { data } = await apiClient.post<{ status: string; data: StaffTicket }>(
     '/api/v1/staff/support/tickets',
     payload,
   );
-  return data;
+  return data.data;
 }
 
 /** Update an existing ticket. */
@@ -94,11 +94,11 @@ export async function updateTicket(
   ticketId: string,
   payload: UpdateTicketPayload,
 ): Promise<StaffTicket> {
-  const { data } = await apiClient.patch<StaffTicket>(
+  const { data } = await apiClient.patch<{ status: string; data: StaffTicket }>(
     `/api/v1/staff/support/tickets/${ticketId}`,
     payload,
   );
-  return data;
+  return data.data;
 }
 
 /** Add a message (reply or internal note) to a ticket. */
@@ -106,11 +106,11 @@ export async function addMessage(
   ticketId: string,
   payload: AddMessagePayload,
 ): Promise<TicketMessage> {
-  const { data } = await apiClient.post<TicketMessage>(
+  const { data } = await apiClient.post<{ status: string; data: TicketMessage }>(
     `/api/v1/staff/support/tickets/${ticketId}/messages`,
     payload,
   );
-  return data;
+  return data.data;
 }
 
 /** Assign a ticket to a staff member. */
@@ -135,8 +135,8 @@ export async function escalateTicket(
 
 /** Fetch SLA compliance dashboard statistics. */
 export async function getSLAStatus(): Promise<SLADashboardStats> {
-  const { data } = await apiClient.get<SLADashboardStats>(
+  const { data } = await apiClient.get<{ status: string; data: SLADashboardStats }>(
     '/api/v1/staff/support/sla/status',
   );
-  return data;
+  return data.data;
 }

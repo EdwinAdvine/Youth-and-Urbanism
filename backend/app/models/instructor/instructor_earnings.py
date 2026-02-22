@@ -147,8 +147,8 @@ class InstructorRevenueSplit(Base):
     course_id = Column(UUID(as_uuid=True), ForeignKey("courses.id", ondelete="CASCADE"), nullable=True, index=True)
 
     # Revenue split percentages
-    instructor_pct = Column(Numeric(5, 2), default=Decimal("60.00"), nullable=False)
-    platform_pct = Column(Numeric(5, 2), default=Decimal("30.00"), nullable=False)
+    instructor_pct = Column(Numeric(5, 2), default=Decimal("70.00"), nullable=False)
+    platform_pct = Column(Numeric(5, 2), default=Decimal("20.00"), nullable=False)
     partner_pct = Column(Numeric(5, 2), default=Decimal("10.00"), nullable=False)
 
     # Set by (admin who configured this split)

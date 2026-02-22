@@ -27,6 +27,10 @@ const SearchResultsPage = lazy(() => import('../pages/SearchResultsPage'));
 const StorePage = lazy(() => import('../pages/StorePage'));
 const ProductDetailPage = lazy(() => import('../pages/ProductDetailPage'));
 const InstructorSetupPage = lazy(() => import('../pages/InstructorSetupPage'));
+const StaffSetupPage = lazy(() => import('../pages/StaffSetupPage'));
+const PartnerSetupPage = lazy(() => import('../pages/PartnerSetupPage'));
+const ChildFirstLoginPage = lazy(() => import('../pages/ChildFirstLoginPage'));
+const BecomePartnerPage = lazy(() => import('../pages/BecomePartnerPage'));
 const ScholarshipPage = lazy(() => import('../pages/ScholarshipPage'));
 
 export const publicRoutes = (
@@ -35,8 +39,11 @@ export const publicRoutes = (
     <Route path="/bot" element={<BotPage />} />
     <Route path="/the-bird" element={<BotPage />} />
 
-    {/* Instructor account setup (standalone - no header/footer, uses invite token) */}
+    {/* Account setup pages (standalone - no header/footer, uses invite token) */}
     <Route path="/instructor-setup" element={<S><InstructorSetupPage /></S>} />
+    <Route path="/staff-setup" element={<S><StaffSetupPage /></S>} />
+    <Route path="/partner-setup" element={<S><PartnerSetupPage /></S>} />
+    <Route path="/child-setup" element={<S><ChildFirstLoginPage /></S>} />
 
     {/* Regular public routes with header/footer */}
     <Route element={<PublicLayout />}>
@@ -47,6 +54,7 @@ export const publicRoutes = (
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/validate-certificate" element={<CertificateValidationPage />} />
       <Route path="/become-instructor" element={<BecomeInstructorPage />} />
+      <Route path="/become-partner" element={<S><BecomePartnerPage /></S>} />
       <Route path="/forum" element={<PublicForumPage />} />
       <Route path="/courses" element={<CourseCatalogPage />} />
       <Route path="/courses/:id" element={<CourseDetailsPage />} />

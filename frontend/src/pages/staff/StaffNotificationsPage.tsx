@@ -19,7 +19,7 @@ const StaffNotificationsPage: React.FC = () => {
     setError(null);
     try {
       const response = await getNotifications();
-      setNotifications(response.items);
+      setNotifications(response.items ?? []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load notifications');
     } finally {

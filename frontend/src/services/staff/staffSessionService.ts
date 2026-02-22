@@ -62,25 +62,30 @@ export interface BreakoutRoomConfig {
 export async function getSessions(
   params: SessionListParams = {},
 ): Promise<PaginatedResponse<LiveSession>> {
-  const { data } = await apiClient.get<PaginatedResponse<LiveSession>>(
+  const { data } = await apiClient.get<{ status: string; data: PaginatedResponse<LiveSession> }>(
     '/api/v1/staff/sessions',
     { params },
   );
-  return data;
+  return data.data;
 }
 
 /** Fetch a single session by ID. */
 export async function getSession(sessionId: string): Promise<LiveSession> {
-  const { data } = await apiClient.get<LiveSession>(`/api/v1/staff/sessions/${sessionId}`);
-  return data;
+  const { data } = await apiClient.get<{ status: string; data: LiveSession }>(
+    `/api/v1/staff/sessions/${sessionId}`,
+  );
+  return data.data;
 }
 
 /** Create a new live session. */
 export async function createSession(
   payload: CreateSessionPayload,
 ): Promise<LiveSession> {
-  const { data } = await apiClient.post<LiveSession>('/api/v1/staff/sessions', payload);
-  return data;
+  const { data } = await apiClient.post<{ status: string; data: LiveSession }>(
+    '/api/v1/staff/sessions',
+    payload,
+  );
+  return data.data;
 }
 
 /** Update an existing session. */
@@ -88,21 +93,21 @@ export async function updateSession(
   sessionId: string,
   payload: UpdateSessionPayload,
 ): Promise<LiveSession> {
-  const { data } = await apiClient.patch<LiveSession>(
+  const { data } = await apiClient.patch<{ status: string; data: LiveSession }>(
     `/api/v1/staff/sessions/${sessionId}`,
     payload,
   );
-  return data;
+  return data.data;
 }
 
 /** Generate a LiveKit token for joining a session room. */
 export async function getLiveKitToken(
   sessionId: string,
 ): Promise<{ token: string }> {
-  const { data } = await apiClient.post<{ token: string }>(
+  const { data } = await apiClient.post<{ status: string; data: { token: string } }>(
     `/api/v1/staff/sessions/${sessionId}/token`,
   );
-  return data;
+  return data.data;
 }
 
 /** Start recording a live session. */
@@ -119,10 +124,10 @@ export async function stopRecording(sessionId: string): Promise<void> {
 export async function getRecordings(
   sessionId: string,
 ): Promise<LiveSessionRecording[]> {
-  const { data } = await apiClient.get<LiveSessionRecording[]>(
+  const { data } = await apiClient.get<{ status: string; data: LiveSessionRecording[] }>(
     `/api/v1/staff/sessions/${sessionId}/recordings`,
   );
-  return data;
+  return data.data;
 }
 
 /** Create or update breakout rooms within a live session. */

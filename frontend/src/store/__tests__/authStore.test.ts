@@ -40,7 +40,7 @@ describe('authStore', () => {
       tokens: { access_token: 'tok', refresh_token: 'ref', token_type: 'bearer', expires_in: 3600 },
     });
 
-    await useAuthStore.getState().login({ email: 'test@example.com', password: 'pass' });
+    await useAuthStore.getState().login({ identifier: 'test@example.com', password: 'pass' });
 
     const state = useAuthStore.getState();
     expect(state.user).toEqual(mockUser);
@@ -55,7 +55,7 @@ describe('authStore', () => {
     );
 
     await expect(
-      useAuthStore.getState().login({ email: 'bad@example.com', password: 'wrong' })
+      useAuthStore.getState().login({ identifier: 'bad@example.com', password: 'wrong' })
     ).rejects.toThrow();
 
     const state = useAuthStore.getState();
@@ -71,7 +71,7 @@ describe('authStore', () => {
       new Promise((resolve) => { resolveLogin = resolve; })
     );
 
-    const loginPromise = useAuthStore.getState().login({ email: 'a@b.com', password: 'p' });
+    const loginPromise = useAuthStore.getState().login({ identifier: 'a@b.com', password: 'p' });
 
     // isLoading should be true while waiting
     expect(useAuthStore.getState().isLoading).toBe(true);

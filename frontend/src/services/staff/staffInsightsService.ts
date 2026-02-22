@@ -26,11 +26,11 @@ export async function getPlatformHealth(
   if (dateFrom) params.date_from = dateFrom;
   if (dateTo) params.date_to = dateTo;
 
-  const { data } = await apiClient.get<PlatformHealthMetrics>(
+  const { data } = await apiClient.get<{ status: string; data: PlatformHealthMetrics }>(
     '/api/v1/staff/insights/platform-health',
     { params },
   );
-  return data;
+  return data.data;
 }
 
 /** Fetch content performance analytics for a given date range. */
@@ -42,11 +42,11 @@ export async function getContentPerformance(
   if (dateFrom) params.date_from = dateFrom;
   if (dateTo) params.date_to = dateTo;
 
-  const { data } = await apiClient.get<ContentPerformanceData>(
+  const { data } = await apiClient.get<{ status: string; data: ContentPerformanceData }>(
     '/api/v1/staff/insights/content-performance',
     { params },
   );
-  return data;
+  return data.data;
 }
 
 /** Fetch support effectiveness metrics for a given date range. */
@@ -58,9 +58,9 @@ export async function getSupportMetrics(
   if (dateFrom) params.date_from = dateFrom;
   if (dateTo) params.date_to = dateTo;
 
-  const { data } = await apiClient.get<SupportMetrics>(
+  const { data } = await apiClient.get<{ status: string; data: SupportMetrics }>(
     '/api/v1/staff/insights/support-metrics',
     { params },
   );
-  return data;
+  return data.data;
 }

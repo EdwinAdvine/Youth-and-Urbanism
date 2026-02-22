@@ -12,5 +12,7 @@ from app.api.v1.parent.finance import router as finance_router
 from app.api.v1.parent.mpesa import router as mpesa_router
 from app.api.v1.parent.reports import router as reports_router
 from app.api.v1.parent.settings import router as settings_router
+from app.api.v1.parent.weekly_summary import router as weekly_summary_router
+from app.api.v1.parent.child_wallet import router as child_wallet_router
 
-__all__ = ["dashboard_router", "children_router", "ai_insights_router", "communications_router", "finance_router", "mpesa_router", "reports_router", "settings_router"]
+__all__ = ["dashboard_router", "children_router", "ai_insights_router", "communications_router", "finance_router", "mpesa_router", "reports_router", "settings_router", "weekly_summary_router", "child_wallet_router"]

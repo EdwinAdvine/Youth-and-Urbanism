@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User as UserIcon } from 'lucide-react';
 import { useChatStore } from '../../store/chatStore';
 import MessageToolbar from '../shared/MessageToolbar';
+import AvatarThumbnail from '../avatar/AvatarThumbnail';
 
 interface ChatMessage {
   id: string;
@@ -83,7 +84,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isTyping, onResen
       <div className="flex-1 flex flex-col items-center justify-center px-4">
         <div className="text-center max-w-md">
           <div className="w-20 h-20 bg-gradient-to-r from-[#FF0000] to-[#E40000] rounded-full flex items-center justify-center text-gray-900 dark:text-white text-2xl mx-auto mb-6 shadow-lg shadow-[#FF0000]/30">
-            🐦
+            <AvatarThumbnail size={48} fallbackEmoji="🐦" />
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-[#FF0000] bg-clip-text text-transparent mb-4">
             Hi friend! 🐦✨
@@ -92,13 +93,13 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isTyping, onResen
             What do you want to talk about today? I'm here to help you learn and have fun!
           </p>
           
-          {/* Suggestion Chips */}
+          {/* Suggestion Chips — Interest-based and learning-focused */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-sm mx-auto">
             {[
-              { text: "Tell me a story", emoji: "📖" },
-              { text: "Fun facts about animals", emoji: "🦁" },
-              { text: "Help with math", emoji: "🔢" },
-              { text: "Science questions", emoji: "🧪" }
+              { text: "What excites you today?", emoji: "🌟" },
+              { text: "Help me understand", emoji: "🤔" },
+              { text: "Practice a topic", emoji: "📝" },
+              { text: "Tell me a story", emoji: "📖" }
             ].map((suggestion, index) => (
                 <motion.button
                   key={index}
@@ -134,7 +135,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isTyping, onResen
             {message.type === 'ai' && (
               <div className="flex items-start gap-3 max-w-[80%]">
                 <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-[#FF0000] to-[#E40000] rounded-full flex items-center justify-center text-gray-900 dark:text-white text-lg shadow-lg shadow-[#FF0000]/30">
-                  🐦
+                  <AvatarThumbnail size={28} fallbackEmoji="🐦" />
                 </div>
                 <div className="flex flex-col">
                   <div className="bg-gradient-to-r from-[#FF0000] to-[#E40000] border border-[#FF0000]/30 rounded-3xl rounded-tl-none px-4 py-3 shadow-lg shadow-[#FF0000]/20">
@@ -193,7 +194,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isTyping, onResen
           >
             <div className="flex items-end gap-3 max-w-[80%]">
               <div className="w-10 h-10 bg-gradient-to-r from-[#FF0000] to-[#E40000] rounded-full flex items-center justify-center text-gray-900 dark:text-white text-lg shadow-lg shadow-[#FF0000]/30">
-                🐦
+                <AvatarThumbnail size={28} fallbackEmoji="🐦" />
               </div>
               <div className="bg-gradient-to-r from-[#FF0000] to-[#E40000] text-gray-900 dark:text-white rounded-3xl rounded-tl-none px-4 py-3 shadow-lg shadow-[#FF0000]/20 border border-[#FF0000]/30">
                   <div className="flex items-center gap-2 mb-2">

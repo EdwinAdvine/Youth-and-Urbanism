@@ -21,6 +21,8 @@ from app.models import (
     AIProvider,
     AITutor,
     AIAgentProfile,
+    UserAvatar,
+    AvatarType,
     CopilotSession,
     CopilotMessage,
     Course,

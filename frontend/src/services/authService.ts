@@ -7,10 +7,11 @@ export interface RegisterRequest {
   role: 'student' | 'parent' | 'instructor' | 'admin' | 'partner' | 'staff';
   full_name: string;
   phone_number?: string;
+  date_of_birth?: string;
 }
 
 export interface LoginRequest {
-  email: string;
+  identifier: string;
   password: string;
 }
 
@@ -23,11 +24,15 @@ export interface TokenResponse {
 
 export interface User {
   id: string;
-  email: string;
+  email?: string;
+  username?: string;
   role: 'student' | 'parent' | 'instructor' | 'admin' | 'partner' | 'staff';
   full_name: string;
   phone_number?: string;
   is_active: boolean;
+  is_super_admin?: boolean;
+  must_change_password?: boolean;
+  date_of_birth?: string;
   profile_data: Record<string, any>;
   created_at: string;
   last_login?: string;
@@ -43,6 +48,7 @@ class AuthService {
       profile_data: {
         full_name: data.full_name,
         ...(data.phone_number && { phone: data.phone_number }),
+        ...(data.date_of_birth && { date_of_birth: data.date_of_birth }),
       },
     };
     const response = await apiClient.post<User>('/api/v1/auth/register', payload);

@@ -53,13 +53,13 @@ class AITutor(Base):
     # Performance metrics
     performance_metrics = Column(JSONB, default=dict, nullable=False)  # Strengths, weaknesses, progress
 
-    # Response mode preference (text, voice)
+    # Response mode preference (text, voice, avatar)
     response_mode = Column(
         String(20),
         default='text',
         nullable=False,
         index=True
-    )  # 'text', 'voice'
+    )  # 'text', 'voice', 'avatar'
 
     # Interaction tracking
     total_interactions = Column(Integer, default=0, nullable=False)
@@ -86,6 +86,11 @@ class AITutor(Base):
     def is_voice_mode(self) -> bool:
         """Check if tutor is in voice response mode."""
         return self.response_mode == 'voice'
+
+    @property
+    def is_avatar_mode(self) -> bool:
+        """Check if tutor is in avatar (3D talking head) response mode."""
+        return self.response_mode == 'avatar'
 
     def add_message(self, role: str, content: str) -> None:
         """

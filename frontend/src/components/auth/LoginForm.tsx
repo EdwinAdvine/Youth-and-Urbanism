@@ -11,7 +11,7 @@ interface LoginFormProps {
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup, onLoginSuccess }) => {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -27,7 +27,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
     setGoogleError('');
 
     try {
-      await login({ email, password, rememberMe });
+      await login({ identifier, password, rememberMe });
       setSuccess('Login successful! Redirecting...');
 
       // Get the user from store after successful login
@@ -91,18 +91,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Email Field */}
+      {/* Email / Username Field */}
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
-          Email Address
+        <label htmlFor="identifier" className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
+          Email / Username
         </label>
         <input
-          type="email"
-          id="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="text"
+          id="identifier"
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
           className="w-full px-3 py-2 bg-gray-100 dark:bg-[#22272B] border border-[#2A3035] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:border-transparent"
-          placeholder="Enter your email address"
+          placeholder="Enter your email or username"
           required
         />
       </div>
@@ -207,7 +207,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
         />
       </div>
 
-      {/* Sign Up Link */}
+      {/* Sign Up & Switch Account Links */}
       <div className="text-center text-sm text-gray-500 dark:text-white/60">
         Don't have an account?{' '}
         <button
@@ -216,6 +216,22 @@ const LoginForm: React.FC<LoginFormProps> = ({ onPasswordReset, onSwitchToSignup
           className="text-[#FF0000] hover:text-[#E40000] transition-colors font-medium"
         >
           Sign up here
+        </button>
+      </div>
+
+      <div className="text-center text-xs text-gray-400 dark:text-white/40">
+        Sharing a device?{' '}
+        <button
+          type="button"
+          onClick={() => {
+            setIdentifier('');
+            setPassword('');
+            clearError();
+            setSuccess('');
+          }}
+          className="text-gray-500 dark:text-white/50 hover:text-gray-700 dark:hover:text-white/70 transition-colors underline"
+        >
+          Switch Account
         </button>
       </div>
     </form>

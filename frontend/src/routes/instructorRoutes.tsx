@@ -45,6 +45,8 @@ const PublicPageSettingsPage = lazy(() => import('../pages/instructor/PublicPage
 const AvailabilityPage = lazy(() => import('../pages/instructor/AvailabilityPage').then(m => ({ default: m.AvailabilityPage })));
 const SecurityPage = lazy(() => import('../pages/instructor/SecurityPage').then(m => ({ default: m.SecurityPage })));
 const LoginHistoryPage = lazy(() => import('../pages/instructor/LoginHistoryPage').then(m => ({ default: m.LoginHistoryPage })));
+const WithdrawalRequestPage = lazy(() => import('../pages/instructor/WithdrawalRequestPage'));
+const AvatarPage = lazy(() => import('../pages/student/AvatarPage'));
 
 export const instructorRoutes = (
   <Route path="/dashboard/instructor" element={<ProtectedRoute allowedRoles={['instructor']}><DashboardLayout role="instructor" /></ProtectedRoute>}>
@@ -86,6 +88,7 @@ export const instructorRoutes = (
     <Route path="earnings/payouts" element={<S><PayoutsPage /></S>} />
     <Route path="earnings/rates" element={<S><RatesPage /></S>} />
     <Route path="earnings/documents" element={<S><DocumentsPage /></S>} />
+    <Route path="earnings/withdraw" element={<S><WithdrawalRequestPage /></S>} />
     <Route path="hub/cbc-references" element={<S><CBCReferencesPage /></S>} />
     <Route path="hub/ai-prompts" element={<S><AIPromptsPage /></S>} />
     <Route path="hub/community" element={<S><CommunityLoungePage /></S>} />
@@ -98,5 +101,6 @@ export const instructorRoutes = (
     <Route path="availability" element={<S><AvailabilityPage /></S>} />
     <Route path="security" element={<S><SecurityPage /></S>} />
     <Route path="security/login-history" element={<S><LoginHistoryPage /></S>} />
+    <Route path="profile/avatar" element={<S><AvatarPage /></S>} />
   </Route>
 );

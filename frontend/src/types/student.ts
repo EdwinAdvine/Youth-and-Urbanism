@@ -1,7 +1,7 @@
 // Student Dashboard Types
 
 export type MoodType = 'happy' | 'okay' | 'tired' | 'frustrated' | 'excited';
-export type AgeGroup = 'young' | 'tween' | 'teen';
+export type AgeGroup = 'young' | 'tween' | 'teen' | 'senior';
 export type AIPersonality = 'friendly' | 'professional' | 'encouraging' | 'playful';
 
 // Dashboard & Daily Plan

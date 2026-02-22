@@ -62,19 +62,21 @@ export interface AuditLogParams {
 
 /** Fetch the current staff member's profile. */
 export async function getProfile(): Promise<StaffProfile> {
-  const { data } = await apiClient.get<StaffProfile>('/api/v1/staff/account/profile');
-  return data;
+  const { data } = await apiClient.get<{ status: string; data: StaffProfile }>(
+    '/api/v1/staff/account/profile',
+  );
+  return data.data;
 }
 
 /** Update the current staff member's profile. */
 export async function updateProfile(
   payload: UpdateProfilePayload,
 ): Promise<StaffProfile> {
-  const { data } = await apiClient.patch<StaffProfile>(
+  const { data } = await apiClient.patch<{ status: string; data: StaffProfile }>(
     '/api/v1/staff/account/profile',
     payload,
   );
-  return data;
+  return data.data;
 }
 
 /** Update the current staff member's UI/app preferences. */
@@ -86,10 +88,10 @@ export async function updatePreferences(
 
 /** Fetch notification preferences. */
 export async function getNotificationPreferences(): Promise<NotificationPreferences> {
-  const { data } = await apiClient.get<NotificationPreferences>(
+  const { data } = await apiClient.get<{ status: string; data: NotificationPreferences }>(
     '/api/v1/staff/account/notifications/preferences',
   );
-  return data;
+  return data.data;
 }
 
 /** Update notification preferences. */
@@ -112,19 +114,19 @@ export async function changePassword(
 
 /** Fetch active login sessions for the current staff member. */
 export async function getActiveSessions(): Promise<ActiveSession[]> {
-  const { data } = await apiClient.get<ActiveSession[]>(
+  const { data } = await apiClient.get<{ status: string; data: ActiveSession[] }>(
     '/api/v1/staff/account/security/sessions',
   );
-  return data;
+  return data.data;
 }
 
 /** Fetch the current staff member's audit log. */
 export async function getAuditLog(
   params: AuditLogParams = {},
 ): Promise<PaginatedResponse<AuditEntry>> {
-  const { data } = await apiClient.get<PaginatedResponse<AuditEntry>>(
+  const { data } = await apiClient.get<{ status: string; data: PaginatedResponse<AuditEntry> }>(
     '/api/v1/staff/account/audit-log',
     { params },
   );
-  return data;
+  return data.data;
 }

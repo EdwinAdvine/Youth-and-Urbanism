@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getSafetyFlags } from '../../services/staff/staffModerationService';
+import { createTicket } from '../../services/staff/staffSupportService';
 
 interface SafetyFlag {
   id: string;
@@ -30,6 +31,36 @@ const SafetyPolicyPage: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [severityFilter, setSeverityFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [showIncidentModal, setShowIncidentModal] = useState(false);
+  const [incidentType, setIncidentType] = useState<string>('content_safety');
+  const [incidentSeverity, setIncidentSeverity] = useState<string>('medium');
+  const [incidentDescription, setIncidentDescription] = useState('');
+  const [incidentSubmitting, setIncidentSubmitting] = useState(false);
+  const [incidentSuccess, setIncidentSuccess] = useState(false);
+
+  const handleReportIncident = async () => {
+    if (!incidentDescription.trim()) return;
+    setIncidentSubmitting(true);
+    try {
+      await createTicket({
+        subject: `Safety Incident: ${incidentType.replace('_', ' ')}`,
+        description: incidentDescription.trim(),
+        category: 'safety_incident',
+        priority: incidentSeverity === 'critical' ? 'critical' : incidentSeverity === 'high' ? 'high' : incidentSeverity === 'low' ? 'low' : 'medium',
+        tags: [incidentType, 'safety', 'incident'],
+      });
+      setIncidentSuccess(true);
+      setIncidentDescription('');
+      setTimeout(() => {
+        setShowIncidentModal(false);
+        setIncidentSuccess(false);
+      }, 2000);
+    } catch {
+      // keep modal open so user can retry
+    } finally {
+      setIncidentSubmitting(false);
+    }
+  };
 
   const mockFlags: SafetyFlag[] = [
     {
@@ -121,7 +152,7 @@ const SafetyPolicyPage: React.FC = () => {
             title: item.description.substring(0, 80),
             description: item.description,
             type: (item.flag_type as SafetyFlag['type']) || 'content_safety',
-            riskScore: Math.round(item.ai_confidence * 100),
+            riskScore: Math.round((item.ai_confidence ?? 0) * 100),
             severity: item.severity,
             status: item.status === 'open' ? 'active' : item.status === 'reviewed' ? 'resolved' : 'dismissed',
             reportedBy: 'AI Safety Monitor',
@@ -255,7 +286,10 @@ const SafetyPolicyPage: React.FC = () => {
             Monitor safety flags, risk incidents, and policy compliance across the platform
           </p>
         </div>
-        <button className="px-4 py-2 bg-[#E40000] hover:bg-[#E40000]/90 text-gray-900 dark:text-white text-sm font-medium rounded-lg transition-colors">
+        <button
+          onClick={() => setShowIncidentModal(true)}
+          className="px-4 py-2 bg-[#E40000] hover:bg-[#E40000]/90 text-gray-900 dark:text-white text-sm font-medium rounded-lg transition-colors"
+        >
           Report Incident
         </button>
       </div>
@@ -376,6 +410,74 @@ const SafetyPolicyPage: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* Report Incident Modal */}
+      {showIncidentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl p-6 w-full max-w-md shadow-2xl">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Report Safety Incident</h3>
+            {incidentSuccess ? (
+              <p className="text-sm text-green-400 text-center py-4">Incident reported successfully.</p>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-white/50 mb-1">Incident Type</label>
+                  <select
+                    value={incidentType}
+                    onChange={(e) => setIncidentType(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-900 dark:text-white"
+                  >
+                    <option value="content_safety">Content Safety</option>
+                    <option value="student_safety">Student Safety</option>
+                    <option value="data_privacy">Data Privacy</option>
+                    <option value="harassment">Harassment</option>
+                    <option value="academic_integrity">Academic Integrity</option>
+                    <option value="policy_violation">Policy Violation</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-white/50 mb-1">Severity</label>
+                  <select
+                    value={incidentSeverity}
+                    onChange={(e) => setIncidentSeverity(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-900 dark:text-white"
+                  >
+                    <option value="critical">Critical</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-white/50 mb-1">Description</label>
+                  <textarea
+                    value={incidentDescription}
+                    onChange={(e) => setIncidentDescription(e.target.value)}
+                    rows={4}
+                    placeholder="Describe the incident in detail..."
+                    className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0F1112] border border-gray-200 dark:border-[#22272B] rounded-lg text-sm text-gray-900 dark:text-white resize-none"
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-1">
+                  <button
+                    onClick={() => { setShowIncidentModal(false); setIncidentDescription(''); }}
+                    className="px-4 py-2 bg-gray-100 dark:bg-[#22272B] text-gray-900 dark:text-white text-sm rounded-lg hover:bg-gray-200 dark:hover:bg-[#2A2F34]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleReportIncident}
+                    disabled={incidentSubmitting || !incidentDescription.trim()}
+                    className="px-4 py-2 bg-[#E40000] hover:bg-[#C80000] disabled:opacity-50 text-white text-sm rounded-lg font-medium transition-colors"
+                  >
+                    {incidentSubmitting ? 'Submitting…' : 'Submit Report'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

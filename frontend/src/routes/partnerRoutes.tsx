@@ -36,6 +36,8 @@ const WebinarsPage = lazy(() => import('../pages/partner/WebinarsPage'));
 const CertificationPage = lazy(() => import('../pages/partner/CertificationPage'));
 const PartnerNotificationsPage = lazy(() => import('../pages/partner/NotificationsPage'));
 const PartnerSettingsPage = lazy(() => import('../pages/partner/SettingsPage'));
+const PartnerWalletPage = lazy(() => import('../pages/partner/WalletPage'));
+const AvatarPage = lazy(() => import('../pages/student/AvatarPage'));
 
 export const partnerRoutes = (
   <Route path="/dashboard/partner" element={<ProtectedRoute allowedRoles={['partner']}><DashboardLayout role="partner" /></ProtectedRoute>}>
@@ -64,6 +66,7 @@ export const partnerRoutes = (
     <Route path="finance/funding" element={<S><FundingPage /></S>} />
     <Route path="finance/budget" element={<S><BudgetManagementPage /></S>} />
     <Route path="finance/grants" element={<S><GrantTrackingPage /></S>} />
+    <Route path="finance/wallet" element={<S><PartnerWalletPage /></S>} />
     <Route path="funding" element={<S><FundingPage /></S>} />
     {/* Analytics */}
     <Route path="analytics/roi" element={<S><ROIMetricsPage /></S>} />
@@ -77,6 +80,7 @@ export const partnerRoutes = (
     {/* Account */}
     <Route path="notifications" element={<S><PartnerNotificationsPage /></S>} />
     <Route path="profile" element={<S><PartnerProfilePage /></S>} />
+    <Route path="profile/avatar" element={<S><AvatarPage /></S>} />
     <Route path="settings" element={<S><PartnerSettingsPage /></S>} />
   </Route>
 );

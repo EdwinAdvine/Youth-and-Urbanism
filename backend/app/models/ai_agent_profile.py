@@ -9,7 +9,7 @@ assistant throughout the student dashboard and CoPilot interface.
 """
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Enum as SAEnum, JSON
+from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Enum as SAEnum, JSON, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -38,9 +38,16 @@ class AIAgentProfile(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False, index=True)
-    agent_name = Column(String(100), default="The Bird AI")
-    avatar_url = Column(String(500), nullable=True)
-    persona = Column(Text, default="A helpful, encouraging AI tutor for Kenyan students.")
+    agent_name = Column(String(100), default="Urban Home School AI")
+    avatar_url = Column(String(500), nullable=True)  # 2D fallback avatar
+    active_avatar_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("user_avatars.id", ondelete="SET NULL"),
+        nullable=True,
+    )  # Active 3D avatar
+
+    active_avatar = relationship("UserAvatar", foreign_keys=[active_avatar_id])
+    persona = Column(Text, default="A helpful AI assistant on the Urban Home School platform.")
     preferred_language = Column(String(10), default="en")
     expertise_focus = Column(JSON, default=list)  # ["math", "science", "english"]
     response_style = Column(SAEnum(ResponseStyle), default=ResponseStyle.conversational)

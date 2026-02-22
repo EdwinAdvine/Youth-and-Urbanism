@@ -39,6 +39,12 @@ const AdminNotificationsPage = lazy(() => import('../pages/admin/AdminNotificati
 const AdminProfilePage = lazy(() => import('../pages/admin/AdminProfilePage'));
 const AdminPreferencesPage = lazy(() => import('../pages/admin/AdminPreferencesPage'));
 const SystemHealthPage = lazy(() => import('../pages/admin/SystemHealthPage'));
+const StaffAccountsPage = lazy(() => import('../pages/admin/StaffAccountsPage'));
+const FinancialAccessPage = lazy(() => import('../pages/admin/FinancialAccessPage'));
+const WithdrawalQueuePage = lazy(() => import('../pages/admin/WithdrawalQueuePage'));
+const RevenueSplitConfigPage = lazy(() => import('../pages/admin/RevenueSplitConfigPage'));
+const PlanFeaturesPage = lazy(() => import('../pages/admin/PlanFeaturesPage'));
+const AvatarPage = lazy(() => import('../pages/student/AvatarPage'));
 
 export const adminRoutes = (
   <Route path="/dashboard/admin" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout role="admin" /></ProtectedRoute>}>
@@ -70,6 +76,10 @@ export const adminRoutes = (
     {/* Finance & Partnerships */}
     <Route path="finance/transactions" element={<S><MoneyFlowPage /></S>} />
     <Route path="finance/plans" element={<S><PlansPage /></S>} />
+    <Route path="finance/plans/:planId/features" element={<S><PlanFeaturesPage /></S>} />
+    <Route path="finance/access" element={<S><FinancialAccessPage /></S>} />
+    <Route path="finance/withdrawals" element={<S><WithdrawalQueuePage /></S>} />
+    <Route path="finance/revenue-split" element={<S><RevenueSplitConfigPage /></S>} />
     <Route path="partners" element={<S><PartnersAdminPage /></S>} />
     <Route path="invoices" element={<S><InvoicesPage /></S>} />
     {/* Operations & Control */}
@@ -79,9 +89,11 @@ export const adminRoutes = (
     <Route path="config" element={<S><SystemConfigPage /></S>} />
     <Route path="audit-logs" element={<S><AuditLogsPage /></S>} />
     <Route path="system-health" element={<S><SystemHealthPage /></S>} />
+    <Route path="staff-accounts" element={<S><StaffAccountsPage /></S>} />
     {/* Account */}
     <Route path="notifications" element={<S><AdminNotificationsPage /></S>} />
     <Route path="profile" element={<S><AdminProfilePage /></S>} />
+    <Route path="profile/avatar" element={<S><AvatarPage /></S>} />
     <Route path="preferences" element={<S><AdminPreferencesPage /></S>} />
   </Route>
 );

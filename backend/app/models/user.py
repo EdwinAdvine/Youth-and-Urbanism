@@ -16,8 +16,8 @@ Features:
 """
 
 import uuid
-from datetime import datetime, timezone
-from sqlalchemy import Column, String, Boolean, DateTime, UUID
+from datetime import date, datetime, timezone
+from sqlalchemy import Column, String, Boolean, Date, DateTime, UUID
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -45,17 +45,28 @@ class User(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
 
     # Authentication
-    email = Column(String(255), unique=True, nullable=False, index=True)
+    email = Column(String(255), unique=True, nullable=True, index=True)
+    username = Column(String(50), unique=True, nullable=True, index=True)
     password_hash = Column(String(255), nullable=False)
 
     # Role-based access control
     # Roles: 'student', 'parent', 'instructor', 'admin', 'partner', 'staff'
     role = Column(String(50), nullable=False, index=True)
 
+    # Super admin flag (only meaningful when role == 'admin')
+    is_super_admin = Column(Boolean, default=False, nullable=False)
+
     # Status flags
     is_active = Column(Boolean, default=True, nullable=False)
     is_deleted = Column(Boolean, default=False, nullable=False, index=True)
     is_verified = Column(Boolean, default=False, nullable=False)
+
+    # Password change enforcement (for staff accounts created by admins)
+    must_change_password = Column(Boolean, default=False, nullable=False)
+    password_change_deadline = Column(DateTime(timezone=True), nullable=True)
+
+    # Date of birth (for age verification and child/adult distinction)
+    date_of_birth = Column(Date, nullable=True)
 
     # Profile data (flexible JSONB for role-specific fields)
     profile_data = Column(JSONB, default=dict, nullable=False)
@@ -113,3 +124,19 @@ class User(Base):
     def is_staff(self) -> bool:
         """Check if the user has the staff role."""
         return self.role == 'staff'
+
+    @property
+    def is_super(self) -> bool:
+        """Check if user is a super admin (admin role + is_super_admin flag)."""
+        return self.role == 'admin' and self.is_super_admin
+
+    @property
+    def is_child(self) -> bool:
+        """Check if user is an under-18 student based on date_of_birth."""
+        if self.role != 'student' or self.date_of_birth is None:
+            return False
+        today = date.today()
+        age = today.year - self.date_of_birth.year - (
+            (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day)
+        )
+        return age < 18

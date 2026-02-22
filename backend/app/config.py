@@ -201,6 +201,42 @@ class Settings(BaseSettings):
         description="ElevenLabs API key for text-to-speech (optional)"
     )
 
+    # ElevenLabs streaming (avatar mode)
+    elevenlabs_streaming_enabled: bool = Field(
+        default=True,
+        description="Enable ElevenLabs WebSocket streaming for avatar lip sync"
+    )
+    elevenlabs_voice_id: str = Field(
+        default="21m00Tcm4TlvDq8ikWAM",
+        description="ElevenLabs voice ID (default: Rachel)"
+    )
+    elevenlabs_streaming_model: str = Field(
+        default="eleven_multilingual_v2",
+        description="ElevenLabs model for streaming TTS"
+    )
+
+    # Avatar / Ready Player Me
+    rpm_subdomain: str = Field(
+        default="demo",
+        description="Ready Player Me subdomain for avatar editor"
+    )
+    rpm_api_key: Optional[str] = Field(
+        default=None,
+        description="Ready Player Me API key (optional)"
+    )
+    avatar_max_per_user: int = Field(
+        default=10,
+        description="Maximum avatars a user can save"
+    )
+    avatar_cdn_base_url: str = Field(
+        default="",
+        description="CDN base URL for preset avatar GLB files"
+    )
+    avatar_preset_config_path: str = Field(
+        default="data/avatar_presets.json",
+        description="Path to preset avatar catalogue JSON"
+    )
+
     # M-Pesa Payment Configuration
     mpesa_consumer_key: Optional[str] = Field(
         default=None,

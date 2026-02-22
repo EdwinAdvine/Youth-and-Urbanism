@@ -20,6 +20,39 @@ from app.utils.security import get_current_active_user
 logger = logging.getLogger(__name__)
 
 
+async def require_super_admin(
+    current_user=Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    FastAPI dependency that requires the current user to be a super admin.
+    Super admin = role 'admin' AND is_super_admin == True.
+    """
+    from uuid import UUID as PyUUID
+    from app.models.user import User
+
+    role = current_user.get("role", "")
+    if role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Super admin access required.",
+        )
+
+    user_id = current_user.get("id")
+    result = await db.execute(
+        select(User.is_super_admin).where(User.id == PyUUID(user_id))
+    )
+    is_super = result.scalar_one_or_none()
+    if not is_super:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Super admin privileges required.",
+        )
+
+    current_user["is_super_admin"] = True
+    return current_user
+
+
 async def _check_permission(
     db: AsyncSession,
     user_id: str,
@@ -174,11 +207,23 @@ def require_permission(permission_name: str):
         user_id = current_user.get("id") or current_user.get("user_id")
         user_role = current_user.get("role", "")
 
-        # Quick check: admin role bypasses permission check
+        # Admin bypass — but financial permissions require explicit grant
+        # unless the user is a super admin
         if user_role == "admin":
-            return current_user
+            if permission_name.startswith("finance."):
+                # Super admins always have financial access
+                from uuid import UUID as PyUUID
+                from app.models.user import User
+                sa_result = await db.execute(
+                    select(User.is_super_admin).where(User.id == PyUUID(user_id))
+                )
+                if sa_result.scalar_one_or_none():
+                    return current_user
+                # Regular admins need explicit permission for finance
+            else:
+                return current_user
 
-        # Staff and other roles need explicit permission check
+        # Check explicit permission (role-level + user-level overrides)
         has_perm = await _check_permission(db, user_id, user_role, permission_name)
 
         if not has_perm:

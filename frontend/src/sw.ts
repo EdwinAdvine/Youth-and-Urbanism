@@ -58,6 +58,35 @@ registerRoute(
   })
 );
 
+// Cache avatar GLB models with cache-first (large binary assets)
+registerRoute(
+  ({ url }) =>
+    url.pathname.endsWith('.glb') ||
+    url.origin === 'https://models.readyplayer.me',
+  new CacheFirst({
+    cacheName: 'avatar-models-v1',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({
+        maxEntries: 10,          // ~10 avatars
+        maxAgeSeconds: 60 * 60 * 24 * 90, // 90 days
+      }),
+    ],
+  })
+);
+
+// Cache avatar preset gallery data with network-first (stays fresh)
+registerRoute(
+  ({ url }) => url.pathname.includes('/avatar/presets'),
+  new NetworkFirst({
+    cacheName: 'avatar-presets',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({ maxEntries: 5, maxAgeSeconds: 60 * 60 * 24 }),
+    ],
+  })
+);
+
 // Cache page navigations with network-first strategy (offline fallback)
 registerRoute(
   ({ request }) => request.mode === 'navigate',
@@ -69,9 +98,22 @@ registerRoute(
   })
 );
 
-// Listen for skip waiting message from the client
+// Listen for messages from the client
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+
+  // Proactively cache an avatar model when the user activates one
+  if (event.data && event.data.type === 'CACHE_AVATAR_MODEL' && event.data.url) {
+    caches.open('avatar-models-v1').then((cache) => {
+      cache.match(event.data.url).then((existing) => {
+        if (!existing) {
+          cache.add(event.data.url).catch(() => {
+            // Model caching failed silently — will load from network next time
+          });
+        }
+      });
+    });
   }
 });

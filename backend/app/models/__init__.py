@@ -30,6 +30,7 @@ from app.models.student import Student
 from app.models.ai_provider import AIProvider
 from app.models.ai_tutor import AITutor
 from app.models.ai_agent_profile import AIAgentProfile
+from app.models.user_avatar import UserAvatar, AvatarType
 from app.models.copilot_session import CopilotSession, CopilotMessage
 from app.models.course import Course
 from app.models.enrollment import Enrollment, EnrollmentStatus
@@ -68,6 +69,11 @@ from app.models.contact import ContactMessage
 from app.models.certificate import Certificate
 from app.models.instructor_application import InstructorApplication
 
+# Account creation & onboarding models
+from app.models.partner_application import PartnerApplication
+from app.models.staff_account_request import StaffAccountRequest
+from app.models.account_delinking_request import AccountDelinkingRequest
+
 # Partner models
 from app.models.partner import (
     PartnerProfile,
@@ -93,6 +99,7 @@ from app.models.parent import (
     AIAlert,
     NotificationPreference,
     ParentReport,
+    ParentDiscussionCard,
 )
 
 # Student dashboard models
@@ -125,6 +132,9 @@ from app.models.student_community import (
 
 # Student account models
 from app.models.student_account import StudentConsentRecord, StudentTeacherAccess
+
+# Student mastery and session tracking models
+from app.models.student_mastery import StudentMasteryRecord, StudentSessionLog
 
 # Student wallet models
 from app.models.student_wallet import PaystackTransaction, StudentSavedPaymentMethod
@@ -180,6 +190,9 @@ from app.models.instructor import (
     InstructorTwoFactor,
     InstructorLoginHistory,
 )
+
+# Plan feature toggles
+from app.models.plan_feature import PlanFeature
 
 # Cross-cutting security models
 from app.models.two_factor_auth import TwoFactorAuth
@@ -255,6 +268,11 @@ __all__ = [
     "ContactMessage",
     "Certificate",
     "InstructorApplication",
+
+    # Account creation & onboarding models
+    "PartnerApplication",
+    "StaffAccountRequest",
+    "AccountDelinkingRequest",
 
     # Partner models
     "PartnerProfile",
@@ -356,6 +374,9 @@ __all__ = [
     "InstructorForumReply",
     "InstructorTwoFactor",
     "InstructorLoginHistory",
+
+    # Plan feature toggles
+    "PlanFeature",
 
     # Cross-cutting security models
     "TwoFactorAuth",

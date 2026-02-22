@@ -35,6 +35,7 @@ const StaffNotificationsPage = lazy(() => import('../pages/staff/StaffNotificati
 const StaffProfilePage = lazy(() => import('../pages/staff/StaffProfilePage'));
 const StaffPreferencesPage = lazy(() => import('../pages/staff/StaffPreferencesPage'));
 const StaffSecurityPage = lazy(() => import('../pages/staff/StaffSecurityPage'));
+const AvatarPage = lazy(() => import('../pages/student/AvatarPage'));
 
 export const staffRoutes = (
   <Route path="/dashboard/staff" element={<ProtectedRoute allowedRoles={['staff']}><DashboardLayout role="staff" /></ProtectedRoute>}>
@@ -75,6 +76,7 @@ export const staffRoutes = (
     {/* Account */}
     <Route path="account/notifications" element={<S><StaffNotificationsPage /></S>} />
     <Route path="account/profile" element={<S><StaffProfilePage /></S>} />
+    <Route path="account/profile/avatar" element={<S><AvatarPage /></S>} />
     <Route path="account/preferences" element={<S><StaffPreferencesPage /></S>} />
     <Route path="account/security" element={<S><StaffSecurityPage /></S>} />
   </Route>

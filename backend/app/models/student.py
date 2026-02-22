@@ -100,6 +100,10 @@ class Student(Base):
     skill_nodes = relationship("StudentSkillNode", back_populates="student", cascade="all, delete-orphan")
     weekly_reports = relationship("StudentWeeklyReport", back_populates="student", cascade="all, delete-orphan")
 
+    # Mastery and session tracking (student_mastery.py)
+    mastery_records = relationship("StudentMasteryRecord", back_populates="student", cascade="all, delete-orphan")
+    session_logs = relationship("StudentSessionLog", back_populates="student", cascade="all, delete-orphan")
+
     def __repr__(self) -> str:
         """String representation of Student instance."""
         return (

@@ -29,7 +29,7 @@ const ContentReviewPage: React.FC = () => {
     setError(null);
     try {
       const response = await getModerationQueue();
-      const fetchedItems = response.items;
+      const fetchedItems = response.items ?? [];
       setItems(fetchedItems);
       setStats({
         totalPending: fetchedItems.filter((i) => i.status === 'pending').length,
@@ -152,7 +152,7 @@ const ContentReviewPage: React.FC = () => {
       item.id,
       `"${item.title}"`,
       item.content_type,
-      `"${item.submitted_by.name}"`,
+      `"${item.submitted_by?.name ?? 'Unknown'}"`,
       item.priority,
       item.ai_risk_score ?? '',
       item.status,
@@ -324,8 +324,8 @@ const ContentReviewPage: React.FC = () => {
                     </td>
                     <td className="px-4 py-3">
                       <div>
-                        <p className="text-sm text-gray-700 dark:text-white/80">{item.submitted_by.name}</p>
-                        <p className="text-xs text-gray-400 dark:text-white/40">{item.submitted_by.email}</p>
+                        <p className="text-sm text-gray-700 dark:text-white/80">{item.submitted_by?.name ?? '—'}</p>
+                        <p className="text-xs text-gray-400 dark:text-white/40">{item.submitted_by?.email ?? ''}</p>
                       </div>
                     </td>
                     <td className="px-4 py-3">{getPriorityBadge(item.priority)}</td>

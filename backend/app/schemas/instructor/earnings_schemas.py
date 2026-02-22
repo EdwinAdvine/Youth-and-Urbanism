@@ -71,8 +71,8 @@ class InstructorPayoutResponse(BaseModel):
 # Revenue Split Schemas
 class RevenueSplitCreate(BaseModel):
     course_id: Optional[str] = None
-    instructor_pct: Decimal = Field(default=Decimal("60.00"), ge=0, le=100)
-    platform_pct: Decimal = Field(default=Decimal("30.00"), ge=0, le=100)
+    instructor_pct: Decimal = Field(default=Decimal("70.00"), ge=0, le=100)
+    platform_pct: Decimal = Field(default=Decimal("20.00"), ge=0, le=100)
     partner_pct: Decimal = Field(default=Decimal("10.00"), ge=0, le=100)
     effective_from: Optional[datetime] = None
     effective_until: Optional[datetime] = None

@@ -45,6 +45,14 @@ async def get_agent_profile(
     current_user=Depends(get_current_user),
 ):
     """Get the current user's AI agent profile."""
+    from app.services.copilot_service import CopilotService
+
+    # Get role-specific defaults for fallback values
+    role_defaults = CopilotService.ROLE_DEFAULTS.get(current_user.role, {})
+    default_name = role_defaults.get("agent_name", "Urban Home School AI")
+    default_persona = role_defaults.get("persona", "A helpful AI assistant on the Urban Home School platform.")
+    default_expertise = role_defaults.get("expertise_focus", [])
+
     try:
         from app.models.ai_agent_profile import AIAgentProfile
         stmt = select(AIAgentProfile).where(AIAgentProfile.user_id == current_user.id)
@@ -53,19 +61,23 @@ async def get_agent_profile(
 
         if profile:
             return AgentProfileResponse(
-                agent_name=profile.agent_name or "The Bird AI",
+                agent_name=profile.agent_name or default_name,
                 avatar_url=profile.avatar_url,
-                persona=profile.persona or "A helpful, encouraging AI tutor for Kenyan students.",
+                persona=profile.persona or default_persona,
                 preferred_language=profile.preferred_language or "en",
-                expertise_focus=profile.expertise_focus or [],
+                expertise_focus=profile.expertise_focus or default_expertise,
                 response_style=profile.response_style.value if profile.response_style else "conversational",
                 quick_action_shortcuts=profile.quick_action_shortcuts or [],
             )
     except Exception:
         pass
 
-    # Return defaults if no profile exists
-    return AgentProfileResponse()
+    # Return role-specific defaults if no profile exists
+    return AgentProfileResponse(
+        agent_name=default_name,
+        persona=default_persona,
+        expertise_focus=default_expertise,
+    )
 
 
 @router.put("/ai-agent/profile", response_model=AgentProfileResponse)
@@ -114,15 +126,34 @@ async def reset_agent_profile(
     db: AsyncSession = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    """Reset the current user's AI agent profile to defaults."""
-    from app.models.ai_agent_profile import AIAgentProfile
+    """Reset the current user's AI agent profile to role-specific defaults."""
+    from app.models.ai_agent_profile import AIAgentProfile, ResponseStyle
+    from app.services.copilot_service import CopilotService
+
+    # Get role-specific defaults (not student-centric generic defaults)
+    role_defaults = CopilotService.ROLE_DEFAULTS.get(current_user.role, {})
+    default_name = role_defaults.get("agent_name", "Urban Home School AI")
+    default_persona = role_defaults.get("persona", "A helpful AI assistant on the Urban Home School platform.")
+    default_expertise = role_defaults.get("expertise_focus", [])
 
     stmt = select(AIAgentProfile).where(AIAgentProfile.user_id == current_user.id)
     result = await db.execute(stmt)
     profile = result.scalar_one_or_none()
 
     if profile:
-        await db.delete(profile)
+        # Reset fields to role-specific defaults instead of deleting
+        profile.agent_name = default_name
+        profile.persona = default_persona
+        profile.expertise_focus = default_expertise
+        profile.preferred_language = "en"
+        profile.response_style = ResponseStyle.conversational
+        profile.avatar_url = None
+        profile.quick_action_shortcuts = []
         await db.commit()
+        await db.refresh(profile)
 
-    return AgentProfileResponse()
+    return AgentProfileResponse(
+        agent_name=default_name,
+        persona=default_persona,
+        expertise_focus=default_expertise,
+    )

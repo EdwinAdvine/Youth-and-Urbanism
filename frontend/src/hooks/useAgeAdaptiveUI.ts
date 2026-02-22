@@ -22,9 +22,10 @@ export const useAgeAdaptiveUI = (): {
 
     const gradeNum = parseInt(grade.replace(/\D/g, ''));
 
-    if (gradeNum >= 1 && gradeNum <= 3) return 'young'; // Grade 1-3 (ages 6-9)
-    if (gradeNum >= 4 && gradeNum <= 6) return 'tween'; // Grade 4-6 (ages 10-12)
-    if (gradeNum >= 7) return 'teen'; // Grade 7+ (ages 13-17)
+    if (gradeNum >= 1 && gradeNum <= 3)  return 'young';  // Grade 1–3 (ages 6–9)
+    if (gradeNum >= 4 && gradeNum <= 6)  return 'tween';  // Grade 4–6 (ages 10–12)
+    if (gradeNum >= 7 && gradeNum <= 9)  return 'teen';   // Grade 7–9 (ages 13–15)
+    if (gradeNum >= 10)                  return 'senior'; // Grade 10–12 — standard platform
 
     return 'tween';
   };
@@ -79,6 +80,16 @@ export const useAgeAdaptiveUI = (): {
           animationIntensity: 'low' as const,
           useEmojis: false,
           useGamification: true, // Still gamified but more subtle
+        };
+
+      case 'senior':
+        return {
+          ageGroup,
+          fontSize: 'text-sm',
+          borderRadius: 'rounded-md',
+          animationIntensity: 'low' as const,
+          useEmojis: false,
+          useGamification: false,
         };
 
       default:

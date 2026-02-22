@@ -17,9 +17,9 @@ def register_all_routers(app: FastAPI) -> None:
     from app.api.v1 import (
         auth, ai_tutor, courses, payments, assessments, users,
         parents, notifications, forum, categories, store,
-        contact, certificates, instructor_applications,
+        contact, certificates, instructor_applications, partner_applications,
         scholarships, ai_agent_profile, copilot, health,
-        public_chat,
+        public_chat, avatar,
     )
     from app.api.v1 import search as global_search
 
@@ -42,10 +42,15 @@ def register_all_routers(app: FastAPI) -> None:
     app.include_router(contact.router, prefix=prefix, tags=["Contact"])
     app.include_router(certificates.router, prefix=prefix, tags=["Certificates"])
     app.include_router(instructor_applications.router, prefix=prefix, tags=["Instructor Applications"])
+    app.include_router(partner_applications.router, prefix=prefix, tags=["Partner Applications"])
     app.include_router(scholarships.router, prefix=prefix, tags=["Scholarships"])
     app.include_router(global_search.router, prefix=prefix, tags=["Search"])
     app.include_router(ai_agent_profile.router, prefix=prefix, tags=["AI Agent Profile"])
     app.include_router(copilot.router, prefix=prefix, tags=["CoPilot"])
+    app.include_router(avatar.router, prefix=prefix, tags=["Avatar"])
+
+    from app.api.v1 import withdrawals as shared_withdrawals
+    app.include_router(shared_withdrawals.router, prefix=prefix, tags=["Withdrawals"])
 
     # ── Admin routes ────────────────────────────────────────────────
     from app.api.v1.admin import (
@@ -57,6 +62,10 @@ def register_all_routers(app: FastAPI) -> None:
         finance as admin_finance, operations as admin_operations,
         account as admin_account, families as admin_families,
         restrictions as admin_restrictions, system_health as admin_system_health,
+        staff_accounts as admin_staff_accounts,
+        super_admin as admin_super_admin,
+        withdrawals as admin_withdrawals,
+        plan_features as admin_plan_features,
     )
 
     admin_prefix = f"{prefix}/admin"
@@ -75,6 +84,10 @@ def register_all_routers(app: FastAPI) -> None:
     app.include_router(admin_families.router, prefix=admin_prefix, tags=["Admin - Families"])
     app.include_router(admin_restrictions.router, prefix=admin_prefix, tags=["Admin - Restrictions"])
     app.include_router(admin_system_health.router, prefix=admin_prefix, tags=["Admin - System Health"])
+    app.include_router(admin_staff_accounts.router, prefix=admin_prefix, tags=["Admin - Staff Accounts"])
+    app.include_router(admin_super_admin.router, prefix=admin_prefix, tags=["Admin - Super Admin"])
+    app.include_router(admin_withdrawals.router, prefix=admin_prefix, tags=["Admin - Withdrawals"])
+    app.include_router(admin_plan_features.router, prefix=admin_prefix, tags=["Admin - Plan Features"])
 
     # ── Staff routes ────────────────────────────────────────────────
     from app.api.v1.staff import (
@@ -144,6 +157,8 @@ def register_all_routers(app: FastAPI) -> None:
         mpesa_router as parent_mpesa,
         reports_router as parent_reports,
         settings_router as parent_settings,
+        weekly_summary_router as parent_weekly_summary,
+        child_wallet_router as parent_child_wallet,
     )
 
     app.include_router(parent_dashboard, prefix=prefix, tags=["Parent - Dashboard"])
@@ -154,6 +169,8 @@ def register_all_routers(app: FastAPI) -> None:
     app.include_router(parent_mpesa, prefix=prefix, tags=["Parent - M-Pesa"])
     app.include_router(parent_reports, prefix=prefix, tags=["Parent - Reports"])
     app.include_router(parent_settings, prefix=prefix, tags=["Parent - Settings"])
+    app.include_router(parent_weekly_summary, prefix=prefix, tags=["Parent - Weekly Summary"])
+    app.include_router(parent_child_wallet, prefix=prefix, tags=["Parent - Child Wallet"])
 
     # ── Student routes ──────────────────────────────────────────────
     from app.api.v1.student import (
@@ -161,10 +178,12 @@ def register_all_routers(app: FastAPI) -> None:
         progress as student_progress, learning as student_learning,
         community as student_community, wallet as student_wallet,
         support as student_support, account as student_account,
+        mastery as student_mastery,
     )
 
     app.include_router(student_dashboard.router, prefix=prefix, tags=["Student - Dashboard"])
     app.include_router(student_ai_tutor.router, prefix=prefix, tags=["Student - AI Tutor"])
+    app.include_router(student_mastery.router, prefix=prefix, tags=["Student - Mastery & Sessions"])
     app.include_router(student_progress.router, prefix=prefix, tags=["Student - Progress"])
     app.include_router(student_learning.router, prefix=prefix, tags=["Student - Learning"])
     app.include_router(student_community.router, prefix=prefix, tags=["Student - Community"])
@@ -178,6 +197,7 @@ def register_all_routers(app: FastAPI) -> None:
         finance as partner_finance, analytics as partner_analytics,
         content as partner_content, support as partner_support,
         account as partner_account, collaboration as partner_collaboration,
+        wallet as partner_wallet,
     )
 
     app.include_router(partner_dashboard.router, prefix=f"{prefix}/partner/dashboard", tags=["Partner - Dashboard"])
@@ -188,9 +208,10 @@ def register_all_routers(app: FastAPI) -> None:
     app.include_router(partner_support.router, prefix=f"{prefix}/partner/support", tags=["Partner - Support"])
     app.include_router(partner_account.router, prefix=f"{prefix}/partner/account", tags=["Partner - Account"])
     app.include_router(partner_collaboration.router, prefix=f"{prefix}/partner/collaboration", tags=["Partner - Collaboration"])
+    app.include_router(partner_wallet.router, prefix=f"{prefix}/partner", tags=["Partner - Wallet"])
 
     logger.info(
         "Routers registered: auth, ai-tutor, copilot, courses, payments, parents, notifications, forum, "
         "categories, store, admin/*, staff/*, instructor/*, parent/*, student/*, partner/*, "
-        "contact, certificates, instructor-applications, search, ai-agent-profile"
+        "contact, certificates, instructor-applications, partner-applications, search, ai-agent-profile"
     )

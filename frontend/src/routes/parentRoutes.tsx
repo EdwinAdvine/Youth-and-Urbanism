@@ -39,6 +39,11 @@ const ParentPrivacyPage = lazy(() => import('../pages/parent/PrivacyPage'));
 const FamilyMembersPage = lazy(() => import('../pages/parent/FamilyMembersPage'));
 const ParentProfilePage = lazy(() => import('../pages/parent/ProfilePage'));
 const ParentSecurityPage = lazy(() => import('../pages/parent/SecurityPage'));
+const AvatarPage = lazy(() => import('../pages/student/AvatarPage'));
+const WeeklySummaryPage = lazy(() => import('../pages/parent/WeeklySummaryPage'));
+const ChildWalletPage = lazy(() => import('../pages/parent/ChildWalletPage'));
+const PurchaseApprovalsPage = lazy(() => import('../pages/parent/PurchaseApprovalsPage'));
+const SpendingLimitsPage = lazy(() => import('../pages/parent/SpendingLimitsPage'));
 
 export const parentRoutes = (
   <Route path="/dashboard/parent" element={<ProtectedRoute allowedRoles={['parent']}><DashboardLayout role="parent" /></ProtectedRoute>}>
@@ -56,6 +61,7 @@ export const parentRoutes = (
     <Route path="ai/planning/:childId" element={<S><AIPlanningPage /></S>} />
     <Route path="ai/patterns/:childId" element={<S><AIPatternsPage /></S>} />
     <Route path="ai/warnings/:childId" element={<S><AIWarningsPage /></S>} />
+    <Route path="ai/weekly-summary/:childId" element={<S><WeeklySummaryPage /></S>} />
     {/* AI Insights (without childId) */}
     <Route path="ai/summary" element={<S><ParentAIInsightsPage /></S>} />
     <Route path="ai/learning-style" element={<S><AILearningStylePage /></S>} />
@@ -78,6 +84,10 @@ export const parentRoutes = (
     <Route path="finance/history" element={<S><PaymentHistoryPage /></S>} />
     <Route path="finance/manage" element={<S><ManageSubscriptionPage /></S>} />
     <Route path="finance/addons" element={<S><ParentAddonsPage /></S>} />
+    {/* Child Wallet */}
+    <Route path="children/:childId/wallet" element={<S><ChildWalletPage /></S>} />
+    <Route path="children/:childId/spending-limits" element={<S><SpendingLimitsPage /></S>} />
+    <Route path="purchase-approvals" element={<S><PurchaseApprovalsPage /></S>} />
     {/* Reports */}
     <Route path="reports" element={<S><ReportsListPage /></S>} />
     <Route path="reports/term-summary" element={<S><TermSummaryPage /></S>} />
@@ -90,5 +100,6 @@ export const parentRoutes = (
     <Route path="settings/family" element={<S><FamilyMembersPage /></S>} />
     <Route path="settings/profile" element={<S><ParentProfilePage /></S>} />
     <Route path="settings/security" element={<S><ParentSecurityPage /></S>} />
+    <Route path="profile/avatar" element={<S><AvatarPage /></S>} />
   </Route>
 );

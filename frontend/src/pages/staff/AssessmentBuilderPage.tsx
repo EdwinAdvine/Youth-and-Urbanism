@@ -140,7 +140,7 @@ const AssessmentBuilderPage: React.FC = () => {
               className="flex items-center gap-2 px-4 py-2 bg-[#E40000]/20 text-[#FF4444] rounded-lg hover:bg-[#E40000]/30"
             >
               <Save className="w-4 h-4" />
-              Save Assessment
+              New Assessment
             </button>
           </div>
         </div>

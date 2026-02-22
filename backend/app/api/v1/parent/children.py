@@ -475,3 +475,29 @@ async def get_ai_pathways(
         recommended_focus_areas=["Mathematics", "Science", "Critical Thinking"],
         potential_career_interests=["Engineering", "Data Science", "Research"]
     )
+
+
+# ─── Account Delinking Endpoints ────────────────────────────────
+
+@router.put("/{request_id}/delink")
+async def respond_to_delinking_endpoint(
+    request_id: str,
+    approve: bool = True,
+    response_note: Optional[str] = None,
+    current_user: User = Depends(require_parent_role),
+    db: AsyncSession = Depends(get_db),
+):
+    """Parent approves or denies a child's delinking request."""
+    from app.services.age_transition_service import respond_to_delinking
+
+    try:
+        delink_req = await respond_to_delinking(
+            db, request_id, str(current_user.id), approve, response_note
+        )
+        return {
+            "id": str(delink_req.id),
+            "status": delink_req.status,
+            "message": f"Delinking request {'approved' if approve else 'denied'}.",
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

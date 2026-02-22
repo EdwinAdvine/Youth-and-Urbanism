@@ -48,6 +48,9 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/copilot", tags=["CoPilot"])
 
+# Canonical valid roles — requests from unrecognized roles are rejected
+VALID_COPILOT_ROLES = frozenset({"student", "parent", "instructor", "admin", "staff", "partner"})
+
 # Service instances
 copilot_service = CopilotService()
 insights_service = CopilotInsightsService()
@@ -82,10 +85,21 @@ async def chat_with_copilot(
     Raises:
         HTTPException: If chat processing fails
     """
+    # Role validation gate — reject unrecognized roles
+    if current_user.role not in VALID_COPILOT_ROLES:
+        logger.warning(
+            f"CoPilot chat BLOCKED for user {current_user.id} "
+            f"with unrecognized role: {current_user.role}"
+        )
+        raise HTTPException(
+            status_code=403,
+            detail="Your account role does not have access to the AI CoPilot."
+        )
+
     try:
         logger.info(
-            f"Chat request from user {current_user.id} "
-            f"(role: {current_user.role}, mode: {request.response_mode})"
+            f"CoPilot chat | user={current_user.id} role={current_user.role} "
+            f"mode={request.response_mode} session={request.session_id}"
         )
 
         response = await copilot_service.chat(db, current_user, request)
@@ -128,10 +142,20 @@ async def chat_with_copilot_stream(
     Raises:
         HTTPException: If streaming setup fails
     """
+    # Role validation gate
+    if current_user.role not in VALID_COPILOT_ROLES:
+        logger.warning(
+            f"CoPilot stream BLOCKED for user {current_user.id} "
+            f"with unrecognized role: {current_user.role}"
+        )
+        raise HTTPException(
+            status_code=403,
+            detail="Your account role does not have access to the AI CoPilot."
+        )
+
     try:
         logger.info(
-            f"Streaming chat request from user {current_user.id} "
-            f"(role: {current_user.role})"
+            f"CoPilot stream | user={current_user.id} role={current_user.role}"
         )
 
         async def event_generator():
@@ -387,10 +411,20 @@ async def get_insights(
     Raises:
         HTTPException: If insights generation fails
     """
+    # Role validation gate
+    if current_user.role not in VALID_COPILOT_ROLES:
+        logger.warning(
+            f"CoPilot insights BLOCKED for user {current_user.id} "
+            f"with unrecognized role: {current_user.role}"
+        )
+        raise HTTPException(
+            status_code=403,
+            detail="Your account role does not have access to CoPilot insights."
+        )
+
     try:
         logger.info(
-            f"Getting insights for user {current_user.id} "
-            f"(role: {current_user.role})"
+            f"CoPilot insights | user={current_user.id} role={current_user.role}"
         )
 
         insights = await insights_service.get_insights(db, current_user)

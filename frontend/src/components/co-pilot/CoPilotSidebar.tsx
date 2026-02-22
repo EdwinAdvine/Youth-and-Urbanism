@@ -20,6 +20,8 @@ import {
 import { getDashboardConfig, DashboardType } from '../../utils/dashboardDetection';
 import ChatMessages from './ChatMessages';
 import ChatInput from './ChatInput';
+import AvatarThumbnail from '../avatar/AvatarThumbnail';
+import { useAvatarStore } from '../../store/avatarStore';
 
 
 interface CoPilotSidebarProps {
@@ -29,6 +31,7 @@ interface CoPilotSidebarProps {
 const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpenAuthModal }) => {
   const navigate = useNavigate();
   const authUser = useAuthStore((s) => s.user);
+  const activeAvatar = useAvatarStore((s) => s.activeAvatar);
 
   const [showOfflineMessage, setShowOfflineMessage] = useState(false);
   const [showAgentSettings, setShowAgentSettings] = useState(false);
@@ -81,14 +84,18 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
     };
   }, [setOnlineStatus]);
 
-  // Auto-sync role from auth
+  // Auto-sync role from auth — fail safe for unknown roles
   useEffect(() => {
     if (authUser?.role) {
+      const validRoles = new Set(['student', 'parent', 'instructor', 'admin', 'partner', 'staff']);
       const normalizedRole =
         (authUser.role as string) === 'teacher' ? 'instructor' :
-        ['student', 'parent', 'instructor', 'admin', 'partner', 'staff'].includes(authUser.role)
-          ? authUser.role
-          : 'student';
+        validRoles.has(authUser.role) ? authUser.role : null;
+
+      if (normalizedRole === null) {
+        console.error(`CoPilot: Unknown auth role "${authUser.role}". Using safe default.`);
+        return;
+      }
 
       if (normalizedRole !== activeRole) {
         setActiveRole(normalizedRole as any);
@@ -231,10 +238,23 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
 
   const currentConfig = roleConfig[activeRole as keyof typeof roleConfig];
 
-  // Determine the display name: use role-specific name unless user explicitly customized it
-  const genericDefaults = ['The Bird AI', 'AI Assistant', 'Bird Admin AI'];
-  const isCustomName = agentProfile?.agent_name && !genericDefaults.includes(agentProfile.agent_name);
-  const displayAgentName = isCustomName ? agentProfile!.agent_name : currentConfig.title;
+  // Role-canonical agent names — these are role-locked and always shown as primary identity
+  const roleCanonicalNames: Record<string, string> = {
+    student: 'Birdy',
+    parent: 'Parents Companion',
+    instructor: 'Instructor AI',
+    admin: 'Bird Admin AI',
+    staff: 'Staff AI',
+    partner: 'Sponsors AI',
+  };
+
+  // Always display the role-locked canonical name as primary identity
+  const canonicalName = roleCanonicalNames[activeRole] || currentConfig.title;
+  const genericDefaults = ['The Bird AI', 'AI Assistant', 'Urban Home School AI', ...Object.values(roleCanonicalNames)];
+  const hasCustomName = agentProfile?.agent_name
+    && !genericDefaults.includes(agentProfile.agent_name);
+  const displayAgentName = canonicalName;
+  const customSubtitle = hasCustomName ? agentProfile!.agent_name : null;
 
   // Get dashboard-specific quick actions
   const dashboardConfig = getDashboardConfig(activeRole as DashboardType);
@@ -304,7 +324,9 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
                 whileTap={{ scale: 0.95 }}
                 aria-label="Open Agent Profile"
               >
-                {agentProfile?.avatar_url ? (
+                {activeAvatar?.thumbnail_url ? (
+                  <AvatarThumbnail size={24} />
+                ) : agentProfile?.avatar_url ? (
                   <img
                     src={agentProfile.avatar_url}
                     alt="Agent avatar"
@@ -339,7 +361,9 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
                     p-1.5 rounded-lg bg-gradient-to-br ${currentConfig.color} text-gray-900 dark:text-white
                     shadow-lg shadow-blue-500/20 flex-shrink-0
                   `}>
-                    {agentProfile?.avatar_url ? (
+                    {activeAvatar?.thumbnail_url ? (
+                      <AvatarThumbnail size={20} />
+                    ) : agentProfile?.avatar_url ? (
                       <img
                         src={agentProfile.avatar_url}
                         alt={agentProfile.agent_name}
@@ -350,9 +374,19 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
                     )}
                   </div>
                   <div className="min-w-0">
-                    <h2 className="font-semibold text-gray-900 dark:text-white text-sm truncate">
-                      {displayAgentName}
-                    </h2>
+                    <div className="flex items-center gap-1.5">
+                      <h2 className="font-semibold text-gray-900 dark:text-white text-sm truncate">
+                        {displayAgentName}
+                      </h2>
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-white/50 border border-gray-300 dark:border-white/10 flex-shrink-0">
+                        {activeRole.charAt(0).toUpperCase() + activeRole.slice(1)}
+                      </span>
+                    </div>
+                    {customSubtitle && (
+                      <p className="text-[10px] text-gray-400 dark:text-white/40 truncate">
+                        aka &ldquo;{customSubtitle}&rdquo;
+                      </p>
+                    )}
                     <div className="flex items-center gap-1.5">
                       <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isOnline ? 'bg-green-400' : 'bg-red-400'}`} />
                       <p className="text-gray-600 dark:text-white/60 text-xs truncate">

@@ -89,25 +89,30 @@ export interface UpdateSchedulePayload {
 export async function getReports(
   params: ReportListParams = {},
 ): Promise<PaginatedResponse<ReportDefinition>> {
-  const { data } = await apiClient.get<PaginatedResponse<ReportDefinition>>(
+  const { data } = await apiClient.get<{ status: string; data: PaginatedResponse<ReportDefinition> }>(
     '/api/v1/staff/reports',
     { params },
   );
-  return data;
+  return data.data;
 }
 
 /** Fetch a single report definition by ID. */
 export async function getReport(reportId: string): Promise<ReportDefinition> {
-  const { data } = await apiClient.get<ReportDefinition>(`/api/v1/staff/reports/${reportId}`);
-  return data;
+  const { data } = await apiClient.get<{ status: string; data: ReportDefinition }>(
+    `/api/v1/staff/reports/${reportId}`,
+  );
+  return data.data;
 }
 
 /** Create a new report definition. */
 export async function createReport(
   payload: CreateReportPayload,
 ): Promise<ReportDefinition> {
-  const { data } = await apiClient.post<ReportDefinition>('/api/v1/staff/reports', payload);
-  return data;
+  const { data } = await apiClient.post<{ status: string; data: ReportDefinition }>(
+    '/api/v1/staff/reports',
+    payload,
+  );
+  return data.data;
 }
 
 /** Update an existing report definition. */
@@ -115,11 +120,11 @@ export async function updateReport(
   reportId: string,
   payload: UpdateReportPayload,
 ): Promise<ReportDefinition> {
-  const { data } = await apiClient.patch<ReportDefinition>(
+  const { data } = await apiClient.patch<{ status: string; data: ReportDefinition }>(
     `/api/v1/staff/reports/${reportId}`,
     payload,
   );
-  return data;
+  return data.data;
 }
 
 /** Delete a report definition. */
@@ -133,11 +138,11 @@ export async function exportReport(
   format: string,
   filters?: ExportReportFilters,
 ): Promise<{ download_url: string }> {
-  const { data } = await apiClient.post<{ download_url: string }>(
+  const { data } = await apiClient.post<{ status: string; data: { download_url: string } }>(
     `/api/v1/staff/reports/${reportId}/export`,
     { format, ...(filters ? { filters } : {}) },
   );
-  return data;
+  return data.data;
 }
 
 // ---------------------------------------------------------------------------
@@ -146,19 +151,21 @@ export async function exportReport(
 
 /** Fetch all report delivery schedules. */
 export async function getSchedules(): Promise<ReportSchedule[]> {
-  const { data } = await apiClient.get<ReportSchedule[]>('/api/v1/staff/reports/schedules');
-  return data;
+  const { data } = await apiClient.get<{ status: string; data: ReportSchedule[] }>(
+    '/api/v1/staff/reports/schedules',
+  );
+  return data.data;
 }
 
 /** Create a new report delivery schedule. */
 export async function createSchedule(
   payload: CreateSchedulePayload,
 ): Promise<ReportSchedule> {
-  const { data } = await apiClient.post<ReportSchedule>(
+  const { data } = await apiClient.post<{ status: string; data: ReportSchedule }>(
     '/api/v1/staff/reports/schedules',
     payload,
   );
-  return data;
+  return data.data;
 }
 
 /** Update an existing report delivery schedule. */
@@ -166,11 +173,11 @@ export async function updateSchedule(
   scheduleId: string,
   payload: UpdateSchedulePayload,
 ): Promise<ReportSchedule> {
-  const { data } = await apiClient.patch<ReportSchedule>(
+  const { data } = await apiClient.patch<{ status: string; data: ReportSchedule }>(
     `/api/v1/staff/reports/schedules/${scheduleId}`,
     payload,
   );
-  return data;
+  return data.data;
 }
 
 /** Delete a report delivery schedule. */
