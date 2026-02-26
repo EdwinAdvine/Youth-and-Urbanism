@@ -1,0 +1,131 @@
+name: Mobile Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+
+      - name: Rust build cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: 'apps/web/src-tauri -> target'
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install NDK
+        run: sdkmanager "ndk;27.0.11902837"
+
+      - name: Install pnpm dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend
+        run: pnpm --filter @uhs/web run build
+        env:
+          VITE_API_URL: https://api.urbanhomeschool.ke
+          VITE_APP_TITLE: Urban Home School
+
+      - name: Build Android release
+        run: pnpm --filter @uhs/web run android:build -- --apk
+        env:
+          VITE_API_URL: https://api.urbanhomeschool.ke
+          VITE_APP_TITLE: Urban Home School
+          NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
+
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-${{ github.ref_name }}
+          path: apps/web/src-tauri/gen/android/app/build/outputs/apk/**/*.apk
+          retention-days: 30
+
+      - name: Upload Android AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-aab-${{ github.ref_name }}
+          path: apps/web/src-tauri/gen/android/app/build/outputs/bundle/**/*.aab
+          retention-days: 30
+
+  build-ios:
+    name: Build iOS
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios,x86_64-apple-ios,aarch64-apple-ios-sim
+
+      - name: Rust build cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: 'apps/web/src-tauri -> target'
+
+      - name: Install pnpm dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend
+        run: pnpm --filter @uhs/web run build
+        env:
+          VITE_API_URL: https://api.urbanhomeschool.ke
+          VITE_APP_TITLE: Urban Home School
+
+      - name: Build iOS
+        run: pnpm --filter @uhs/web run ios:build
+        env:
+          VITE_API_URL: https://api.urbanhomeschool.ke
+          VITE_APP_TITLE: Urban Home School
+
+      - name: Upload iOS build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-${{ github.ref_name }}
+          path: apps/web/src-tauri/gen/apple/build/**/*.ipa
+          retention-days: 30
