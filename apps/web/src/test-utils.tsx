@@ -6,14 +6,14 @@
  */
 
 import { ReactElement } from 'react';
-import { render, RenderOptions } from '@testing-library/react';
+import { render, RenderOptions, RenderResult } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 
 function AllProviders({ children }: { children: React.ReactNode }) {
   return <BrowserRouter>{children}</BrowserRouter>;
 }
 
-function customRender(ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) {
+function customRender(ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>): RenderResult {
   return render(ui, { wrapper: AllProviders, ...options });
 }
 

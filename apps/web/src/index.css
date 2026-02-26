@@ -23,6 +23,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Safe-area insets for mobile notch / home bar (Tauri iOS/Android) ── */
+.safe-top    { padding-top:    env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+.safe-left   { padding-left:   env(safe-area-inset-left); }
+.safe-right  { padding-right:  env(safe-area-inset-right); }
+
+/* ── Viewport height fix for mobile browsers (avoids 100vh issues) ── */
+:root {
+  --vh: 1vh;
+}
+.h-screen-mobile {
+  height: calc(var(--vh, 1vh) * 100);
+}
+
 /* Marquee / infinite-scroll animation (right → left) */
 @keyframes marquee {
   from { transform: translateX(0); }

@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import './i18n' // Initialize i18n
-import { registerSW } from 'virtual:pwa-register'
 import { initializeTheme } from './store'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 
@@ -20,16 +19,21 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>,
 )
 
-// Register PWA service worker (prompt user to update when new version available)
-if ('serviceWorker' in navigator) {
-  registerSW({
-    onNeedRefresh() {
-      if (confirm('A new version of Urban Home School is available. Reload to update?')) {
-        window.location.reload()
-      }
-    },
-    onOfflineReady() {
-      console.log('App ready for offline use.')
-    },
+// Register PWA service worker ONLY in the browser (not inside Tauri).
+// Tauri webview uses the tauri://localhost protocol which blocks SW registration.
+const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
+
+if (!isTauri && 'serviceWorker' in navigator) {
+  import('virtual:pwa-register').then(({ registerSW }) => {
+    registerSW({
+      onNeedRefresh() {
+        if (confirm('A new version of Urban Home School is available. Reload to update?')) {
+          window.location.reload()
+        }
+      },
+      onOfflineReady() {
+        console.log('App ready for offline use.')
+      },
+    })
   })
 }
