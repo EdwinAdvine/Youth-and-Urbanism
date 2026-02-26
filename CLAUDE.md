@@ -4,36 +4,99 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Urban Home School** (The Bird AI) is a full-stack educational platform for Kenyan children featuring AI-powered tutoring with multi-AI orchestration. Monorepo with:
-- **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS + Zustand
+**Urban Home School** (The Bird AI) is a full-stack educational platform for Kenyan children featuring AI-powered tutoring with multi-AI orchestration. Turborepo + pnpm monorepo targeting **Web + Desktop (Mac/Windows) + Mobile (iOS/Android)** via Tauri v2:
+- **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS + Zustand (in `apps/web/`)
 - **Backend**: FastAPI (Python 3.11) + SQLAlchemy (async) + PostgreSQL 16 + Redis 7
+- **Desktop/Mobile**: Tauri v2 (Rust) — ships Mac .dmg, Windows .exe, Android .apk/.aab, iOS .ipa
 - **AI**: Multi-AI orchestrator (Gemini, Claude, OpenAI, Grok, ElevenLabs)
 - **Real-time**: WebSocket, WebRTC (LiveKit), Yjs collaborative editing
 - **Payments**: M-Pesa STK Push, PayPal, Stripe, Paystack, Flutterwave
 - **i18n**: English + Swahili (i18next)
 
+## Monorepo Structure
+
+```
+urban-home-school/
+├── apps/
+│   └── web/                   # React frontend (moved from frontend/)
+│       ├── src/               # React source (unchanged internally)
+│       ├── src-tauri/         # Tauri v2 — desktop + mobile shell
+│       │   ├── Cargo.toml
+│       │   ├── tauri.conf.json
+│       │   ├── capabilities/  # Tauri permission scopes
+│       │   ├── icons/         # Generated from public/icon-512.png
+│       │   └── src/lib.rs     # Rust entry point + plugin registration
+│       ├── package.json       # @uhs/web
+│       └── vite.config.ts     # Conditional PWA (disabled in Tauri)
+├── packages/
+│   ├── tsconfig/              # @uhs/tsconfig — shared TS config (base, react, node)
+│   ├── core-types/            # @uhs/core-types — 12 domain type files (subpath exports)
+│   ├── utils/                 # @uhs/utils — dashboardDetection, courseCode, cbcLookup
+│   ├── config/                # @uhs/config — Zod env validation, platform detection
+│   └── api-client/            # @uhs/api-client — Axios factory + interceptors
+├── backend/                   # FastAPI (unchanged except CORS config)
+├── .github/workflows/
+│   ├── security.yml           # Lint + tests on push to main/develop
+│   ├── desktop-build.yml      # Mac + Windows builds on version tags
+│   └── mobile-build.yml       # Android + iOS builds on version tags
+├── package.json               # Root workspace (turbo scripts)
+├── pnpm-workspace.yaml        # apps/* + packages/*
+└── turbo.json                 # Task pipeline
+```
+
 ## Development Commands
+
+### Monorepo (from project root)
+```bash
+pnpm install                     # Install all workspace dependencies
+pnpm turbo run dev               # Start all dev servers (web at :3000)
+pnpm turbo run build             # Build all packages + web app
+pnpm turbo run test              # Run all tests
+pnpm turbo run typecheck         # TypeScript check all packages
+pnpm turbo run lint              # Lint all packages
+```
 
 ### Infrastructure (Docker)
 ```bash
 docker compose -f docker-compose.dev.yml up -d   # Start PostgreSQL + Redis only (local dev)
-docker compose up -d                              # Start full stack (DB + Redis + Backend + Frontend + LiveKit)
+docker compose up -d                              # Start full stack
 docker compose down                               # Stop services
 docker compose down -v                            # Stop + reset database volumes
 ```
 
-### Frontend (from `frontend/`)
+### Web App (from `apps/web/`)
 ```bash
-npm install                  # Install dependencies
-npm run dev                  # Vite dev server at http://localhost:3000
-npm run build                # Production build
-npm run lint                 # ESLint
-npx tsc --noEmit             # TypeScript type checking
-npm run test                 # Vitest (single run)
-npm run test:watch           # Vitest watch mode
-npm run test:coverage        # Vitest with coverage
-npm run test src/path/to.test.tsx  # Run a single test file
+pnpm run dev                     # Vite dev server at http://localhost:3000
+pnpm run build                   # Production build
+pnpm run lint                    # ESLint
+pnpm run typecheck               # TypeScript type checking
+pnpm run test                    # Vitest (single run)
+pnpm run test:watch              # Vitest watch mode
+pnpm run test:coverage           # Vitest with coverage
 ```
+
+### Tauri Desktop (from `apps/web/`)
+```bash
+pnpm run tauri:dev               # Launch native window with live reload
+pnpm run tauri:build             # Build .dmg (Mac) / .exe+.msi (Windows)
+pnpm run tauri:icon              # Regenerate icons from public/icon-512.png
+```
+
+### Tauri Mobile (requires Android Studio / Xcode — see prerequisites below)
+```bash
+pnpm run android:dev             # Run on Android emulator
+pnpm run android:build           # Build .apk + .aab
+pnpm run ios:dev                 # Run on iOS simulator (Mac only)
+pnpm run ios:build               # Build .ipa (Mac + Xcode required)
+```
+
+### Mobile Prerequisites
+Before running mobile commands, you need:
+- **Android**: Install Android Studio, then run `pnpm tauri android init` from `apps/web/`
+  - Android NDK 27+ required
+  - Set `ANDROID_HOME` and `NDK_HOME` env vars
+- **iOS**: Install Xcode (full app, not just CLT), then run `pnpm tauri ios init` from `apps/web/`
+  - Apple Developer account required for device builds / App Store
 
 ### Backend (from `backend/`)
 ```bash
@@ -86,12 +149,12 @@ npx playwright test --project=chromium  # Desktop only
 ```
 
 ### CI/CD
-GitHub Actions workflow (`.github/workflows/security.yml`) runs on push to main/develop:
-- `pip-audit` for backend dependency vulnerabilities
-- `npm audit` for frontend dependency vulnerabilities
-- Ruff linter + type checking (backend)
-- ESLint + TypeScript checking (frontend)
-- pytest with PostgreSQL + Redis service containers
+GitHub Actions workflows:
+- `security.yml` — runs on push to main/develop: pip-audit, pnpm audit, ruff, ESLint, typecheck, pytest
+- `desktop-build.yml` — triggers on `v*` tags: Mac universal .dmg + Windows .msi/.exe
+- `mobile-build.yml` — triggers on `v*` tags: Android .apk/.aab + iOS .ipa
+
+To release: `git tag v1.0.0 && git push --tags`
 
 ## Architecture
 
@@ -152,12 +215,12 @@ backend/
 - JWT auth with role-based dependency injection
 - API docs auto-generated at `/docs` (Swagger) and `/redoc`
 
-### Frontend Structure
+### Frontend Structure (apps/web/src/)
 
 ```
-frontend/src/
+apps/web/src/
 ├── App.tsx                    # Root component: imports and composes all route modules (~65 lines)
-├── main.tsx                   # Entry point, PWA registration, theme init
+├── main.tsx                   # Entry point, conditional PWA registration, theme init
 ├── routes/                    # Route definitions extracted from App.tsx (per-role files)
 │   ├── index.tsx              # Central export for all role routes
 │   ├── routeHelpers.tsx       # S = Suspense wrapper shorthand for lazy routes
@@ -185,10 +248,11 @@ frontend/src/
 │   ├── index.ts               # useUserStore, useThemeStore
 │   └── studentStore.ts, parentStore.ts, ...  # Role-specific stores
 ├── services/                  # API layer (Axios with JWT auto-refresh)
-│   ├── api.ts                 # Axios instance, token refresh interceptor
+│   ├── api.ts                 # Thin wrapper around @uhs/api-client factory
 │   ├── authService.ts         # Login, register, logout
 │   └── admin/, student/, parent/, partner/, staff/
 ├── hooks/                     # Custom hooks (WebSocket, WebRTC, Yjs, LiveKit, etc.)
+│   └── usePlatform.ts         # Platform detection (web/desktop/android/ios)
 ├── types/                     # TypeScript interfaces (11 files, role-specific)
 ├── i18n/                      # i18next config + locales (en.json, sw.json)
 └── utils/                     # dashboardDetection.ts (role-based routing)
@@ -199,10 +263,29 @@ frontend/src/
 - Code splitting with `React.lazy` for all dashboard pages; use `<S>` from `routes/routeHelpers.tsx` as shorthand for `<Suspense>` wrapping lazy routes
 - `<ProtectedRoute>` component guards authenticated routes
 - Zustand stores with `persist` middleware for localStorage sync
-- Axios interceptor handles silent JWT refresh on 401
+- Axios interceptor handles silent JWT refresh on 401 (via `@uhs/api-client` factory)
 - Theme: dark mode default, class-based toggling via `useThemeStore`
 - Custom Tailwind colors: `copilot-blue`, `copilot-cyan`, `copilot-green`, `copilot-purple`, `copilot-orange`, `copilot-teal`
-- PWA: Service worker (`sw.ts`) with VitePWA plugin, installable with offline support
+- PWA: Service worker (`sw.ts`) with VitePWA — disabled when `TAURI_ENV_PLATFORM` is set
+- Platform detection: `usePlatform()` hook or `@uhs/config` `isTauri()`, `getPlatform()`
+
+### Shared Packages (packages/)
+
+| Package | Import | Contents |
+|---------|--------|----------|
+| `@uhs/tsconfig` | n/a (devDep only) | Shared TypeScript configs: base.json, react.json, node.json |
+| `@uhs/core-types` | `@uhs/core-types/student` etc. | 12 domain type files via subpath exports |
+| `@uhs/utils` | `@uhs/utils` | dashboardDetection, courseCode, cbcLookup |
+| `@uhs/config` | `@uhs/config` | Zod env validation (`validateEnv`), platform detection (`isTauri`, `getPlatform`) |
+| `@uhs/api-client` | `@uhs/api-client` | `createApiClient(config)` Axios factory with refresh mutex |
+
+### Tauri v2 Configuration
+
+- **identifier**: `ke.urbanhomeschool.app`
+- **capabilities**: `src-tauri/capabilities/default.json` — Tauri v2 permission scopes (required for production HTTP calls)
+- **plugins**: http, store, deep-link, updater, log
+- **Auto-updater**: configured to poll `https://api.urbanhomeschool.ke/releases/{{target}}/{{arch}}/{{current_version}}`
+- **Cookie auth**: Vite proxies `/api` and `/ws` to backend when `TAURI_ENV_PLATFORM` is set, making cookies same-origin
 
 ### Database Schema
 
@@ -235,14 +318,17 @@ Nine WebSocket endpoints at `/ws/admin`, `/ws/staff`, `/ws/instructor`, `/ws/par
 
 ## Environment Configuration
 
-### Frontend `.env`
+See `.env.example` at project root for the full template. Key vars:
+
+### Frontend (apps/web/.env)
 ```
 VITE_PORT=3000
 VITE_API_URL=http://localhost:8000
 VITE_APP_TITLE=Urban Home School
+VITE_GOOGLE_CLIENT_ID=
 ```
 
-### Backend `.env` (see `.env.example` for template)
+### Backend (.env in backend/)
 Required keys: `DATABASE_URL`, `REDIS_URL`, `SECRET_KEY`, `ALGORITHM`, `ACCESS_TOKEN_EXPIRE_MINUTES`, plus API keys for Gemini, Anthropic, OpenAI, ElevenLabs.
 
 Dev database: `postgresql+asyncpg://tuhs_user:tuhs_dev_password_123@localhost:5432/tuhs_db`
@@ -273,3 +359,4 @@ Dev database: `postgresql+asyncpg://tuhs_user:tuhs_dev_password_123@localhost:54
 - `noUnusedLocals` and `noUnusedParameters` enforced
 - Target: ES2020
 - Path alias: `@/*` → `src/*`
+- All packages extend `@uhs/tsconfig/react.json` (apps) or `@uhs/tsconfig/base.json` (packages)

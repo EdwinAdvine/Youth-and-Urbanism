@@ -77,7 +77,7 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ./apps/web
       dockerfile: Dockerfile
     container_name: tuhs_frontend
     ports:

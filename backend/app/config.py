@@ -155,7 +155,7 @@ class Settings(BaseSettings):
 
     # CORS Configuration
     cors_origins: str = Field(
-        default="http://localhost:3000,http://127.0.0.1:3000",
+        default="http://localhost:3000,http://127.0.0.1:3000,tauri://localhost,https://tauri.localhost",
         description="Comma-separated list of allowed CORS origins"
     )
     cors_allow_credentials: bool = Field(
