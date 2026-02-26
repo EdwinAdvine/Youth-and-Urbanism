@@ -1,0 +1,10 @@
+{
+  "extends": "@uhs/tsconfig/base.json",
+  "compilerOptions": {
+    "lib": ["ES2020", "DOM"],
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "composite": false
+  },
+  "include": ["src"]
+}

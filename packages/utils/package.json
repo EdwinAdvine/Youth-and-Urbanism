@@ -1,0 +1,20 @@
+{
+  "name": "@uhs/utils",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./src/dashboardDetection": "./src/dashboardDetection.ts",
+    "./src/courseCode": "./src/courseCode.ts",
+    "./src/cbcLookup": "./src/cbcLookup.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@uhs/tsconfig": "workspace:*",
+    "typescript": "^5.9.3"
+  }
+}
