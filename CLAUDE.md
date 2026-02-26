@@ -281,7 +281,7 @@ apps/web/src/
 
 ### Tauri v2 Configuration
 
-- **identifier**: `ke.urbanhomeschool.app`
+- **identifier**: `ke.urbanhomeschool.uhs`
 - **capabilities**: `src-tauri/capabilities/default.json` — Tauri v2 permission scopes (required for production HTTP calls)
 - **plugins**: http, store, deep-link, updater, log
 - **Auto-updater**: configured to poll `https://api.urbanhomeschool.ke/releases/{{target}}/{{arch}}/{{current_version}}`
