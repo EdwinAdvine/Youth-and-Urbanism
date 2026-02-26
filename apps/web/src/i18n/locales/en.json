@@ -1,0 +1,85 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "search": "Search",
+    "filter": "Filter",
+    "close": "Close",
+    "confirm": "Confirm"
+  },
+  "student": {
+    "dashboard": {
+      "title": "Dashboard",
+      "welcome_morning": "Good Morning",
+      "welcome_afternoon": "Good Afternoon",
+      "welcome_evening": "Good Evening",
+      "today_plan": "Today's Plan",
+      "streak": "Streak",
+      "mood": "How are you feeling?",
+      "urgent_items": "Urgent Items",
+      "daily_quote": "Daily Quote"
+    },
+    "ai_tutor": {
+      "chat": "Chat with AI",
+      "learning_path": "Learning Path",
+      "voice_mode": "Voice Mode",
+      "journal": "Journal & Reflections",
+      "help_understand": "Help Me Understand"
+    },
+    "learning": {
+      "my_courses": "My Courses",
+      "browse": "Browse & Discover",
+      "live_sessions": "Live Sessions",
+      "enrolled": "Enrolled Courses",
+      "wishlist": "Wishlist"
+    },
+    "practice": {
+      "challenges": "Today's Challenges",
+      "assignments": "Assignments",
+      "quizzes": "Quizzes & Tests",
+      "projects": "Projects"
+    },
+    "progress": {
+      "achievements": "Achievements",
+      "learning_map": "Learning Map",
+      "reports": "Reports & Insights",
+      "goals": "Goals & Habits"
+    },
+    "community": {
+      "friends": "Friends",
+      "study_groups": "Study Groups",
+      "discussions": "Discussions",
+      "shoutouts": "Shoutouts"
+    },
+    "wallet": {
+      "balance": "Balance",
+      "add_funds": "Add Funds",
+      "subscriptions": "Subscriptions",
+      "receipts": "Receipts"
+    },
+    "support": {
+      "guides": "How-to Guides",
+      "contact": "Contact Support",
+      "report": "Report a Problem"
+    },
+    "profile": {
+      "notifications": "Notifications",
+      "settings": "Settings",
+      "privacy": "Privacy & Security",
+      "logout": "Logout"
+    }
+  },
+  "mood": {
+    "happy": "Happy",
+    "okay": "Okay",
+    "tired": "Tired",
+    "frustrated": "Frustrated",
+    "excited": "Excited"
+  }
+}

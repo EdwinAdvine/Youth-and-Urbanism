@@ -5,13 +5,15 @@ This module provides factory functions for generating test data.
 Uses Faker for realistic test data generation.
 
 Usage:
-    user = UserFactory.create(db_session, role="student")
-    course = CourseFactory.create(db_session, creator_id=user.id)
+    user = await UserFactory.create(db_session, role="student")
+    course = await CourseFactory.create(db_session, creator_id=user.id)
 """
+
+from __future__ import annotations
 
 from faker import Faker
 from typing import Optional
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
 from app.utils.security import get_password_hash
@@ -25,8 +27,8 @@ class UserFactory:
     """Factory for creating User instances."""
 
     @staticmethod
-    def create(
-        db_session: Session,
+    async def create(
+        db_session: AsyncSession,
         role: str = "student",
         email: Optional[str] = None,
         password: str = "Test123!@#",
@@ -92,14 +94,14 @@ class UserFactory:
         )
 
         db_session.add(user)
-        db_session.commit()
-        db_session.refresh(user)
+        await db_session.commit()
+        await db_session.refresh(user)
 
         return user
 
     @staticmethod
-    def create_batch(
-        db_session: Session,
+    async def create_batch(
+        db_session: AsyncSession,
         count: int,
         role: str = "student",
         **kwargs
@@ -116,18 +118,19 @@ class UserFactory:
         Returns:
             list[User]: List of created users
         """
-        return [
-            UserFactory.create(db_session, role=role, **kwargs)
-            for _ in range(count)
-        ]
+        users = []
+        for _ in range(count):
+            user = await UserFactory.create(db_session, role=role, **kwargs)
+            users.append(user)
+        return users
 
 
 class CourseFactory:
     """Factory for creating Course instances."""
 
     @staticmethod
-    def create(
-        db_session: Session,
+    async def create(
+        db_session: AsyncSession,
         creator_id,
         title: Optional[str] = None,
         description: Optional[str] = None,
@@ -180,8 +183,8 @@ class CourseFactory:
         )
 
         db_session.add(course)
-        db_session.commit()
-        db_session.refresh(course)
+        await db_session.commit()
+        await db_session.refresh(course)
 
         return course
 
@@ -190,8 +193,8 @@ class StudentFactory:
     """Factory for creating Student instances."""
 
     @staticmethod
-    def create(
-        db_session: Session,
+    async def create(
+        db_session: AsyncSession,
         user_id,
         admission_number: Optional[str] = None,
         grade_level: Optional[int] = None,
@@ -228,8 +231,8 @@ class StudentFactory:
         )
 
         db_session.add(student)
-        db_session.commit()
-        db_session.refresh(student)
+        await db_session.commit()
+        await db_session.refresh(student)
 
         return student
 
@@ -238,8 +241,8 @@ class EnrollmentFactory:
     """Factory for creating Enrollment instances."""
 
     @staticmethod
-    def create(
-        db_session: Session,
+    async def create(
+        db_session: AsyncSession,
         student_id,
         course_id,
         status: str = "active",
@@ -269,8 +272,8 @@ class EnrollmentFactory:
         )
 
         db_session.add(enrollment)
-        db_session.commit()
-        db_session.refresh(enrollment)
+        await db_session.commit()
+        await db_session.refresh(enrollment)
 
         return enrollment
 
@@ -279,8 +282,8 @@ class AITutorFactory:
     """Factory for creating AITutor instances."""
 
     @staticmethod
-    def create(
-        db_session: Session,
+    async def create(
+        db_session: AsyncSession,
         student_id,
         tutor_name: Optional[str] = None,
         **kwargs
@@ -309,14 +312,14 @@ class AITutorFactory:
         )
 
         db_session.add(tutor)
-        db_session.commit()
-        db_session.refresh(tutor)
+        await db_session.commit()
+        await db_session.refresh(tutor)
 
         return tutor
 
 
 # Convenience function to create complete test scenarios
-def create_student_with_tutor(db_session: Session, **kwargs):
+async def create_student_with_tutor(db_session: AsyncSession, **kwargs):
     """
     Create a student user with associated student profile and AI tutor.
 
@@ -328,17 +331,17 @@ def create_student_with_tutor(db_session: Session, **kwargs):
         tuple: (user, student, ai_tutor)
     """
     # Create user
-    user = UserFactory.create(db_session, role="student", **kwargs.get("user_kwargs", {}))
+    user = await UserFactory.create(db_session, role="student", **kwargs.get("user_kwargs", {}))
 
     # Create student profile
-    student = StudentFactory.create(
+    student = await StudentFactory.create(
         db_session,
         user_id=user.id,
         **kwargs.get("student_kwargs", {})
     )
 
     # Create AI tutor
-    ai_tutor = AITutorFactory.create(
+    ai_tutor = await AITutorFactory.create(
         db_session,
         student_id=student.id,
         **kwargs.get("tutor_kwargs", {})

@@ -22,6 +22,15 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dotenv import load_dotenv
 load_dotenv(".env.development")
 
+# ============================================================================
+# SAFETY GUARD: Prevent running seed script in production
+# ============================================================================
+_environment = os.getenv("ENVIRONMENT", "development").lower()
+if _environment == "production":
+    print("ERROR: Seed script cannot run in production environment.")
+    print("Set ENVIRONMENT to 'development' or 'staging' to use this script.")
+    sys.exit(1)
+
 from sqlalchemy import text, select
 from app.database import Base, init_db
 from app.models import *  # noqa: F403 - Import all models so Base.metadata is populated
@@ -38,6 +47,7 @@ SEED_USERS = [
         "email": "admin@urbanhomeschool.co.ke",
         "password": "Admin@2026!",
         "role": "admin",
+        "is_super_admin": True,
         "profile_data": {
             "full_name": "Admin User",
             "phone": "+254700000001",
@@ -163,6 +173,7 @@ async def main():
                 profile_data=user_data["profile_data"],
                 is_active=True,
                 is_verified=True,
+                is_super_admin=user_data.get("is_super_admin", False),
             )
             session.add(new_user)
             await session.flush()

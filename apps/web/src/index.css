@@ -1,0 +1,111 @@
+/* ── Locally-hosted fonts (offline-capable) ───────────────── */
+@font-face {
+  font-family: 'Bryndan Write';
+  src: url('/fonts/BryndanWrite.woff2') format('woff2'),
+       url('/fonts/BryndanWrite.woff') format('woff'),
+       url('/fonts/BryndanWrite.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'KG Primary Penmanship';
+  src: url('/fonts/KGPrimaryPenmanship.woff2') format('woff2'),
+       url('/fonts/KGPrimaryPenmanship.woff') format('woff'),
+       url('/fonts/KGPrimaryPenmanship.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Safe-area insets for mobile notch / home bar (Tauri iOS/Android) ── */
+.safe-top    { padding-top:    env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+.safe-left   { padding-left:   env(safe-area-inset-left); }
+.safe-right  { padding-right:  env(safe-area-inset-right); }
+
+/* ── Viewport height fix for mobile browsers (avoids 100vh issues) ── */
+:root {
+  --vh: 1vh;
+}
+.h-screen-mobile {
+  height: calc(var(--vh, 1vh) * 100);
+}
+
+/* Marquee / infinite-scroll animation (right → left) */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 35s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* ── Child-Friendly Theme (Grades 1–9) ────────────────────── */
+
+/* Heading font: Bryndan Write */
+.student-child-theme h1,
+.student-child-theme h2,
+.student-child-theme h3,
+.student-child-theme h4,
+.student-child-theme h5,
+.student-child-theme h6 {
+  font-family: 'Bryndan Write', 'Caveat', cursive;
+}
+
+/* Body / UI font: KG Primary Penmanship */
+.student-child-theme,
+.student-child-theme p,
+.student-child-theme span,
+.student-child-theme li,
+.student-child-theme label,
+.student-child-theme button,
+.student-child-theme input,
+.student-child-theme textarea,
+.student-child-theme select,
+.student-child-theme a {
+  font-family: 'KG Primary Penmanship', 'Comic Neue', cursive;
+}
+
+/* Light-mode pastel background */
+.student-child-theme {
+  --child-bg:      #f0f5f0;
+  --child-card-1:  #fffde7;
+  --child-card-2:  #fce4ec;
+  --child-card-3:  #e3f2fd;
+  --child-card-4:  #fff3e0;
+  background: var(--child-bg) !important;
+}
+
+/* Dark-mode: muted pastel variants */
+.dark .student-child-theme {
+  --child-bg:      #1a2320;
+  --child-card-1:  #2a2a1a;
+  --child-card-2:  #2a1a1e;
+  --child-card-3:  #1a1e2a;
+  --child-card-4:  #2a221a;
+  background: var(--child-bg) !important;
+}
+
+/* Uniformly rounder cards throughout the child theme */
+.student-child-theme .rounded-lg,
+.student-child-theme .rounded-xl,
+.student-child-theme .rounded-2xl {
+  border-radius: 1.25rem !important;
+}
+
+/* Expose CSS custom properties for card colours to components */
+.student-child-theme [data-child-card="1"] { background-color: var(--child-card-1); }
+.student-child-theme [data-child-card="2"] { background-color: var(--child-card-2); }
+.student-child-theme [data-child-card="3"] { background-color: var(--child-card-3); }
+.student-child-theme [data-child-card="4"] { background-color: var(--child-card-4); }

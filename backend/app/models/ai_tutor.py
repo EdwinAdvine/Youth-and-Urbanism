@@ -24,7 +24,7 @@ class AITutor(Base):
     - Persistent conversation history
     - Personalized learning paths
     - Performance tracking and analytics
-    - Multi-modal response modes (text, voice, video)
+    - Multi-modal response modes (text, voice)
     """
     __tablename__ = "ai_tutors"
 
@@ -41,7 +41,11 @@ class AITutor(Base):
     )
 
     # Tutor personalization
-    name = Column(String(100), nullable=False)  # Personalized tutor name (e.g., "Birdy", "Einstein")
+    name = Column(String(100), nullable=False, default="Birdy")  # Personalized tutor name (e.g., "Birdy", "Einstein")
+
+    # Unique AI Tutor identifier code — format: {admission_number}-AIT{seq}
+    # Example: UHS/2026/G3/001-AIT001
+    ait_code = Column(String(50), unique=True, nullable=True, index=True)
 
     # Conversation history (JSONB array of messages)
     # Format: [{"role": "user"|"assistant", "content": str, "timestamp": str}]
@@ -53,13 +57,13 @@ class AITutor(Base):
     # Performance metrics
     performance_metrics = Column(JSONB, default=dict, nullable=False)  # Strengths, weaknesses, progress
 
-    # Response mode preference (text, voice, video)
+    # Response mode preference (text, voice, avatar)
     response_mode = Column(
         String(20),
         default='text',
         nullable=False,
         index=True
-    )  # 'text', 'voice', 'video'
+    )  # 'text', 'voice', 'avatar'
 
     # Interaction tracking
     total_interactions = Column(Integer, default=0, nullable=False)
@@ -88,9 +92,9 @@ class AITutor(Base):
         return self.response_mode == 'voice'
 
     @property
-    def is_video_mode(self) -> bool:
-        """Check if tutor is in video response mode."""
-        return self.response_mode == 'video'
+    def is_avatar_mode(self) -> bool:
+        """Check if tutor is in avatar (3D talking head) response mode."""
+        return self.response_mode == 'avatar'
 
     def add_message(self, role: str, content: str) -> None:
         """

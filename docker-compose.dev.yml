@@ -3,14 +3,14 @@
 
 services:
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     container_name: tuhs_postgres
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: tuhs_user
-      POSTGRES_PASSWORD: tuhs_dev_password_123
-      POSTGRES_DB: tuhs_db
+      POSTGRES_USER: ${POSTGRES_USER:-tuhs_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tuhs_dev_password_123}
+      POSTGRES_DB: ${POSTGRES_DB:-tuhs_db}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped

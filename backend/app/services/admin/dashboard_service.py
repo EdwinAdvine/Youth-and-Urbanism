@@ -24,6 +24,9 @@ from app.models.course import Course
 from app.models.enrollment import Enrollment
 from app.models.payment import Transaction
 from app.models.ai_tutor import AITutor
+from app.models.admin.operations import SupportTicket, ModerationItem
+
+from app.utils.cache import cache_get, cache_set
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +51,14 @@ class DashboardService:
         total_users, active_users_today, revenue_today,
         new_enrollments_today, ai_sessions_today,
         total_courses, active_courses.
+
+        Cached for 60 seconds to reduce the 7 sequential DB queries.
         """
+        cache_key = "admin:dashboard:overview"
+        cached = await cache_get(cache_key)
+        if cached:
+            return cached
+
         now = datetime.utcnow()
         today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
@@ -109,7 +119,7 @@ class DashboardService:
         active_courses_result = await db.execute(active_courses_q)
         active_courses: int = active_courses_result.scalar() or 0
 
-        return {
+        result = {
             "total_users": total_users,
             "active_users_today": active_users_today,
             "revenue_today": revenue_today,
@@ -119,6 +129,8 @@ class DashboardService:
             "active_courses": active_courses,
             "generated_at": now.isoformat(),
         }
+        await cache_set(cache_key, result, ttl=60)
+        return result
 
     # ------------------------------------------------------------------
     # Alerts
@@ -200,7 +212,14 @@ class DashboardService:
         """
         Count pending approvals, escalations, and flags across the
         platform. Returns a breakdown by category.
+
+        Cached for 30 seconds to reduce the 5 sequential DB queries.
         """
+        cache_key = "admin:dashboard:pending"
+        cached = await cache_get(cache_key)
+        if cached:
+            return cached
+
         # Pending-payment enrollments (awaiting payment confirmation)
         pending_enrollments_q = select(func.count(Enrollment.id)).where(
             and_(
@@ -230,10 +249,19 @@ class DashboardService:
         pending_transactions_result = await db.execute(pending_transactions_q)
         pending_transactions: int = pending_transactions_result.scalar() or 0
 
-        # Open tickets and moderation items are mocked until those models
-        # exist in the database.
-        open_tickets: int = 7  # placeholder
-        moderation_items: int = 3  # placeholder
+        # Open support tickets
+        open_tickets_q = select(func.count(SupportTicket.id)).where(
+            SupportTicket.status.in_(["open", "in_progress", "escalated"])
+        )
+        open_tickets_result = await db.execute(open_tickets_q)
+        open_tickets: int = open_tickets_result.scalar() or 0
+
+        # Pending moderation items
+        moderation_q = select(func.count(ModerationItem.id)).where(
+            ModerationItem.status == "pending_review"
+        )
+        moderation_result = await db.execute(moderation_q)
+        moderation_items: int = moderation_result.scalar() or 0
 
         total = (
             pending_enrollments
@@ -243,7 +271,7 @@ class DashboardService:
             + moderation_items
         )
 
-        return {
+        result = {
             "total": total,
             "categories": {
                 "pending_enrollments": pending_enrollments,
@@ -253,6 +281,8 @@ class DashboardService:
                 "moderation_items": moderation_items,
             },
         }
+        await cache_set(cache_key, result, ttl=30)
+        return result
 
     # ------------------------------------------------------------------
     # Revenue snapshot
@@ -262,7 +292,14 @@ class DashboardService:
         """
         Today's revenue breakdown plus weekly/monthly aggregates and
         the five most recent completed transactions.
+
+        Cached for 60 seconds to reduce the 5 sequential DB queries.
         """
+        cache_key = "admin:dashboard:revenue"
+        cached = await cache_get(cache_key)
+        if cached:
+            return cached
+
         now = datetime.utcnow()
         today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
         week_start = today_start - timedelta(days=today_start.weekday())  # Monday
@@ -316,7 +353,7 @@ class DashboardService:
                 }
             )
 
-        return {
+        result = {
             "total_today": total_today,
             "total_yesterday": total_yesterday,
             "total_week": total_week,
@@ -326,6 +363,8 @@ class DashboardService:
             "recent_transactions": recent_transactions,
             "generated_at": now.isoformat(),
         }
+        await cache_set(cache_key, result, ttl=60)
+        return result
 
     # ------------------------------------------------------------------
     # AI Anomalies

@@ -5,19 +5,23 @@ Public application submission and admin management of instructor applications.
 Supports listing, viewing, and reviewing (approve/reject) applications.
 """
 
+import logging
 from typing import Optional
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+logger = logging.getLogger(__name__)
+
 from app.database import get_db
 from app.models.user import User
 from app.models.instructor_application import InstructorApplication
-from app.utils.security import get_current_user
+from app.utils.security import get_current_user, create_access_token
+from app.services.email_service import send_instructor_invite_email
 from app.schemas.instructor_application_schemas import (
     InstructorApplicationCreate,
     InstructorApplicationReview,
@@ -32,6 +36,29 @@ router = APIRouter(prefix="/instructor-applications", tags=["Instructor Applicat
 optional_security = HTTPBearer(auto_error=False)
 
 
+async def _rate_limit(key: str, max_attempts: int, window_seconds: int) -> None:
+    """Atomic INCR+EXPIRE rate limiter. Raises 429 if exceeded."""
+    try:
+        from app.redis import get_redis
+        r = get_redis()
+    except Exception:
+        return
+
+    try:
+        lua = "local c=redis.call('INCR',KEYS[1]) if c==1 then redis.call('EXPIRE',KEYS[1],ARGV[1]) end return c"
+        current = await r.eval(lua, 1, f"rl:{key}", window_seconds)
+        if current > max_attempts:
+            ttl = await r.ttl(f"rl:{key}")
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"Too many requests. Try again in {ttl} seconds.",
+            )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.warning(f"Rate limit check failed: {e}")
+
+
 # ============================================================================
 # Public / Authenticated Endpoints
 # ============================================================================
@@ -44,11 +71,16 @@ optional_security = HTTPBearer(auto_error=False)
     description="Submit an application to become an instructor. Works with or without authentication.",
 )
 async def submit_application(
+    request: Request,
     data: InstructorApplicationCreate,
     db: AsyncSession = Depends(get_db),
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(optional_security),
 ) -> InstructorApplicationResponse:
     """Submit an instructor application (public or authenticated)."""
+    # Rate limit: 3 applications per IP per hour
+    client_ip = request.client.host if request.client else "unknown"
+    await _rate_limit(f"instructor_apply:{client_ip}", max_attempts=3, window_seconds=3600)
+
     user_id = None
 
     # If authenticated, link the application to the user
@@ -183,6 +215,7 @@ async def get_application(
 async def review_application(
     application_id: UUID,
     data: InstructorApplicationReview,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> InstructorApplicationResponse:
@@ -204,7 +237,7 @@ async def review_application(
             detail="Instructor application not found",
         )
 
-    if application.status != "pending":
+    if application.status not in ("pending",):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Application has already been {application.status}",
@@ -214,6 +247,22 @@ async def review_application(
     application.review_notes = data.review_notes
     application.reviewed_by = current_user.id
     application.reviewed_at = datetime.utcnow()
+
+    # On approval: generate a 72-hour invite token and email the applicant
+    if data.status == "approved":
+        invite_token = create_access_token(
+            data={"sub": str(application.id), "type": "instructor_invite"},
+            expires_delta=timedelta(hours=72),
+        )
+        application.invite_token = invite_token
+        application.invite_expires_at = datetime.utcnow() + timedelta(hours=72)
+
+        background_tasks.add_task(
+            send_instructor_invite_email,
+            application.email,
+            application.full_name,
+            invite_token,
+        )
 
     await db.flush()
     await db.refresh(application)

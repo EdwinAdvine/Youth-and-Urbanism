@@ -23,6 +23,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user import User
 from app.models.student import Student
 from app.models.ai_tutor import AITutor
+from app.models.ai_agent_profile import AIAgentProfile
+from app.utils.student_codes import generate_admission_number, generate_ait_code
 from app.schemas.user_schemas import UserCreate, UserLogin, TokenResponse
 from app.utils.security import (
     get_password_hash,
@@ -40,9 +42,10 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
 
     This function:
     1. Validates that the email is not already registered
-    2. Hashes the password securely
-    3. Creates a new user record
-    4. For student roles: automatically creates Student and AITutor records
+    2. Validates that role is allowed for self-registration (defense-in-depth)
+    3. Hashes the password securely
+    4. Creates a new user record
+    5. For student roles: automatically creates Student and AITutor records
 
     Args:
         user_data: UserCreate schema containing registration data
@@ -52,9 +55,18 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
         User: The newly created user object
 
     Raises:
-        HTTPException: 400 if email already exists
+        HTTPException: 400 if email already exists or role not allowed
         HTTPException: 500 if database operation fails
     """
+    # Defense-in-depth: validate role whitelist at service level
+    ALLOWED_SELF_REGISTRATION_ROLES = ['student', 'parent']
+    if user_data.role not in ALLOWED_SELF_REGISTRATION_ROLES:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Role '{user_data.role}' cannot self-register. "
+                   f"Instructors must apply at /become-instructor. Partners must apply at /become-partner."
+        )
+
     # Check if email already exists
     result = await db.execute(
         select(User).where(User.email == user_data.email)
@@ -66,6 +78,34 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered. Please use a different email or login."
         )
+
+    # Student self-registration: require date_of_birth and verify 18+
+    date_of_birth = None
+    if user_data.role == 'student':
+        from datetime import date
+        dob_str = (user_data.profile_data or {}).get('date_of_birth')
+        if not dob_str:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Date of birth is required for student self-registration."
+            )
+        try:
+            date_of_birth = date.fromisoformat(dob_str) if isinstance(dob_str, str) else dob_str
+        except (ValueError, TypeError):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid date of birth format. Use YYYY-MM-DD."
+            )
+        today = date.today()
+        age = today.year - date_of_birth.year - (
+            (today.month, today.day) < (date_of_birth.month, date_of_birth.day)
+        )
+        if age < 18:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Students must be 18 or older to self-register. "
+                       "Children under 18 must be registered by a parent."
+            )
 
     try:
         # Hash the password
@@ -79,6 +119,7 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
             profile_data=user_data.profile_data or {},
             is_active=True,
             is_verified=False,  # Email verification pending
+            date_of_birth=date_of_birth,
         )
 
         db.add(new_user)
@@ -89,16 +130,15 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
             # Extract student-specific data from profile_data
             profile = user_data.profile_data or {}
             grade_level = profile.get('grade_level', 'Grade 1')
-            admission_number = profile.get('admission_number')
 
-            # Generate admission number if not provided
-            if not admission_number:
-                # Format: TUHS-YYYY-XXXXX (e.g., TUHS-2026-00001)
-                year = datetime.utcnow().year
-                # Get count of existing students to generate sequential number
-                student_count = await db.execute(select(Student))
-                count = len(student_count.scalars().all())
-                admission_number = f"TUHS-{year}-{(count + 1):05d}"
+            # Generate admission number — always issued at registration
+            # Format: UHS/YYYY/G{grade}/{school-wide-seq:03d}
+            from datetime import timezone
+            year = datetime.now(timezone.utc).year
+            admission_number = await generate_admission_number(db, grade_level, year)
+
+            # Mirror admission number into profile_data so login response includes it
+            new_user.profile_data = {**new_user.profile_data, 'admission_number': admission_number}
 
             # Create Student record
             new_student = Student(
@@ -106,7 +146,7 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
                 parent_id=None,  # Can be linked later by parent
                 admission_number=admission_number,
                 grade_level=grade_level,
-                enrollment_date=datetime.utcnow().date(),
+                enrollment_date=datetime.now(timezone.utc).date(),
                 is_active=True,
                 learning_profile=profile.get('learning_profile', {}),
                 competencies={},
@@ -116,10 +156,14 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
             db.add(new_student)
             await db.flush()  # Flush to get student ID
 
+            # Generate AIT code for the dedicated AI Tutor
+            ait_code = await generate_ait_code(db, admission_number)
+
             # Create dedicated AI Tutor for the student
             ai_tutor = AITutor(
                 student_id=new_student.id,
                 name=profile.get('tutor_name', 'Birdy'),  # Default tutor name
+                ait_code=ait_code,
                 conversation_history=[],
                 learning_path={},
                 performance_metrics={},
@@ -129,9 +173,46 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
 
             db.add(ai_tutor)
 
+        # Create AIAgentProfile for ALL roles (student, parent, instructor, admin, staff, partner)
+        # Each user gets their own dedicated AI agent with role-specific defaults
+        from app.services.copilot_service import CopilotService
+
+        role_defaults = CopilotService.ROLE_DEFAULTS.get(
+            user_data.role,
+            {'agent_name': 'AI Assistant', 'persona': 'Helpful assistant', 'expertise_focus': 'general assistance'}
+        )
+
+        ai_agent_profile = AIAgentProfile(
+            user_id=new_user.id,
+            agent_name=role_defaults['agent_name'],
+            persona=role_defaults['persona'],
+            expertise_focus=role_defaults['expertise_focus'],
+            avatar_url=None,  # User can customize later
+        )
+        db.add(ai_agent_profile)
+
+        # Create wallet for every new user
+        from app.models.payment import Wallet
+        from decimal import Decimal
+        new_wallet = Wallet(
+            user_id=new_user.id,
+            balance=Decimal("0.00"),
+            currency="KES",
+            is_withdrawal_blocked=(user_data.role == "student"),
+        )
+        db.add(new_wallet)
+
         # Commit all changes
         await db.commit()
         await db.refresh(new_user)
+
+        # Create welcome session for the new user (non-blocking)
+        try:
+            copilot_service = CopilotService()
+            await copilot_service.create_welcome_session(db, new_user)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"Welcome session creation failed: {e}")
 
         return new_user
 
@@ -170,17 +251,23 @@ async def authenticate_user(credentials: UserLogin, db: AsyncSession) -> TokenRe
         HTTPException: 401 if credentials are invalid or account is inactive
         HTTPException: 500 if database operation fails
     """
-    # Find user by email
-    result = await db.execute(
-        select(User).where(User.email == credentials.email)
-    )
+    # Find user by email or username
+    identifier = credentials.identifier
+    if '@' in identifier:
+        result = await db.execute(
+            select(User).where(User.email == identifier)
+        )
+    else:
+        result = await db.execute(
+            select(User).where(User.username == identifier)
+        )
     user = result.scalars().first()
 
     # Verify user exists
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password",
+            detail="Invalid credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -188,7 +275,7 @@ async def authenticate_user(credentials: UserLogin, db: AsyncSession) -> TokenRe
     if not verify_password(credentials.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password",
+            detail="Invalid credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -209,8 +296,9 @@ async def authenticate_user(credentials: UserLogin, db: AsyncSession) -> TokenRe
         )
 
     try:
-        # For student users, ensure AITutor exists
+        # For student users: ensure admission number, AITutor, and AIT code exist
         if user.is_student:
+            from datetime import timezone
             # Get student record
             student_result = await db.execute(
                 select(Student).where(Student.user_id == user.id)
@@ -218,6 +306,17 @@ async def authenticate_user(credentials: UserLogin, db: AsyncSession) -> TokenRe
             student = student_result.scalars().first()
 
             if student:
+                # Backfill admission number if missing (old accounts)
+                if not student.admission_number:
+                    year = datetime.now(timezone.utc).year
+                    student.admission_number = await generate_admission_number(
+                        db, student.grade_level or 'Grade 1', year
+                    )
+
+                # Mirror admission number into profile_data for login response
+                if not user.profile_data.get('admission_number'):
+                    user.profile_data = {**user.profile_data, 'admission_number': student.admission_number}
+
                 # Check if AITutor exists
                 tutor_result = await db.execute(
                     select(AITutor).where(AITutor.student_id == student.id)
@@ -226,9 +325,11 @@ async def authenticate_user(credentials: UserLogin, db: AsyncSession) -> TokenRe
 
                 # Create AITutor if it doesn't exist
                 if not ai_tutor:
+                    ait_code = await generate_ait_code(db, student.admission_number)
                     ai_tutor = AITutor(
                         student_id=student.id,
-                        name='Birdy',  # Default tutor name
+                        name='Birdy',
+                        ait_code=ait_code,
                         conversation_history=[],
                         learning_path={},
                         performance_metrics={},
@@ -237,6 +338,34 @@ async def authenticate_user(credentials: UserLogin, db: AsyncSession) -> TokenRe
                     )
                     db.add(ai_tutor)
                     await db.flush()
+                elif not ai_tutor.ait_code:
+                    # Backfill AIT code for existing tutors
+                    ai_tutor.ait_code = await generate_ait_code(db, student.admission_number)
+
+        # Lazy-create AIAgentProfile for ALL existing users who don't have one
+        # This ensures backward compatibility for users created before CoPilot feature
+        agent_profile_result = await db.execute(
+            select(AIAgentProfile).where(AIAgentProfile.user_id == user.id)
+        )
+        agent_profile = agent_profile_result.scalars().first()
+
+        if not agent_profile:
+            from app.services.copilot_service import CopilotService
+
+            role_defaults = CopilotService.ROLE_DEFAULTS.get(
+                user.role,
+                {'agent_name': 'AI Assistant', 'persona': 'Helpful assistant', 'expertise_focus': 'general assistance'}
+            )
+
+            agent_profile = AIAgentProfile(
+                user_id=user.id,
+                agent_name=role_defaults['agent_name'],
+                persona=role_defaults['persona'],
+                expertise_focus=role_defaults['expertise_focus'],
+                avatar_url=None,
+            )
+            db.add(agent_profile)
+            await db.flush()
 
         # Generate JWT tokens
         token_data = {
@@ -249,7 +378,8 @@ async def authenticate_user(credentials: UserLogin, db: AsyncSession) -> TokenRe
         refresh_token = create_refresh_token(data={"sub": str(user.id)})
 
         # Update last_login timestamp
-        user.last_login = datetime.utcnow()
+        from datetime import timezone
+        user.last_login = datetime.now(timezone.utc)
         await db.commit()
 
         # Return token response
@@ -521,7 +651,7 @@ async def confirm_password_reset(
     1. Verifies the reset token
     2. Extracts user ID from token
     3. Updates the user's password
-    4. Invalidates the reset token
+    4. CRITICAL FIX (H-01): Blacklists the reset token to prevent reuse
 
     Args:
         reset_token: Password reset token from email
@@ -537,14 +667,7 @@ async def confirm_password_reset(
     """
     try:
         # Verify reset token
-        payload = verify_token(reset_token, token_type="access")
-
-        # Check if this is a password reset token
-        if payload.get("type") != "password_reset":
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid reset token"
-            )
+        payload = verify_token(reset_token, token_type="password_reset")
 
         user_id_str: str = payload.get("sub")
         if user_id_str is None:
@@ -571,6 +694,24 @@ async def confirm_password_reset(
         # Hash new password and update
         user.password_hash = get_password_hash(new_password)
         await db.commit()
+
+        # CRITICAL FIX (H-01): Blacklist the reset token to prevent reuse
+        # Password reset tokens are one-time use only for security
+        try:
+            import time
+            from app.redis import get_redis
+            r = get_redis()
+
+            # Calculate remaining TTL
+            exp = payload.get("exp", 0)
+            ttl = max(int(exp - time.time()), 1)
+            await r.setex(f"blacklist:{reset_token}", ttl, "1")
+        except Exception as e:
+            # Log warning but don't fail the password reset
+            # Token is already used, so even if blacklist fails, it's expired in 1 hour
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Failed to blacklist password reset token: {e}")
 
         return True
 

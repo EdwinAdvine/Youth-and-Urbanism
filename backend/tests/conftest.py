@@ -3,18 +3,21 @@ Pytest Configuration and Fixtures
 
 This module provides shared test fixtures and configuration for all tests.
 It includes:
-- Test database setup (SQLite in-memory for speed)
-- FastAPI TestClient configuration
+- Test database setup (async SQLite in-memory via aiosqlite for speed)
+- httpx AsyncClient configuration
 - Authentication fixtures (mock users, tokens)
 - Mock external service fixtures (AI providers, payment gateways)
 """
 
 import pytest
-from typing import Generator
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from typing import AsyncGenerator
+from unittest.mock import patch, AsyncMock, MagicMock
+from httpx import AsyncClient, ASGITransport
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.pool import StaticPool
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.dialects.postgresql import UUID as pgUUID, JSONB as pgJSONB
+from sqlalchemy.dialects.postgresql import ARRAY as pgARRAY
 
 from app.main import app
 from app.database import Base, get_db
@@ -22,85 +25,127 @@ from app.models.user import User
 from app.utils.security import create_access_token, create_refresh_token, get_password_hash
 
 
-# Test database URL (SQLite in-memory for speed)
-TEST_DATABASE_URL = "sqlite:///:memory:"
+# ── Mock Redis-dependent auth functions for tests ──
+# Without Redis, is_token_blacklisted returns True (fail-closed security),
+# causing ALL authenticated requests to 401. Mock it to return False in tests.
 
-# Create test engine with in-memory SQLite
-engine = create_engine(
+@pytest.fixture(autouse=True)
+def mock_redis_auth_functions():
+    """Mock Redis-dependent functions so tests work without a running Redis."""
+    with patch(
+        "app.api.v1.auth.is_token_blacklisted",
+        new_callable=AsyncMock,
+        return_value=False,
+    ) as mock_blacklist:
+        yield mock_blacklist
+
+
+# ── SQLite compatibility: compile PostgreSQL-specific types ──
+
+@compiles(pgUUID, "sqlite")
+def compile_uuid_sqlite(type_, compiler, **kw):
+    return "VARCHAR(36)"
+
+@compiles(pgJSONB, "sqlite")
+def compile_jsonb_sqlite(type_, compiler, **kw):
+    return "JSON"
+
+# ARRAY: add visit_ARRAY method to SQLite type compiler
+from sqlalchemy.dialects.sqlite.base import SQLiteTypeCompiler
+
+def _visit_array(self, type_, **kw):
+    return "JSON"
+
+SQLiteTypeCompiler.visit_ARRAY = _visit_array
+
+
+# Test database URL (async SQLite in-memory)
+TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+
+# Create async test engine with in-memory SQLite
+test_engine = create_async_engine(
     TEST_DATABASE_URL,
     connect_args={"check_same_thread": False},
-    poolclass=StaticPool,  # Use StaticPool for in-memory database
+    poolclass=StaticPool,  # StaticPool ensures a single connection for in-memory DB
 )
 
-# Create test session factory
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Create async test session factory
+TestingSessionLocal = async_sessionmaker(
+    test_engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+    autocommit=False,
+    autoflush=False,
+)
 
 
 @pytest.fixture(scope="function")
-def db_session() -> Generator[Session, None, None]:
+async def db_session() -> AsyncGenerator[AsyncSession, None]:
     """
-    Create a fresh database session for each test.
+    Create a fresh async database session for each test.
 
     This fixture:
     - Creates all tables before the test
-    - Provides a clean database session
+    - Provides a clean async database session
     - Drops all tables after the test
 
     Yields:
-        Session: SQLAlchemy database session
+        AsyncSession: SQLAlchemy async database session
     """
     # Create all tables
-    Base.metadata.create_all(bind=engine)
+    async with test_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
-    # Create session
-    session = TestingSessionLocal()
+    # Create and yield session
+    async with TestingSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
 
-    try:
-        yield session
-    finally:
-        session.close()
-        # Drop all tables
-        Base.metadata.drop_all(bind=engine)
+    # Drop all tables
+    async with test_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
 
 
 @pytest.fixture(scope="function")
-def client(db_session: Session) -> Generator[TestClient, None, None]:
+async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
     """
-    Create FastAPI test client with test database.
+    Create httpx AsyncClient with test database.
 
     This fixture overrides the database dependency to use the test database
     session instead of the production database.
 
     Args:
-        db_session: Test database session
+        db_session: Test async database session
 
     Yields:
-        TestClient: FastAPI test client
+        AsyncClient: httpx async test client
     """
-    def override_get_db():
-        try:
-            yield db_session
-        finally:
-            pass
+    async def override_get_db():
+        yield db_session
 
     # Override database dependency
     app.dependency_overrides[get_db] = override_get_db
 
-    # Create test client
-    with TestClient(app) as test_client:
-        yield test_client
+    # Create async test client (no lifespan — we manage the DB ourselves)
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test",
+    ) as ac:
+        yield ac
 
     # Clear overrides
     app.dependency_overrides.clear()
 
 
 @pytest.fixture
-def test_user(db_session: Session) -> User:
+async def test_user(db_session: AsyncSession) -> User:
     """
     Create a test user with student role.
 
     Args:
-        db_session: Database session
+        db_session: Async database session
 
     Returns:
         User: Created test user
@@ -118,18 +163,18 @@ def test_user(db_session: Session) -> User:
         }
     )
     db_session.add(user)
-    db_session.commit()
-    db_session.refresh(user)
+    await db_session.commit()
+    await db_session.refresh(user)
     return user
 
 
 @pytest.fixture
-def test_admin(db_session: Session) -> User:
+async def test_admin(db_session: AsyncSession) -> User:
     """
     Create a test user with admin role.
 
     Args:
-        db_session: Database session
+        db_session: Async database session
 
     Returns:
         User: Created admin user
@@ -146,18 +191,18 @@ def test_admin(db_session: Session) -> User:
         }
     )
     db_session.add(admin)
-    db_session.commit()
-    db_session.refresh(admin)
+    await db_session.commit()
+    await db_session.refresh(admin)
     return admin
 
 
 @pytest.fixture
-def test_instructor(db_session: Session) -> User:
+async def test_instructor(db_session: AsyncSession) -> User:
     """
     Create a test user with instructor role.
 
     Args:
-        db_session: Database session
+        db_session: Async database session
 
     Returns:
         User: Created instructor user
@@ -175,18 +220,18 @@ def test_instructor(db_session: Session) -> User:
         }
     )
     db_session.add(instructor)
-    db_session.commit()
-    db_session.refresh(instructor)
+    await db_session.commit()
+    await db_session.refresh(instructor)
     return instructor
 
 
 @pytest.fixture
-def test_parent(db_session: Session) -> User:
+async def test_parent(db_session: AsyncSession) -> User:
     """
     Create a test user with parent role.
 
     Args:
-        db_session: Database session
+        db_session: Async database session
 
     Returns:
         User: Created parent user
@@ -204,8 +249,8 @@ def test_parent(db_session: Session) -> User:
         }
     )
     db_session.add(parent)
-    db_session.commit()
-    db_session.refresh(parent)
+    await db_session.commit()
+    await db_session.refresh(parent)
     return parent
 
 

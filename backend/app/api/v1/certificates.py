@@ -11,6 +11,7 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import Response
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -209,3 +210,67 @@ async def revoke_certificate(
     await db.refresh(certificate)
 
     return CertificateResponse.model_validate(certificate)
+
+
+@router.get(
+    "/{certificate_id}/pdf",
+    status_code=status.HTTP_200_OK,
+    summary="Download certificate as PDF",
+    description="Generate and download a certificate PDF. Owner or admin only.",
+    response_class=Response,
+)
+async def download_certificate_pdf(
+    certificate_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Generate and stream a certificate PDF (owner or admin)."""
+    result = await db.execute(
+        select(Certificate).where(Certificate.id == certificate_id)
+    )
+    certificate = result.scalar_one_or_none()
+
+    if not certificate:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Certificate not found",
+        )
+
+    # Only the certificate owner or an admin can download
+    is_admin = current_user.role in ("admin", "staff")
+    is_owner = certificate.student_id == current_user.id
+    if not is_admin and not is_owner:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to download this certificate",
+        )
+
+    if not certificate.is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Certificate has been revoked and cannot be downloaded",
+        )
+
+    try:
+        from app.services.certificate_pdf_service import generate_certificate_pdf
+
+        pdf_bytes = generate_certificate_pdf(
+            student_name=certificate.student_name,
+            course_name=certificate.course_name,
+            grade=certificate.grade,
+            serial_number=certificate.serial_number,
+            completion_date=certificate.completion_date,
+            issued_at=certificate.issued_at,
+        )
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(e),
+        )
+
+    filename = f"UHS-Certificate-{certificate.serial_number}.pdf"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )

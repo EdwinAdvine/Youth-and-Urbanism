@@ -1,0 +1,85 @@
+{
+  "common": {
+    "loading": "Inapakia...",
+    "save": "Hifadhi",
+    "cancel": "Ghairi",
+    "delete": "Futa",
+    "edit": "Hariri",
+    "back": "Rudi",
+    "next": "Ifuatayo",
+    "submit": "Wasilisha",
+    "search": "Tafuta",
+    "filter": "Chuja",
+    "close": "Funga",
+    "confirm": "Thibitisha"
+  },
+  "student": {
+    "dashboard": {
+      "title": "Dashibodi",
+      "welcome_morning": "Habari za Asubuhi",
+      "welcome_afternoon": "Habari za Mchana",
+      "welcome_evening": "Habari za Jioni",
+      "today_plan": "Mpango wa Leo",
+      "streak": "Mfululizo",
+      "mood": "Unahisije leo?",
+      "urgent_items": "Vitu vya Haraka",
+      "daily_quote": "Nukuu ya Leo"
+    },
+    "ai_tutor": {
+      "chat": "Ongea na AI",
+      "learning_path": "Njia ya Kujifunza",
+      "voice_mode": "Hali ya Sauti",
+      "journal": "Jarida na Mawazo",
+      "help_understand": "Nisaidie Kuelewa"
+    },
+    "learning": {
+      "my_courses": "Kozi Zangu",
+      "browse": "Tafuta na Gundua",
+      "live_sessions": "Vikao vya Moja kwa Moja",
+      "enrolled": "Kozi Zilizosajiliwa",
+      "wishlist": "Orodha ya Matakwa"
+    },
+    "practice": {
+      "challenges": "Changamoto za Leo",
+      "assignments": "Kazi",
+      "quizzes": "Mitihani Midogo",
+      "projects": "Miradi"
+    },
+    "progress": {
+      "achievements": "Mafanikio",
+      "learning_map": "Ramani ya Kujifunza",
+      "reports": "Ripoti na Maarifa",
+      "goals": "Malengo na Tabia"
+    },
+    "community": {
+      "friends": "Marafiki",
+      "study_groups": "Vikundi vya Kusoma",
+      "discussions": "Mijadala",
+      "shoutouts": "Pongezi"
+    },
+    "wallet": {
+      "balance": "Salio",
+      "add_funds": "Ongeza Pesa",
+      "subscriptions": "Usajili",
+      "receipts": "Risiti"
+    },
+    "support": {
+      "guides": "Miongozo",
+      "contact": "Wasiliana na Msaada",
+      "report": "Ripoti Tatizo"
+    },
+    "profile": {
+      "notifications": "Arifa",
+      "settings": "Mipangilio",
+      "privacy": "Faragha na Usalama",
+      "logout": "Toka"
+    }
+  },
+  "mood": {
+    "happy": "Furaha",
+    "okay": "Sawa",
+    "tired": "Uchovu",
+    "frustrated": "Kuchoka moyo",
+    "excited": "Msisimko"
+  }
+}

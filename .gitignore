@@ -5,19 +5,34 @@ yarn-debug.log*
 yarn-error.log*
 package-lock.json
 yarn.lock
-pnpm-lock.yaml
+# pnpm-lock.yaml is intentionally committed for reproducible installs
 
 # Build outputs
 dist/
 build/
 *.tsbuildinfo
 
+# Turborepo cache
+.turbo/
+
+# Tauri Rust build artifacts
+src-tauri/target/
+
 # Environment variables
 .env
+.env.*
 .env.local
+.env.development
 .env.development.local
 .env.test.local
+.env.production
 .env.production.local
+
+# Secrets and credentials
+*.pem
+*.key
+*.crt
+livekit-config.yaml
 
 # IDE and editor files
 .vscode/

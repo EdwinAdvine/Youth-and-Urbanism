@@ -1,0 +1,139 @@
+{
+  "avatars": [
+    {
+      "id": "preset-stylized-01",
+      "name": "Amara",
+      "style": "stylized",
+      "model_url": "https://models.readyplayer.me/64bfa15f0e72c63d14fbb7a0.glb?morphTargets=ARKit&textureAtlas=1024",
+      "thumbnail_url": "https://models.readyplayer.me/64bfa15f0e72c63d14fbb7a0.png",
+      "description": "Friendly young woman with warm smile",
+      "tags": ["female", "young", "friendly"]
+    },
+    {
+      "id": "preset-stylized-02",
+      "name": "Kofi",
+      "style": "stylized",
+      "model_url": "https://models.readyplayer.me/64bfa2f10e72c63d14fbb7a1.glb?morphTargets=ARKit&textureAtlas=1024",
+      "thumbnail_url": "https://models.readyplayer.me/64bfa2f10e72c63d14fbb7a1.png",
+      "description": "Enthusiastic young man with glasses",
+      "tags": ["male", "young", "studious"]
+    },
+    {
+      "id": "preset-stylized-03",
+      "name": "Zara",
+      "style": "stylized",
+      "model_url": "https://models.readyplayer.me/64bfa3a20e72c63d14fbb7a2.glb?morphTargets=ARKit&textureAtlas=1024",
+      "thumbnail_url": "https://models.readyplayer.me/64bfa3a20e72c63d14fbb7a2.png",
+      "description": "Creative teenager with colorful style",
+      "tags": ["female", "teen", "creative"]
+    },
+    {
+      "id": "preset-stylized-04",
+      "name": "Jabari",
+      "style": "stylized",
+      "model_url": "https://models.readyplayer.me/64bfa4530e72c63d14fbb7a3.glb?morphTargets=ARKit&textureAtlas=1024",
+      "thumbnail_url": "https://models.readyplayer.me/64bfa4530e72c63d14fbb7a3.png",
+      "description": "Calm professor with kind expression",
+      "tags": ["male", "adult", "academic"]
+    },
+    {
+      "id": "preset-stylized-05",
+      "name": "Nia",
+      "style": "stylized",
+      "model_url": "https://models.readyplayer.me/64bfa5040e72c63d14fbb7a4.glb?morphTargets=ARKit&textureAtlas=1024",
+      "thumbnail_url": "https://models.readyplayer.me/64bfa5040e72c63d14fbb7a4.png",
+      "description": "Energetic science teacher",
+      "tags": ["female", "adult", "science"]
+    },
+    {
+      "id": "preset-stylized-06",
+      "name": "Tendai",
+      "style": "stylized",
+      "model_url": "https://models.readyplayer.me/64bfa5b50e72c63d14fbb7a5.glb?morphTargets=ARKit&textureAtlas=1024",
+      "thumbnail_url": "https://models.readyplayer.me/64bfa5b50e72c63d14fbb7a5.png",
+      "description": "Wise mentor with warm demeanor",
+      "tags": ["male", "elder", "mentor"]
+    },
+    {
+      "id": "preset-stylized-07",
+      "name": "Aisha",
+      "style": "stylized",
+      "model_url": "https://models.readyplayer.me/64bfa6660e72c63d14fbb7a6.glb?morphTargets=ARKit&textureAtlas=1024",
+      "thumbnail_url": "https://models.readyplayer.me/64bfa6660e72c63d14fbb7a6.png",
+      "description": "Patient math tutor with hijab",
+      "tags": ["female", "adult", "math"]
+    },
+    {
+      "id": "preset-stylized-08",
+      "name": "Kwame",
+      "style": "stylized",
+      "model_url": "https://models.readyplayer.me/64bfa7170e72c63d14fbb7a7.glb?morphTargets=ARKit&textureAtlas=1024",
+      "thumbnail_url": "https://models.readyplayer.me/64bfa7170e72c63d14fbb7a7.png",
+      "description": "Fun storyteller with expressive face",
+      "tags": ["male", "young", "storyteller"]
+    },
+    {
+      "id": "preset-realistic-01",
+      "name": "Dr. Wanjiku",
+      "style": "realistic",
+      "model_url": "https://models.readyplayer.me/64bfa7c80e72c63d14fbb7a8.glb?morphTargets=ARKit&textureAtlas=2048&quality=high",
+      "thumbnail_url": "https://models.readyplayer.me/64bfa7c80e72c63d14fbb7a8.png",
+      "description": "Professional educator with warm presence",
+      "tags": ["female", "adult", "professional", "realistic"]
+    },
+    {
+      "id": "preset-realistic-02",
+      "name": "Prof. Ochieng",
+      "style": "realistic",
+      "model_url": "https://models.readyplayer.me/64bfa8790e72c63d14fbb7a9.glb?morphTargets=ARKit&textureAtlas=2048&quality=high",
+      "thumbnail_url": "https://models.readyplayer.me/64bfa8790e72c63d14fbb7a9.png",
+      "description": "Distinguished professor with scholarly air",
+      "tags": ["male", "elder", "scholar", "realistic"]
+    },
+    {
+      "id": "preset-realistic-03",
+      "name": "Ms. Adhiambo",
+      "style": "realistic",
+      "model_url": "https://models.readyplayer.me/64bfa92a0e72c63d14fbb7aa.glb?morphTargets=ARKit&textureAtlas=2048&quality=high",
+      "thumbnail_url": "https://models.readyplayer.me/64bfa92a0e72c63d14fbb7aa.png",
+      "description": "Approachable young instructor",
+      "tags": ["female", "young", "instructor", "realistic"]
+    },
+    {
+      "id": "preset-realistic-04",
+      "name": "Mr. Kimani",
+      "style": "realistic",
+      "model_url": "https://models.readyplayer.me/64bfa9db0e72c63d14fbb7ab.glb?morphTargets=ARKit&textureAtlas=2048&quality=high",
+      "thumbnail_url": "https://models.readyplayer.me/64bfa9db0e72c63d14fbb7ab.png",
+      "description": "Encouraging sports and science coach",
+      "tags": ["male", "adult", "coach", "realistic"]
+    },
+    {
+      "id": "preset-realistic-05",
+      "name": "Mama Njeri",
+      "style": "realistic",
+      "model_url": "https://models.readyplayer.me/64bfaa8c0e72c63d14fbb7ac.glb?morphTargets=ARKit&textureAtlas=2048&quality=high",
+      "thumbnail_url": "https://models.readyplayer.me/64bfaa8c0e72c63d14fbb7ac.png",
+      "description": "Nurturing motherly figure",
+      "tags": ["female", "elder", "nurturing", "realistic"]
+    },
+    {
+      "id": "preset-realistic-06",
+      "name": "Mwalimu Hassan",
+      "style": "realistic",
+      "model_url": "https://models.readyplayer.me/64bfab3d0e72c63d14fbb7ad.glb?morphTargets=ARKit&textureAtlas=2048&quality=high",
+      "thumbnail_url": "https://models.readyplayer.me/64bfab3d0e72c63d14fbb7ad.png",
+      "description": "Bilingual Swahili-English tutor",
+      "tags": ["male", "adult", "bilingual", "realistic"]
+    },
+    {
+      "id": "preset-realistic-07",
+      "name": "Daktari Fatuma",
+      "style": "realistic",
+      "model_url": "https://models.readyplayer.me/64bfabee0e72c63d14fbb7ae.glb?morphTargets=ARKit&textureAtlas=2048&quality=high",
+      "thumbnail_url": "https://models.readyplayer.me/64bfabee0e72c63d14fbb7ae.png",
+      "description": "Science and health educator",
+      "tags": ["female", "adult", "science", "realistic"]
+    }
+  ]
+}

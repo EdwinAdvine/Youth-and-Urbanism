@@ -1,0 +1,18 @@
+{
+  "$schema": "../gen/schemas/mobile-schema.json",
+  "identifier": "mobile",
+  "description": "Capabilities for Urban Home School mobile apps (Android + iOS)",
+  "platforms": ["android", "iOS"],
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    "core:window:default",
+    "core:app:default",
+    "core:path:default",
+    "core:event:default",
+    "core:webview:default",
+    "core:window:allow-set-title"
+  ]
+}

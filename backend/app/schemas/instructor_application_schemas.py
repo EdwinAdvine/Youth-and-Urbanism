@@ -41,6 +41,7 @@ class InstructorApplicationResponse(BaseModel):
     id_document_front_url: Optional[str] = None
     id_document_back_url: Optional[str] = None
     status: str = "pending"
+    invite_expires_at: Optional[datetime] = None
     reviewed_by: Optional[UUID] = None
     reviewed_at: Optional[datetime] = None
     review_notes: Optional[str] = None

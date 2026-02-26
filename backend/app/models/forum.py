@@ -38,6 +38,7 @@ class ForumPost(Base):
     category = Column(String(50), nullable=False, index=True)
     tags = Column(JSONB, default=[], nullable=False)
 
+    is_public = Column(Boolean, default=True, nullable=False, index=True)
     is_pinned = Column(Boolean, default=False, nullable=False)
     is_solved = Column(Boolean, default=False, nullable=False)
     is_deleted = Column(Boolean, default=False, nullable=False)

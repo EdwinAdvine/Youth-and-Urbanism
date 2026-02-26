@@ -183,7 +183,6 @@ async def chat_with_tutor(
     # Route query to AI orchestrator
     ai_message = ""
     audio_url = None
-    video_url = None
 
     try:
         orchestrator = AIOrchestrator(db)
@@ -198,7 +197,6 @@ async def chat_with_tutor(
         )
         ai_message = ai_response.get('message', 'I received your message but could not generate a response.')
         audio_url = ai_response.get('audio_url')
-        video_url = ai_response.get('video_url')
     except Exception as e:
         logger.warning(f"AI Orchestrator error: {str(e)}")
         ai_message = (
@@ -237,7 +235,6 @@ async def chat_with_tutor(
         message=ai_message,
         response_mode=response_mode,
         audio_url=audio_url,
-        video_url=video_url,
         conversation_id=tutor.id,
         timestamp=datetime.utcnow()
     )

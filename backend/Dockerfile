@@ -14,4 +14,6 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["python", "main.py"]
+# Production: Gunicorn with uvicorn workers (multi-process, uvloop)
+# Override WEB_WORKERS env var to control worker count in containers
+CMD ["gunicorn", "main:app", "-c", "gunicorn.conf.py"]

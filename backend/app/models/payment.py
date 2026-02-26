@@ -324,6 +324,34 @@ class Wallet(AsyncAttrs, Base):
         doc="ISO 4217 currency code (KES, USD, EUR, etc.)",
     )
 
+    # Tracking fields — distinguish spent vs unspent funds
+    total_credited = Column(
+        Numeric(12, 2),
+        default=Decimal("0.00"),
+        nullable=False,
+        doc="Cumulative amount credited to this wallet",
+    )
+    total_debited = Column(
+        Numeric(12, 2),
+        default=Decimal("0.00"),
+        nullable=False,
+        doc="Cumulative amount debited from this wallet",
+    )
+    total_withdrawn = Column(
+        Numeric(12, 2),
+        default=Decimal("0.00"),
+        nullable=False,
+        doc="Cumulative amount withdrawn to external account",
+    )
+
+    # Withdrawal blocking — children cannot withdraw directly
+    is_withdrawal_blocked = Column(
+        Boolean,
+        default=False,
+        nullable=False,
+        doc="If True, user cannot request withdrawals (e.g., student wallets)",
+    )
+
     # Timestamps
     created_at = Column(
         DateTime,
@@ -360,6 +388,7 @@ class Wallet(AsyncAttrs, Base):
 
         Updates:
         - balance increased by amount
+        - total_credited incremented
         - updated_at to current UTC time
 
         Raises:
@@ -368,7 +397,9 @@ class Wallet(AsyncAttrs, Base):
         if amount <= 0:
             raise ValueError("Credit amount must be positive")
 
-        self.balance = Decimal(str(self.balance)) + Decimal(str(amount))
+        credit_amount = Decimal(str(amount))
+        self.balance = Decimal(str(self.balance)) + credit_amount
+        self.total_credited = Decimal(str(self.total_credited)) + credit_amount
         self.updated_at = datetime.utcnow()
 
     def debit(self, amount: Decimal) -> None:
@@ -398,6 +429,7 @@ class Wallet(AsyncAttrs, Base):
             )
 
         self.balance = current_balance - debit_amount
+        self.total_debited = Decimal(str(self.total_debited)) + debit_amount
         self.updated_at = datetime.utcnow()
 
     @property

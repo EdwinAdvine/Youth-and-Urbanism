@@ -42,7 +42,17 @@ from app.database import Base
 
 
 class Course(Base):
-    """CBC-aligned courses with multi-level support"""
+    """
+    A CBC-aligned course with multi-grade-level support and revenue sharing.
+
+    Courses can be created by platform admins (is_platform_created=True) or
+    external instructors. Each course targets one or more grade levels and a
+    learning area from Kenya's CBC framework. Content is stored as structured
+    JSONB (syllabus and lessons array). Paid courses follow a 60/30/10
+    revenue split between instructor, platform, and partner. Statistics
+    (enrollment count, average rating, reviews) are denormalized here for
+    fast dashboard queries.
+    """
 
     __tablename__ = "courses"
 
@@ -57,6 +67,7 @@ class Course(Base):
     # CBC alignment
     grade_levels = Column(ARRAY(String), nullable=False, index=True)  # ['Grade 1', 'Grade 2']
     learning_area = Column(String(100), nullable=False, index=True)  # 'Mathematics', 'Science', 'Languages', etc.
+    course_code = Column(String(50), nullable=True, unique=True, index=True)  # e.g. 'ENV-G2', 'MATH-PP1'
 
     # Course content
     syllabus = Column(JSONB, default={}, nullable=False)  # Structured course content
@@ -84,6 +95,11 @@ class Course(Base):
 
     # Competencies
     competencies = Column(JSONB, default=[], nullable=False)  # CBC competencies covered
+
+    # Instructor dashboard enhancements
+    revenue_split_id = Column(UUID(as_uuid=True), ForeignKey("instructor_revenue_splits.id", ondelete="SET NULL"), nullable=True)
+    cbc_analysis_id = Column(UUID(as_uuid=True), ForeignKey("instructor_cbc_analyses.id", ondelete="SET NULL"), nullable=True)
+    ai_generated_meta = Column(JSONB, nullable=True)  # AI-generated metadata (keywords, difficulty, etc.)
 
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)

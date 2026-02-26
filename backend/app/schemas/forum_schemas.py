@@ -20,6 +20,7 @@ class ForumPostCreate(BaseModel):
         pattern="^(general|mathematics|science|languages|social-studies|technology|help-support)$",
     )
     tags: List[str] = Field(default_factory=list)
+    is_public: bool = True
 
 
 class ForumPostUpdate(BaseModel):
@@ -31,6 +32,7 @@ class ForumPostUpdate(BaseModel):
         pattern="^(general|mathematics|science|languages|social-studies|technology|help-support)$",
     )
     tags: Optional[List[str]] = None
+    is_public: Optional[bool] = None
 
 
 class ForumReplyCreate(BaseModel):
@@ -83,6 +85,7 @@ class ForumPostResponse(BaseModel):
     tags: List[str] = Field(default_factory=list)
     author: AuthorInfo
     stats: ForumPostStats
+    is_public: bool = True
     is_pinned: bool = False
     is_solved: bool = False
     liked_by_me: bool = False

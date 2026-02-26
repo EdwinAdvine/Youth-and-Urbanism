@@ -1,0 +1,27 @@
+{
+  "name": "@uhs/core-types",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    "./user": "./src/user.ts",
+    "./course": "./src/course.ts",
+    "./chat": "./src/chat.ts",
+    "./avatar": "./src/avatar.ts",
+    "./store": "./src/store.ts",
+    "./student": "./src/student.ts",
+    "./parent": "./src/parent.ts",
+    "./instructor": "./src/instructor.ts",
+    "./admin": "./src/admin.ts",
+    "./partner": "./src/partner.ts",
+    "./staff": "./src/staff.ts",
+    "./category": "./src/category.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.28",
+    "@uhs/tsconfig": "workspace:*",
+    "typescript": "^5.9.3"
+  }
+}

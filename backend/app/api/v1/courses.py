@@ -16,11 +16,14 @@ Features:
 - Progress tracking and completion certificates
 """
 
+import logging
 from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 from app.database import get_db
 from app.models.user import User
@@ -123,6 +126,9 @@ async def list_courses(
     is_featured: Optional[bool] = Query(None, description="Filter featured courses"),
     search: Optional[str] = Query(None, description="Search in title and description"),
     instructor_id: Optional[UUID] = Query(None, description="Filter by instructor UUID"),
+    audience: Optional[str] = Query(None, description="Filter by audience: 'students', 'teachers', or 'revision'"),
+    is_free: Optional[bool] = Query(None, description="True = free courses only, False = paid only"),
+    course_code: Optional[str] = Query(None, description="Filter by short unique course code e.g. 'ENV-G2'"),
     db: AsyncSession = Depends(get_db)
 ) -> dict:
     """
@@ -150,7 +156,10 @@ async def list_courses(
             is_published=True,
             is_featured=is_featured,
             search_query=search,
-            instructor_id=instructor_id
+            instructor_id=instructor_id,
+            audience=audience,
+            is_free=is_free,
+            course_code=course_code,
         )
 
         return {
@@ -162,9 +171,10 @@ async def list_courses(
         }
 
     except Exception as e:
+        logger.error(f"Failed to list courses: {type(e).__name__}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to list courses: {str(e)}"
+            detail=f"Failed to list courses: {type(e).__name__}: {e}"
         )
 
 
@@ -509,9 +519,10 @@ async def complete_lesson(
         return EnrollmentResponse.model_validate(enrollment)
 
     except Exception as e:
+        logger.error(f"Failed to update enrollment progress for enrollment {enrollment_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update progress: {str(e)}"
+            detail="Failed to update progress"
         )
 
 

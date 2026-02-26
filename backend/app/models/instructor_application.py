@@ -74,6 +74,10 @@ class InstructorApplication(Base):
     # Application status: pending, approved, rejected
     status = Column(String(20), default="pending", nullable=False, index=True)
 
+    # Instructor invite token fields (set on approval)
+    invite_token = Column(String(500), nullable=True, unique=True)
+    invite_expires_at = Column(DateTime, nullable=True)
+
     # Review information
     reviewed_by = Column(
         UUID(as_uuid=True),

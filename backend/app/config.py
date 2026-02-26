@@ -54,21 +54,37 @@ class Settings(BaseSettings):
         ...,
         description="PostgreSQL database connection URL (required)"
     )
+    database_read_url: Optional[str] = Field(
+        default=None,
+        description="Read replica database URL (optional, for read/write splitting)"
+    )
     database_pool_size: int = Field(
-        default=5,
-        description="Database connection pool size"
+        default=20,
+        description="Database connection pool size per worker (production: 20-50)"
     )
     database_max_overflow: int = Field(
-        default=10,
-        description="Maximum overflow connections"
+        default=30,
+        description="Maximum overflow connections per worker for burst traffic"
     )
     database_pool_timeout: int = Field(
-        default=30,
-        description="Connection pool timeout in seconds"
+        default=10,
+        description="Seconds to wait for a connection before raising an error (fail fast)"
+    )
+    database_pool_recycle: int = Field(
+        default=1800,
+        description="Recycle connections after N seconds to avoid stale connections"
     )
     database_echo: bool = Field(
         default=False,
         description="Log SQL queries (useful for debugging)"
+    )
+    database_statement_timeout: int = Field(
+        default=30000,
+        description="PostgreSQL statement_timeout in milliseconds (kills long-running queries)"
+    )
+    database_idle_in_transaction_timeout: int = Field(
+        default=60000,
+        description="PostgreSQL idle_in_transaction_session_timeout in milliseconds"
     )
 
     # Redis Configuration
@@ -110,6 +126,16 @@ class Settings(BaseSettings):
         gt=0,
         description="Refresh token expiration in days"
     )
+    # Google OAuth
+    google_client_id: str = Field(
+        default="",
+        description="Google OAuth client ID for Sign in with Google"
+    )
+    google_client_secret: str = Field(
+        default="",
+        description="Google OAuth client secret"
+    )
+
     password_min_length: int = Field(
         default=8,
         description="Minimum password length"
@@ -129,7 +155,7 @@ class Settings(BaseSettings):
 
     # CORS Configuration
     cors_origins: str = Field(
-        default="http://localhost:3000,http://127.0.0.1:3000",
+        default="http://localhost:3000,http://127.0.0.1:3000,tauri://localhost,https://tauri.localhost",
         description="Comma-separated list of allowed CORS origins"
     )
     cors_allow_credentials: bool = Field(
@@ -141,7 +167,7 @@ class Settings(BaseSettings):
         description="Allowed HTTP methods for CORS"
     )
     cors_allow_headers: List[str] = Field(
-        default=["*"],
+        default=["Content-Type", "Authorization", "X-Requested-With", "X-CSRF-Token", "Accept", "Origin"],
         description="Allowed headers for CORS"
     )
 
@@ -162,13 +188,53 @@ class Settings(BaseSettings):
         default=None,
         description="X.AI Grok API key (optional)"
     )
+    groq_api_key: Optional[str] = Field(
+        default=None,
+        description="Groq API key for fast inference (optional)"
+    )
+    openrouter_api_key: Optional[str] = Field(
+        default=None,
+        description="OpenRouter API key for multi-model access (optional)"
+    )
     elevenlabs_api_key: Optional[str] = Field(
         default=None,
         description="ElevenLabs API key for text-to-speech (optional)"
     )
-    synthesia_api_key: Optional[str] = Field(
+
+    # ElevenLabs streaming (avatar mode)
+    elevenlabs_streaming_enabled: bool = Field(
+        default=True,
+        description="Enable ElevenLabs WebSocket streaming for avatar lip sync"
+    )
+    elevenlabs_voice_id: str = Field(
+        default="21m00Tcm4TlvDq8ikWAM",
+        description="ElevenLabs voice ID (default: Rachel)"
+    )
+    elevenlabs_streaming_model: str = Field(
+        default="eleven_multilingual_v2",
+        description="ElevenLabs model for streaming TTS"
+    )
+
+    # Avatar / Ready Player Me
+    rpm_subdomain: str = Field(
+        default="demo",
+        description="Ready Player Me subdomain for avatar editor"
+    )
+    rpm_api_key: Optional[str] = Field(
         default=None,
-        description="Synthesia API key for video generation (optional)"
+        description="Ready Player Me API key (optional)"
+    )
+    avatar_max_per_user: int = Field(
+        default=10,
+        description="Maximum avatars a user can save"
+    )
+    avatar_cdn_base_url: str = Field(
+        default="",
+        description="CDN base URL for preset avatar GLB files"
+    )
+    avatar_preset_config_path: str = Field(
+        default="data/avatar_presets.json",
+        description="Path to preset avatar catalogue JSON"
     )
 
     # M-Pesa Payment Configuration
@@ -199,6 +265,26 @@ class Settings(BaseSettings):
     mpesa_timeout_url: Optional[str] = Field(
         default=None,
         description="M-Pesa timeout URL"
+    )
+    mpesa_initiator_password: Optional[str] = Field(
+        default=None,
+        description="M-Pesa B2C initiator password (required for B2C transactions)"
+    )
+    mpesa_certificate_path: Optional[str] = Field(
+        default=None,
+        description="Path to Safaricom public certificate for production RSA encryption"
+    )
+
+    # Flutterwave Payment Configuration
+    flutterwave_secret_key: Optional[str] = Field(
+        default=None,
+        description="Flutterwave secret API key for bank transfers"
+    )
+
+    # Paystack Payment Configuration
+    paystack_secret_key: Optional[str] = Field(
+        default=None,
+        description="Paystack secret API key for bank transfers"
     )
 
     # Stripe Payment Configuration
@@ -285,6 +371,20 @@ class Settings(BaseSettings):
     azure_storage_container: Optional[str] = Field(
         default=None,
         description="Azure blob storage container name"
+    )
+
+    # Africa's Talking SMS Configuration
+    africas_talking_username: str = Field(
+        default="sandbox",
+        description="Africa's Talking username (use 'sandbox' for testing)"
+    )
+    africas_talking_api_key: Optional[str] = Field(
+        default=None,
+        description="Africa's Talking API key"
+    )
+    africas_talking_sender_id: Optional[str] = Field(
+        default=None,
+        description="Africa's Talking sender ID (shortcode or alphanumeric)"
     )
 
     # Email Configuration
@@ -376,7 +476,11 @@ class Settings(BaseSettings):
     )
     enable_metrics: bool = Field(
         default=False,
-        description="Enable Prometheus metrics"
+        description="Enable Prometheus metrics at /metrics endpoint"
+    )
+    log_format: str = Field(
+        default="text",
+        description="Log format: 'text' for human-readable, 'json' for structured JSON logging"
     )
 
     @field_validator("environment")
@@ -500,6 +604,19 @@ class Settings(BaseSettings):
         if not self.gemini_api_key:
             errors.append("GEMINI_API_KEY is required in production")
 
+        # Check LiveKit secrets are not defaults
+        if self.livekit_api_secret in ("secret", "changeme-generate-a-strong-secret"):
+            errors.append("LIVEKIT_API_SECRET must be changed from default in production")
+
+        # Check session cookie SameSite is strict in production
+        if self.session_cookie_samesite != "strict":
+            errors.append("SESSION_COOKIE_SAMESITE should be 'strict' in production")
+
+        # Validate CORS origins don't contain localhost in production
+        cors_origins_lower = self.cors_origins.lower()
+        if "localhost" in cors_origins_lower or "127.0.0.1" in cors_origins_lower:
+            errors.append("CORS_ORIGINS must not contain localhost or 127.0.0.1 in production")
+
         # Validate at least one payment gateway
         has_mpesa = self.mpesa_consumer_key and self.mpesa_consumer_secret
         has_stripe = self.stripe_secret_key
@@ -530,6 +647,57 @@ class Settings(BaseSettings):
             url = url.replace("postgresql://", "postgresql+asyncpg://")
 
         return url
+
+
+    # ─── WebRTC Configuration ────────────────────────────────────────────
+    webrtc_stun_urls: list = Field(
+        default=["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"],
+        description="STUN server URLs for WebRTC ICE"
+    )
+    webrtc_turn_url: str = Field(
+        default="",
+        description="TURN server URL (optional, for NAT traversal)"
+    )
+    webrtc_turn_username: str = Field(
+        default="",
+        description="TURN server username"
+    )
+    webrtc_turn_credential: str = Field(
+        default="",
+        description="TURN server credential"
+    )
+    webrtc_max_participants: int = Field(
+        default=6,
+        description="Max participants per WebRTC room (mesh topology)"
+    )
+
+    # LiveKit Configuration (for staff live sessions)
+    livekit_url: str = Field(
+        default="http://localhost:7880",
+        description="LiveKit server URL"
+    )
+    livekit_api_key: str = Field(
+        default="devkey",
+        description="LiveKit API key (override via LIVEKIT_API_KEY env var in production)"
+    )
+    livekit_api_secret: str = Field(
+        default="changeme-generate-a-strong-secret",
+        description="LiveKit API secret (override via LIVEKIT_API_SECRET env var in production)"
+    )
+
+    # VAPID Configuration (for push notifications)
+    vapid_public_key: Optional[str] = Field(
+        default=None,
+        description="VAPID public key for web push notifications"
+    )
+    vapid_private_key: Optional[str] = Field(
+        default=None,
+        description="VAPID private key for web push notifications"
+    )
+    vapid_claims_email: str = Field(
+        default="admin@urbanhomeschool.co.ke",
+        description="VAPID claims email"
+    )
 
 
 # Create global settings instance

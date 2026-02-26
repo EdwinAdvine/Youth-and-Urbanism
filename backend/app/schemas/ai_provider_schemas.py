@@ -6,6 +6,8 @@ allowing admins to configure any AI provider (text, voice, video, multimodal)
 through the admin API without code changes.
 """
 
+from __future__ import annotations
+
 from typing import Optional, Dict, Any
 from datetime import datetime
 from uuid import UUID
@@ -41,7 +43,7 @@ class AIProviderBase(BaseModel):
         """Validate specialization is one of the allowed values."""
         if v is None:
             return v
-        allowed_specs = ['reasoning', 'creative', 'research', 'general']
+        allowed_specs = ['reasoning', 'creative', 'research', 'general', 'voice_generation', 'video_generation']
         if v.lower() not in allowed_specs:
             raise ValueError(f"specialization must be one of: {', '.join(allowed_specs)}")
         return v.lower()
@@ -104,7 +106,7 @@ class AIProviderUpdate(BaseModel):
         """Validate specialization is one of the allowed values."""
         if v is None:
             return v
-        allowed_specs = ['reasoning', 'creative', 'research', 'general']
+        allowed_specs = ['reasoning', 'creative', 'research', 'general', 'voice_generation', 'video_generation']
         if v.lower() not in allowed_specs:
             raise ValueError(f"specialization must be one of: {', '.join(allowed_specs)}")
         return v.lower()
