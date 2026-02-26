@@ -94,6 +94,8 @@ class LiveSessionRecording(Base):
     duration_seconds = Column(Integer, nullable=True)
     file_size_bytes = Column(BigInteger, nullable=True)
     format = Column(String(20), default="mp4", nullable=False)
+    # AI-generated summary of the session based on transcript / metadata
+    ai_summary = Column(JSONB, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     def __repr__(self) -> str:
@@ -128,4 +130,38 @@ class BreakoutRoom(Base):
         return (
             f"<BreakoutRoom(session_id={self.session_id}, "
             f"name='{self.name}', active={self.is_active})>"
+        )
+
+
+class LiveSessionEnrollment(Base):
+    """
+    Tracks which students are enrolled / registered for a specific live session.
+
+    When a student joins a session, joined_at is set. Used by the student-facing
+    live sessions API to show upcoming and past sessions for that student.
+    """
+
+    __tablename__ = "live_session_enrollments"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    session_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("live_sessions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    student_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("students.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    joined_at = Column(DateTime, nullable=True)
+    is_present = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    def __repr__(self) -> str:
+        return (
+            f"<LiveSessionEnrollment(session_id={self.session_id}, "
+            f"student_id={self.student_id})>"
         )

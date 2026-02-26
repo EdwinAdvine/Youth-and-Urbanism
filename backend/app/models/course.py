@@ -67,6 +67,7 @@ class Course(Base):
     # CBC alignment
     grade_levels = Column(ARRAY(String), nullable=False, index=True)  # ['Grade 1', 'Grade 2']
     learning_area = Column(String(100), nullable=False, index=True)  # 'Mathematics', 'Science', 'Languages', etc.
+    course_code = Column(String(50), nullable=True, unique=True, index=True)  # e.g. 'ENV-G2', 'MATH-PP1'
 
     # Course content
     syllabus = Column(JSONB, default={}, nullable=False)  # Structured course content

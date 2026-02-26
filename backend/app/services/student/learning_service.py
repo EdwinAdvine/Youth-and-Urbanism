@@ -144,22 +144,35 @@ class LearningService:
         self,
         student_id: UUID,
         search: Optional[str] = None,
-        grade_level: Optional[int] = None,
         subject: Optional[str] = None,
         sort_by: str = "popular",
         limit: int = 20,
         offset: int = 0
     ) -> Dict:
-        """Browse course marketplace with filters"""
-        # Build query
+        """Browse course marketplace filtered to student's grade level"""
+        # Fetch student to get their grade level
+        student_result = await self.db.execute(
+            select(Student).where(Student.id == student_id)
+        )
+        student = student_result.scalar_one_or_none()
+        if not student:
+            raise ValueError("Student not found")
+
+        # Base query: published, not deleted, matches student's grade
         query = select(Course).where(
             and_(
                 Course.is_deleted == False,
-                Course.is_published == True
+                Course.is_published == True,
+                Course.grade_levels.contains([student.grade_level])
             )
         )
 
-        # Apply filters
+        # Exclude teacher/instructor-only courses (Teacher's Guide, Diploma)
+        teacher_labels = ["Teacher's Guide", "Diploma"]
+        for label in teacher_labels:
+            query = query.where(~Course.grade_levels.any(label))
+
+        # Search filter
         if search:
             query = query.where(
                 or_(
@@ -168,13 +181,11 @@ class LearningService:
                 )
             )
 
-        if grade_level:
-            query = query.where(Course.grade_levels.contains([grade_level]))
-
+        # Subject filter
         if subject:
             query = query.where(Course.learning_area == subject)
 
-        # Apply sorting
+        # Sorting
         if sort_by == "popular":
             query = query.order_by(desc(Course.enrollment_count))
         elif sort_by == "rating":
@@ -186,14 +197,13 @@ class LearningService:
         elif sort_by == "price_high":
             query = query.order_by(Course.price.desc())
 
-        # Get total count
+        # Total count before pagination
         count_query = select(func.count()).select_from(query.subquery())
         total_result = await self.db.execute(count_query)
         total_courses = total_result.scalar()
 
-        # Apply pagination
+        # Paginate
         query = query.limit(limit).offset(offset)
-
         result = await self.db.execute(query)
         courses = result.scalars().all()
 
@@ -217,11 +227,42 @@ class LearningService:
             "courses": courses_list,
             "total": total_courses,
             "limit": limit,
-            "offset": offset
+            "offset": offset,
+            "student_grade": student.grade_level
         }
 
+    async def get_wishlist_ids(self, student_id: UUID) -> list:
+        """Get just the course UUIDs in the student's wishlist (for fast heart icon state)"""
+        result = await self.db.execute(
+            select(StudentWishlist.course_id)
+            .where(StudentWishlist.student_id == student_id)
+        )
+        return [str(row[0]) for row in result.all()]
+
     async def add_to_wishlist(self, student_id: UUID, course_id: UUID) -> StudentWishlist:
-        """Add course to student's wishlist"""
+        """Add course to student's wishlist — only if the course matches the student's grade"""
+        # Fetch student to validate grade
+        student_result = await self.db.execute(
+            select(Student).where(Student.id == student_id)
+        )
+        student = student_result.scalar_one_or_none()
+        if not student:
+            raise ValueError("Student not found")
+
+        # Fetch course to validate grade match
+        course_result = await self.db.execute(
+            select(Course).where(Course.id == course_id)
+        )
+        course = course_result.scalar_one_or_none()
+        if not course:
+            raise ValueError("Course not found")
+
+        if student.grade_level not in (course.grade_levels or []):
+            raise ValueError(
+                f"This course is not available for your grade ({student.grade_level}). "
+                "You can only add courses from your grade to your wishlist."
+            )
+
         # Check if already in wishlist
         existing = await self.db.execute(
             select(StudentWishlist).where(

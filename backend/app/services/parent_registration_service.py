@@ -11,6 +11,7 @@ from app.models.student import Student
 from app.models.ai_tutor import AITutor
 from app.schemas.parent_registration_schemas import ParentRegistrationWithChildren, ChildSummary
 from app.utils.security import get_password_hash, create_access_token
+from app.utils.student_codes import generate_admission_number, generate_ait_code
 from app.services.username_generation_service import generate_username
 from app.config import settings
 
@@ -55,13 +56,7 @@ async def register_parent_with_children(
         children_summaries = []
         year = datetime.now(timezone.utc).year
 
-        # Get current student count for admission numbers
-        count_result = await db.execute(select(func.count()).select_from(Student))
-        student_count = count_result.scalar() or 0
-
         for i, child_data in enumerate(data.children):
-            student_count += 1
-            admission_number = f"TUHS-{year}-{student_count:05d}"
 
             # Generate or use preferred username
             if child_data.preferred_username:
@@ -81,6 +76,11 @@ async def register_parent_with_children(
             import secrets
             temp_password = secrets.token_urlsafe(32)
 
+            # Generate admission number — always issued at registration
+            admission_number = await generate_admission_number(
+                db, child_data.grade_level, year
+            )
+
             child_user = User(
                 email=None,
                 username=username,
@@ -92,6 +92,7 @@ async def register_parent_with_children(
                     "grade_level": child_data.grade_level,
                     "tutor_name": "Birdy",
                     "registered_by_parent": True,
+                    "admission_number": admission_number,
                 },
                 is_active=True,
                 is_verified=True,  # No email to verify
@@ -114,10 +115,12 @@ async def register_parent_with_children(
             db.add(new_student)
             await db.flush()
 
-            # Create AI Tutor
+            # Generate AIT code and create dedicated AI Tutor
+            ait_code = await generate_ait_code(db, admission_number)
             ai_tutor = AITutor(
                 student_id=new_student.id,
                 name="Birdy",
+                ait_code=ait_code,
                 conversation_history=[],
                 learning_path={},
                 performance_metrics={},

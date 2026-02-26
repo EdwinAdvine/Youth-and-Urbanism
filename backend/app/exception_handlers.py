@@ -30,10 +30,18 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     """Handle request validation errors with detailed error information."""
     logger.warning(f"Validation error on {request.url.path}: {exc.errors()}")
 
+    # Sanitize errors: convert non-serializable ctx values (e.g. ValueError) to strings
+    sanitized_errors = []
+    for err in exc.errors():
+        clean = {k: v for k, v in err.items() if k != "ctx"}
+        if "ctx" in err and err["ctx"]:
+            clean["ctx"] = {k: str(v) for k, v in err["ctx"].items()}
+        sanitized_errors.append(clean)
+
     content = {
         "detail": "Validation error",
         "status_code": 422,
-        "errors": exc.errors(),
+        "errors": sanitized_errors,
     }
     if settings.debug:
         content["path"] = str(request.url.path)

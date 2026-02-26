@@ -1,6 +1,6 @@
 // ForumPage - Authenticated page at /forum. Community discussion board where users can
 // create posts, reply to threads, search topics, and pin/resolve discussions.
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   MessageSquare,
   Plus,
@@ -16,6 +16,7 @@ import {
   User
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import api from '../services/api';
 
 // Types
 interface ForumPostAuthor {
@@ -524,50 +525,6 @@ const mockPosts: ForumPost[] = [
   }
 ];
 
-const mockReplies: ForumReply[] = [
-  {
-    id: 'r1',
-    postId: '1',
-    content: 'Great question! The quadratic formula works for all quadratic equations: x = (-b ± √(b²-4ac)) / 2a. Use factoring when you can easily identify factors, completing the square when you need to derive the formula or when dealing with perfect squares, and the quadratic formula as your go-to method when other methods seem complicated.',
-    author: {
-      id: 'inst1',
-      name: 'Prof. Wekesa',
-      role: 'instructor'
-    },
-    timestamp: new Date('2024-02-10T14:00:00'),
-    likes: 15,
-    isSolution: true,
-    likedBy: ['u1', 'u2', 'u3']
-  },
-  {
-    id: 'r2',
-    postId: '1',
-    content: 'I found this video really helpful: [link]. It explains each method with examples.',
-    author: {
-      id: 'u5',
-      name: 'Grace Akinyi',
-      role: 'student'
-    },
-    timestamp: new Date('2024-02-10T16:30:00'),
-    likes: 8,
-    isSolution: false,
-    likedBy: ['u1', 'u4']
-  },
-  {
-    id: 'r3',
-    postId: '1',
-    content: 'Thanks everyone! This really helps. I think I understand it better now.',
-    author: {
-      id: 'u1',
-      name: 'Sarah Kimani',
-      role: 'student'
-    },
-    timestamp: new Date('2024-02-11T14:22:00'),
-    likes: 3,
-    isSolution: false,
-    likedBy: ['u2']
-  }
-];
 
 const ForumPage: React.FC = () => {
   const { user } = useAuthStore();
@@ -591,7 +548,54 @@ const ForumPage: React.FC = () => {
 
   // Reply state
   const [replyContent, setReplyContent] = useState('');
-  const [replies, setReplies] = useState<ForumReply[]>(mockReplies);
+  const [replies, setReplies] = useState<ForumReply[]>([]);
+
+  // Posts state (starts with mock, replaced by API data)
+  const [posts, setPosts] = useState<ForumPost[]>(mockPosts);
+  const [_loading, setLoading] = useState(false);
+
+  // Fetch posts from API on mount
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchPosts() {
+      setLoading(true);
+      try {
+        const res = await api.get('/api/v1/forum/posts', { params: { limit: 50, sort: 'latest' } });
+        if (cancelled) return;
+        const mapped: ForumPost[] = (res.data.posts ?? []).map((p: any) => ({
+          id: String(p.id),
+          title: p.title ?? '',
+          content: p.content ?? '',
+          excerpt: p.excerpt ?? (p.content ?? '').slice(0, 160),
+          category: p.category ?? 'general',
+          tags: Array.isArray(p.tags) ? p.tags : [],
+          author: {
+            id: String(p.author?.id ?? ''),
+            name: p.author?.name ?? 'Anonymous',
+            role: (p.author?.role ?? 'student') as ForumPostAuthor['role'],
+            avatar: p.author?.avatar,
+          },
+          stats: {
+            views: p.stats?.views ?? 0,
+            replies: p.stats?.replies ?? 0,
+            likes: p.stats?.likes ?? 0,
+          },
+          timestamp: new Date(p.created_at ?? Date.now()),
+          lastActivity: new Date(p.last_activity_at ?? p.created_at ?? Date.now()),
+          solved: Boolean(p.is_solved),
+          pinned: Boolean(p.is_pinned),
+          likedBy: p.liked_by_me ? ['me'] : [],
+        }));
+        if (mapped.length > 0) setPosts(mapped);
+      } catch {
+        // Keep mock data on API failure
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    fetchPosts();
+    return () => { cancelled = true; };
+  }, []);
 
   // Categories
   const categories = [
@@ -628,7 +632,7 @@ const ForumPage: React.FC = () => {
 
   // Filter and sort posts
   const filteredAndSortedPosts = useMemo(() => {
-    let filtered = [...mockPosts];
+    let filtered = [...posts];
 
     // Filter by category
     if (selectedCategory !== 'all') {
@@ -667,7 +671,7 @@ const ForumPage: React.FC = () => {
     });
 
     return filtered;
-  }, [selectedCategory, searchQuery, sortBy]);
+  }, [selectedCategory, searchQuery, sortBy, posts]);
 
   // Format time ago
   const formatTimeAgo = (date: Date): string => {
@@ -680,53 +684,94 @@ const ForumPage: React.FC = () => {
     return date.toLocaleDateString();
   };
 
+  // Open post detail and fetch replies
+  const handleOpenPost = useCallback(async (post: ForumPost) => {
+    setSelectedPost(post);
+    setShowPostDetail(true);
+    try {
+      const res = await api.get(`/api/v1/forum/posts/${post.id}`);
+      const data = res.data;
+      const mappedReplies: ForumReply[] = (data.replies ?? []).map((r: any) => ({
+        id: String(r.id),
+        postId: String(post.id),
+        content: r.content,
+        author: {
+          id: String(r.author?.id ?? ''),
+          name: r.author?.name ?? 'Anonymous',
+          role: (r.author?.role ?? 'student') as ForumPostAuthor['role'],
+          avatar: r.author?.avatar,
+        },
+        timestamp: new Date(r.created_at ?? Date.now()),
+        likes: r.likes ?? 0,
+        isSolution: Boolean(r.is_solution),
+        likedBy: [],
+      }));
+      setReplies(prev => [
+        ...prev.filter(r => r.postId !== String(post.id)),
+        ...mappedReplies,
+      ]);
+      if (data.stats) {
+        setSelectedPost(prev => prev ? {
+          ...prev,
+          stats: {
+            views: data.stats.views ?? prev.stats.views,
+            replies: data.stats.replies ?? prev.stats.replies,
+            likes: data.stats.likes ?? prev.stats.likes,
+          }
+        } : null);
+      }
+    } catch {
+      // Show post with empty replies on error
+    }
+  }, []);
+
   // Handle new post submission
-  const handleCreatePost = () => {
+  const handleCreatePost = useCallback(async () => {
     if (!newPostTitle.trim() || !newPostContent.trim()) {
       alert('Please fill in all required fields');
       return;
     }
-
-    // Mock post creation (in real app, this would be an API call)
-    const newPost: ForumPost = {
-      id: `post-${Date.now()}`,
-      title: newPostTitle,
-      content: newPostContent,
-      excerpt: newPostContent.slice(0, 100),
-      category: newPostCategory,
-      tags: newPostTags,
-      author: {
-        id: user?.id || 'demo-user',
-        name: user?.full_name || 'Demo User',
-        role: user?.role || 'student',
-        avatar: user?.profile_data?.avatar as string | undefined
-      },
-      stats: {
-        views: 0,
-        replies: 0,
-        likes: 0
-      },
-      timestamp: new Date(),
-      lastActivity: new Date(),
-      solved: false,
-      pinned: false,
-      likedBy: []
-    };
-
-    // In real app: await api.post('/forum/posts', newPost);
-    console.log('Creating new post:', newPost);
-
-    // Reset form and close modal
-    setNewPostTitle('');
-    setNewPostContent('');
-    setNewPostTags([]);
-    setNewPostCategory('general');
-    setNewPostIsPublic(true);
-    setShowNewPostModal(false);
-    setShowPreview(false);
-
-    alert('Post created successfully!');
-  };
+    try {
+      const res = await api.post('/api/v1/forum/posts', {
+        title: newPostTitle,
+        content: newPostContent,
+        category: newPostCategory,
+        tags: newPostTags,
+        is_public: newPostIsPublic,
+      });
+      const p = res.data;
+      const newPost: ForumPost = {
+        id: String(p.id),
+        title: p.title,
+        content: p.content,
+        excerpt: p.excerpt ?? p.content.slice(0, 160),
+        category: p.category,
+        tags: p.tags ?? [],
+        author: {
+          id: String(p.author?.id ?? user?.id ?? ''),
+          name: p.author?.name ?? user?.full_name ?? 'Me',
+          role: (p.author?.role ?? user?.role ?? 'student') as ForumPostAuthor['role'],
+          avatar: p.author?.avatar ?? (user?.profile_data?.avatar as string | undefined),
+        },
+        stats: { views: 0, replies: 0, likes: 0 },
+        timestamp: new Date(p.created_at ?? Date.now()),
+        lastActivity: new Date(p.last_activity_at ?? p.created_at ?? Date.now()),
+        solved: false,
+        pinned: false,
+        likedBy: [],
+      };
+      setPosts(prev => [newPost, ...prev]);
+      setNewPostTitle('');
+      setNewPostContent('');
+      setNewPostTags([]);
+      setNewPostCategory('general');
+      setNewPostIsPublic(true);
+      setShowNewPostModal(false);
+      setShowPreview(false);
+    } catch (err: any) {
+      alert(err.response?.data?.detail || 'Failed to create post. Please try again.');
+    }
+  }, [newPostTitle, newPostContent, newPostCategory, newPostTags, newPostIsPublic, user]);
 
   // Handle tag input
   const handleAddTag = () => {
@@ -740,36 +785,61 @@ const ForumPage: React.FC = () => {
     setNewPostTags(newPostTags.filter(tag => tag !== tagToRemove));
   };
 
-  // Handle post interactions
-  const handleLikePost = (postId: string) => {
-    // Mock like functionality
-    console.log('Liking post:', postId);
-  };
+  // Handle post like (toggle)
+  const handleLikePost = useCallback(async (postId: string) => {
+    try {
+      await api.post(`/api/v1/forum/posts/${postId}/like`);
+      setPosts(prev => prev.map(p => {
+        if (p.id !== postId) return p;
+        const alreadyLiked = p.likedBy.includes('me');
+        return {
+          ...p,
+          stats: { ...p.stats, likes: alreadyLiked ? p.stats.likes - 1 : p.stats.likes + 1 },
+          likedBy: alreadyLiked ? p.likedBy.filter(id => id !== 'me') : [...p.likedBy, 'me'],
+        };
+      }));
+    } catch {
+      // Silently ignore like errors
+    }
+  }, []);
 
-  const handleReplySubmit = () => {
+  const handleReplySubmit = useCallback(async () => {
     if (!replyContent.trim() || !selectedPost) return;
-
-    const newReply: ForumReply = {
-      id: `reply-${Date.now()}`,
-      postId: selectedPost.id,
-      content: replyContent,
-      author: {
-        id: user?.id || 'demo-user',
-        name: user?.full_name || 'Demo User',
-        role: user?.role || 'student',
-        avatar: user?.profile_data?.avatar as string | undefined
-      },
-      timestamp: new Date(),
-      likes: 0,
-      isSolution: false,
-      likedBy: []
-    };
-
-    setReplies([...replies, newReply]);
-    setReplyContent('');
-
-    console.log('Created reply:', newReply);
-  };
+    try {
+      const res = await api.post(`/api/v1/forum/posts/${selectedPost.id}/replies`, {
+        content: replyContent,
+      });
+      const r = res.data;
+      const newReply: ForumReply = {
+        id: String(r.id),
+        postId: String(r.post_id ?? selectedPost.id),
+        content: r.content,
+        author: {
+          id: String(r.author?.id ?? user?.id ?? ''),
+          name: r.author?.name ?? user?.full_name ?? 'Me',
+          role: (r.author?.role ?? user?.role ?? 'student') as ForumPostAuthor['role'],
+          avatar: r.author?.avatar ?? (user?.profile_data?.avatar as string | undefined),
+        },
+        timestamp: new Date(r.created_at ?? Date.now()),
+        likes: 0,
+        isSolution: false,
+        likedBy: [],
+      };
+      setReplies(prev => [...prev, newReply]);
+      setReplyContent('');
+      setPosts(prev => prev.map(p =>
+        p.id === selectedPost.id
+          ? { ...p, stats: { ...p.stats, replies: p.stats.replies + 1 } }
+          : p
+      ));
+      setSelectedPost(prev => prev
+        ? { ...prev, stats: { ...prev.stats, replies: prev.stats.replies + 1 } }
+        : null
+      );
+    } catch (err: any) {
+      alert(err.response?.data?.detail || 'Failed to post reply. Please try again.');
+    }
+  }, [replyContent, selectedPost, user]);
 
   // Get post replies
   const getPostReplies = (postId: string) => {
@@ -859,16 +929,13 @@ const ForumPage: React.FC = () => {
               <div
                 key={post.id}
                 className="bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-all duration-200 cursor-pointer group"
-                onClick={() => {
-                  setSelectedPost(post);
-                  setShowPostDetail(true);
-                }}
+                onClick={() => handleOpenPost(post)}
               >
                 <div className="flex items-start gap-4">
                   {/* Author Avatar */}
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-gray-900 dark:text-white font-semibold flex-shrink-0">
-                    {post.author.avatar ? (
-                      <img src={post.author.avatar} alt={post.author.name} className="w-full h-full rounded-full object-cover" />
+                    {post.author?.avatar ? (
+                      <img src={post.author.avatar} alt={post.author?.name ?? ''} className="w-full h-full rounded-full object-cover" />
                     ) : (
                       <User className="w-6 h-6" />
                     )}
@@ -898,9 +965,9 @@ const ForumPage: React.FC = () => {
                         </div>
 
                         <div className="flex items-center gap-2 flex-wrap text-sm text-gray-500 dark:text-white/60">
-                          <span className="font-medium text-gray-700 dark:text-white/80">{post.author.name}</span>
-                          <span className={`px-2 py-0.5 rounded text-xs ${roleColors[post.author.role]}`}>
-                            {post.author.role}
+                          <span className="font-medium text-gray-700 dark:text-white/80">{post.author?.name ?? 'Anonymous'}</span>
+                          <span className={`px-2 py-0.5 rounded text-xs ${roleColors[post.author?.role ?? 'student'] ?? ''}`}>
+                            {post.author?.role ?? 'member'}
                           </span>
                           <span>•</span>
                           <span className="flex items-center gap-1">
@@ -1178,8 +1245,8 @@ const ForumPage: React.FC = () => {
               {/* Post Header */}
               <div className="flex items-start gap-4 mb-6">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-gray-900 dark:text-white font-semibold flex-shrink-0">
-                  {selectedPost.author.avatar ? (
-                    <img src={selectedPost.author.avatar} alt={selectedPost.author.name} className="w-full h-full rounded-full object-cover" />
+                  {selectedPost.author?.avatar ? (
+                    <img src={selectedPost.author.avatar} alt={selectedPost.author?.name ?? ''} className="w-full h-full rounded-full object-cover" />
                   ) : (
                     <User className="w-6 h-6" />
                   )}
@@ -1187,9 +1254,9 @@ const ForumPage: React.FC = () => {
                 <div className="flex-1">
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{selectedPost.title}</h2>
                   <div className="flex items-center gap-2 flex-wrap text-sm text-gray-500 dark:text-white/60">
-                    <span className="font-medium text-gray-700 dark:text-white/80">{selectedPost.author.name}</span>
-                    <span className={`px-2 py-0.5 rounded text-xs ${roleColors[selectedPost.author.role]}`}>
-                      {selectedPost.author.role}
+                    <span className="font-medium text-gray-700 dark:text-white/80">{selectedPost.author?.name ?? 'Anonymous'}</span>
+                    <span className={`px-2 py-0.5 rounded text-xs ${roleColors[selectedPost.author?.role ?? 'student'] ?? ''}`}>
+                      {selectedPost.author?.role ?? 'member'}
                     </span>
                     <span>•</span>
                     <span>{selectedPost.timestamp.toLocaleDateString()}</span>
@@ -1246,17 +1313,17 @@ const ForumPage: React.FC = () => {
                     <div key={reply.id} className="bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4">
                       <div className="flex items-start gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-gray-900 dark:text-white font-semibold flex-shrink-0">
-                          {reply.author.avatar ? (
-                            <img src={reply.author.avatar} alt={reply.author.name} className="w-full h-full rounded-full object-cover" />
+                          {reply.author?.avatar ? (
+                            <img src={reply.author.avatar} alt={reply.author?.name ?? ''} className="w-full h-full rounded-full object-cover" />
                           ) : (
                             <User className="w-5 h-5" />
                           )}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="font-medium text-gray-800 dark:text-white/90">{reply.author.name}</span>
-                            <span className={`px-2 py-0.5 rounded text-xs ${roleColors[reply.author.role]}`}>
-                              {reply.author.role}
+                            <span className="font-medium text-gray-800 dark:text-white/90">{reply.author?.name ?? 'Anonymous'}</span>
+                            <span className={`px-2 py-0.5 rounded text-xs ${roleColors[reply.author?.role ?? 'student'] ?? ''}`}>
+                              {reply.author?.role ?? 'member'}
                             </span>
                             {reply.isSolution && (
                               <span className="flex items-center gap-1 px-2 py-0.5 bg-green-500/20 text-green-300 text-xs rounded border border-green-500/30">
@@ -1272,7 +1339,7 @@ const ForumPage: React.FC = () => {
                               <ThumbsUp className="w-3 h-3" />
                               {reply.likes}
                             </button>
-                            {selectedPost.author.id === user?.id && !reply.isSolution && (
+                            {selectedPost.author?.id === user?.id && !reply.isSolution && (
                               <button className="text-green-400 hover:text-green-300 transition-colors">
                                 Mark as Solution
                               </button>

@@ -1,27 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAgeAdaptiveUI } from '../../hooks/useAgeAdaptiveUI';
-import { Brain, Clock, Calendar, BookOpen, Play, Bell, CheckCircle, Loader2 } from 'lucide-react';
+import { Brain, Clock, Calendar, Play, Bell, CheckCircle, Loader2 } from 'lucide-react';
 import apiClient from '../../services/api';
 
 interface UpcomingQuiz {
   id: string;
   title: string;
   subject: string;
-  date: string;
-  duration: string;
-  questions: number;
-  type: string;
-  instructor: string;
-  canStart: boolean;
+  course_title: string;
+  assessment_type: string;
+  available_until: string | null;
+  duration_minutes: number | null;
+  can_start: boolean;
 }
-
-const FALLBACK_QUIZZES: UpcomingQuiz[] = [
-  { id: '1', title: 'Fractions & Decimals Quiz', subject: 'Mathematics', date: 'Today, 3:00 PM', duration: '20 min', questions: 15, type: 'Graded', instructor: 'Ms. Wanjiku', canStart: true },
-  { id: '2', title: 'Water Cycle Assessment', subject: 'Science', date: 'Tomorrow, 10:00 AM', duration: '30 min', questions: 20, type: 'Graded', instructor: 'Mr. Ochieng', canStart: false },
-  { id: '3', title: 'Grammar Check', subject: 'English', date: 'Wed, Feb 19', duration: '15 min', questions: 10, type: 'Practice', instructor: 'Mrs. Kamau', canStart: false },
-  { id: '4', title: 'Kenya History Quiz', subject: 'Social Studies', date: 'Fri, Feb 21', duration: '25 min', questions: 18, type: 'Graded', instructor: 'Ms. Njeri', canStart: false },
-];
 
 const QuizzesUpcomingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -35,14 +27,9 @@ const QuizzesUpcomingPage: React.FC = () => {
       try {
         setLoading(true);
         const response = await apiClient.get('/api/v1/student/assessments/quizzes/upcoming');
-        const data = response.data;
-        if (data && Array.isArray(data) && data.length > 0) {
-          setQuizzes(data);
-        } else {
-          setQuizzes(FALLBACK_QUIZZES);
-        }
+        setQuizzes(Array.isArray(response.data) ? response.data : []);
       } catch {
-        setQuizzes(FALLBACK_QUIZZES);
+        setQuizzes([]);
       } finally {
         setLoading(false);
       }
@@ -65,9 +52,15 @@ const QuizzesUpcomingPage: React.FC = () => {
         <p className="text-gray-600 dark:text-white/70">{quizzes.length} quizzes scheduled</p>
       </div>
 
+      {quizzes.length === 0 && (
+        <div className={`p-12 bg-white dark:bg-[#181C1F] ${borderRadius} border border-gray-200 dark:border-[#22272B] text-center text-gray-500 dark:text-white/50`}>
+          No upcoming quizzes at the moment.
+        </div>
+      )}
+
       <div className="space-y-3">
         {quizzes.map((quiz) => (
-          <div key={quiz.id} className={`p-5 bg-white dark:bg-[#181C1F] ${borderRadius} border ${quiz.canStart ? 'border-green-500/30' : 'border-gray-200 dark:border-[#22272B]'} hover:border-gray-300 dark:hover:border-white/20 transition-colors`}>
+          <div key={quiz.id} className={`p-5 bg-white dark:bg-[#181C1F] ${borderRadius} border ${quiz.can_start ? 'border-green-500/30' : 'border-gray-200 dark:border-[#22272B]'} hover:border-gray-300 dark:hover:border-white/20 transition-colors`}>
             <div className="flex items-center gap-4">
               <div className={`w-12 h-12 bg-purple-500/20 ${borderRadius} flex items-center justify-center`}>
                 <Brain className="w-6 h-6 text-purple-400" />
@@ -75,17 +68,25 @@ const QuizzesUpcomingPage: React.FC = () => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <h3 className="text-gray-900 dark:text-white font-semibold">{quiz.title}</h3>
-                  <span className={`px-2 py-0.5 ${borderRadius} text-xs ${quiz.type === 'Practice' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'}`}>{quiz.type}</span>
+                  <span className={`px-2 py-0.5 ${borderRadius} text-xs capitalize ${quiz.assessment_type === 'exam' ? 'bg-red-500/20 text-red-400' : 'bg-purple-500/20 text-purple-400'}`}>
+                    {quiz.assessment_type}
+                  </span>
                 </div>
-                <p className="text-gray-400 dark:text-white/40 text-sm mt-0.5">{quiz.instructor} · {quiz.subject}</p>
+                <p className="text-gray-400 dark:text-white/40 text-sm mt-0.5">{quiz.course_title} · {quiz.subject}</p>
                 <div className="flex items-center gap-4 mt-2 text-sm text-gray-500 dark:text-white/50">
-                  <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {quiz.date}</span>
-                  <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {quiz.duration}</span>
-                  <span className="flex items-center gap-1"><BookOpen className="w-3 h-3" /> {quiz.questions} questions</span>
+                  {quiz.available_until && (
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      Due {new Date(quiz.available_until).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  )}
+                  {quiz.duration_minutes && (
+                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {quiz.duration_minutes} min</span>
+                  )}
                 </div>
               </div>
               <div className="flex gap-2">
-                {quiz.canStart ? (
+                {quiz.can_start ? (
                   <button onClick={() => navigate('/dashboard/student/quizzes/practice')} className={`px-4 py-2 bg-green-500 hover:bg-green-600 text-gray-900 dark:text-white text-sm ${borderRadius} flex items-center gap-2`}>
                     <Play className="w-4 h-4" /> Start Quiz
                   </button>

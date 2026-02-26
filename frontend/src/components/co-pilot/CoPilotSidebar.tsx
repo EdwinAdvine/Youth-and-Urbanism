@@ -35,6 +35,7 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
 
   const [showOfflineMessage, setShowOfflineMessage] = useState(false);
   const [showAgentSettings, setShowAgentSettings] = useState(false);
+  const [studentAitCode, setStudentAitCode] = useState<string | null>(null);
 
   // State from stores
   const {
@@ -113,6 +114,18 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
         });
     }
   }, [authUser, setAgentProfile]);
+
+  // Load AI Tutor AIT code for student role
+  useEffect(() => {
+    if (authUser?.role === 'student') {
+      import('../../services/student/studentAIService')
+        .then(({ getTutorInfo }) => getTutorInfo())
+        .then((info) => setStudentAitCode(info.ait_code))
+        .catch(() => {
+          // AIT code not critical — silently skip
+        });
+    }
+  }, [authUser?.role]);
 
   // Load insights on mount
   useEffect(() => {
@@ -393,6 +406,11 @@ const CoPilotSidebar: React.FC<CoPilotSidebarProps> = ({ onOpenAuthModal: _onOpe
                         {isOnline ? (isChatMode ? 'Connected' : currentConfig.subtitle) : 'Offline'}
                       </p>
                     </div>
+                    {activeRole === 'student' && studentAitCode && (
+                      <p className="text-[10px] font-mono text-blue-400/80 dark:text-blue-400/70 truncate mt-0.5">
+                        {studentAitCode}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">

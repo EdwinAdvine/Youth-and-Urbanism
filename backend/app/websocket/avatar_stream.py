@@ -10,6 +10,8 @@ Fallback: if ElevenLabs streaming is unavailable, generates a full MP3
 via the existing orchestrator path and sends it as a single chunk.
 """
 
+from __future__ import annotations
+
 import asyncio
 import base64
 import json

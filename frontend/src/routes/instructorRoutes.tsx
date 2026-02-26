@@ -46,6 +46,9 @@ const AvailabilityPage = lazy(() => import('../pages/instructor/AvailabilityPage
 const SecurityPage = lazy(() => import('../pages/instructor/SecurityPage').then(m => ({ default: m.SecurityPage })));
 const LoginHistoryPage = lazy(() => import('../pages/instructor/LoginHistoryPage').then(m => ({ default: m.LoginHistoryPage })));
 const WithdrawalRequestPage = lazy(() => import('../pages/instructor/WithdrawalRequestPage'));
+const CourseEnrollmentsPage = lazy(() =>
+  import('../pages/instructor/CourseEnrollmentsPage').then(m => ({ default: m.CourseEnrollmentsPage }))
+);
 const AvatarPage = lazy(() => import('../pages/student/AvatarPage'));
 
 export const instructorRoutes = (
@@ -58,6 +61,7 @@ export const instructorRoutes = (
     <Route path="courses/:courseId/edit" element={<S><CourseEditorPage /></S>} />
     <Route path="courses/:courseId/modules" element={<S><ModulesEditorPage /></S>} />
     <Route path="courses/:courseId/cbc-alignment" element={<S><CBCAlignmentInstructorPage /></S>} />
+    <Route path="courses/:courseId/enrollments" element={<S><CourseEnrollmentsPage /></S>} />
     <Route path="modules" element={<S><ModulesEditorPage /></S>} />
     <Route path="cbc-alignment" element={<S><CBCAlignmentInstructorPage /></S>} />
     <Route path="assessments" element={<S><AssessmentsInstructorPage /></S>} />

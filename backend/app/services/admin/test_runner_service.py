@@ -6,6 +6,8 @@ Captures output in real-time and stores results in the test_runs table.
 Only one test run can be active at a time.
 """
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import os

@@ -9,6 +9,8 @@ Usage:
     course = await CourseFactory.create(db_session, creator_id=user.id)
 """
 
+from __future__ import annotations
+
 from faker import Faker
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession

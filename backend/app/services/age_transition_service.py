@@ -7,6 +7,8 @@ Handles the lifecycle when students turn 18/19:
 - Managing account independence transitions
 """
 
+from __future__ import annotations
+
 import logging
 from datetime import date, datetime, timedelta
 from uuid import UUID

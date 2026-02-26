@@ -8,6 +8,8 @@ nesting, display ordering, icons, and images.
 All functions are async and accept an AsyncSession for database operations.
 """
 
+from __future__ import annotations
+
 import logging
 from typing import List, Optional
 from uuid import UUID

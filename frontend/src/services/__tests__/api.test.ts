@@ -18,10 +18,7 @@ describe('API Client', () => {
   // ---------- Request Interceptor ----------
 
   describe('request interceptor', () => {
-    it('should add JWT token from localStorage to request headers', async () => {
-      localStorage.setItem('access_token', 'test-jwt-token');
-
-      // Use the interceptor manager to test the request interceptor directly
+    it('should return config as-is (cookie-based auth uses withCredentials)', () => {
       const config: InternalAxiosRequestConfig = {
         headers: new AxiosHeaders(),
         url: '/api/v1/test',
@@ -33,41 +30,32 @@ describe('API Client', () => {
       const requestInterceptor = interceptors[0];
       const result = requestInterceptor.fulfilled(config);
 
-      expect(result.headers.Authorization).toBe('Bearer test-jwt-token');
+      // Cookie-based auth doesn't add Authorization header
+      expect(result.headers.Authorization).toBeUndefined();
+      expect(result.url).toBe('/api/v1/test');
     });
 
-    it('should not add Authorization header when no token exists', () => {
+    it('should pass through request config without modification', () => {
       const config: InternalAxiosRequestConfig = {
-        headers: new AxiosHeaders(),
+        headers: new AxiosHeaders({ 'X-Custom': 'value' }),
         url: '/api/v1/test',
-        method: 'get',
+        method: 'post',
       };
 
       const interceptors = (apiClient.interceptors.request as any).handlers;
       const requestInterceptor = interceptors[0];
       const result = requestInterceptor.fulfilled(config);
 
-      expect(result.headers.Authorization).toBeUndefined();
+      expect(result.headers.get('X-Custom')).toBe('value');
     });
   });
 
   // ---------- Response Interceptor ----------
 
   describe('response interceptor', () => {
-    it('should attempt token refresh on 401 response when refresh_token exists', async () => {
-      localStorage.setItem('refresh_token', 'my-refresh-token');
+    it('should attempt token refresh on 401 response via cookie-based endpoint', async () => {
+      const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce({ data: {} });
 
-      const refreshResponse = {
-        data: {
-          access_token: 'new-access-token',
-          refresh_token: 'new-refresh-token',
-        },
-      };
-
-      // Mock axios.post for the refresh call
-      const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce(refreshResponse);
-
-      // Get the response error interceptor
       const interceptors = (apiClient.interceptors.response as any).handlers;
       const responseInterceptor = interceptors[0];
 
@@ -81,7 +69,6 @@ describe('API Client', () => {
         },
       } as unknown as AxiosError;
 
-      // Invoke the rejected handler -- it should try to refresh
       try {
         await responseInterceptor.rejected(axiosError);
       } catch {
@@ -90,58 +77,18 @@ describe('API Client', () => {
 
       expect(postSpy).toHaveBeenCalledWith(
         expect.stringContaining('/api/v1/auth/refresh'),
-        { refresh_token: 'my-refresh-token' },
+        {},
+        { withCredentials: true },
       );
 
       postSpy.mockRestore();
     });
 
-    it('should store new tokens after successful refresh', async () => {
-      localStorage.setItem('refresh_token', 'old-refresh');
+    it('should clear auth data when refresh fails', async () => {
+      localStorage.setItem('user', 'some-user');
+      localStorage.setItem('auth-storage', 'some-data');
 
-      const refreshResponse = {
-        data: {
-          access_token: 'fresh-access',
-          refresh_token: 'fresh-refresh',
-        },
-      };
-
-      const postSpy = vi.spyOn(axios, 'post').mockResolvedValueOnce(refreshResponse);
-
-      const interceptors = (apiClient.interceptors.response as any).handlers;
-      const responseInterceptor = interceptors[0];
-
-      const axiosError = {
-        response: { status: 401 },
-        config: {
-          headers: new AxiosHeaders(),
-          url: '/api/v1/data',
-          method: 'get',
-          _retry: false,
-        },
-      } as unknown as AxiosError;
-
-      try {
-        await responseInterceptor.rejected(axiosError);
-      } catch {
-        // Retry will fail without a real server, but tokens should be stored
-      }
-
-      expect(localStorage.getItem('access_token')).toBe('fresh-access');
-      expect(localStorage.getItem('refresh_token')).toBe('fresh-refresh');
-
-      postSpy.mockRestore();
-    });
-
-    it('should clear auth data and redirect when refresh token is absent on 401', async () => {
-      localStorage.setItem('access_token', 'stale-token');
-      // No refresh_token set
-
-      Object.defineProperty(window, 'location', {
-        value: { href: '/', reload: vi.fn() },
-        writable: true,
-        configurable: true,
-      });
+      const postSpy = vi.spyOn(axios, 'post').mockRejectedValueOnce(new Error('refresh failed'));
 
       const interceptors = (apiClient.interceptors.response as any).handlers;
       const responseInterceptor = interceptors[0];
@@ -162,8 +109,17 @@ describe('API Client', () => {
         // Expected to reject
       }
 
-      expect(localStorage.getItem('access_token')).toBeNull();
       expect(localStorage.getItem('user')).toBeNull();
+      // auth-storage is removed by the interceptor, but Zustand's persist middleware
+      // may re-write it with an empty/logged-out state during the logout() call
+      const authStorage = localStorage.getItem('auth-storage');
+      if (authStorage) {
+        const parsed = JSON.parse(authStorage);
+        expect(parsed.state.user).toBeNull();
+        expect(parsed.state.isAuthenticated).toBe(false);
+      }
+
+      postSpy.mockRestore();
     });
 
     it('should report 5xx errors to errorReporterService', async () => {

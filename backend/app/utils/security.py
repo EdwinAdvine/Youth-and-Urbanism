@@ -8,6 +8,8 @@ This module provides:
 - Role-based access control decorator
 """
 
+from __future__ import annotations
+
 import logging
 import uuid as _uuid
 from datetime import datetime, timedelta, timezone
@@ -620,8 +622,11 @@ async def get_current_user(
         except ImportError:
             pass  # auth module not yet loaded
 
+        from sqlalchemy.orm import selectinload
         result = await db.execute(
-            select(User).where(User.id == UUID(user_id))
+            select(User)
+            .options(selectinload(User.student_profile))
+            .where(User.id == UUID(user_id))
         )
         user = result.scalar_one_or_none()
 

@@ -41,7 +41,11 @@ class AITutor(Base):
     )
 
     # Tutor personalization
-    name = Column(String(100), nullable=False)  # Personalized tutor name (e.g., "Birdy", "Einstein")
+    name = Column(String(100), nullable=False, default="Birdy")  # Personalized tutor name (e.g., "Birdy", "Einstein")
+
+    # Unique AI Tutor identifier code — format: {admission_number}-AIT{seq}
+    # Example: UHS/2026/G3/001-AIT001
+    ait_code = Column(String(50), unique=True, nullable=True, index=True)
 
     # Conversation history (JSONB array of messages)
     # Format: [{"role": "user"|"assistant", "content": str, "timestamp": str}]

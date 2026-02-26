@@ -28,7 +28,6 @@ export const getAIRecommendedCourses = async (limit: number = 10) => {
  */
 export const browseCourses = async (params: {
   search?: string;
-  grade_level?: number;
   subject?: string;
   sort_by?: string;
   limit?: number;
@@ -43,6 +42,14 @@ export const browseCourses = async (params: {
  */
 export const getCoursePreview = async (courseId: string) => {
   const response = await apiClient.get(`${API_PREFIX}/course/${courseId}/preview`);
+  return response.data;
+};
+
+/**
+ * Get wishlist course IDs (lightweight, for heart-icon state)
+ */
+export const getWishlistIds = async (): Promise<string[]> => {
+  const response = await apiClient.get(`${API_PREFIX}/wishlist/ids`);
   return response.data;
 };
 

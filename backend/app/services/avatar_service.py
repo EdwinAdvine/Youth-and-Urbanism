@@ -5,6 +5,8 @@ Handles preset avatar catalogue, user avatar CRUD, Ready Player Me
 integration, and avatar model retrieval for service-worker caching.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import os

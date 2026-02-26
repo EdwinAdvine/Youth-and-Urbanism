@@ -96,6 +96,13 @@ class User(Base):
         return f"<User(id={self.id}, email='{self.email}', role='{self.role}', is_active={self.is_active})>"
 
     @property
+    def student_id(self):
+        """Return the linked Student record's ID (None if not loaded or not a student)."""
+        if self.student_profile is not None:
+            return self.student_profile.id
+        return None
+
+    @property
     def is_student(self) -> bool:
         """Check if the user has the student role."""
         return self.role == 'student'

@@ -20,7 +20,7 @@ import BecomeInstructorPage from '../pages/BecomeInstructorPage';
 import PublicForumPage from '../pages/PublicForumPage';
 import CourseCatalogPage from '../pages/CourseCatalogPage';
 import CourseDetailsPage from '../pages/CourseDetailsPage';
-import CategoryRedirectPage from '../pages/CategoryRedirectPage';
+import CategoryPage from '../pages/CategoryPage';
 
 // Lazy-loaded public pages
 const SearchResultsPage = lazy(() => import('../pages/SearchResultsPage'));
@@ -58,7 +58,7 @@ export const publicRoutes = (
       <Route path="/forum" element={<PublicForumPage />} />
       <Route path="/courses" element={<CourseCatalogPage />} />
       <Route path="/courses/:id" element={<CourseDetailsPage />} />
-      <Route path="/categories/:slug" element={<CategoryRedirectPage />} />
+      <Route path="/categories/:slug" element={<CategoryPage />} />
       <Route path="/search" element={<S><SearchResultsPage /></S>} />
       <Route path="/placeholder" element={<PlaceholderPage />} />
       <Route path="/store" element={<S><StorePage /></S>} />

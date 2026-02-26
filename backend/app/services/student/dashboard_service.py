@@ -280,70 +280,189 @@ class DashboardService:
         }
 
     async def _get_urgent_items(self, student_id: UUID) -> List[Dict]:
-        """Get urgent/overdue items"""
-        urgent = []
+        """Get assessments due within 24 hours for the student's enrolled courses."""
+        from app.models.course import Course
 
-        # Get assignments due soon (within 48 hours)
-        two_days_from_now = datetime.utcnow() + timedelta(days=2)
+        now = datetime.utcnow()
+        deadline = now + timedelta(hours=24)
 
-        assignments_result = await self.db.execute(
-            select(Assessment).where(
+        # Get student's enrolled course IDs
+        enrolled_result = await self.db.execute(
+            select(Enrollment.course_id).where(
                 and_(
-                    Assessment.is_deleted == False,
-                    Assessment.due_date <= two_days_from_now,
-                    Assessment.due_date >= datetime.utcnow()
+                    Enrollment.student_id == student_id,
+                    Enrollment.is_deleted == False
                 )
-            ).limit(5)
+            )
         )
-        assignments = assignments_result.scalars().all()
+        enrolled_ids = [row[0] for row in enrolled_result.all()]
 
-        for assignment in assignments:
-            time_left = assignment.due_date - datetime.utcnow()
+        if not enrolled_ids:
+            return []
+
+        # Find published assessments in enrolled courses with available_until within 24 hours
+        # and where the student has not yet submitted
+        from app.models.assessment import AssessmentSubmission
+
+        submitted_result = await self.db.execute(
+            select(AssessmentSubmission.assessment_id).where(
+                and_(
+                    AssessmentSubmission.student_id == student_id,
+                    AssessmentSubmission.is_submitted == True
+                )
+            )
+        )
+        submitted_ids = [row[0] for row in submitted_result.all()]
+
+        query = (
+            select(Assessment, Course)
+            .join(Course, Assessment.course_id == Course.id)
+            .where(
+                and_(
+                    Assessment.course_id.in_(enrolled_ids),
+                    Assessment.is_published == True,
+                    Assessment.available_until != None,  # noqa: E711
+                    Assessment.available_until <= deadline,
+                    Assessment.available_until >= now,
+                )
+            )
+            .order_by(Assessment.available_until.asc())
+            .limit(10)
+        )
+
+        if submitted_ids:
+            query = query.where(Assessment.id.notin_(submitted_ids))
+
+        result = await self.db.execute(query)
+        rows = result.all()
+
+        urgent = []
+        for assessment, course in rows:
+            time_left = assessment.available_until - now
             hours_left = int(time_left.total_seconds() / 3600)
-
             urgent.append({
-                "id": str(assignment.id),
-                "type": "assignment",
-                "title": assignment.title,
-                "due_in": f"{hours_left}h" if hours_left < 24 else f"{hours_left // 24}d",
-                "priority": "high" if hours_left < 6 else "medium"
+                "id": str(assessment.id),
+                "type": assessment.assessment_type,
+                "title": assessment.title,
+                "course_title": course.title,
+                "due_at": assessment.available_until.isoformat(),
+                "due_in": f"{hours_left}h",
+                "priority": "high" if hours_left < 6 else "medium",
             })
 
         return urgent
 
-    async def _get_daily_quote(self, grade_level: int) -> Dict:
-        """Get age-appropriate daily quote/micro-lesson"""
-        quotes = [
-            {
-                "quote": "The expert in anything was once a beginner.",
-                "author": "Helen Hayes",
-                "category": "motivation"
-            },
-            {
-                "quote": "Learning is not attained by chance; it must be sought for with ardor.",
-                "author": "Abigail Adams",
-                "category": "learning"
-            },
-            {
-                "quote": "Education is the most powerful weapon which you can use to change the world.",
-                "author": "Nelson Mandela",
-                "category": "inspiration"
-            },
-            {
-                "quote": "The more that you read, the more things you will know.",
-                "author": "Dr. Seuss",
-                "category": "reading"
-            }
-        ]
+    # ── Grade-tiered quote bank ───────────────────────────────────────
+    _QUOTES_ECD = [
+        {"quote": "Every day is a chance to learn something new!", "author": ""},
+        {"quote": "You are amazing just the way you are!", "author": ""},
+        {"quote": "Be curious. Ask questions. Explore!", "author": ""},
+        {"quote": "A little progress every day adds up to big results.", "author": ""},
+        {"quote": "You can do anything you put your mind to.", "author": ""},
+        {"quote": "Learning is an adventure — enjoy the journey!", "author": ""},
+        {"quote": "Make today a great day for learning.", "author": ""},
+        {"quote": "Stars can't shine without darkness. Keep going!", "author": ""},
+        {"quote": "Try, try, try again — that's how champions learn.", "author": ""},
+        {"quote": "Every expert was once a beginner. You've got this!", "author": ""},
+    ]
 
-        # Select random quote
-        selected = random.choice(quotes)
+    _QUOTES_LOWER_PRIMARY = [
+        {"quote": "Reading is to the mind what exercise is to the body.", "author": "Joseph Addison"},
+        {"quote": "The more that you read, the more things you will know.", "author": "Dr. Seuss"},
+        {"quote": "It always seems impossible until it is done.", "author": "Nelson Mandela"},
+        {"quote": "Believe you can and you're halfway there.", "author": "Theodore Roosevelt"},
+        {"quote": "The secret of getting ahead is getting started.", "author": "Mark Twain"},
+        {"quote": "Try to be a rainbow in someone's cloud.", "author": "Maya Angelou"},
+        {"quote": "Dream big. Work hard. Stay humble.", "author": ""},
+        {"quote": "Learning is a treasure that will follow its owner everywhere.", "author": "Chinese Proverb"},
+        {"quote": "Kind words are short to speak, but their echoes are endless.", "author": "Mother Teresa"},
+        {"quote": "The only way to do great work is to love what you do.", "author": "Steve Jobs"},
+        {"quote": "In the middle of difficulty lies opportunity.", "author": "Albert Einstein"},
+        {"quote": "You must be the change you wish to see in the world.", "author": "Mahatma Gandhi"},
+        {"quote": "Imagination is more important than knowledge.", "author": "Albert Einstein"},
+        {"quote": "Every child is a different kind of flower and all together they make this world a beautiful garden.", "author": ""},
+        {"quote": "Hard work beats talent when talent doesn't work hard.", "author": "Tim Notke"},
+    ]
 
+    _QUOTES_UPPER_PRIMARY = [
+        {"quote": "Genius is one percent inspiration and ninety-nine percent perspiration.", "author": "Thomas Edison"},
+        {"quote": "Education is not the filling of a pail, but the lighting of a fire.", "author": "W.B. Yeats"},
+        {"quote": "Success is not final, failure is not fatal: it is the courage to continue that counts.", "author": "Winston Churchill"},
+        {"quote": "The roots of education are bitter, but the fruit is sweet.", "author": "Aristotle"},
+        {"quote": "An investment in knowledge pays the best interest.", "author": "Benjamin Franklin"},
+        {"quote": "Knowledge is power. Information is liberating.", "author": "Kofi Annan"},
+        {"quote": "The beautiful thing about learning is that no one can take it away from you.", "author": "B.B. King"},
+        {"quote": "Your attitude, not your aptitude, will determine your altitude.", "author": "Zig Ziglar"},
+        {"quote": "The more I learn, the more I realize how much I don't know.", "author": "Albert Einstein"},
+        {"quote": "Strive for progress, not perfection.", "author": ""},
+        {"quote": "Science is not only a disciple of reason but also one of romance and passion.", "author": "Stephen Hawking"},
+        {"quote": "You don't have to be great to start, but you have to start to be great.", "author": "Zig Ziglar"},
+        {"quote": "A person who never made a mistake never tried anything new.", "author": "Albert Einstein"},
+        {"quote": "The future belongs to those who believe in the beauty of their dreams.", "author": "Eleanor Roosevelt"},
+        {"quote": "Talent wins games, but teamwork and intelligence win championships.", "author": "Michael Jordan"},
+    ]
+
+    _QUOTES_JUNIOR_SECONDARY = [
+        {"quote": "It does not matter how slowly you go as long as you do not stop.", "author": "Confucius"},
+        {"quote": "Live as if you were to die tomorrow. Learn as if you were to live forever.", "author": "Mahatma Gandhi"},
+        {"quote": "The function of education is to teach one to think intensively and to think critically.", "author": "Martin Luther King Jr."},
+        {"quote": "He who learns but does not think is lost. He who thinks but does not learn is in great danger.", "author": "Confucius"},
+        {"quote": "Tell me and I forget. Teach me and I remember. Involve me and I learn.", "author": "Benjamin Franklin"},
+        {"quote": "Education is the passport to the future, for tomorrow belongs to those who prepare for it today.", "author": "Malcolm X"},
+        {"quote": "The mind is not a vessel to be filled but a fire to be kindled.", "author": "Plutarch"},
+        {"quote": "The noblest pleasure is the joy of understanding.", "author": "Leonardo da Vinci"},
+        {"quote": "Only the educated are free.", "author": "Epictetus"},
+        {"quote": "Knowing yourself is the beginning of all wisdom.", "author": "Aristotle"},
+        {"quote": "The purpose of education is to replace an empty mind with an open one.", "author": "Malcolm Forbes"},
+        {"quote": "I am not afraid of storms, for I am learning how to sail my ship.", "author": "Louisa May Alcott"},
+        {"quote": "If you're not making mistakes, then you're not doing anything.", "author": "John Wooden"},
+        {"quote": "We cannot solve our problems with the same thinking we used when we created them.", "author": "Albert Einstein"},
+        {"quote": "The greatest glory in living lies not in never falling, but in rising every time we fall.", "author": "Nelson Mandela"},
+    ]
+
+    _QUOTES_SENIOR_SECONDARY = [
+        {"quote": "The unexamined life is not worth living.", "author": "Socrates"},
+        {"quote": "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", "author": "Aristotle"},
+        {"quote": "The measure of intelligence is the ability to change.", "author": "Albert Einstein"},
+        {"quote": "Education is not preparation for life; education is life itself.", "author": "John Dewey"},
+        {"quote": "Intellectual growth should commence at birth and cease only at death.", "author": "Albert Einstein"},
+        {"quote": "A mind that is stretched by a new experience can never go back to its old dimensions.", "author": "Oliver Wendell Holmes"},
+        {"quote": "The object of education is to prepare the young to educate themselves throughout their lives.", "author": "Robert M. Hutchins"},
+        {"quote": "Formal education will make you a living; self-education will make you a fortune.", "author": "Jim Rohn"},
+        {"quote": "Real learning comes about when the competitive spirit has ceased.", "author": "Jiddu Krishnamurti"},
+        {"quote": "I have never let my schooling interfere with my education.", "author": "Mark Twain"},
+        {"quote": "The more you know, the more you know you don't know.", "author": "Aristotle"},
+        {"quote": "In theory, there is no difference between theory and practice. In practice, there is.", "author": "Yogi Berra"},
+        {"quote": "To know that we know what we know, and to know that we do not know what we do not know, that is true knowledge.", "author": "Nicolaus Copernicus"},
+        {"quote": "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", "author": "Brian Herbert"},
+        {"quote": "Education is the ability to listen to almost anything without losing your temper or your self-confidence.", "author": "Robert Frost"},
+        {"quote": "Knowing is not enough; we must apply. Willing is not enough; we must do.", "author": "Johann Wolfgang von Goethe"},
+        {"quote": "An educated mind is able to entertain a thought without accepting it.", "author": "Aristotle"},
+    ]
+
+    async def _get_daily_quote(self, grade_level) -> Dict:
+        """Return a random grade-appropriate quote from the curated tiered bank."""
+        grade_str = str(grade_level).strip() if grade_level else ""
+
+        if "ECD" in grade_str:
+            bank = self._QUOTES_ECD
+        elif any(g in grade_str for g in ["Grade 1", "Grade 2", "Grade 3"]):
+            bank = self._QUOTES_LOWER_PRIMARY
+        elif any(g in grade_str for g in ["Grade 4", "Grade 5", "Grade 6"]):
+            bank = self._QUOTES_UPPER_PRIMARY
+        elif any(g in grade_str for g in ["Grade 7", "Grade 8", "Grade 9"]):
+            bank = self._QUOTES_JUNIOR_SECONDARY
+        else:
+            # Grade 10–12 or unknown
+            bank = self._QUOTES_SENIOR_SECONDARY
+
+        selected = random.choice(bank)
         return {
-            "text": selected["quote"],
+            "quote": selected["quote"],
             "author": selected["author"],
-            "category": selected["category"],
-            "date": datetime.utcnow().date()
+            "category": "inspiration",
+            "grade_tier": grade_str,
+            "date": datetime.utcnow().date().isoformat(),
         }
 
     def _get_time_adaptive_greeting(self) -> str:

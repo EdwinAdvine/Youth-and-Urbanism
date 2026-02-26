@@ -11,7 +11,7 @@ from app.models.staff.content_item import StaffContentItem, StaffContentVersion,
 from app.models.staff.assessment import AdaptiveAssessment, AssessmentQuestion
 from app.models.staff.cbc_competency import CBCCompetency
 from app.models.staff.knowledge_article import KBCategory, KBArticle, KBEmbedding
-from app.models.staff.live_session import LiveSession, LiveSessionRecording, BreakoutRoom
+from app.models.staff.live_session import LiveSession, LiveSessionRecording, BreakoutRoom, LiveSessionEnrollment
 from app.models.staff.custom_report import ReportDefinition, ReportSchedule
 from app.models.staff.notification_preference import PushSubscription, StaffNotificationPref
 from app.models.staff.moderation_queue import StaffModerationItem, ReviewDecision
@@ -36,6 +36,7 @@ __all__ = [
     "LiveSession",
     "LiveSessionRecording",
     "BreakoutRoom",
+    "LiveSessionEnrollment",
     "ReportDefinition",
     "ReportSchedule",
     "PushSubscription",

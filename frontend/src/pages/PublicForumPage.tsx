@@ -387,10 +387,10 @@ const PostCard: React.FC<PostCardProps> = ({ post, onTagClick }) => {
         {/* Avatar */}
         <div
           className={`w-11 h-11 rounded-full bg-gradient-to-br ${
-            AVATAR_GRADIENTS[post.author.role] ?? 'from-gray-500 to-slate-500'
+            AVATAR_GRADIENTS[post.author?.role ?? ''] ?? 'from-gray-500 to-slate-500'
           } flex items-center justify-center text-gray-900 dark:text-white font-semibold text-sm flex-shrink-0`}
         >
-          {post.author.name.charAt(0).toUpperCase()}
+          {post.author?.name?.charAt(0)?.toUpperCase() ?? '?'}
         </div>
 
         {/* Content */}
@@ -416,13 +416,13 @@ const PostCard: React.FC<PostCardProps> = ({ post, onTagClick }) => {
 
           {/* Author info */}
           <div className="flex items-center gap-2 flex-wrap text-xs text-gray-500 dark:text-white/50 mb-2.5">
-            <span className="text-gray-600 dark:text-white/70 font-medium">{post.author.name}</span>
+            <span className="text-gray-600 dark:text-white/70 font-medium">{post.author?.name ?? 'Anonymous'}</span>
             <span
               className={`px-1.5 py-0.5 rounded text-[10px] font-medium border ${
-                ROLE_COLORS[post.author.role] ?? ''
+                ROLE_COLORS[post.author?.role ?? ''] ?? ''
               }`}
             >
-              {post.author.role}
+              {post.author?.role ?? 'member'}
             </span>
             <span className="text-gray-400 dark:text-white/30">in</span>
             <span className="text-gray-500 dark:text-white/60">{categoryLabel}</span>
@@ -641,7 +641,7 @@ const PublicForumPage: React.FC = () => {
   const communityStats = useMemo(() => {
     const totalPosts = posts.length;
     const totalReplies = posts.reduce((sum, p) => sum + p.stats.replies, 0);
-    const uniqueAuthors = new Set(posts.map((p) => p.author.id)).size;
+    const uniqueAuthors = new Set(posts.map((p) => p.author?.id).filter(Boolean)).size;
     return { members: uniqueAuthors + 142, posts: totalPosts, discussions: totalReplies };
   }, [posts]);
 

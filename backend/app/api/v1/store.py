@@ -12,6 +12,8 @@ All protected endpoints require JWT authentication via Bearer token.
 Admin-only endpoints require the 'admin' role.
 """
 
+from __future__ import annotations
+
 from decimal import Decimal
 from typing import Optional
 from uuid import UUID

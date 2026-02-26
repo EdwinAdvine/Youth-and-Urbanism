@@ -126,6 +126,9 @@ async def list_courses(
     is_featured: Optional[bool] = Query(None, description="Filter featured courses"),
     search: Optional[str] = Query(None, description="Search in title and description"),
     instructor_id: Optional[UUID] = Query(None, description="Filter by instructor UUID"),
+    audience: Optional[str] = Query(None, description="Filter by audience: 'students', 'teachers', or 'revision'"),
+    is_free: Optional[bool] = Query(None, description="True = free courses only, False = paid only"),
+    course_code: Optional[str] = Query(None, description="Filter by short unique course code e.g. 'ENV-G2'"),
     db: AsyncSession = Depends(get_db)
 ) -> dict:
     """
@@ -153,7 +156,10 @@ async def list_courses(
             is_published=True,
             is_featured=is_featured,
             search_query=search,
-            instructor_id=instructor_id
+            instructor_id=instructor_id,
+            audience=audience,
+            is_free=is_free,
+            course_code=course_code,
         )
 
         return {

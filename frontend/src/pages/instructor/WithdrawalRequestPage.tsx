@@ -6,9 +6,8 @@
  */
 
 import { useState, useEffect } from 'react';
-import { ArrowDownToLine, Phone, Building2, Loader2, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { ArrowDownToLine, Phone, Building2, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import withdrawalService, { WithdrawalRequest } from '../../services/withdrawalService';
-import { useNavigate } from 'react-router-dom';
 
 const STATUS_COLORS: Record<string, string> = {
   requested: 'bg-yellow-500/20 text-yellow-400',

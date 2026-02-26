@@ -44,6 +44,7 @@ const FinancialAccessPage = lazy(() => import('../pages/admin/FinancialAccessPag
 const WithdrawalQueuePage = lazy(() => import('../pages/admin/WithdrawalQueuePage'));
 const RevenueSplitConfigPage = lazy(() => import('../pages/admin/RevenueSplitConfigPage'));
 const PlanFeaturesPage = lazy(() => import('../pages/admin/PlanFeaturesPage'));
+const GradeTeacherAssignmentPage = lazy(() => import('../pages/admin/GradeTeacherAssignmentPage'));
 const AvatarPage = lazy(() => import('../pages/student/AvatarPage'));
 
 export const adminRoutes = (
@@ -90,6 +91,7 @@ export const adminRoutes = (
     <Route path="audit-logs" element={<S><AuditLogsPage /></S>} />
     <Route path="system-health" element={<S><SystemHealthPage /></S>} />
     <Route path="staff-accounts" element={<S><StaffAccountsPage /></S>} />
+    <Route path="grade-assignments" element={<S><GradeTeacherAssignmentPage /></S>} />
     {/* Account */}
     <Route path="notifications" element={<S><AdminNotificationsPage /></S>} />
     <Route path="profile" element={<S><AdminProfilePage /></S>} />

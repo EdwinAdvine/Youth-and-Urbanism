@@ -1,5 +1,7 @@
 """Username generation service for child student accounts."""
 
+from __future__ import annotations
+
 import re
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession

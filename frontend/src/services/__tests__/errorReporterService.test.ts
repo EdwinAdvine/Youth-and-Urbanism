@@ -123,9 +123,9 @@ describe('errorReporterService', () => {
   it('should extract user context from localStorage', async () => {
     const axiosMod = (await import('axios')).default;
 
-    const mockUser = { id: 'u123', role: 'student', email: 'test@example.com' };
+    const mockAuthStorage = { state: { user: { id: 'u123', role: 'student', email: 'test@example.com' } } };
     vi.spyOn(Storage.prototype, 'getItem').mockImplementation((key: string) => {
-      if (key === 'user') return JSON.stringify(mockUser);
+      if (key === 'auth-storage') return JSON.stringify(mockAuthStorage);
       return null;
     });
 
@@ -136,7 +136,6 @@ describe('errorReporterService', () => {
     expect(reportPayload.context).toMatchObject({
       user_id: 'u123',
       user_role: 'student',
-      user_email: 'test@example.com',
     });
 
     vi.restoreAllMocks();

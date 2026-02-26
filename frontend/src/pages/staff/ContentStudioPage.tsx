@@ -145,7 +145,7 @@ const ContentStudioPage: React.FC = () => {
                   {item.grade_levels.length > 0 ? item.grade_levels.join(', ') : 'No grade'} {item.learning_area ? `\u00b7 ${item.learning_area}` : ''}
                 </p>
                 <p className="text-xs text-gray-400 dark:text-white/30 mt-1">
-                  By {item.author.name}
+                  By {item.author?.name ?? 'Unknown'}
                 </p>
               </div>
             ))}
@@ -178,7 +178,7 @@ const ContentStudioPage: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-sm text-gray-700 dark:text-white/80">{item.author.name}</span>
+                      <span className="text-sm text-gray-700 dark:text-white/80">{item.author?.name ?? 'Unknown'}</span>
                     </td>
                     <td className="px-4 py-3">
                       <span className="text-xs text-gray-500 dark:text-white/60">

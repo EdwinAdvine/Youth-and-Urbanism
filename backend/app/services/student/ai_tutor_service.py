@@ -22,6 +22,7 @@ from app.models.ai_tutor import AITutor
 from app.models.student_dashboard import StudentJournalEntry, StudentMoodEntry, MoodType
 from app.models.student_community import StudentTeacherQA
 from app.services.ai_orchestrator import AIOrchestrator
+from app.utils.student_codes import generate_ait_code
 
 
 class AITutorService:
@@ -204,11 +205,137 @@ class AITutorService:
 
         return prompt
 
+    async def _get_or_create_tutor(self, student_id: UUID, student: Student) -> AITutor:
+        """Get or create an AI tutor for a student, generating AIT code if needed."""
+        tutor_result = await self.db.execute(
+            select(AITutor).where(AITutor.student_id == student_id)
+        )
+        ai_tutor = tutor_result.scalar_one_or_none()
+
+        if not ai_tutor:
+            # Generate AIT code before creating the tutor so we know the count
+            ait_code = await generate_ait_code(self.db, student.admission_number)
+            ai_tutor = AITutor(
+                student_id=student_id,
+                name="Birdy",
+                ait_code=ait_code,
+                conversation_history=[],
+                total_interactions=0
+            )
+            self.db.add(ai_tutor)
+            await self.db.commit()
+            await self.db.refresh(ai_tutor)
+        elif not ai_tutor.ait_code:
+            # Backfill AIT code for existing tutors that don't have one
+            ai_tutor.ait_code = await generate_ait_code(self.db, student.admission_number)
+            await self.db.commit()
+            await self.db.refresh(ai_tutor)
+
+        return ai_tutor
+
+    async def get_tutor_info(self, student_id: UUID) -> Dict:
+        """
+        Return display information for the student's AI tutor.
+
+        Includes the tutor name, AIT code, interaction stats, and
+        the student's own admission number. Creates the tutor if it
+        does not yet exist.
+        """
+        student_result = await self.db.execute(
+            select(Student).where(Student.id == student_id)
+        )
+        student = student_result.scalar_one_or_none()
+        if not student:
+            raise ValueError("Student not found")
+
+        ai_tutor = await self._get_or_create_tutor(student_id, student)
+
+        return {
+            "tutor_name": ai_tutor.name,
+            "ait_code": ai_tutor.ait_code,
+            "response_mode": ai_tutor.response_mode,
+            "total_interactions": ai_tutor.total_interactions,
+            "last_interaction": ai_tutor.last_interaction,
+            "admission_number": student.admission_number,
+            "grade_level": student.grade_level,
+        }
+
+    async def get_plan_with_progress(self, student_id: UUID) -> Dict:
+        """
+        Return an AI-generated daily learning plan combined with mastery progress.
+
+        Computes whether the student is ahead, on track, or catching up based
+        on their mastery records, then returns:
+        - learning path activities from the AI
+        - overall progress status
+        - mastery summary
+        - catch-up topic list (if behind)
+        """
+        try:
+            from app.models.student_mastery import StudentMasteryRecord
+        except ImportError:
+            StudentMasteryRecord = None
+
+        student_result = await self.db.execute(
+            select(Student).where(Student.id == student_id)
+        )
+        student = student_result.scalar_one_or_none()
+        if not student:
+            raise ValueError("Student not found")
+
+        # Fetch mastery records
+        mastered_count = 0
+        total_topics = 0
+        catch_up_topics: List[Dict] = []
+
+        if StudentMasteryRecord is not None:
+            mastery_result = await self.db.execute(
+                select(StudentMasteryRecord).where(
+                    StudentMasteryRecord.student_id == student_id
+                )
+            )
+            mastery_records = mastery_result.scalars().all()
+            total_topics = len(mastery_records)
+            mastered_count = sum(1 for r in mastery_records if r.is_mastered)
+
+            for record in mastery_records:
+                if not record.is_mastered and record.mastery_level < 0.7:
+                    catch_up_topics.append({
+                        "topic": record.topic_name,
+                        "subject": record.subject,
+                        "mastery_level": round(record.mastery_level * 100),
+                    })
+
+        # Determine progress status
+        if total_topics == 0:
+            progress_status = "on_track"
+        else:
+            mastery_ratio = mastered_count / total_topics
+            if mastery_ratio >= 0.8:
+                progress_status = "ahead"
+            elif mastery_ratio >= 0.5:
+                progress_status = "on_track"
+            else:
+                progress_status = "catching_up"
+
+        # Get AI learning path
+        learning_path_data = await self.get_learning_path(student_id)
+
+        return {
+            "progress_status": progress_status,
+            "mastered_count": mastered_count,
+            "total_topics": total_topics,
+            "catch_up_topics": catch_up_topics[:5],  # Return top 5 catch-up topics
+            "learning_path": learning_path_data,
+            "generated_at": datetime.utcnow(),
+        }
+
     async def chat_with_ai(
         self,
         student_id: UUID,
         message: str,
-        conversation_history: Optional[List[Dict]] = None
+        conversation_history: Optional[List[Dict]] = None,
+        screen_context: Optional[str] = None
     ) -> Dict:
         """
         Chat with AI tutor using student context and Socratic methodology.
@@ -246,23 +373,8 @@ class AITutorService:
             "energy_level": latest_mood.energy_level if latest_mood else 3
         }
 
-        # Get or create AI tutor instance
-        tutor_result = await self.db.execute(
-            select(AITutor).where(AITutor.student_id == student_id)
-        )
-        ai_tutor = tutor_result.scalar_one_or_none()
-
-        if not ai_tutor:
-            # Create new AI tutor instance
-            ai_tutor = AITutor(
-                student_id=student_id,
-                ai_provider_id=None,  # Will use default from orchestrator
-                conversation_history=[],
-                total_interactions=0
-            )
-            self.db.add(ai_tutor)
-            await self.db.commit()
-            await self.db.refresh(ai_tutor)
+        # Get or create AI tutor instance (with AIT code generation)
+        ai_tutor = await self._get_or_create_tutor(student_id, student)
 
         # Use conversation history from AI tutor if not provided
         if not conversation_history:
@@ -271,16 +383,29 @@ class AITutorService:
         # Build Socratic system prompt with full student context
         system_message = self._build_socratic_prompt(student, student_context)
 
+        # Append screen context to system prompt if provided
+        if screen_context:
+            truncated = screen_context[:2000]
+            system_message += (
+                f"\n\nSCREEN CONTEXT — the student is currently viewing this content:\n"
+                f"---\n{truncated}\n---\n"
+                "Use this context to answer questions about what the student sees on screen. "
+                "If they ask 'what am I looking at?', describe and explain the screen content above."
+            )
+
+        # Effective message for the AI
+        effective_message = message
+
         # Call AI orchestrator
         response = await self.ai_orchestrator.chat(
-            message=message,
+            message=effective_message,
             conversation_history=conversation_history,
             system_message=system_message,
             task_type="general"
         )
 
         # Update conversation history
-        new_history = conversation_history + [
+        new_history = list(conversation_history) + [
             {"role": "user", "content": message},
             {"role": "assistant", "content": response["message"]}
         ]
@@ -291,6 +416,8 @@ class AITutorService:
 
         return {
             "message": response["message"],
+            "ait_code": ai_tutor.ait_code,
+            "tutor_name": ai_tutor.name,
             "conversation_id": str(ai_tutor.id),
             "provider": response.get("provider", "unknown"),
             "timestamp": datetime.utcnow()
@@ -387,6 +514,38 @@ Journal entry: {content}"""
             .limit(limit)
         )
         return result.scalars().all()
+
+    async def update_journal_entry(
+        self,
+        student_id: UUID,
+        entry_id: UUID,
+        content: str,
+        mood_tag: Optional[MoodType] = None
+    ) -> StudentJournalEntry:
+        """Update content and/or mood tag on an existing journal entry owned by the student."""
+        result = await self.db.execute(
+            select(StudentJournalEntry).where(
+                and_(
+                    StudentJournalEntry.id == entry_id,
+                    StudentJournalEntry.student_id == student_id,
+                    StudentJournalEntry.is_deleted == False
+                )
+            )
+        )
+        entry = result.scalar_one_or_none()
+
+        if not entry:
+            raise ValueError("Journal entry not found or access denied")
+
+        entry.content = content
+        if mood_tag is not None:
+            entry.mood_tag = mood_tag.value
+        entry.updated_at = datetime.utcnow()
+
+        await self.db.commit()
+        await self.db.refresh(entry)
+
+        return entry
 
     async def explain_concept(
         self,
@@ -497,6 +656,120 @@ Journal entry: {content}"""
             })
 
         return responses
+
+    async def get_available_teachers(self, student_id: UUID) -> List[Dict]:
+        """
+        Return the class teacher for the student's grade + subject department heads
+        for each learning area the student is enrolled in.
+        """
+        from app.models.grade_assignments import GradeClassTeacher, SubjectDepartmentHead
+        from app.models.enrollment import Enrollment
+        from app.models.course import Course
+
+        # Fetch student grade
+        student_result = await self.db.execute(
+            select(Student).where(Student.id == student_id)
+        )
+        student = student_result.scalar_one_or_none()
+        if not student:
+            raise ValueError("Student not found")
+
+        teachers: List[Dict] = []
+
+        # Class teacher for student's grade
+        ct_result = await self.db.execute(
+            select(GradeClassTeacher, User)
+            .join(User, GradeClassTeacher.staff_user_id == User.id)
+            .where(
+                and_(
+                    GradeClassTeacher.grade_level == student.grade_level,
+                    GradeClassTeacher.is_active == True
+                )
+            )
+        )
+        for ct, user in ct_result.all():
+            name = user.profile_data.get("full_name", user.email) if user.profile_data else user.email
+            teachers.append({
+                "id": str(user.id),
+                "name": name,
+                "role": "class_teacher",
+                "subject": None,
+                "label": f"{name} (Class Teacher — {ct.grade_level})"
+            })
+
+        # Subject department heads for enrolled learning areas
+        enrolled_result = await self.db.execute(
+            select(Course.learning_area).distinct()
+            .join(Enrollment, Enrollment.course_id == Course.id)
+            .where(
+                and_(
+                    Enrollment.student_id == student_id,
+                    Enrollment.is_deleted == False,
+                    Course.is_deleted == False
+                )
+            )
+        )
+        learning_areas = [row[0] for row in enrolled_result.all() if row[0]]
+
+        for area in learning_areas:
+            sdh_result = await self.db.execute(
+                select(SubjectDepartmentHead, User)
+                .join(User, SubjectDepartmentHead.staff_user_id == User.id)
+                .where(
+                    and_(
+                        SubjectDepartmentHead.learning_area == area,
+                        SubjectDepartmentHead.is_active == True
+                    )
+                )
+            )
+            for sdh, user in sdh_result.all():
+                # Avoid duplicating if same teacher is also class teacher
+                if not any(t["id"] == str(user.id) and t["subject"] == area for t in teachers):
+                    name = user.profile_data.get("full_name", user.email) if user.profile_data else user.email
+                    teachers.append({
+                        "id": str(user.id),
+                        "name": name,
+                        "role": "subject_head",
+                        "subject": area,
+                        "label": f"{name} ({area} Teacher)"
+                    })
+
+        return teachers
+
+    async def get_all_teacher_questions(self, student_id: UUID) -> List[Dict]:
+        """All teacher Q&A threads for the student (pending + answered)."""
+        result = await self.db.execute(
+            select(StudentTeacherQA, User)
+            .outerjoin(User, StudentTeacherQA.teacher_id == User.id)
+            .where(
+                and_(
+                    StudentTeacherQA.student_id == student_id,
+                    StudentTeacherQA.is_deleted == False
+                )
+            )
+            .order_by(StudentTeacherQA.created_at.desc())
+            .limit(30)
+        )
+        rows = result.all()
+
+        items = []
+        for qa, teacher_user in rows:
+            teacher_name = ""
+            if teacher_user and teacher_user.profile_data:
+                teacher_name = teacher_user.profile_data.get("full_name", teacher_user.email)
+            elif teacher_user:
+                teacher_name = teacher_user.email
+            items.append({
+                "id": str(qa.id),
+                "question": qa.question,
+                "ai_summary": qa.ai_summary,
+                "answer": qa.answer,
+                "teacher_name": teacher_name,
+                "status": "answered" if qa.is_answered else "pending",
+                "created_at": qa.created_at,
+                "answered_at": qa.answered_at,
+            })
+        return items
 
     async def generate_voice_response(
         self,

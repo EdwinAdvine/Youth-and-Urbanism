@@ -9,20 +9,11 @@ interface Course {
   id: string;
   title: string;
   progress: number;
-  lastAccessed: string;
-  totalLessons: number;
-  completedLessons: number;
+  enrolledAt: string;
   instructor: string;
-  color: string;
+  learningArea: string;
+  completed: boolean;
 }
-
-const FALLBACK_COURSES: Course[] = [
-  { id: '1', title: 'Mathematics: Fractions & Decimals', progress: 72, lastAccessed: '2 hours ago', totalLessons: 20, completedLessons: 14, instructor: 'Ms. Wanjiku', color: 'from-blue-500 to-cyan-500' },
-  { id: '2', title: 'Science: The Living World', progress: 45, lastAccessed: 'Yesterday', totalLessons: 15, completedLessons: 7, instructor: 'Mr. Ochieng', color: 'from-green-500 to-emerald-500' },
-  { id: '3', title: 'English: Creative Writing', progress: 88, lastAccessed: '3 days ago', totalLessons: 12, completedLessons: 11, instructor: 'Mrs. Kamau', color: 'from-purple-500 to-pink-500' },
-  { id: '4', title: 'Social Studies: Kenya History', progress: 30, lastAccessed: '1 week ago', totalLessons: 18, completedLessons: 5, instructor: 'Ms. Njeri', color: 'from-orange-500 to-red-500' },
-  { id: '5', title: 'Kiswahili: Fasihi', progress: 60, lastAccessed: '4 days ago', totalLessons: 16, completedLessons: 10, instructor: 'Mwl. Otieno', color: 'from-teal-500 to-cyan-500' },
-];
 
 const EnrolledCoursesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -37,13 +28,20 @@ const EnrolledCoursesPage: React.FC = () => {
       try {
         setLoading(true);
         const data = await getEnrolledCourses();
-        if (data && Array.isArray(data) && data.length > 0) {
-          setCourses(data);
-        } else {
-          setCourses(FALLBACK_COURSES);
-        }
+        const mapped: Course[] = (Array.isArray(data) ? data : []).map((e: any) => ({
+          id: e.course_id || e.id || '',
+          title: e.course_title || e.title || '',
+          progress: e.progress_percentage ?? 0,
+          enrolledAt: e.enrollment_date
+            ? new Date(e.enrollment_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+            : '',
+          instructor: e.instructor_name || '',
+          learningArea: e.learning_area || '',
+          completed: e.completed ?? false,
+        }));
+        setCourses(mapped);
       } catch {
-        setCourses(FALLBACK_COURSES);
+        // No fallback — show empty state
       } finally {
         setLoading(false);
       }
@@ -97,8 +95,8 @@ const EnrolledCoursesPage: React.FC = () => {
                 <h3 className="text-gray-900 dark:text-white font-semibold truncate">{course.title}</h3>
                 <p className="text-gray-400 dark:text-white/40 text-sm mt-0.5">{course.instructor}</p>
                 <div className="flex items-center gap-4 mt-2 text-sm text-gray-500 dark:text-white/50">
-                  <span className="flex items-center gap-1"><BookOpen className="w-3 h-3" /> {course.completedLessons}/{course.totalLessons} lessons</span>
-                  <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {course.lastAccessed}</span>
+                  {course.learningArea && <span className="flex items-center gap-1"><BookOpen className="w-3 h-3" /> {course.learningArea}</span>}
+                  {course.enrolledAt && <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Enrolled {course.enrolledAt}</span>}
                 </div>
                 <div className="w-full h-1.5 bg-gray-100 dark:bg-white/10 rounded-full mt-3 overflow-hidden">
                   <div className="h-full bg-gradient-to-r from-[#FF0000] to-orange-500 rounded-full" style={{ width: `${course.progress}%` }} />
@@ -119,8 +117,20 @@ const EnrolledCoursesPage: React.FC = () => {
 
       {filtered.length === 0 && (
         <div className={`p-12 bg-white dark:bg-[#181C1F] ${borderRadius} border border-gray-200 dark:border-[#22272B] text-center`}>
-          <BookOpen className="w-12 h-12 text-gray-400 dark:text-gray-300 dark:text-white/20 mx-auto mb-4" />
-          <p className="text-gray-500 dark:text-white/60">No courses found matching your search</p>
+          <BookOpen className="w-12 h-12 text-gray-400 dark:text-white/20 mx-auto mb-4" />
+          {search ? (
+            <p className="text-gray-500 dark:text-white/60">No courses found matching your search</p>
+          ) : (
+            <>
+              <p className="text-gray-500 dark:text-white/60 mb-3">You haven't enrolled in any courses yet.</p>
+              <button
+                onClick={() => navigate('/dashboard/student/courses/browse')}
+                className={`px-5 py-2 bg-[#FF0000] hover:bg-[#FF0000]/80 text-white ${borderRadius} text-sm`}
+              >
+                Browse Courses
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>

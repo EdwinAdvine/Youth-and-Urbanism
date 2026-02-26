@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from '../components/ProtectedRoute';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { S } from './routeHelpers';
@@ -12,8 +12,8 @@ const MoodCheckPage = lazy(() => import('../pages/student/MoodCheckPage'));
 const UrgentItemsPage = lazy(() => import('../pages/student/UrgentItemsPage'));
 const DailyQuotePage = lazy(() => import('../pages/student/DailyQuotePage'));
 const AITutorChatPage = lazy(() => import('../pages/student/AITutorChatPage'));
-const LearningPathPage = lazy(() => import('../pages/student/LearningPathPage'));
-const VoiceModePage = lazy(() => import('../pages/student/VoiceModePage'));
+// LearningPathPage merged into AIPlanPage — route redirects to /today/ai-plan
+// VoiceModePage merged into AITutorChatPage — route redirects to /ai-tutor/chat
 const AIJournalPage = lazy(() => import('../pages/student/AIJournalPage'));
 const HelpMeUnderstandPage = lazy(() => import('../pages/student/HelpMeUnderstandPage'));
 const TeacherCollabPage = lazy(() => import('../pages/student/TeacherCollabPage'));
@@ -115,8 +115,10 @@ export const studentRoutes = (
     <Route path="today/quote" element={<S><DailyQuotePage /></S>} />
     {/* AI Tutor */}
     <Route path="ai-tutor/chat" element={<S><AITutorChatPage /></S>} />
-    <Route path="ai-tutor/learning-path" element={<S><LearningPathPage /></S>} />
-    <Route path="ai-tutor/voice" element={<S><VoiceModePage /></S>} />
+    {/* Merged into today/ai-plan — redirect for backwards compatibility */}
+    <Route path="ai-tutor/learning-path" element={<Navigate to="/dashboard/student/today/ai-plan" replace />} />
+    {/* Voice merged into chat page — redirect for backwards compatibility */}
+    <Route path="ai-tutor/voice" element={<Navigate to="/dashboard/student/ai-tutor/chat" replace />} />
     <Route path="ai-tutor/journal" element={<S><AIJournalPage /></S>} />
     <Route path="ai-tutor/explain" element={<S><HelpMeUnderstandPage /></S>} />
     <Route path="ai-tutor/teacher-collab" element={<S><TeacherCollabPage /></S>} />

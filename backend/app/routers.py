@@ -66,6 +66,7 @@ def register_all_routers(app: FastAPI) -> None:
         super_admin as admin_super_admin,
         withdrawals as admin_withdrawals,
         plan_features as admin_plan_features,
+        grade_assignments as admin_grade_assignments,
     )
 
     admin_prefix = f"{prefix}/admin"
@@ -88,6 +89,7 @@ def register_all_routers(app: FastAPI) -> None:
     app.include_router(admin_super_admin.router, prefix=admin_prefix, tags=["Admin - Super Admin"])
     app.include_router(admin_withdrawals.router, prefix=admin_prefix, tags=["Admin - Withdrawals"])
     app.include_router(admin_plan_features.router, prefix=admin_prefix, tags=["Admin - Plan Features"])
+    app.include_router(admin_grade_assignments.router, prefix=prefix, tags=["Admin - Grade Assignments"])
 
     # ── Staff routes ────────────────────────────────────────────────
     from app.api.v1.staff import (
@@ -186,6 +188,7 @@ def register_all_routers(app: FastAPI) -> None:
     app.include_router(student_mastery.router, prefix=prefix, tags=["Student - Mastery & Sessions"])
     app.include_router(student_progress.router, prefix=prefix, tags=["Student - Progress"])
     app.include_router(student_learning.router, prefix=prefix, tags=["Student - Learning"])
+    app.include_router(student_learning.assessments_router, prefix=prefix, tags=["Student - Assessments"])
     app.include_router(student_community.router, prefix=prefix, tags=["Student - Community"])
     app.include_router(student_wallet.router, prefix=prefix, tags=["Student - Wallet"])
     app.include_router(student_support.router, prefix=prefix, tags=["Student - Support"])

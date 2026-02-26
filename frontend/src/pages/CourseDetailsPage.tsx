@@ -32,6 +32,9 @@ import {
 
 import courseService from '../services/courseService';
 import { StarRating } from '../components/course/CourseCard';
+import AuthModal from '../components/auth/AuthModal';
+import { useCourseAccess } from '../hooks/useCourseAccess';
+import { getCbcDataByCourseCode, getCbcSubjectData, getGradeStage } from '../utils/cbcLookup';
 import type { CourseWithDetails, Enrollment } from '../types/course';
 
 // ============================================================================
@@ -39,16 +42,19 @@ import type { CourseWithDetails, Enrollment } from '../types/course';
 // ============================================================================
 
 export default function CourseDetailsPage() {
-  const { courseId } = useParams<{ courseId: string }>();
+  const { id: courseId } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   // State
   const [course, setCourse] = useState<CourseWithDetails | null>(null);
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
   const [loading, setLoading] = useState(true);
-  const [enrolling, setEnrolling] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'syllabus' | 'reviews'>('overview');
+
+  // Smart role-based CTA: auth check + routing
+  const { isAuthModalOpen, closeAuthModal, handleAuthSuccess, handleCTAClick, ctaLabel } =
+    useCourseAccess(course);
 
   // Load course details and enrollment status
   useEffect(() => {
@@ -79,27 +85,6 @@ export default function CourseDetailsPage() {
       setEnrollment(enrollmentData);
     } catch (err) {
       console.error('Error checking enrollment:', err);
-    }
-  };
-
-  const handleEnroll = async () => {
-    if (!course) return;
-
-    if (course.price > 0) {
-      // TODO: Navigate to payment page
-      alert('Payment integration coming soon. This is a paid course.');
-      return;
-    }
-
-    try {
-      setEnrolling(true);
-      const newEnrollment = await courseService.enrollInCourse(courseId!);
-      setEnrollment(newEnrollment);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to enroll in course';
-      alert(message);
-    } finally {
-      setEnrolling(false);
     }
   };
 
@@ -154,6 +139,22 @@ export default function CourseDetailsPage() {
   const isEnrolled = enrollment !== null;
   const isFree = courseService.isFree(course);
   const priceText = courseService.formatPrice(course);
+
+  // CBC curriculum lookup — course_code is the primary key (deterministic, no fuzzy matching).
+  // Falls back to name-based lookup for courses without a code.
+  const primaryGrade = course.grade_levels[0] ?? null;
+  const cbcSubject = course.course_code
+    ? getCbcDataByCourseCode(course.course_code)
+    : primaryGrade
+      ? getCbcSubjectData(course.learning_area, primaryGrade)
+      : null;
+  const gradeStage = primaryGrade ? getGradeStage(primaryGrade) : '';
+  const cbcRubric = [
+    { code: 'EE', label: 'Exceeding Expectations' },
+    { code: 'ME', label: 'Meeting Expectations' },
+    { code: 'AE', label: 'Approaching Expectations' },
+    { code: 'BE', label: 'Below Expectations' },
+  ];
 
   const tabs = [
     { key: 'overview' as const, label: 'Overview', icon: FileText },
@@ -268,6 +269,84 @@ export default function CourseDetailsPage() {
                   </div>
                 )}
               </div>
+
+              {/* CBC Curriculum Info — appears for every matched course */}
+              {cbcSubject && (
+                <div className="mt-6 pt-6 border-t border-[#22272B]">
+                  {/* Stage + lessons/week */}
+                  <div className="flex flex-wrap items-center gap-2 mb-4">
+                    {gradeStage && (
+                      <span className="px-3 py-1 bg-[#E40000]/10 text-red-400 rounded-full text-xs font-semibold">
+                        {gradeStage}
+                      </span>
+                    )}
+                    {cbcSubject.lessonsPerWeek !== undefined && (
+                      <span className="px-3 py-1 bg-[#22272B] text-gray-400 rounded-full text-xs font-medium">
+                        {cbcSubject.lessonsPerWeek} lessons / week
+                      </span>
+                    )}
+                    {course.grade_levels.length > 1 && (
+                      <span className="text-xs text-gray-500 italic">
+                        CBC alignment for {primaryGrade}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Curriculum Strands */}
+                  {cbcSubject.strands.length > 0 && (
+                    <div className="mb-4">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">
+                        Curriculum Strands
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {cbcSubject.strands.map((strand, idx) => (
+                          <span
+                            key={idx}
+                            className="px-2.5 py-1 bg-[#22272B] text-gray-300 text-xs rounded-full"
+                          >
+                            {strand.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CBC Learning Outcomes */}
+                  {cbcSubject.outcomes.length > 0 && (
+                    <div className="mb-4">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">
+                        CBC Learning Outcomes
+                      </p>
+                      <ul className="space-y-1.5">
+                        {cbcSubject.outcomes.map((outcome, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <CheckCircle size={13} className="text-emerald-500 flex-shrink-0 mt-0.5" />
+                            <span className="text-sm text-gray-300">{outcome}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Assessment Rubric */}
+                  <div className="pt-4 border-t border-[#22272B]">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">
+                      Assessment Rubric
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {cbcRubric.map(({ code, label }) => (
+                        <div
+                          key={code}
+                          className="flex flex-col items-center text-center p-2 bg-[#22272B] rounded-lg"
+                        >
+                          <span className="text-sm font-bold text-white mb-0.5">{code}</span>
+                          <span className="text-[11px] text-gray-500 leading-tight">{label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </motion.div>
 
             {/* Enrollment Card (right column) */}
@@ -317,19 +396,11 @@ export default function CourseDetailsPage() {
                   </>
                 ) : (
                   <button
-                    onClick={handleEnroll}
-                    disabled={enrolling}
-                    className="w-full px-6 py-3 bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-red-700 font-medium transition-colors
-                               disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    onClick={handleCTAClick}
+                    className="w-full px-6 py-3 bg-[#E40000] text-gray-900 dark:text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center justify-center gap-2"
                   >
-                    {enrolling ? (
-                      <>
-                        <Loader2 size={18} className="animate-spin" />
-                        Enrolling...
-                      </>
-                    ) : (
-                      isFree ? 'Enroll For Free' : 'Enroll Now'
-                    )}
+                    <Play size={18} />
+                    {ctaLabel}
                   </button>
                 )}
 
@@ -416,6 +487,15 @@ export default function CourseDetailsPage() {
                   {course.description}
                 </p>
 
+                {cbcSubject?.description && (
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                      Curriculum Overview
+                    </h3>
+                    <p className="text-gray-400 leading-relaxed">{cbcSubject.description}</p>
+                  </div>
+                )}
+
                 {course.syllabus?.overview && (
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Overview</h3>
@@ -425,32 +505,19 @@ export default function CourseDetailsPage() {
 
                 {course.syllabus?.learning_outcomes && course.syllabus.learning_outcomes.length > 0 && (
                   <div className="mb-8">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">What You Will Learn</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {course.syllabus.learning_outcomes.map((outcome, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-start gap-3 p-3 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-lg"
-                        >
-                          <CheckCircle size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />
-                          <span className="text-sm text-gray-400 dark:text-gray-300">{outcome}</span>
-                        </div>
-                      ))}
-                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">What You Will Learn</h3>
+                    <p className="text-gray-400 leading-relaxed">
+                      {course.syllabus.learning_outcomes.join('. ')}.
+                    </p>
                   </div>
                 )}
 
                 {course.syllabus?.prerequisites && course.syllabus.prerequisites.length > 0 && (
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Prerequisites</h3>
-                    <ul className="space-y-2">
-                      {course.syllabus.prerequisites.map((prereq, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-sm text-gray-400">
-                          <span className="text-gray-600 mt-0.5">&#8226;</span>
-                          {prereq}
-                        </li>
-                      ))}
-                    </ul>
+                    <p className="text-gray-400 leading-relaxed">
+                      {course.syllabus.prerequisites.join('. ')}.
+                    </p>
                   </div>
                 )}
 
@@ -470,6 +537,7 @@ export default function CourseDetailsPage() {
                     </div>
                   </div>
                 )}
+
               </div>
             )}
 
@@ -659,6 +727,13 @@ export default function CourseDetailsPage() {
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* Auth modal — opens when an unauthenticated user clicks the course CTA */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={closeAuthModal}
+        onAuthSuccess={handleAuthSuccess}
+      />
     </div>
   );
 }

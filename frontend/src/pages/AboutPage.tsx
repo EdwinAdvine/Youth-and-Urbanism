@@ -87,7 +87,7 @@ const team: TeamMember[] = [
     image: 'https://picsum.photos/seed/ruth/300/300',
   },
   {
-    name: 'Chelsea Jones',
+    name: 'Chelsea Johanes',
     role: 'Executive Assistant',
     bio: 'Keeps the leadership team aligned and operations running efficiently, supporting strategic initiatives across the organization.',
     image: 'https://picsum.photos/seed/chelsea/300/300',

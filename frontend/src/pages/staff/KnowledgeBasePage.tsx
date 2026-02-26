@@ -70,7 +70,7 @@ const KnowledgeBasePage: React.FC = () => {
     title: article.title,
     excerpt: article.body.length > 120 ? article.body.substring(0, 120) + '...' : article.body,
     category: article.category?.name || 'uncategorized',
-    author: article.author.name,
+    author: article.author?.name ?? 'Unknown',
     createdAt: article.created_at,
     views: article.view_count,
     helpful: article.helpful_count,

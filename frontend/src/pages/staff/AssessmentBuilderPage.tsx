@@ -203,7 +203,7 @@ const AssessmentBuilderPage: React.FC = () => {
 
                 <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-[#22272B]">
                   <span className="text-[10px] text-gray-400 dark:text-white/30">
-                    by {assessment.author.name}
+                    by {assessment.author?.name ?? 'Unknown'}
                   </span>
                   <div className="flex items-center gap-1">
                     <button

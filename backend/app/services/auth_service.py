@@ -24,6 +24,7 @@ from app.models.user import User
 from app.models.student import Student
 from app.models.ai_tutor import AITutor
 from app.models.ai_agent_profile import AIAgentProfile
+from app.utils.student_codes import generate_admission_number, generate_ait_code
 from app.schemas.user_schemas import UserCreate, UserLogin, TokenResponse
 from app.utils.security import (
     get_password_hash,
@@ -129,19 +130,15 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
             # Extract student-specific data from profile_data
             profile = user_data.profile_data or {}
             grade_level = profile.get('grade_level', 'Grade 1')
-            admission_number = profile.get('admission_number')
 
-            # Generate admission number if not provided
-            if not admission_number:
-                # Format: TUHS-YYYY-XXXXX (e.g., TUHS-2026-00001)
-                from datetime import timezone
-                year = datetime.now(timezone.utc).year
-                # CRITICAL FIX (M-04): Use COUNT(*) instead of loading all students
-                # Prevents O(N) memory usage and race conditions
-                from sqlalchemy import func
-                result = await db.execute(select(func.count()).select_from(Student))
-                count = result.scalar() or 0
-                admission_number = f"TUHS-{year}-{(count + 1):05d}"
+            # Generate admission number — always issued at registration
+            # Format: UHS/YYYY/G{grade}/{school-wide-seq:03d}
+            from datetime import timezone
+            year = datetime.now(timezone.utc).year
+            admission_number = await generate_admission_number(db, grade_level, year)
+
+            # Mirror admission number into profile_data so login response includes it
+            new_user.profile_data = {**new_user.profile_data, 'admission_number': admission_number}
 
             # Create Student record
             new_student = Student(
@@ -159,10 +156,14 @@ async def register_user(user_data: UserCreate, db: AsyncSession) -> User:
             db.add(new_student)
             await db.flush()  # Flush to get student ID
 
+            # Generate AIT code for the dedicated AI Tutor
+            ait_code = await generate_ait_code(db, admission_number)
+
             # Create dedicated AI Tutor for the student
             ai_tutor = AITutor(
                 student_id=new_student.id,
                 name=profile.get('tutor_name', 'Birdy'),  # Default tutor name
+                ait_code=ait_code,
                 conversation_history=[],
                 learning_path={},
                 performance_metrics={},
@@ -295,8 +296,9 @@ async def authenticate_user(credentials: UserLogin, db: AsyncSession) -> TokenRe
         )
 
     try:
-        # For student users, ensure AITutor exists
+        # For student users: ensure admission number, AITutor, and AIT code exist
         if user.is_student:
+            from datetime import timezone
             # Get student record
             student_result = await db.execute(
                 select(Student).where(Student.user_id == user.id)
@@ -304,6 +306,17 @@ async def authenticate_user(credentials: UserLogin, db: AsyncSession) -> TokenRe
             student = student_result.scalars().first()
 
             if student:
+                # Backfill admission number if missing (old accounts)
+                if not student.admission_number:
+                    year = datetime.now(timezone.utc).year
+                    student.admission_number = await generate_admission_number(
+                        db, student.grade_level or 'Grade 1', year
+                    )
+
+                # Mirror admission number into profile_data for login response
+                if not user.profile_data.get('admission_number'):
+                    user.profile_data = {**user.profile_data, 'admission_number': student.admission_number}
+
                 # Check if AITutor exists
                 tutor_result = await db.execute(
                     select(AITutor).where(AITutor.student_id == student.id)
@@ -312,9 +325,11 @@ async def authenticate_user(credentials: UserLogin, db: AsyncSession) -> TokenRe
 
                 # Create AITutor if it doesn't exist
                 if not ai_tutor:
+                    ait_code = await generate_ait_code(db, student.admission_number)
                     ai_tutor = AITutor(
                         student_id=student.id,
-                        name='Birdy',  # Default tutor name
+                        name='Birdy',
+                        ait_code=ait_code,
                         conversation_history=[],
                         learning_path={},
                         performance_metrics={},
@@ -323,6 +338,9 @@ async def authenticate_user(credentials: UserLogin, db: AsyncSession) -> TokenRe
                     )
                     db.add(ai_tutor)
                     await db.flush()
+                elif not ai_tutor.ait_code:
+                    # Backfill AIT code for existing tutors
+                    ai_tutor.ait_code = await generate_ait_code(db, student.admission_number)
 
         # Lazy-create AIAgentProfile for ALL existing users who don't have one
         # This ensures backward compatibility for users created before CoPilot feature

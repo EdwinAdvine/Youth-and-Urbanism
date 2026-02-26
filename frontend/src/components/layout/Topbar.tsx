@@ -50,11 +50,13 @@ const Topbar: React.FC<TopbarProps> = ({ onSidebarToggle, isSidebarOpen, role })
     name: authUser.full_name || authUser.email?.split('@')[0] || 'User',
     email: authUser.email || '',
     role: (authUser.role || role || 'student') as string,
+    admission_number: (authUser.profile_data?.admission_number as string | undefined) || null,
   } : {
     id: 'demo-user',
     name: 'Demo User',
     email: 'demo@example.com',
     role: (role || 'student') as string,
+    admission_number: null as string | null,
   };
 
   const { notifications, markNotificationAsRead, markAllNotificationsAsRead } = useUserStore();
@@ -460,12 +462,17 @@ const Topbar: React.FC<TopbarProps> = ({ onSidebarToggle, isSidebarOpen, role })
                 <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-[#181C1F] border border-gray-200 dark:border-[#22272B] rounded-xl shadow-xl shadow-black/10 dark:shadow-black/50 z-50 animate-in slide-in-from-top-2 duration-200">
                   <div className="p-4 border-b border-gray-200 dark:border-[#22272B]">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-[#FF0000] to-[#E40000] rounded-full flex items-center justify-center text-gray-900 dark:text-white font-semibold">
+                      <div className="w-10 h-10 bg-gradient-to-br from-[#FF0000] to-[#E40000] rounded-full flex items-center justify-center text-gray-900 dark:text-white font-semibold flex-shrink-0">
                         {user?.name.charAt(0).toUpperCase()}
                       </div>
-                      <div>
-                        <p className="font-semibold text-gray-900 dark:text-white">{user?.name}</p>
-                        <p className="text-xs text-gray-500 dark:text-white/60">{user?.email}</p>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-gray-900 dark:text-white truncate">{user?.name}</p>
+                        <p className="text-xs text-gray-500 dark:text-white/60 truncate">{user?.email || user?.name}</p>
+                        {user?.admission_number && (
+                          <p className="text-[10px] font-mono text-blue-500 dark:text-blue-400 mt-0.5 truncate">
+                            {user.admission_number}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>

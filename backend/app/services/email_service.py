@@ -10,6 +10,8 @@ Uses SMTP configured via app settings. Falls back to logging
 when SMTP is not configured (development mode).
 """
 
+from __future__ import annotations
+
 import logging
 import smtplib
 from email.mime.text import MIMEText

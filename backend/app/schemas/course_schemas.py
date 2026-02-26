@@ -71,6 +71,7 @@ class CourseCreate(CourseBase):
     currency: str = Field(default="KES", max_length=3, description="Currency code (ISO 4217)")
     estimated_duration_hours: Optional[int] = Field(None, ge=1, description="Estimated completion time in hours")
     competencies: List[dict] = Field(default_factory=list, description="CBC competencies covered")
+    course_code: Optional[str] = Field(None, max_length=50, description="Short unique code e.g. 'ENV-G2'")
 
     @field_validator('price')
     @classmethod
@@ -104,6 +105,7 @@ class CourseUpdate(BaseModel):
     price: Optional[Decimal] = Field(None, ge=0, description="Updated price")
     is_published: Optional[bool] = Field(None, description="Publication status")
     is_featured: Optional[bool] = Field(None, description="Featured course status")
+    course_code: Optional[str] = Field(None, max_length=50, description="Updated short unique code")
 
     @field_validator('grade_levels')
     @classmethod
@@ -132,6 +134,7 @@ class CourseResponse(CourseBase):
         total_reviews: Total number of reviews
     """
     id: UUID
+    course_code: Optional[str] = Field(None, description="Short unique code e.g. 'ENV-G2'")
     thumbnail_url: Optional[str] = None
     instructor_id: Optional[UUID] = Field(None, description="Instructor UUID (None for platform courses)")
     is_platform_created: bool = Field(default=False, description="True if created by platform team")

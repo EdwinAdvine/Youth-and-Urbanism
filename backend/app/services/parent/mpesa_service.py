@@ -4,6 +4,8 @@ M-Pesa Service
 M-Pesa Daraja API integration for STK Push payments.
 """
 
+from __future__ import annotations
+
 import base64
 import logging
 import requests

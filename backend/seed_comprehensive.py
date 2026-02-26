@@ -23,6 +23,8 @@ Or inside Docker:
     docker exec tuhs_backend python seed_comprehensive.py
 """
 
+from __future__ import annotations
+
 import asyncio
 import sys
 import os

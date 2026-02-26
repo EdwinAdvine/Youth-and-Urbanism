@@ -45,10 +45,11 @@ registerRoute(
   })
 );
 
-// Cache GET API requests with stale-while-revalidate
+// Cache same-origin GET API requests with stale-while-revalidate
+// Exclude cross-origin requests (e.g. localhost:8000) to avoid CORS issues
 registerRoute(
-  ({ url, request }) =>
-    url.pathname.startsWith('/api/') && request.method === 'GET',
+  ({ url, request, sameOrigin }) =>
+    sameOrigin && url.pathname.startsWith('/api/') && request.method === 'GET',
   new StaleWhileRevalidate({
     cacheName: 'api-cache',
     plugins: [

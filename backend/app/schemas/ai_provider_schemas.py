@@ -6,6 +6,8 @@ allowing admins to configure any AI provider (text, voice, video, multimodal)
 through the admin API without code changes.
 """
 
+from __future__ import annotations
+
 from typing import Optional, Dict, Any
 from datetime import datetime
 from uuid import UUID

@@ -197,8 +197,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onOpenAuthM
 
         {/* Main Content Area */}
         <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out ${isExpanded ? 'mr-0 lg:mr-96' : 'mr-0'}`}>
-          {/* Page Content */}
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+          {/* Page Content — data-main-content enables the AI tutor screen-reading feature */}
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto" data-main-content="true">
             <div className="max-w-7xl mx-auto">
               {children || <Outlet />}
             </div>

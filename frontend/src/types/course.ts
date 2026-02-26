@@ -11,25 +11,87 @@
 
 /**
  * CBC (Competency-Based Curriculum) Learning Areas
+ *
+ * Covers all grade stages:
+ *   Pre-Primary (PP1/PP2), Lower Primary (1–3), Upper Primary (4–6),
+ *   Junior Secondary (7–9), Senior Secondary (10–12), and Diploma.
  */
 export type LearningArea =
+  // ── Pre-Primary (PP1 / PP2) ────────────────────────────────────────────────
+  | 'Language Activities (English)'
+  | 'Language Activities (Kiswahili)'
+  | 'Mathematical Activities'
+  | 'Hygiene and Nutrition Activities'
+  | 'Psychomotor and Creative Activities'
+  // ── Mathematics ────────────────────────────────────────────────────────────
   | 'Mathematics'
-  | 'Science and Technology'
-  | 'Languages'
+  // ── Languages ──────────────────────────────────────────────────────────────
+  | 'Language Activities'          // legacy alias
+  | 'English Activities'           // Lower Primary (Grades 1–3)
   | 'English'
   | 'Kiswahili'
+  | 'Arabic'
+  | 'French'
+  | 'German'
+  | 'Indigenous Language'
+  | 'Mandarin'
+  | 'Languages'                    // Senior Secondary pathway
+  | 'Foreign Languages'            // Senior Secondary pathway
+  | 'Kenyan Sign Language'
+  // ── Religious Studies ──────────────────────────────────────────────────────
+  | 'CRE'                          // Christian Religious Education (Grades 1–9)
+  | 'HRE'                          // Hindu Religious Education (Grades 1–9)
+  | 'IRE'                          // Islamic Religious Education (Grades 1–9)
+  | 'Christian Religious Education'   // Diploma
+  | 'Hindu Religious Education'       // Diploma
+  | 'Islamic Religious Education'     // Diploma
+  | 'Religious Education'             // Senior Secondary (Grades 10–12)
+  // ── Sciences ───────────────────────────────────────────────────────────────
+  | 'Environmental Activities'     // Lower Primary (Grades 1–3) & PP1/PP2
+  | 'Science & Technology'         // Upper Primary (Grades 4–6) & Diploma
+  | 'Science and Technology'       // legacy alias
+  | 'Integrated Science'           // Junior Secondary (Grades 7–9)
+  | 'Pure Sciences'                // Senior Secondary (Grades 10–12)
+  | 'Applied Sciences'             // Senior Secondary (Grades 10–12)
+  // ── Social Studies and Humanities ──────────────────────────────────────────
   | 'Social Studies'
-  | 'Religious Education'
-  | 'Creative Arts'
+  | 'Humanities'                   // Senior Secondary (Grades 10–12)
+  | 'Historical and Comparative Foundations of Education'    // Diploma
+  | 'Philosophical and Sociological Foundations of Education' // Diploma
+  // ── Creative Arts and Activities ───────────────────────────────────────────
+  | 'Creative Activities'          // Lower Primary (Grades 1–3) & PP1/PP2
+  | 'Creative Arts'                // Upper Primary + Junior Secondary (Grades 4–9)
+  | 'Arts & Sports'                // Senior Secondary (Grades 10–12)
+  | 'Arts and Sports'              // legacy alias
+  | 'Art & Craft'                  // Diploma
+  | 'Music'                        // Diploma
   | 'Physical Education'
-  | 'Agriculture and Nutrition'
+  // ── Agriculture, Home Science and Nutrition ────────────────────────────────
+  | 'Agriculture'
+  | 'Agriculture and Nutrition'    // legacy alias
   | 'Home Science'
-  | 'Pre-Technical and Career Education';
+  // ── Technical Studies ──────────────────────────────────────────────────────
+  | 'Pre-Technical Studies'        // Junior Secondary (Grades 7–9)
+  | 'Technical Studies'            // Senior Secondary (Grades 10–12)
+  | 'Pre-Technical and Career Education'  // legacy alias
+  // ── Education Foundations and Professional Skills (Diploma) ───────────────
+  | 'Teacher Education'
+  | 'Child Development & Psychology'
+  | 'Curriculum Studies'
+  | 'Education Assessment'
+  | 'Educational Resources'
+  | 'ICT Integration in Education'
+  | 'Inclusive Education'
+  | 'Leadership and Management'
+  | 'Microteaching'
+  | 'Research Skills';
 
 /**
  * CBC Grade Levels
  */
 export type GradeLevel =
+  | 'PP1'
+  | 'PP2'
   | 'ECD 1'
   | 'ECD 2'
   | 'Grade 1'
@@ -43,7 +105,9 @@ export type GradeLevel =
   | 'Grade 9'
   | 'Grade 10'
   | 'Grade 11'
-  | 'Grade 12';
+  | 'Grade 12'
+  | "Teacher's Guide"
+  | 'Diploma';
 
 /**
  * Enrollment Status
@@ -176,6 +240,7 @@ export interface CourseUpdate {
  */
 export interface Course {
   id: string;
+  course_code?: string;
   title: string;
   description: string;
   learning_area: LearningArea;
@@ -347,11 +412,14 @@ export interface CourseListResponse {
 export interface CourseFilterParams {
   skip?: number;
   limit?: number;
-  grade_level?: GradeLevel;
-  learning_area?: LearningArea;
+  grade_level?: GradeLevel | string;
+  learning_area?: LearningArea | string;
   is_featured?: boolean;
   search?: string;
   instructor_id?: string;
+  audience?: 'students' | 'teachers' | 'revision';
+  is_free?: boolean;
+  course_code?: string;
 }
 
 /**

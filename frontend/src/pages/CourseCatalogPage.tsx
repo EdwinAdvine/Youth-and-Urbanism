@@ -4,7 +4,7 @@
  * Coursera/edX-inspired course catalog with dark theme.
  * Features:
  * - Debounced search (300ms)
- * - Sidebar filters: categories, price, grade level, learning area, sort, featured toggle
+ * - Sidebar filters: subject area (9 grouped accordion sections), price, grade level, sort, featured toggle
  * - Grid/list view toggle
  * - Paginated results with numbered pages
  * - Responsive with collapsible mobile filter sheet
@@ -29,10 +29,8 @@ import {
 } from 'lucide-react';
 
 import courseService from '../services/courseService';
-import categoryService from '../services/categoryService';
 import CourseCard from '../components/course/CourseCard';
 import type { Course, CourseFilterParams, LearningArea, GradeLevel } from '../types/course';
-import type { Category } from '../types/category';
 
 // ============================================================================
 // Constants
@@ -40,25 +38,117 @@ import type { Category } from '../types/category';
 
 const ITEMS_PER_PAGE = 12;
 
-const GRADE_LEVELS: GradeLevel[] = [
+const STUDENT_GRADE_LEVELS: GradeLevel[] = [
+  'PP1', 'PP2',
   'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4',
   'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8',
   'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12',
 ];
 
-const LEARNING_AREAS: LearningArea[] = [
-  'Mathematics',
-  'Science and Technology',
-  'Languages',
-  'English',
-  'Kiswahili',
-  'Social Studies',
-  'Religious Education',
-  'Creative Arts',
-  'Physical Education',
-  'Agriculture and Nutrition',
-  'Home Science',
-  'Pre-Technical and Career Education',
+const TEACHER_GRADE_LEVELS: GradeLevel[] = ["Teacher's Guide", 'Diploma'];
+
+type SubjectGroup = { category: string; slug: string; areas: LearningArea[] };
+
+const SUBJECT_GROUPS: SubjectGroup[] = [
+  {
+    category: 'Mathematics',
+    slug: 'mathematics',
+    areas: ['Mathematics', 'Mathematical Activities'],
+  },
+  {
+    category: 'Languages',
+    slug: 'languages',
+    areas: [
+      'Language Activities (English)',
+      'Language Activities (Kiswahili)',
+      'English Activities',
+      'English',
+      'Kiswahili',
+      'Arabic',
+      'French',
+      'German',
+      'Indigenous Language',
+      'Mandarin',
+      'Languages',
+      'Foreign Languages',
+      'Kenyan Sign Language',
+    ],
+  },
+  {
+    category: 'Religious Studies',
+    slug: 'religious-studies',
+    areas: [
+      'CRE',
+      'HRE',
+      'IRE',
+      'Christian Religious Education',
+      'Hindu Religious Education',
+      'Islamic Religious Education',
+      'Religious Education',
+    ],
+  },
+  {
+    category: 'Sciences',
+    slug: 'sciences',
+    areas: [
+      'Environmental Activities',
+      'Science & Technology',
+      'Science and Technology',
+      'Integrated Science',
+      'Pure Sciences',
+      'Applied Sciences',
+    ],
+  },
+  {
+    category: 'Social Studies and Humanities',
+    slug: 'social-humanities',
+    areas: [
+      'Social Studies',
+      'Humanities',
+      'Historical and Comparative Foundations of Education',
+      'Philosophical and Sociological Foundations of Education',
+    ],
+  },
+  {
+    category: 'Creative Arts and Activities',
+    slug: 'creative-arts',
+    areas: [
+      'Creative Activities',
+      'Psychomotor and Creative Activities',
+      'Creative Arts',
+      'Arts & Sports',
+      'Arts and Sports',
+      'Art & Craft',
+      'Music',
+      'Physical Education',
+    ],
+  },
+  {
+    category: 'Agriculture, Home Science and Nutrition',
+    slug: 'agriculture-home',
+    areas: ['Agriculture', 'Home Science', 'Hygiene and Nutrition Activities'],
+  },
+  {
+    category: 'Technical and Pre-Technical Studies',
+    slug: 'technical-studies',
+    areas: ['Pre-Technical Studies', 'Technical Studies', 'Pre-Technical and Career Education'],
+  },
+  {
+    category: 'Education Foundations and Professional Skills',
+    slug: 'education-foundations',
+    areas: [
+      'Teacher Education',
+      'Child Development & Psychology',
+      'Curriculum Studies',
+      'Education Assessment',
+      'Educational Resources',
+      'ICT Integration in Education',
+      'Inclusive Education',
+      'Leadership and Management',
+      'Microteaching',
+      'Research Skills',
+    ],
+  },
 ];
 
 type SortOption = {
@@ -76,6 +166,7 @@ const SORT_OPTIONS: SortOption[] = [
 ];
 
 type PriceFilter = 'all' | 'free' | 'paid';
+type AudienceTab = 'students' | 'teachers' | 'revision';
 
 // ============================================================================
 // Skeleton Loader
@@ -152,15 +243,14 @@ export default function CourseCatalogPage() {
 
   // Data state
   const [courses, setCourses] = useState<Course[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Filter state
+  const [audienceTab, setAudienceTab] = useState<AudienceTab>('students');
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>(searchParams.get('category') || '');
   const [selectedGradeLevel, setSelectedGradeLevel] = useState<GradeLevel | ''>('');
   const [selectedLearningArea, setSelectedLearningArea] = useState<LearningArea | ''>('');
   const [priceFilter, setPriceFilter] = useState<PriceFilter>('all');
@@ -172,7 +262,7 @@ export default function CourseCatalogPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [gradeLevelOpen, setGradeLevelOpen] = useState(false);
-  const [learningAreaOpen, setLearningAreaOpen] = useState(false);
+  const [openSubjectGroup, setOpenSubjectGroup] = useState<string | null>(null);
 
   // ========================
   // Debounced Search
@@ -186,18 +276,36 @@ export default function CourseCatalogPage() {
   }, [searchInput]);
 
   // ========================
-  // Load Categories
+  // Read URL query params on mount
   // ========================
   useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const response = await categoryService.listCategories();
-        setCategories(response.categories);
-      } catch (err) {
-        console.error('Error loading categories:', err);
+    const urlAudience = searchParams.get('audience');
+    const urlGradeLevel = searchParams.get('grade_level');
+    const urlLearningArea = searchParams.get('learning_area');
+    const urlSearch = searchParams.get('search');
+    const urlCategory = searchParams.get('category');
+
+    if (urlAudience === 'students' || urlAudience === 'teachers' || urlAudience === 'revision') {
+      setAudienceTab(urlAudience);
+    }
+    if (urlGradeLevel) {
+      setSelectedGradeLevel(urlGradeLevel as GradeLevel);
+    }
+    if (urlLearningArea) {
+      setSelectedLearningArea(urlLearningArea as LearningArea);
+    }
+    if (urlSearch) {
+      setSearchInput(urlSearch);
+      setDebouncedSearch(urlSearch);
+    }
+    if (urlCategory) {
+      // Open the matching subject group accordion
+      const matchingGroup = SUBJECT_GROUPS.find((g) => g.slug === urlCategory);
+      if (matchingGroup) {
+        setOpenSubjectGroup(matchingGroup.slug);
       }
-    };
-    loadCategories();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ========================
@@ -211,25 +319,20 @@ export default function CourseCatalogPage() {
       const params: CourseFilterParams = {
         skip: (currentPage - 1) * ITEMS_PER_PAGE,
         limit: ITEMS_PER_PAGE,
+        audience: audienceTab,
       };
 
       if (debouncedSearch) params.search = debouncedSearch;
       if (selectedGradeLevel) params.grade_level = selectedGradeLevel;
       if (selectedLearningArea) params.learning_area = selectedLearningArea;
       if (showFeaturedOnly) params.is_featured = true;
+      if (priceFilter === 'free') params.is_free = true;
+      else if (priceFilter === 'paid') params.is_free = false;
 
       const response = await courseService.listCourses(params);
 
-      // Client-side price filtering (not in API params)
-      let filtered = response.courses;
-      if (priceFilter === 'free') {
-        filtered = filtered.filter((c) => c.price === 0);
-      } else if (priceFilter === 'paid') {
-        filtered = filtered.filter((c) => c.price > 0);
-      }
-
       // Client-side sorting
-      filtered = sortCourses(filtered, sortBy);
+      const filtered = sortCourses(response.courses, sortBy);
 
       setCourses(filtered);
       setTotal(response.total);
@@ -240,7 +343,8 @@ export default function CourseCatalogPage() {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, selectedGradeLevel, selectedLearningArea, showFeaturedOnly, priceFilter, sortBy, currentPage]);
+  }, [audienceTab, debouncedSearch, selectedGradeLevel, selectedLearningArea, showFeaturedOnly, priceFilter, sortBy, currentPage]);
+
 
   useEffect(() => {
     loadCourses();
@@ -280,18 +384,14 @@ export default function CourseCatalogPage() {
   // Filter Helpers
   // ========================
   const hasActiveFilters = useMemo(
-    () => !!(debouncedSearch || selectedCategory || selectedGradeLevel || selectedLearningArea || priceFilter !== 'all' || showFeaturedOnly),
-    [debouncedSearch, selectedCategory, selectedGradeLevel, selectedLearningArea, priceFilter, showFeaturedOnly]
+    () => !!(debouncedSearch || selectedGradeLevel || selectedLearningArea || priceFilter !== 'all' || showFeaturedOnly),
+    [debouncedSearch, selectedGradeLevel, selectedLearningArea, priceFilter, showFeaturedOnly]
   );
 
   const activeFilterPills = useMemo(() => {
     const pills: { label: string; clear: () => void }[] = [];
     if (debouncedSearch) {
       pills.push({ label: `Search: "${debouncedSearch}"`, clear: () => { setSearchInput(''); setDebouncedSearch(''); } });
-    }
-    if (selectedCategory) {
-      const cat = categories.find((c) => c.slug === selectedCategory);
-      pills.push({ label: `Category: ${cat?.name || selectedCategory}`, clear: () => setSelectedCategory('') });
     }
     if (selectedGradeLevel) {
       pills.push({ label: selectedGradeLevel, clear: () => setSelectedGradeLevel('') });
@@ -306,18 +406,19 @@ export default function CourseCatalogPage() {
       pills.push({ label: 'Featured Only', clear: () => setShowFeaturedOnly(false) });
     }
     return pills;
-  }, [debouncedSearch, selectedCategory, categories, selectedGradeLevel, selectedLearningArea, priceFilter, showFeaturedOnly]);
+  }, [debouncedSearch, selectedGradeLevel, selectedLearningArea, priceFilter, showFeaturedOnly]);
 
   const handleClearAll = () => {
     setSearchInput('');
     setDebouncedSearch('');
-    setSelectedCategory('');
     setSelectedGradeLevel('');
     setSelectedLearningArea('');
     setPriceFilter('all');
     setSortBy('featured');
     setShowFeaturedOnly(false);
     setCurrentPage(1);
+    setOpenSubjectGroup(null);
+    // Note: audience tab is intentional navigation, not cleared with filters
   };
 
   const handleCourseNavigate = (courseId: string) => {
@@ -356,50 +457,7 @@ export default function CourseCatalogPage() {
   // ========================
   const filterContent = (
     <div className="space-y-6">
-      {/* Categories */}
-      {categories.length > 0 && (
-        <div>
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-3">
-            Categories
-          </h3>
-          <ul className="space-y-1">
-            <li>
-              <button
-                onClick={() => { setSelectedCategory(''); setCurrentPage(1); }}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                  !selectedCategory
-                    ? 'bg-[#E40000]/15 text-red-400 font-medium'
-                    : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-[#22272B] hover:text-gray-900 dark:hover:text-white'
-                }`}
-              >
-                All Categories
-              </button>
-            </li>
-            {categories.map((cat) => (
-              <li key={cat.id}>
-                <button
-                  onClick={() => { setSelectedCategory(cat.slug); setCurrentPage(1); }}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between ${
-                    selectedCategory === cat.slug
-                      ? 'bg-[#E40000]/15 text-red-400 font-medium'
-                      : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-[#22272B] hover:text-gray-900 dark:hover:text-white'
-                  }`}
-                >
-                  <span className="truncate">{cat.name}</span>
-                  <span className="ml-2 text-xs text-gray-600 bg-gray-100 dark:bg-[#22272B] px-1.5 py-0.5 rounded">
-                    {cat.course_count}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Divider */}
-      <div className="border-t border-gray-200 dark:border-[#22272B]" />
-
-      {/* Price Filter */}
+      {/* Price Filter (first) */}
       <div>
         <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-3">
           Price
@@ -425,13 +483,90 @@ export default function CourseCatalogPage() {
       {/* Divider */}
       <div className="border-t border-gray-200 dark:border-[#22272B]" />
 
-      {/* Grade Level */}
+      {/* Learning Area — grouped accordion */}
+      <div>
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-3">
+          Learning Area
+        </h3>
+
+        {/* All Learning Areas */}
+        <button
+          onClick={() => { setSelectedLearningArea(''); setOpenSubjectGroup(null); setCurrentPage(1); }}
+          className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors mb-1 ${
+            !selectedLearningArea
+              ? 'bg-[#E40000]/15 text-red-400 font-medium'
+              : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-[#22272B] hover:text-gray-900 dark:hover:text-white'
+          }`}
+        >
+          All Learning Areas
+        </button>
+
+        <div className="space-y-0.5">
+          {SUBJECT_GROUPS.map((group) => {
+            const groupActive = group.areas.includes(selectedLearningArea as LearningArea);
+            const isOpen = openSubjectGroup === group.slug;
+            return (
+              <div key={group.slug}>
+                {/* Group header */}
+                <button
+                  onClick={() => setOpenSubjectGroup(isOpen ? null : group.slug)}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
+                    groupActive
+                      ? 'text-red-400 font-medium'
+                      : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-[#22272B] hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  <span className="text-left leading-tight">{group.category}</span>
+                  <ChevronDown
+                    size={14}
+                    className={`ml-2 flex-shrink-0 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                  />
+                </button>
+
+                {/* Group learning areas */}
+                <AnimatePresence>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.18 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="pl-3 pb-1 space-y-0.5">
+                        {group.areas.map((area) => (
+                          <button
+                            key={area}
+                            onClick={() => { setSelectedLearningArea(area); setCurrentPage(1); }}
+                            className={`w-full text-left px-3 py-1.5 rounded text-sm transition-colors ${
+                              selectedLearningArea === area
+                                ? 'text-red-400 font-medium'
+                                : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                            }`}
+                          >
+                            {area}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div className="border-t border-gray-200 dark:border-[#22272B]" />
+
+      {/* Grade Level / Course Type */}
       <div>
         <button
           onClick={() => setGradeLevelOpen(!gradeLevelOpen)}
           className="w-full flex items-center justify-between text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-3"
         >
-          Grade Level
+          {audienceTab === 'teachers' ? 'Course Type' : 'Grade Level'}
           <ChevronDown
             size={16}
             className={`text-gray-500 transition-transform ${gradeLevelOpen ? 'rotate-180' : ''}`}
@@ -455,9 +590,9 @@ export default function CourseCatalogPage() {
                       : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
-                  All Grades
+                  All {audienceTab === 'teachers' ? 'Types' : 'Grades'}
                 </button>
-                {GRADE_LEVELS.map((grade) => (
+                {(audienceTab === 'teachers' ? TEACHER_GRADE_LEVELS : STUDENT_GRADE_LEVELS).map((grade) => (
                   <button
                     key={grade}
                     onClick={() => { setSelectedGradeLevel(grade); setCurrentPage(1); }}
@@ -468,60 +603,6 @@ export default function CourseCatalogPage() {
                     }`}
                   >
                     {grade}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Divider */}
-      <div className="border-t border-gray-200 dark:border-[#22272B]" />
-
-      {/* Learning Area */}
-      <div>
-        <button
-          onClick={() => setLearningAreaOpen(!learningAreaOpen)}
-          className="w-full flex items-center justify-between text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-3"
-        >
-          Learning Area
-          <ChevronDown
-            size={16}
-            className={`text-gray-500 transition-transform ${learningAreaOpen ? 'rotate-180' : ''}`}
-          />
-        </button>
-        <AnimatePresence>
-          {learningAreaOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="overflow-hidden"
-            >
-              <div className="space-y-1 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-[#22272B]">
-                <button
-                  onClick={() => { setSelectedLearningArea(''); setCurrentPage(1); }}
-                  className={`w-full text-left px-3 py-1.5 rounded text-sm transition-colors ${
-                    !selectedLearningArea
-                      ? 'text-red-400 font-medium'
-                      : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                  }`}
-                >
-                  All Areas
-                </button>
-                {LEARNING_AREAS.map((area) => (
-                  <button
-                    key={area}
-                    onClick={() => { setSelectedLearningArea(area); setCurrentPage(1); }}
-                    className={`w-full text-left px-3 py-1.5 rounded text-sm transition-colors ${
-                      selectedLearningArea === area
-                        ? 'text-red-400 font-medium'
-                        : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                    }`}
-                  >
-                    {area}
                   </button>
                 ))}
               </div>
@@ -626,6 +707,52 @@ export default function CourseCatalogPage() {
             <p className="text-gray-400 text-base lg:text-lg">
               Discover CBC-aligned courses designed for Kenyan learners. Build skills, earn certificates, and learn at your own pace.
             </p>
+          </div>
+
+          {/* Audience Tabs */}
+          <div className="flex gap-1 mb-6 bg-gray-100 dark:bg-[#181C1F] rounded-xl p-1 w-fit border border-gray-200 dark:border-[#22272B]">
+            <button
+              onClick={() => {
+                setAudienceTab('students');
+                setSelectedGradeLevel('');
+                setCurrentPage(1);
+              }}
+              className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
+                audienceTab === 'students'
+                  ? 'bg-white dark:bg-[#22272B] text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              For Children
+            </button>
+            <button
+              onClick={() => {
+                setAudienceTab('teachers');
+                setSelectedGradeLevel('');
+                setCurrentPage(1);
+              }}
+              className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
+                audienceTab === 'teachers'
+                  ? 'bg-white dark:bg-[#22272B] text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              For Teachers
+            </button>
+            <button
+              onClick={() => {
+                setAudienceTab('revision');
+                setSelectedGradeLevel('');
+                setCurrentPage(1);
+              }}
+              className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
+                audienceTab === 'revision'
+                  ? 'bg-white dark:bg-[#22272B] text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              Revision
+            </button>
           </div>
 
           {/* Search bar */}

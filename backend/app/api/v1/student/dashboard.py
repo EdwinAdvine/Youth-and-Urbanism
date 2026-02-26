@@ -179,6 +179,37 @@ async def get_teacher_sync_notes(
         )
 
 
+@router.get("/urgent")
+async def get_urgent_items(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+) -> List[Dict]:
+    """
+    Get assessments due within the next 24 hours for the student's enrolled courses.
+    Used by the dedicated Urgent Items page.
+    """
+    if current_user.role != "student":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only students can access this endpoint"
+        )
+    if not current_user.student_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Student profile not found"
+        )
+
+    service = DashboardService(db)
+    try:
+        return await service._get_urgent_items(current_user.student_id)
+    except Exception as e:
+        logger.error(f"Failed to fetch urgent items for student {current_user.student_id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to fetch urgent items"
+        )
+
+
 @router.get("/quote")
 async def get_daily_quote(
     current_user: User = Depends(get_current_user),

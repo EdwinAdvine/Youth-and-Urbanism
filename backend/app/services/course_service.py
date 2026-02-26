@@ -13,12 +13,14 @@ Key Features:
 - Course analytics and statistics
 """
 
+from __future__ import annotations
+
 from datetime import datetime
 from decimal import Decimal
 from typing import List, Optional
 from uuid import UUID
 
-from sqlalchemy import select, func, and_, or_
+from sqlalchemy import select, func, and_, or_, not_, any_, literal
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -113,7 +115,10 @@ class CourseService:
         is_published: bool = True,
         is_featured: Optional[bool] = None,
         search_query: Optional[str] = None,
-        instructor_id: Optional[UUID] = None
+        instructor_id: Optional[UUID] = None,
+        audience: Optional[str] = None,
+        is_free: Optional[bool] = None,
+        course_code: Optional[str] = None,
     ) -> tuple[List[Course], int]:
         """
         List courses with filtering and pagination.
@@ -146,13 +151,40 @@ class CourseService:
             filters.append(Course.is_featured == is_featured)
 
         if grade_level:
-            filters.append(Course.grade_levels.contains([grade_level]))
+            # any_() checks if grade_level equals ANY element in the grade_levels array
+            filters.append(literal(grade_level) == any_(Course.grade_levels))
+
+        # Audience filter: separate student courses from teacher resources
+        if audience == "students":
+            filters.append(
+                not_(or_(
+                    literal("Teacher's Guide") == any_(Course.grade_levels),
+                    literal("Diploma") == any_(Course.grade_levels),
+                ))
+            )
+        elif audience == "teachers":
+            filters.append(
+                or_(
+                    literal("Teacher's Guide") == any_(Course.grade_levels),
+                    literal("Diploma") == any_(Course.grade_levels),
+                )
+            )
+        elif audience == "revision":
+            filters.append(Course.title.ilike("%Revision%"))
+
+        if is_free is True:
+            filters.append(Course.price == 0)
+        elif is_free is False:
+            filters.append(Course.price > 0)
 
         if learning_area:
             filters.append(Course.learning_area == learning_area)
 
         if instructor_id:
             filters.append(Course.instructor_id == instructor_id)
+
+        if course_code:
+            filters.append(Course.course_code == course_code)
 
         if search_query:
             search_filter = or_(

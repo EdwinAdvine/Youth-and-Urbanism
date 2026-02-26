@@ -16,6 +16,8 @@ Features:
 - Audit trail with timestamps
 """
 
+from __future__ import annotations
+
 import uuid
 from datetime import datetime, timedelta
 from decimal import Decimal

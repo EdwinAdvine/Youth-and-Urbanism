@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useStudentStore } from '../../../store/studentStore';
 import { useAuthStore } from '../../../store/authStore';
@@ -44,6 +44,28 @@ const StudentSidebar: React.FC<StudentSidebarProps> = ({ isOpen, onClose }) => {
   const { openSidebarSections, toggleSidebarSection, counters, currentStreak, sidebarCollapsed, setSidebarCollapsed } = useStudentStore();
   const { ageGroup, borderRadius, useEmojis } = useAgeAdaptiveUI();
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
+  const [showJournalReminder, setShowJournalReminder] = useState(false);
+  const hoverCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleSectionMouseEnter = useCallback((sectionId: string) => {
+    if (hoverCloseTimer.current) {
+      clearTimeout(hoverCloseTimer.current);
+      hoverCloseTimer.current = null;
+    }
+    setHoveredSection(sectionId);
+    if (!openSidebarSections.includes(sectionId)) {
+      toggleSidebarSection(sectionId);
+    }
+  }, [openSidebarSections, toggleSidebarSection]);
+
+  const handleSectionMouseLeave = useCallback((sectionId: string) => {
+    hoverCloseTimer.current = setTimeout(() => {
+      setHoveredSection(null);
+      if (openSidebarSections.includes(sectionId)) {
+        toggleSidebarSection(sectionId);
+      }
+    }, 250);
+  }, [openSidebarSections, toggleSidebarSection]);
 
   // Navigation structure
   const navigationItems: NavItem[] = [
@@ -796,10 +818,20 @@ const StudentSidebar: React.FC<StudentSidebarProps> = ({ isOpen, onClose }) => {
     return result;
   };
 
-  function handleLogout() {
+  function doLogout() {
     logout();
     useAuthStore.persist.clearStorage();
     window.location.href = '/';
+  }
+
+  function handleLogout() {
+    const today = new Date().toDateString();
+    const journaledToday = localStorage.getItem('journal_written_today') === today;
+    if (!journaledToday) {
+      setShowJournalReminder(true);
+    } else {
+      doLogout();
+    }
   }
 
   const handleNavigation = (path?: string, onClick?: () => void) => {
@@ -822,7 +854,11 @@ const StudentSidebar: React.FC<StudentSidebarProps> = ({ isOpen, onClose }) => {
   const renderNavItem = (item: NavItem) => {
     if (item.children) {
       return (
-        <div key={item.id}>
+        <div
+          key={item.id}
+          onMouseEnter={() => handleSectionMouseEnter(item.id)}
+          onMouseLeave={() => handleSectionMouseLeave(item.id)}
+        >
           <button
             onClick={() => toggleSidebarSection(item.id)}
             className={`
@@ -901,6 +937,39 @@ const StudentSidebar: React.FC<StudentSidebarProps> = ({ isOpen, onClose }) => {
 
   return (
     <>
+      {/* Journal reminder modal — shown before logout if student hasn't journaled today */}
+      {showJournalReminder && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-white dark:bg-[#181C1F] rounded-2xl border border-gray-200 dark:border-[#22272B] p-6 shadow-2xl">
+            <div className="text-4xl mb-3 text-center">📖</div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white text-center mb-2">
+              Before you go…
+            </h3>
+            <p className="text-gray-600 dark:text-white/70 text-sm text-center mb-6">
+              You haven't written in your learning journal today. Take a moment to reflect — it only takes a minute!
+            </p>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => {
+                  setShowJournalReminder(false);
+                  navigate('/dashboard/student/ai-journal');
+                  onClose();
+                }}
+                className="w-full py-2.5 bg-[#FF0000] hover:bg-[#FF0000]/80 text-white rounded-xl font-medium transition-colors"
+              >
+                Write in Journal
+              </button>
+              <button
+                onClick={() => { setShowJournalReminder(false); doLogout(); }}
+                className="w-full py-2.5 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-white/70 rounded-xl text-sm transition-colors"
+              >
+                Skip for now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Mobile overlay */}
       {isOpen && (
         <div

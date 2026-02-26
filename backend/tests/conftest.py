@@ -11,6 +11,7 @@ It includes:
 
 import pytest
 from typing import AsyncGenerator
+from unittest.mock import patch, AsyncMock, MagicMock
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.pool import StaticPool
@@ -22,6 +23,21 @@ from app.main import app
 from app.database import Base, get_db
 from app.models.user import User
 from app.utils.security import create_access_token, create_refresh_token, get_password_hash
+
+
+# ── Mock Redis-dependent auth functions for tests ──
+# Without Redis, is_token_blacklisted returns True (fail-closed security),
+# causing ALL authenticated requests to 401. Mock it to return False in tests.
+
+@pytest.fixture(autouse=True)
+def mock_redis_auth_functions():
+    """Mock Redis-dependent functions so tests work without a running Redis."""
+    with patch(
+        "app.api.v1.auth.is_token_blacklisted",
+        new_callable=AsyncMock,
+        return_value=False,
+    ) as mock_blacklist:
+        yield mock_blacklist
 
 
 # ── SQLite compatibility: compile PostgreSQL-specific types ──
