@@ -2,7 +2,7 @@
   "$schema": "../gen/schemas/mobile-schema.json",
   "identifier": "mobile",
   "description": "Capabilities for Urban Home School mobile apps (Android + iOS)",
-  "platforms": ["android", "ios"],
+  "platforms": ["android", "iOS"],
   "windows": [
     "main"
   ],

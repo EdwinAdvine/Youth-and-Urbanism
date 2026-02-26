@@ -50,6 +50,17 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  // When building for Tauri, VitePWA is disabled so the virtual:pwa-register
+  // module doesn't exist. Externalize it to prevent Rollup resolve errors.
+  ...(isTauriBuild
+    ? {
+        build: {
+          rollupOptions: {
+            external: ['virtual:pwa-register'],
+          },
+        },
+      }
+    : {}),
   server: {
     port: parseInt(process.env.VITE_PORT || '3000'),
     host: true,

@@ -2,7 +2,7 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Urban Home School",
   "version": "1.0.0",
-  "identifier": "ke.urbanhomeschool.app",
+  "identifier": "ke.urbanhomeschool.uhs",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:3000",
@@ -37,12 +37,7 @@
       "icons/icon.ico"
     ],
     "macOS": {
-      "signingIdentity": null,
-      "notarizationCredentials": {
-        "appleId": null,
-        "appleIdPassword": null,
-        "teamId": null
-      }
+      "signingIdentity": null
     },
     "windows": {
       "certificateThumbprint": null,
